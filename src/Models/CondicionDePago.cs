@@ -1,5 +1,5 @@
 namespace src.Models;
-public abstract class MetodoDePago
+public abstract class CondicionDePago
 {
     private short _id;
     private short _dias_pago;
