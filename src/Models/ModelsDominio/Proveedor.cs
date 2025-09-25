@@ -23,4 +23,6 @@ public class Proveedor
   public decimal Saldo { get => _saldo; set => _saldo = value; }
   public Direccion Direccion { get => _direccion; set => _direccion = value; }
   public bool Activo { get => activo; set => activo = value; }
+  public string RazonSocial { get => _razon_social; set => _razon_social = value; }
+  public CondicionDePago Condicion { get => _condicion; set => _condicion = value; }
 }

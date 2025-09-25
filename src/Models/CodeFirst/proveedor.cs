@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace src.Models.CodeFirst;
 
@@ -11,8 +12,6 @@ public partial class proveedor
 
     public string razon_social { get; set; }
 
-    public string domicilio { get; set; }
-
     public short id_condicion_pago_habitual { get; set; }
 
     public string telefono { get; set; }
@@ -20,14 +19,14 @@ public partial class proveedor
     public string correo { get; set; }
 
     public string persona_responsable { get; set; }
+    [Column(TypeName = "decimal(11, 2)")]
+    public decimal saldo { get; set; }
 
-    public string saldo { get; set; }
-
-    public short id_direccion { get; set; }
+    public short id_domicilio { get; set; }
 
     public bool activo { get; set; }
 
     public virtual condicion_pago id_condicion_pago_habitualNavigation { get; set; }
 
-    public virtual direccion id_direccionNavigation { get; set; }
+    public virtual domicilio id_domicilioNavigation { get; set; }
 }
