@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace src.Models.CodeFirst;
 
-public partial class direccion
+public partial class domicilio
 {
-    public short id_direccion { get; set; }
+    public short id_domicilio { get; set; }
 
     public short id_provincia { get; set; }
 
@@ -14,10 +14,9 @@ public partial class direccion
     public short numero { get; set; }
 
     public short? piso { get; set; }
+    public string? comentario { get; set; }
 
-    public string comentario { get; set; }
+    public virtual provincia id_provinciaNavigation { get; set; }
 
-    public virtual provincium id_provinciaNavigation { get; set; }
-
-    public virtual ICollection<proveedor> proveedors { get; set; } = new List<proveedor>();
+    public virtual ICollection<proveedor> proveedores { get; set; } = new List<proveedor>();
 }
