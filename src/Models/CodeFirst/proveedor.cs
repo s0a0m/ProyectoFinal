@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace src.Models.CodeFirst;
 
@@ -18,8 +19,8 @@ public partial class proveedor
     public string correo { get; set; }
 
     public string persona_responsable { get; set; }
-
-    public string saldo { get; set; }
+    [Column(TypeName = "decimal(11, 2)")]
+    public decimal saldo { get; set; }
 
     public short id_domicilio { get; set; }
 

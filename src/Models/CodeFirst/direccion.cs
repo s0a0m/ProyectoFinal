@@ -14,8 +14,7 @@ public partial class domicilio
     public short numero { get; set; }
 
     public short? piso { get; set; }
-    // cambiar para que sea nulleable
-    public string comentario { get; set; }
+    public string? comentario { get; set; }
 
     public virtual provincia id_provinciaNavigation { get; set; }
 
