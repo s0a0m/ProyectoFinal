@@ -16,6 +16,11 @@ public class ProveedorController : Controller
     }
 
     [HttpGet]
+    public IActionResult VerProveedor(int idProv)
+    {
+         return View(_repoProv.GetProvByIdAsync(idProv));
+    }
+    [HttpGet]
     public IActionResult ListarProveedores()
     {
         var ListarProveedores = _repoProv.GetAllProvAsync();

@@ -1,0 +1,223 @@
+@model src.Models.Proveedor
+
+@{
+    ViewData["Title"] = "Detalles del Proveedor";
+}
+
+<div class="container py-4">
+    
+    <!-- Header con acciones -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 text-primary">Detalles del Proveedor</h1>
+        <a asp-controller="Proveedor" asp-action="ListarProveedores" class="btn btn-outline-secondary">
+            ← Volver al Listado
+        </a>
+    </div>
+
+    <!-- Panel principal -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3 class="h5 mb-0">@Model.razonSocial</h3>
+                <span class="badge @(Model.activo ? "bg-success" : "bg-danger") fs-6">
+                    @(Model.activo ? "Activo" : "Inactivo")
+                </span>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            
+            <!-- Información Básica -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4 class="h5 text-secondary border-bottom pb-2">Información Básica</h4>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-muted small">ID Proveedor:</label>
+                    <p class="fs-6 mb-1">@Model.id</p>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-muted small">CUIT:</label>
+                    <p class="fs-6 mb-1">@Model.cuit</p>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-muted small">Razón Social:</label>
+                    <p class="fs-6 mb-1">@Model.razonSocial</p>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-muted small">Saldo Actual:</label>
+                    <p class="fs-6 mb-1 text-success fw-bold">$@Model.saldo.ToString("N2")</p>
+                </div>
+            </div>
+
+            <!-- Información de Contacto -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4 class="h5 text-secondary border-bottom pb-2">Información de Contacto</h4>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-muted small">Persona Responsable:</label>
+                    <p class="fs-6 mb-1">@(string.IsNullOrEmpty(Model.personaResponsable) ? "No especificado" : Model.personaResponsable)</p>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-muted small">Teléfono:</label>
+                    <p class="fs-6 mb-1">@(string.IsNullOrEmpty(Model.telefono) ? "No especificado" : Model.telefono)</p>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-muted small">Correo Electrónico:</label>
+                    <p class="fs-6 mb-1">
+                        @if (!string.IsNullOrEmpty(Model.correo))
+                        {
+                            <a href="mailto:@Model.correo" class="text-decoration-none">@Model.correo</a>
+                        }
+                        else
+                        {
+                            <span>No especificado</span>
+                        }
+                    </p>
+                </div>
+            </div>
+
+            <!-- Condición de Pago -->
+            <!-- Condición de Pago -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4 class="h5 text-secondary border-bottom pb-2">Condición de Pago</h4>
+                </div>
+                
+                <div class="col-12">
+                    @if (Model.condicion != null)
+                    {
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="fw-bold text-muted small">Tipo de Condición:</label>
+                                <p class="fs-6 mb-1">@(string.IsNullOrEmpty(Model.condicion.Tipo) ? "No especificado" : Model.condicion.Tipo)</p>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="fw-bold text-muted small">Días de Pago:</label>
+                                <p class="fs-6 mb-1">@Model.condicion.dias_pago días</p>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="fw-bold text-muted small">ID Condición:</label>
+                                <p class="fs-6 mb-1">@Model.condicion.id</p>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No se ha asignado condición de pago</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Dirección -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4 class="h5 text-secondary border-bottom pb-2">Dirección</h4>
+                </div>
+                
+                <div class="col-12">
+                    @if (Model.direccion != null)
+                    {
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="fw-bold text-muted small">Calle:</label>
+                                <p class="fs-6 mb-1">@(string.IsNullOrEmpty(Model.direccion.calle) ? "No especificada" : Model.direccion.calle)</p>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="fw-bold text-muted small">Número:</label>
+                                <p class="fs-6 mb-1">@Model.direccion.numero</p>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="fw-bold text-muted small">Piso:</label>
+                                <p class="fs-6 mb-1">@(Model.direccion.piso.HasValue ? Model.direccion.piso.ToString() : "No especificado")</p>
+                            </div>
+                            <div class="col-md-8 mb-2">
+                                <label class="fw-bold text-muted small">Comentario/Referencia:</label>
+                                <p class="fs-6 mb-1">@(string.IsNullOrEmpty(Model.direccion.comentario) ? "Sin comentarios" : Model.direccion.comentario)</p>
+                            </div>
+                        </div>
+                        
+                    }
+                    else
+                    {
+                        <p class="text-muted">No se ha registrado dirección</p>
+                    }
+                </div>
+            </div>
+
+        </div>
+        
+        <!--
+        <div class="card-footer bg-light">
+            < div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex gap-2">
+                  
+                    <button class="btn btn-outline-danger" data-b s-toggle="modal"  data-bs-target="#modalEliminar">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </button>
+                    
+                    <!-- Botón Actualizar 
+                    <a asp-controller="Proveedor" asp-action="ActualizarProveedor" 
+                       asp-route-idProveedor="Model.id" class="btn btn-primary">
+                        <i class="bi bi-pencil"></i> Editar Proveedor
+                    </a>
+                </div>
+            </div>
+        </div>
+        -->
+    </div>
+</div>
+
+<!--
+
+<div class="modal fade" id="modalEliminar" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">Eliminar Proveedor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div class="mb-3">
+                    <i class="bi bi-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+                </div>
+                <h6 class="fw-bold">¿Está seguro que desea eliminar este proveedor?</h6>
+                <p class="text-muted">Esta acción dejará inactivo al proveedor: <strong>Model.razonSocial</strong></p>
+                <p class="text-danger small">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <a asp-controller="Proveedor" asp-action="EliminarProveedor" 
+                   asp-route-idProveedor="Model.id" class="btn btn-danger">
+                    Confirmar Eliminación
+                </a>
+            </div>
+        </div>
+    </div>
+</div>-->
+
+<!-- Estilos adicionales -->
+<style>
+    .card {
+        border: 1px solid #dee2e6;
+    }
+    .card-header {
+        border-bottom: 2px solid #e9ecef;
+    }
+    .fw-bold.text-muted.small {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .fs-6 {
+        font-size: 1rem !important;
+    }
+</style>
