@@ -2,8 +2,8 @@ using src.Models;
 
 public class Contado : CondicionDePago
 {
-     public Contado()
+    public Contado()
     {
         Tipo = "Contado";
-    }     
+    }
 }
