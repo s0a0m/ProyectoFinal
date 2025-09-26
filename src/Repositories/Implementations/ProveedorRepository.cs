@@ -260,6 +260,20 @@ public class ProveedorRepository : IProveedorRepository
         await _context.SaveChangesAsync();
         direccion.id = direccionEF.id_domicilio; // ← ACTUALIZAR ID
     }
+
+
+   
+    public async Task<List<Provincia>> GetAllProvinciasAsync()
+    {
+        var provinciasEF = await _context.Provincias.ToListAsync();
+        var provinciasMapeadas = _mapper.Map<List<Provincia>>(provinciasEF);
+        return provinciasMapeadas;
+    }
+   
+
+
+
+
 }
 
 

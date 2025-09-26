@@ -6,19 +6,33 @@ namespace src.ViewModels
     {
         [Required, RegularExpression(@"^\d{11}$", ErrorMessage = "El CUIT debe tener 11 dígitos numéricos.")]
         public string Cuit { get; set; }
-        [Required, StringLength(100)]
+
+        [Required(ErrorMessage = "La razon social es obligatoria.")]
+        [StringLength(100)]
         public string RazonSocial { get; set; }
-        [Required, StringLength(12)]
+
+        [Required(ErrorMessage = "El numero de telefono es obligatorio.")]
+        [StringLength(12)]
         public string Telefono { get; set; }
+
+
         [Required, EmailAddress, StringLength(50)]
         public string Correo { get; set; }
-        [Required, StringLength(80)]
+
+        [Required(ErrorMessage = "El nombre de la Persona responsable es obligatorio.")]
+        [StringLength(80)]
         public string PersonaResponsable { get; set; }
-        [Required, Range(0, 9999999999.99)]
+
+        [Required(ErrorMessage = "El Saldo es obligatorio.")]
+        [ Range(0, 9999999999.99)]
         public decimal Saldo { get; set; }
-        [Required]
+
+        
+        [Required(ErrorMessage = "La condicion de pago es obligatoria.")]
         public CondicionDePagoViewModel CondicionPago { get; set; } = new();
-        [Required]
+
+
+        [Required(ErrorMessage = "La Direccion es obligatoria.")]
         public DireccionViewModel Direccion { get; set; } = new();
     }
 }
