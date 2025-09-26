@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace src.Models.CodeFirst;
 
+[Table("cuota")]
 public partial class cuota
 {
     public short id_condicion_pago { get; set; }

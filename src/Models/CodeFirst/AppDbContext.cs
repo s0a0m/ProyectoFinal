@@ -6,8 +6,13 @@ namespace src.Models.CodeFirst;
 
 public partial class AppDbContext : DbContext
 {
-    public AppDbContext()
+    // agregar configuracion con metodo OnConfiguring si no se pasa options en el constructor
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.EnableSensitiveDataLogging().LogTo(Console.WriteLine, LogLevel.Information);
+        }
     }
 
     public AppDbContext(DbContextOptions<AppDbContext> options)

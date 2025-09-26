@@ -16,12 +16,23 @@ builder.Services.AddScoped<IProveedorRepository, ProveedorRepository>();
 
 var app = builder.Build();
 
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+}
+else
+{
+    // seed prueba para proveedores
+    using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    DbInitializer.SeedCondicionesPago(context);
+    DbInitializer.SeedProvincias(context);
+    DbInitializer.SeedDomicilios(context);
+    DbInitializer.SeedProveedores(context);
 }
 
 app.UseHttpsRedirection();
