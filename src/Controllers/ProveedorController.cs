@@ -6,6 +6,9 @@ using src.ViewModels;
 
 namespace src.Controllers;
 
+[ApiController]
+[Route("[controller]")]
+
 public class ProveedorController : Controller
 {
     private readonly IProveedorRepository _repoProv;
@@ -15,23 +18,32 @@ public class ProveedorController : Controller
         _repoProv = repoProv;
     }
 
-    [HttpGet]
+    [HttpGet("Ver/{idProv}")]
     public IActionResult VerProveedor(int idProv)
     {
         return View(_repoProv.GetProvByIdAsync(idProv));
     }
     [HttpGet]
-    public IActionResult ListarProveedores()
+    [ActionName("Index")]
+    public async Task<IActionResult> ListarProveedores()
     {
-        var ListarProveedores = _repoProv.GetAllProvAsync();
-        return View(ListarProveedores);
+        var ListarProveedores = await _repoProv.GetAllProvAsync();
+        return View("ListarProveedores", ListarProveedores);
     }
 
     [HttpGet]
     public async Task<IActionResult> CrearProveedor()
     {
-        List<Provincia> ListaProv = await _repoProv.GetAllProvinciasAsync();
-        return View(ListaProv);
+       
+        List<Provincia> listaProvincias = await _repoProv.GetAllProvinciasAsync();
+        var viewModel = new CrearProveedorViewModel
+        {
+            Direccion = new DireccionViewModel 
+            {
+                ListaProvincias = listaProvincias  
+            }
+        };
+        return View(viewModel); 
     }
 
 
@@ -56,9 +68,8 @@ public class ProveedorController : Controller
         return View();
     }
 
-
     [HttpPost]
-    public async Task<IActionResult> ActualizarProveedor(Proveedor prov)
+    public IActionResult ActualizarProveedor(Proveedor prov)
     {
         if (!ModelState.IsValid)
         {
@@ -72,7 +83,7 @@ public class ProveedorController : Controller
     }
 
 
-    [HttpGet]
+    [HttpGet("Eliminar/{idProv}")]
     public IActionResult EliminarProveedor(int idProv)
     {
         _repoProv.DeleteAsync(idProv);
