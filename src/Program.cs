@@ -11,6 +11,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
+builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<IProveedorRepository, ProveedorRepository>();
 
 var app = builder.Build();
