@@ -3,7 +3,7 @@ public class Direccion
 {
     private short _id;
     private short _id_provincia;
-    private string _calle = string.Empty;
+    private string _calle;
     private short _numero;
     private short? _piso;
     private string? _comentario;

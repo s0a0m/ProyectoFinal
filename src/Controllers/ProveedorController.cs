@@ -2,7 +2,7 @@ using System.Diagnostics;
 using src.Repositories.Interfaces;
 using src.Models;
 using Microsoft.AspNetCore.Mvc;
-
+using src.ViewModels;
 
 namespace src.Controllers;
 
@@ -19,9 +19,9 @@ public class ProveedorController : Controller
     }
 
     [HttpGet("Ver/{idProv}")]
-    public async Task<IActionResult> VerProveedor(int idProv)
+    public IActionResult VerProveedor(int idProv)
     {
-        return View(await _repoProv.GetProvByIdAsync(idProv));
+        return View(_repoProv.GetProvByIdAsync(idProv));
     }
     [HttpGet]
     [ActionName("Index")]
@@ -31,27 +31,42 @@ public class ProveedorController : Controller
         return View("ListarProveedores", ListarProveedores);
     }
 
-    [HttpGet("Crear")]
-    public IActionResult CrearProveedor()
+    [HttpGet]
+    public async Task<IActionResult> CrearProveedor()
     {
-        return View();
+
+        List<Provincia> listaProvincias = await _repoProv.GetAllProvinciasAsync();
+        var viewModel = new CrearProveedorViewModel
+        {
+            Direccion = new DireccionViewModel
+            {
+                ListaProvincias = listaProvincias
+            }
+        };
+        return View(viewModel);
     }
 
 
     [HttpPost]
-    public IActionResult CrearProveedor(Proveedor pr)
+    public async Task<IActionResult> CrearProveedor(CrearProveedorViewModel proveedorVM)
     {
-        _repoProv.CreateAsync(pr);
-        TempData["realizado"] = "El usuario fue creado con exito.";
+        if (!ModelState.IsValid)
+        {
+            return View(proveedorVM);
+        }
+        Proveedor proveedor = new(proveedorVM);
+        await _repoProv.CreateAsync(proveedor);
+        TempData["realizado"] = "El Proveedor fue creado con exito.";
         return RedirectToAction("ListarProveedores");
     }
 
-    [HttpGet("Actualizar/{idProv}")]
-    public IActionResult ActualizarProveedor(int idProv)
+    [HttpGet]
+    public async Task<IActionResult> ActualizarProveedor(int idProv)
     {
-        return View(_repoProv.GetProvByIdAsync(idProv));
+        List<Provincia> ListaProv = await _repoProv.GetAllProvinciasAsync();
+        Proveedor prov = await _repoProv.GetProvByIdAsync(idProv);
+        return View();
     }
-
 
     [HttpPost]
     public IActionResult ActualizarProveedor(Proveedor prov)

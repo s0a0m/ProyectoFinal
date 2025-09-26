@@ -1,0 +1,157 @@
+@using src.ViewModels
+@model CrearProveedorViewModel
+
+@if(TempData["ProveedorExistente"] != null)
+{
+  <section class="container py-3"> 
+    <div class="alert alert-danger w-50 mx-auto"> 
+      <p class="text-center">@TempData["ProveedorExistente"]</p>
+    </div>
+  </section>
+}
+
+<main class="form-signin w-100 m-auto">
+    <form asp-controller="Proveedor" asp-action="CrearProveedor" method="post" class="shadow-lg rounded bg-light p-4">
+        <h2 class="text-center mb-4">Registro de Proveedor</h2>
+        
+        <!-- Mensajes de validación generales -->
+        <div asp-validation-summary="All" class="alert alert-danger"></div>
+
+        <!-- Información Básica -->
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Información Básica</legend>
+            
+            <div class="form-floating mb-3">
+                <input asp-for="Cuit" class="form-control" placeholder="CUIT">
+                <label asp-for="Cuit">CUIT (11 dígitos)</label>
+                <span asp-validation-for="Cuit" class="text-danger small"></span>
+            </div>
+            
+            <div class="form-floating mb-3">
+                <input asp-for="RazonSocial" class="form-control" placeholder="Razón Social">
+                <label asp-for="RazonSocial">Razón Social</label>
+                <span asp-validation-for="RazonSocial" class="text-danger small"></span>
+            </div>
+            
+            <div class="form-floating mb-3">
+                <input asp-for="Saldo" class="form-control" placeholder="0.00" type="number" step="0.01">
+                <label asp-for="Saldo">Saldo Inicial</label>
+                <span asp-validation-for="Saldo" class="text-danger small"></span>
+            </div>
+        </fieldset>
+
+        <!-- Información de Contacto -->
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Información de Contacto</legend>
+            
+            <div class="form-floating mb-3">
+                <input asp-for="Telefono" class="form-control" placeholder="Teléfono">
+                <label asp-for="Telefono">Teléfono</label>
+                <span asp-validation-for="Telefono" class="text-danger small"></span>
+            </div>
+            
+            <div class="form-floating mb-3">
+                <input asp-for="Correo" class="form-control" placeholder="correo@ejemplo.com" type="email">
+                <label asp-for="Correo">Correo Electrónico</label>
+                <span asp-validation-for="Correo" class="text-danger small"></span>
+            </div>
+            
+            <div class="form-floating mb-3">
+                <input asp-for="PersonaResponsable" class="form-control" placeholder="Persona Responsable">
+                <label asp-for="PersonaResponsable">Persona Responsable</label>
+                <span asp-validation-for="PersonaResponsable" class="text-danger small"></span>
+            </div>
+        </fieldset>
+
+        <!-- Dirección -->
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Dirección</legend>
+            
+            <div class="mb-3">
+                <label asp-for="Direccion.id_provincia" class="form-label fw-bold">Provincia</label>
+                <select asp-for="Direccion.id_provincia" class="form-select" 
+                        asp-items="@(new SelectList(Model.Direccion.ListaProvincias, "Id", "Nombre"))">
+                    <option value="">- Seleccione una provincia -</option>
+                </select>
+                <span asp-validation-for="Direccion.id_provincia" class="text-danger small"></span>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-floating mb-3">
+                        <input asp-for="Direccion.calle" class="form-control" placeholder="Calle">
+                        <label asp-for="Direccion.calle">Calle</label>
+                        <span asp-validation-for="Direccion.calle" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-floating mb-3">
+                        <input asp-for="Direccion.numero" class="form-control" placeholder="Número" type="number">
+                        <label asp-for="Direccion.numero">Número</label>
+                        <span asp-validation-for="Direccion.numero" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input asp-for="Direccion.piso" class="form-control" placeholder="Piso" type="number">
+                        <label asp-for="Direccion.piso">Piso (opcional)</label>
+                        <span asp-validation-for="Direccion.piso" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label asp-for="Direccion.comentario" class="form-label fw-bold">Comentario/Referencia (opcional)</label>
+                <textarea asp-for="Direccion.comentario" class="form-control" rows="3" placeholder="Ej: Edificio verde, puerta 4B..."></textarea>
+                <span asp-validation-for="Direccion.comentario" class="text-danger small"></span>
+            </div>
+        </fieldset>
+
+        <!-- Condición de Pago -->
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Condición de Pago</legend>
+            
+            <div class="form-floating mb-3">
+                <input asp-for="CondicionPago.Tipo" class="form-control" placeholder="Tipo de condición">
+                <label asp-for="CondicionPago.Tipo">Tipo de Condición</label>
+                <span asp-validation-for="CondicionPago.Tipo" class="text-danger small"></span>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input asp-for="CondicionPago.DiasPago" class="form-control" placeholder="Días" type="number">
+                        <label asp-for="CondicionPago.DiasPago">Días de Pago</label>
+                        <span asp-validation-for="CondicionPago.DiasPago" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input asp-for="CondicionPago.InteresPorcentual" class="form-control" placeholder="Interés %" type="number" step="0.1">
+                        <label asp-for="CondicionPago.InteresPorcentual">Interés Porcentual (%)</label>
+                        <span asp-validation-for="CondicionPago.InteresPorcentual" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-floating mb-3">
+                <input asp-for="CondicionPago.NumeroCuotas" class="form-control" placeholder="Cuotas" type="number">
+                <label asp-for="CondicionPago.NumeroCuotas">Número de Cuotas</label>
+                <span asp-validation-for="CondicionPago.NumeroCuotas" class="text-danger small"></span>
+            </div>
+        </fieldset>
+
+        <!-- Botones -->
+        <div class="d-flex justify-content-between gap-3">
+            <button class="btn btn-success w-50 py-2" type="submit">Registrar Proveedor</button>
+            <a asp-controller="Proveedor" asp-action="ListarProveedores" class="btn btn-outline-secondary w-50 py-2">Cancelar</a>
+        </div>
+    </form>
+</main>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}

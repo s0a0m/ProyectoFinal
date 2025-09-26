@@ -26,4 +26,5 @@ public interface IProveedorRepository
     Task<Proveedor> CreateAsync(Proveedor proveedor);
     Task<Proveedor> UpdateAsync(Proveedor proveedor);
     Task<bool> DeleteAsync(int id);
+    Task<List<Provincia>> GetAllProvinciasAsync();
 }
