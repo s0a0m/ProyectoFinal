@@ -18,37 +18,72 @@ public static class DbInitializer
     }
     public static void SeedCondicionesPago(AppDbContext context)
     {
-        var json = File.ReadAllText("data/seed/condiciones_pago.json");
-        var seedData = JsonSerializer.Deserialize<CondicionesPagoSeed>(json)!;
+        // var json = File.ReadAllText("data/seed/condiciones_pago.json");
+        // var seedData = JsonSerializer.Deserialize<CondicionesPagoSeed>(json)!;
 
-        context.ChangeTracker.Clear();
+        // context.ChangeTracker.Clear();
 
-        // Insertar solo si no existen
-        if (!context.Condicion_pagos.Any())
-            context.Condicion_pagos.AddRange(seedData.condiciones_pago.Select(c => new condicion_pago
-            {
-                id_condicion_pago = c.id_condicion_pago,
-                dias_pago = c.dias_pago
-            }));
+        // // 1️⃣ Insertar solo la tabla base si no existen
+        // foreach (var c in seedData.condiciones_pago)
+        // {
+        //     if (!context.Condicion_pagos.Any(cp => cp.id_condicion_pago == c.id_condicion_pago))
+        //     {
+        //         context.Condicion_pagos.Add(new condicion_pago
+        //         {
+        //             id_condicion_pago = c.id_condicion_pago,
+        //             dias_pago = c.dias_pago
+        //         });
+        //     }
+        // }
+        // context.SaveChanges();
 
-        if (!context.Cuota.Any())
-            context.Cuota.AddRange(seedData.cuotas.Select(c => new cuota
-            {
-                id_condicion_pago = c.id_condicion_pago,
-                dias_pago = c.dias_pago,
-                cuotas = c.cuotas,
-                interes_porcentual = c.interes_porcentual
-            }));
+        // // 2️⃣ Insertar cuotas usando la fila base existente
+        // foreach (var c in seedData.cuotas)
+        // {
+        //     if (!context.Cuota.Any(cu => cu.id_condicion_pago == c.id_condicion_pago))
+        //     {
+        //         // Traer la fila base existente
+        //         var baseCp = context.Condicion_pagos.Find(c.id_condicion_pago);
+        //         if (baseCp != null)
+        //         {
+        //             // Adjuntar la base para que EF no intente insertarla de nuevo
+        //             context.Entry(baseCp).State = EntityState.Unchanged;
 
-        if (!context.Contado.Any())
-            context.Contado.AddRange(seedData.contados.Select(c => new contado
-            {
-                id_condicion_pago = c.id_condicion_pago,
-                dias_pago = c.dias_pago
-            }));
+        //             context.Cuota.Add(new cuota
+        //             {
+        //                 id_condicion_pago = baseCp.id_condicion_pago,
+        //                 dias_pago = c.dias_pago,
+        //                 cuotas = c.cuotas,
+        //                 interes_porcentual = c.interes_porcentual
+        //             });
+        //         }
+        //     }
+        // }
+        // context.SaveChanges();
 
-        context.SaveChanges();
+        // // 3️⃣ Insertar contados usando la fila base existente
+        // foreach (var c in seedData.contados)
+        // {
+        //     if (!context.Contado.Any(co => co.id_condicion_pago == c.id_condicion_pago))
+        //     {
+        //         var baseCp = context.Condicion_pagos.Find(c.id_condicion_pago);
+        //         if (baseCp != null)
+        //         {
+        //             context.Entry(baseCp).State = EntityState.Unchanged;
+
+        //             context.Contado.Add(new contado
+        //             {
+        //                 id_condicion_pago = baseCp.id_condicion_pago,
+        //                 dias_pago = c.dias_pago
+        //             });
+        //         }
+        //     }
+        // }
+        // context.SaveChanges();
     }
+
+
+
     public static void SeedDomicilios(AppDbContext context)
     {
         if (!context.Domicilios.Any())

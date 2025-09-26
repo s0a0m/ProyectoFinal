@@ -19,9 +19,9 @@ public class ProveedorController : Controller
     }
 
     [HttpGet("Ver/{idProv}")]
-    public IActionResult VerProveedor(int idProv)
+    public async Task<IActionResult> VerProveedor(int idProv)
     {
-        return View(_repoProv.GetProvByIdAsync(idProv));
+        return View(await _repoProv.GetProvByIdAsync(idProv));
     }
     [HttpGet]
     [ActionName("Index")]
@@ -64,7 +64,6 @@ public class ProveedorController : Controller
         _repoProv.UpdateAsync(prov);
         TempData["realizado"] = "El usuario fue Actualizado con exito.";
         return RedirectToAction("ListarProveedores");
-
     }
 
 
@@ -75,5 +74,4 @@ public class ProveedorController : Controller
         TempData["realizado"] = "El usuario fue Eliminado con exito.";
         return RedirectToAction("ListarProveedores");
     }
-
 }

@@ -29,10 +29,10 @@ else
     // seed prueba para proveedores
     using var scope = app.Services.CreateScope();
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    DbInitializer.SeedCondicionesPago(context);
+    // DbInitializer.SeedCondicionesPago(context);
     DbInitializer.SeedProvincias(context);
-    DbInitializer.SeedDomicilios(context);
-    DbInitializer.SeedProveedores(context);
+    // DbInitializer.SeedDomicilios(context);
+    // DbInitializer.SeedProveedores(context);
 }
 
 app.UseHttpsRedirection();
