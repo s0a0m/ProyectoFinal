@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using src.Repositories;
+using src.Repositories.Interfaces;
 using src.Models;
 using Microsoft.AspNetCore.Mvc;
 

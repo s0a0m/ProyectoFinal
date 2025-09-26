@@ -3,262 +3,265 @@ using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using src.Models;
 using src.Models.CodeFirst;
-namespace src.Repositories
-{
-    public class ProveedorRepository : IProveedorRepository
-    {
-         private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+using src.Repositories.Interfaces;
 
-        public ProveedorRepository(AppDbContext context, IMapper mapper)
+
+namespace src.Repositories.Implementations;
+
+public class ProveedorRepository : IProveedorRepository
+{
+    private readonly AppDbContext _context;
+    private readonly IMapper _mapper;
+
+    public ProveedorRepository(AppDbContext context, IMapper mapper)
+    {
+        _context = context;
+        _mapper = mapper;
+    }
+
+    public async Task<Proveedor?> GetProvByIdAsync(int id)
+    {
+        var proveedorEF = await _context.Proveedores
+            .Include(p => p.id_condicion_pago_habitualNavigation)
+            .Include(p => p.id_domicilioNavigation)
+                .ThenInclude(d => d.id_provinciaNavigation)
+            .FirstOrDefaultAsync(p => p.id_proveedor == id);
+
+        if (proveedorEF == null) return null;
+
+        var proveedor = _mapper.Map<Proveedor>(proveedorEF);
+
+        // Lógica manual para la condición de pago
+        if (proveedorEF.id_condicion_pago_habitualNavigation != null)
         {
-            _context = context;
-            _mapper = mapper;
+            proveedor.condicion = await MapCondicionPagoAsync(proveedorEF.id_condicion_pago_habitual);
         }
 
-        public async Task<Proveedor?> GetProvByIdAsync(int id)
+        return proveedor;
+    }
+
+    public async Task<List<Proveedor>> GetAllProvAsync()
+    {
+        var query = _context.Proveedores
+            .Include(p => p.id_condicion_pago_habitualNavigation)
+            .Include(p => p.id_domicilioNavigation)
+                .ThenInclude(d => d.id_provinciaNavigation)
+            .AsQueryable();
+
+        query = query.Where(p => p.activo);
+
+        var proveedoresEF = await query.ToListAsync();
+        var proveedores = new List<Proveedor>();
+
+        foreach (var proveedorEF in proveedoresEF)
         {
-            var proveedorEF = await _context.Proveedores
-                .Include(p => p.id_condicion_pago_habitualNavigation)
-                .Include(p => p.id_domicilioNavigation)
-                    .ThenInclude(d => d.id_provinciaNavigation)
-                .FirstOrDefaultAsync(p => p.id_proveedor == id);
-
-            if (proveedorEF == null) return null;
-
             var proveedor = _mapper.Map<Proveedor>(proveedorEF);
-            
-            // Lógica manual para la condición de pago
+
             if (proveedorEF.id_condicion_pago_habitualNavigation != null)
             {
                 proveedor.condicion = await MapCondicionPagoAsync(proveedorEF.id_condicion_pago_habitual);
             }
 
-            return proveedor;
+            proveedores.Add(proveedor);
         }
-        
-        public async Task<List<Proveedor>> GetAllProvAsync()
+
+        return proveedores;
+    }
+
+    public async Task<Proveedor> CreateAsync(Proveedor proveedor)
+    {
+
+        if (proveedor.condicion != null)
         {
-            var query = _context.Proveedores
-                .Include(p => p.id_condicion_pago_habitualNavigation)
-                .Include(p => p.id_domicilioNavigation)
-                    .ThenInclude(d => d.id_provinciaNavigation)
-                .AsQueryable();
-
-            query = query.Where(p => p.activo);
-
-            var proveedoresEF = await query.ToListAsync();
-            var proveedores = new List<Proveedor>();
-
-            foreach (var proveedorEF in proveedoresEF)
-            {
-                var proveedor = _mapper.Map<Proveedor>(proveedorEF);
-
-                if (proveedorEF.id_condicion_pago_habitualNavigation != null)
-                {
-                    proveedor.condicion = await MapCondicionPagoAsync(proveedorEF.id_condicion_pago_habitual);
-                }
-
-                proveedores.Add(proveedor);
-            }
-
-            return proveedores;
+            await GuardarCondicionPagoAsync(proveedor.condicion);
         }
-        
-        public async Task<Proveedor> CreateAsync(Proveedor proveedor)
-        {   
-          
-            if (proveedor.condicion != null)
-            {
-                await GuardarCondicionPagoAsync(proveedor.condicion);         
-            }
-          
-            if (proveedor.direccion != null)
-            {
-                await GuardarDireccionAsync(proveedor.direccion);  
-            }
 
-            var proveedorEF = new proveedor 
+        if (proveedor.direccion != null)
+        {
+            await GuardarDireccionAsync(proveedor.direccion);
+        }
+
+        var proveedorEF = new proveedor
+        {
+            cuit = proveedor.cuit,
+            razon_social = proveedor.razonSocial,
+            telefono = proveedor.telefono,
+            correo = proveedor.correo,
+            persona_responsable = proveedor.personaResponsable,
+            saldo = proveedor.saldo,
+            activo = true,
+            id_condicion_pago_habitual = proveedor.condicion?.id ?? 0, // ← Solo el ID
+            id_domicilio = proveedor.direccion?.id ?? 0 // ← Solo el ID
+        };
+
+        _context.Proveedores.Add(proveedorEF);
+        await _context.SaveChangesAsync();
+        return await GetProvByIdAsync(proveedorEF.id_proveedor);
+    }
+
+
+
+    public async Task<Proveedor> UpdateAsync(Proveedor proveedor)
+    {
+        var proveedorEF = await _context.Proveedores
+            .FirstOrDefaultAsync(p => p.id_proveedor == proveedor.id);
+
+        if (proveedorEF == null)
+            throw new ArgumentException($"Proveedor con ID {proveedor.id} no encontrado");
+
+        short? nuevaCondicionPagoId = null;
+        if (proveedor.condicion != null)
+        {
+            await GuardarCondicionPagoAsync(proveedor.condicion);
+            nuevaCondicionPagoId = proveedor.condicion.id;
+        }
+
+        short? nuevaDireccionId = null;
+        if (proveedor.direccion != null)
+        {
+            // Crear nueva dirección independientemente de si ya existe una igual
+            await GuardarDireccionAsync(proveedor.direccion);
+            nuevaDireccionId = proveedor.direccion.id;
+        }
+
+        // 6. Actualizar propiedades del proveedor
+        proveedorEF.cuit = proveedor.cuit;
+        proveedorEF.razon_social = proveedor.razonSocial;
+        proveedorEF.telefono = proveedor.telefono;
+        proveedorEF.correo = proveedor.correo;
+        proveedorEF.persona_responsable = proveedor.personaResponsable;
+        proveedorEF.saldo = proveedor.saldo;
+        proveedorEF.activo = proveedor.activo;
+
+
+        if (nuevaCondicionPagoId.HasValue)
+            proveedorEF.id_condicion_pago_habitual = nuevaCondicionPagoId.Value;
+
+        if (nuevaDireccionId.HasValue)
+            proveedorEF.id_domicilio = nuevaDireccionId.Value;
+
+        await _context.SaveChangesAsync();
+
+
+        return await GetProvByIdAsync(proveedor.id);
+    }
+
+
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+
+        var proveedorEF = await _context.Proveedores
+            .FirstOrDefaultAsync(p => p.id_proveedor == id);
+        if (proveedorEF == null)
+            return false;
+        proveedorEF.activo = false;
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+
+
+    // Métodos privados para la lógica manual de mapeo
+
+    private async Task<CondicionDePago> MapCondicionPagoAsync(short condicionPagoId)
+    {
+        var contado = await _context.Contado
+            .FirstOrDefaultAsync(c => c.id_condicion_pago == condicionPagoId);
+
+        if (contado != null)
+        {
+            var contadoMapeado = _mapper.Map<Contado>(contado);
+            contadoMapeado.Tipo = "Contado";
+            return contadoMapeado;
+        }
+
+        // Verificar si es Cuota
+        var cuota = await _context.Cuota
+            .FirstOrDefaultAsync(c => c.id_condicion_pago == condicionPagoId);
+
+        if (cuota != null)
+        {
+            var cuotaMapeada = _mapper.Map<Cuota>(cuota);
+            cuotaMapeada.Tipo = "Cuota";
+            return cuotaMapeada;
+        }
+
+        return null;
+    }
+
+    /*private async Task GuardarCondicionPagoAsync(CondicionDePago condicion)
+    {
+
+        var condicionBase = new condicion_pago
+        {
+            dias_pago = condicion.dias_pago
+        };
+
+        _context.condicion_pago.Add(condicionBase);
+        await _context.SaveChangesAsync(); // Para obtener el ID generado
+
+
+        if (condicion is Cuota cuota)
+        {
+            var cuotaEF = _mapper.Map<cuota>(cuota);
+            _context.Cuota.Add(cuotaEF);
+        }
+        else if (condicion is Contado contado)
+        {
+            var contadoEF = _mapper.Map<contado>(contado);
+            _context.Contado.Add(contadoEF);
+        }
+        await _context.SaveChangesAsync();
+        condicion.id = condicionBase.id_condicion_pago; // Actualizar el ID en el objeto dominio
+    } */
+
+
+    private async Task GuardarCondicionPagoAsync(CondicionDePago condicion)
+    {
+        if (condicion is Cuota cuota)
+        {
+            var cuotaEF = new cuota
             {
-                cuit = proveedor.cuit,
-                razon_social = proveedor.razonSocial,
-                telefono = proveedor.telefono,
-                correo = proveedor.correo,
-                persona_responsable = proveedor.personaResponsable,
-                saldo = proveedor.saldo,
-                activo = true,
-                id_condicion_pago_habitual = proveedor.condicion?.id ?? 0, // ← Solo el ID
-                id_domicilio = proveedor.direccion?.id ?? 0 // ← Solo el ID
+                dias_pago = cuota.dias_pago,
+                cuotas = cuota.numeroCuotas,
+                interes_porcentual = (decimal)cuota.interes_porcentual
             };
 
-            _context.Proveedores.Add(proveedorEF);
-            await _context.SaveChangesAsync(); 
-            return await GetProvByIdAsync(proveedorEF.id_proveedor);
-        }
-        
-
-
-        public async Task<Proveedor> UpdateAsync(Proveedor proveedor)
-        {
-            var proveedorEF = await _context.Proveedores
-                .FirstOrDefaultAsync(p => p.id_proveedor == proveedor.id);
-
-            if (proveedorEF == null)
-                throw new ArgumentException($"Proveedor con ID {proveedor.id} no encontrado");
-
-            short? nuevaCondicionPagoId = null;
-            if (proveedor.condicion != null)
-            {
-                await GuardarCondicionPagoAsync(proveedor.condicion);
-                nuevaCondicionPagoId = proveedor.condicion.id;
-            }
-
-            short? nuevaDireccionId = null;
-            if (proveedor.direccion != null)
-            {
-                // Crear nueva dirección independientemente de si ya existe una igual
-                await GuardarDireccionAsync(proveedor.direccion);
-                nuevaDireccionId = proveedor.direccion.id;
-            }
-
-            // 6. Actualizar propiedades del proveedor
-            proveedorEF.cuit = proveedor.cuit;
-            proveedorEF.razon_social = proveedor.razonSocial;
-            proveedorEF.telefono = proveedor.telefono;
-            proveedorEF.correo = proveedor.correo;
-            proveedorEF.persona_responsable = proveedor.personaResponsable;
-            proveedorEF.saldo = proveedor.saldo;
-            proveedorEF.activo = proveedor.activo;
-
-
-            if (nuevaCondicionPagoId.HasValue)
-                proveedorEF.id_condicion_pago_habitual = nuevaCondicionPagoId.Value;
-
-            if (nuevaDireccionId.HasValue)
-                proveedorEF.id_domicilio = nuevaDireccionId.Value;
-
+            _context.Cuota.Add(cuotaEF);
             await _context.SaveChangesAsync();
-
-
-            return await GetProvByIdAsync(proveedor.id);
+            condicion.id = cuotaEF.id_condicion_pago; // ← ACTUALIZAR ID
         }
-
-
-
-        public async Task<bool> DeleteAsync(int id)
+        else if (condicion is Contado contado)
         {
-           
-            var proveedorEF = await _context.Proveedores
-                .FirstOrDefaultAsync(p => p.id_proveedor == id);
-            if (proveedorEF == null)
-                return false;
-            proveedorEF.activo = false;
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-       
-
-        // Métodos privados para la lógica manual de mapeo
-
-        private async Task<CondicionDePago> MapCondicionPagoAsync(short condicionPagoId)
-        {
-            var contado = await _context.Contado
-                .FirstOrDefaultAsync(c => c.id_condicion_pago == condicionPagoId);
-            
-            if (contado != null)
+            var contadoEF = new contado
             {
-                var contadoMapeado = _mapper.Map<Contado>(contado);
-                contadoMapeado.Tipo = "Contado";
-                return contadoMapeado;
-            }
-
-            // Verificar si es Cuota
-            var cuota = await _context.Cuota
-                .FirstOrDefaultAsync(c => c.id_condicion_pago == condicionPagoId);
-            
-            if (cuota != null)
-            {
-                var cuotaMapeada = _mapper.Map<Cuota>(cuota);
-                cuotaMapeada.Tipo = "Cuota";
-                return cuotaMapeada;
-            }
-
-            return null;
-        }
-
-        /*private async Task GuardarCondicionPagoAsync(CondicionDePago condicion)
-        {
-            
-            var condicionBase = new condicion_pago
-            {
-                dias_pago = condicion.dias_pago
+                dias_pago = contado.dias_pago
             };
 
-            _context.condicion_pago.Add(condicionBase);
-            await _context.SaveChangesAsync(); // Para obtener el ID generado
-           
-            
-            if (condicion is Cuota cuota)
-            {
-                var cuotaEF = _mapper.Map<cuota>(cuota);
-                _context.Cuota.Add(cuotaEF);
-            }
-            else if (condicion is Contado contado)
-            {
-                var contadoEF = _mapper.Map<contado>(contado);
-                _context.Contado.Add(contadoEF);
-            }
+            _context.Contado.Add(contadoEF);
             await _context.SaveChangesAsync();
-            condicion.id = condicionBase.id_condicion_pago; // Actualizar el ID en el objeto dominio
-        } */
-
-
-        private async Task GuardarCondicionPagoAsync(CondicionDePago condicion)
-        {
-            if (condicion is Cuota cuota)
-            {
-                var cuotaEF = new cuota 
-                { 
-                    dias_pago = cuota.dias_pago,
-                    cuotas = cuota.numeroCuotas,
-                    interes_porcentual = (decimal)cuota.interes_porcentual
-                };
-                
-                _context.Cuota.Add(cuotaEF);
-                await _context.SaveChangesAsync();
-                condicion.id = cuotaEF.id_condicion_pago; // ← ACTUALIZAR ID
-            }
-            else if (condicion is Contado contado)
-            {
-                var contadoEF = new contado 
-                { 
-                    dias_pago = contado.dias_pago
-                };
-                
-                _context.Contado.Add(contadoEF);
-                await _context.SaveChangesAsync();
-                condicion.id = contadoEF.id_condicion_pago; // ← ACTUALIZAR ID
-            }
-        }
-
-        private async Task GuardarDireccionAsync(Direccion direccion)
-        {
-            var direccionEF = new domicilio 
-            {
-                calle = direccion.calle,
-                numero = direccion.numero,
-                piso = direccion.piso,
-                comentario = direccion.comentario,
-                id_provincia = direccion.id_provincia
-            };
-            
-            _context.Domicilios.Add(direccionEF);
-            await _context.SaveChangesAsync();
-            direccion.id = direccionEF.id_domicilio; // ← ACTUALIZAR ID
+            condicion.id = contadoEF.id_condicion_pago; // ← ACTUALIZAR ID
         }
     }
+
+    private async Task GuardarDireccionAsync(Direccion direccion)
+    {
+        var direccionEF = new domicilio
+        {
+            calle = direccion.calle,
+            numero = direccion.numero,
+            piso = direccion.piso,
+            comentario = direccion.comentario,
+            id_provincia = direccion.id_provincia
+        };
+
+        _context.Domicilios.Add(direccionEF);
+        await _context.SaveChangesAsync();
+        direccion.id = direccionEF.id_domicilio; // ← ACTUALIZAR ID
+    }
 }
+
 
 
 
