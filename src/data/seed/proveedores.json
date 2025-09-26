@@ -1,0 +1,26 @@
+[
+  {
+    "id_proveedor": 1,
+    "cuit": "20123456789",
+    "razon_social": "Proveedor A",
+    "id_condicion_pago_habitual": 1,
+    "telefono": "12345678",
+    "correo": "contacto@proveedora.com",
+    "persona_responsable": "Juan Pérez",
+    "saldo": 10000.5,
+    "id_domicilio": 1,
+    "activo": true
+  },
+  {
+    "id_proveedor": 2,
+    "cuit": "23876543210",
+    "razon_social": "Proveedor B",
+    "id_condicion_pago_habitual": 2,
+    "telefono": "87654321",
+    "correo": "contacto@proveedorb.com",
+    "persona_responsable": "María López",
+    "saldo": 5000.75,
+    "id_domicilio": 2,
+    "activo": true
+  }
+]
