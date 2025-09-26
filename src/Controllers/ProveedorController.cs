@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace src.Controllers;
 
+[ApiController]
+[Route("[controller]")]
+
 public class ProveedorController : Controller
 {
     private readonly IProveedorRepository _repoProv;
@@ -15,19 +18,20 @@ public class ProveedorController : Controller
         _repoProv = repoProv;
     }
 
-    [HttpGet]
+    [HttpGet("Ver/{idProv}")]
     public IActionResult VerProveedor(int idProv)
     {
-         return View(_repoProv.GetProvByIdAsync(idProv));
+        return View(_repoProv.GetProvByIdAsync(idProv));
     }
     [HttpGet]
-    public IActionResult ListarProveedores()
+    [ActionName("Index")]
+    public async Task<IActionResult> ListarProveedores()
     {
-        var ListarProveedores = _repoProv.GetAllProvAsync();
-        return View(ListarProveedores);
+        var ListarProveedores = await _repoProv.GetAllProvAsync();
+        return View("ListarProveedores", ListarProveedores);
     }
 
-    [HttpGet]
+    [HttpGet("Crear")]
     public IActionResult CrearProveedor()
     {
         return View();
@@ -42,7 +46,7 @@ public class ProveedorController : Controller
         return RedirectToAction("ListarProveedores");
     }
 
-    [HttpGet]
+    [HttpGet("Actualizar/{idProv}")]
     public IActionResult ActualizarProveedor(int idProv)
     {
         return View(_repoProv.GetProvByIdAsync(idProv));
@@ -64,7 +68,7 @@ public class ProveedorController : Controller
     }
 
 
-    [HttpGet]
+    [HttpGet("Eliminar/{idProv}")]
     public IActionResult EliminarProveedor(int idProv)
     {
         _repoProv.DeleteAsync(idProv);

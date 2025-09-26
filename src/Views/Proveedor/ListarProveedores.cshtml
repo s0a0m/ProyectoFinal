@@ -1,55 +1,59 @@
 @using src.Models
 @model List<Proveedor>
 
-@if(TempData[key: "realizado"]!= null)
+@if (TempData[key: "realizado"] != null)
 {
-  <section class="container py-3"> 
-    <div class="alert alert-success w-50 mx-auto"> 
-      <p class="text-center"> 
-        @TempData[key: "realizado"]
-      </p>
-    </div>
-  </section>
+    <section class="container py-3">
+        <div class="alert alert-success w-50 mx-auto">
+            <p class="text-center">
+                @TempData[key: "realizado"]
+            </p>
+        </div>
+    </section>
 }
 
 
 
 <h1 class="text-center title-view">Proveedores activos</h1>
 <div class="d-flex justify-content-end">
-<a asp-controller="Proveedor" asp-action="CrearProveedor" class="btn btn-outline-success btn-add">Añadir Proveedor</a>
+    <a asp-controller="Proveedor" asp-action="CrearProveedor" class="btn btn-outline-success btn-add">Añadir
+        Proveedor</a>
 </div>
-@if(!Model.Any())
+@if (!Model.Any())
 {
-    <div class="alert alert-warning  mx-auto "> 
-            <p class="text-center"> 
-                No hay Proveedores Registrados.
-            </p>
+    <div class="alert alert-warning  mx-auto ">
+        <p class="text-center">
+            No hay Proveedores Registrados.
+        </p>
     </div>
-}else
+}
+else
 {
     <div class="container py-4">
         <div class="row">
-            @foreach(Proveedor pr in Model)
+            @foreach (Proveedor pr in Model)
             {
                 <div class="col-12 col-md-6 col-lg-3 mb-4">
-                    <div class="card h-100 border-dark">     
+                    <div class="card h-100 border-dark">
                         <img class="card-img-top" alt="icono operador" src="/assets/user.png"> </img>
-                        
+
                         <div class="card-body text-center">
                             <h2 class="h5 card-title">@pr.razonSocial</h2>
                             <p class="card-text">CUIT: @pr.cuit</p>
                             <p class="card-text">Saldo: @pr.saldo</p>
                         </div>
                         <div class=" d-flex flex-column align-items-center">
-                            <a asp-controller="Proveedor" asp-action="ActualizarProveedor" asp-route-idUsuario="@pr.id" class="btn btn-outline-primary mb-2">Actualizar</a>
-                            <button class="btn btn-outline-danger mb-2" data-bs-toggle="modal" data-bs-target="#mi-modal-@pr.id" >Eliminar</button>
+                            <a asp-controller="Proveedor" asp-action="ActualizarProveedor" asp-route-idUsuario="@pr.id"
+                                class="btn btn-outline-primary mb-2">Actualizar</a>
+                            <button class="btn btn-outline-danger mb-2" data-bs-toggle="modal"
+                                data-bs-target="#mi-modal-@pr.id">Eliminar</button>
                             <div class="modal fade" id="mi-modal-@pr.id" data-bs-backdrop="static">
                                 <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
                                     <div class="modal-content">
                                         <div class="modal-header">
                                             <h5 class="modal-title">Eliminar Proveedor</h5>
                                             <button class="btn-close" data-bs-dismiss="modal"></button>
-                                         </div>
+                                        </div>
                                         <div class="modal-body text-center py-3">
                                             <p class="fw-bold text-danger">Esta acción dejara inactivo al proveedor.</p>
                                             <p>¿Está seguro que desea eliminar el siguiente proveedor ?</p>
@@ -57,24 +61,23 @@
                                             <p><strong> Persona responsable</strong> @pr.personaResponsable</p>
                                         </div>
                                         <div class="modal-footer">
-                                            <a asp-controller="Proveedor" asp-action="EliminarProveedor" asp-route-idProv="@pr.id" class="btn btn-outline-danger mb-2">Eliminar</a>
+                                            <a asp-controller="Proveedor" asp-action="EliminarProveedor"
+                                                asp-route-idProv="@pr.id" class="btn btn-outline-danger mb-2">Eliminar</a>
                                         </div>
                                     </div>
-                                 </div>
-                            </div>     
-                            <a asp-controller="Proveedor" asp-action="VerProveedor" asp-route-idProv="@pr.id" class="btn btn-outline-dark">Ver Detalle</a>
-                            <hr> 
+                                </div>
+                            </div>
+                            <a asp-controller="Proveedor" asp-action="VerProveedor" asp-route-idProv="@pr.id"
+                                class="btn btn-outline-dark">Ver Detalle</a>
+                            <hr>
                         </div>
                     </div>
 
                 </div>
             }
-        </div> 
+        </div>
 
     </div>
 
 
 }
-
-
-
