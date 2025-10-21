@@ -1,4 +1,4 @@
-@using src.ViewModels
+@* @using src.ViewModels
 @model CrearProveedorViewModel
 
 @if (TempData["ProveedorExistente"] != null)
@@ -120,51 +120,50 @@
                 <input asp-for="CondicionPago.Tipo" class="form-control" placeholder="Tipo de condición">
                 <label asp-for="CondicionPago.Tipo">Tipo de Condición</label>
                 <span asp-validation-for="CondicionPago.Tipo" class="text-danger small"></span>
-            </div> *@
-            <div class="form-floating mb-3">
-                <select asp-for="CondicionPago.Tipo" class="form-select">
-                    <option value="">- Seleccione tipo de condición -</option>
-                    <option value="Contado">Contado</option>
-                    <option value="Cuota">Cuota</option>
-                </select>
-                <label asp-for="CondicionPago.Tipo">Tipo de Condición</label>
-                <span asp-validation-for="CondicionPago.Tipo" class="text-danger small"></span>
-            </div>
+            </div> *@@*
+<div class="form-floating mb-3">
+    <select asp-for="CondicionPago.Tipo" class="form-select">
+        <option value="">- Seleccione tipo de condición -</option>
+        <option value="Contado">Contado</option>
+        <option value="Cuota">Cuota</option>
+    </select>
+    <label asp-for="CondicionPago.Tipo">Tipo de Condición</label>
+    <span asp-validation-for="CondicionPago.Tipo" class="text-danger small"></span>
+</div>
 
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-floating mb-3">
-                        <input asp-for="CondicionPago.DiasPago" class="form-control" placeholder="Días" type="number">
-                        <label asp-for="CondicionPago.DiasPago">Días de Pago</label>
-                        <span asp-validation-for="CondicionPago.DiasPago" class="text-danger small"></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-floating mb-3">
-                        <input asp-for="CondicionPago.InteresPorcentual" class="form-control" placeholder="Interés %"
-                            type="number" step="0.1">
-                        <label asp-for="CondicionPago.InteresPorcentual">Interés Porcentual (%)</label>
-                        <span asp-validation-for="CondicionPago.InteresPorcentual" class="text-danger small"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-floating mb-3">
-                <input asp-for="CondicionPago.NumeroCuotas" class="form-control" placeholder="Cuotas" type="number">
-                <label asp-for="CondicionPago.NumeroCuotas">Número de Cuotas</label>
-                <span asp-validation-for="CondicionPago.NumeroCuotas" class="text-danger small"></span>
-            </div>
-        </fieldset>
-
-        <!-- Botones -->
-        <div class="d-flex justify-content-between gap-3">
-            <button class="btn btn-success w-50 py-2" type="submit">Registrar Proveedor</button>
-            <a asp-controller="Proveedor" asp-action="CrearProveedor"
-                class="btn btn-outline-secondary w-50 py-2">Cancelar</a>
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-floating mb-3">
+            <input asp-for="CondicionPago.DiasPago" class="form-control" placeholder="Días" type="number">
+            <label asp-for="CondicionPago.DiasPago">Días de Pago</label>
+            <span asp-validation-for="CondicionPago.DiasPago" class="text-danger small"></span>
         </div>
-    </form>
+    </div>
+    <div class="col-md-6">
+        <div class="form-floating mb-3">
+            <input asp-for="CondicionPago.InteresPorcentual" class="form-control" placeholder="Interés %" type="number"
+                step="0.1">
+            <label asp-for="CondicionPago.InteresPorcentual">Interés Porcentual (%)</label>
+            <span asp-validation-for="CondicionPago.InteresPorcentual" class="text-danger small"></span>
+        </div>
+    </div>
+</div>
+
+<div class="form-floating mb-3">
+    <input asp-for="CondicionPago.NumeroCuotas" class="form-control" placeholder="Cuotas" type="number">
+    <label asp-for="CondicionPago.NumeroCuotas">Número de Cuotas</label>
+    <span asp-validation-for="CondicionPago.NumeroCuotas" class="text-danger small"></span>
+</div>
+</fieldset>
+
+<!-- Botones -->
+<div class="d-flex justify-content-between gap-3">
+    <button class="btn btn-success w-50 py-2" type="submit">Registrar Proveedor</button>
+    <a asp-controller="Proveedor" asp-action="CrearProveedor" class="btn btn-outline-secondary w-50 py-2">Cancelar</a>
+</div>
+</form>
 </main>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-}
+} *@
