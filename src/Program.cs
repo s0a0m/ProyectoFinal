@@ -34,11 +34,6 @@ else
     DbInitializer.SeedDomicilios(context);
     DbInitializer.SeedProveedores(context);
     DbInitializer.SeedUsuarios(context);
-
-    var _dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    var usuarios = _dbContext.Usuarios.ToList();
-    var usuarios_map = usuarios.Select(u => src.Models.Mappers.DominioMapper.Map(u)).ToList();
-    System.Console.WriteLine($"Usuarios mapeados: {usuarios_map.Count}");
 }
 
 app.UseHttpsRedirection();
