@@ -87,6 +87,17 @@ public static class DbInitializer
             context.SaveChanges();
         }
     }
+    public static void SeedUsuarios(AppDbContext context)
+    {
+        if (!context.Usuarios.Any())
+        {
+            context.ChangeTracker.Clear();
+            var json = File.ReadAllText("data/seed/usuarios.json");
+            var usuarios = JsonSerializer.Deserialize<List<Usuario>>(json)!;
+            context.Usuarios.AddRange(usuarios);
+            context.SaveChanges();
+        }
+    }
     private class CondicionesPagoSeed
     {
         public List<CondicionDePago> condiciones_pago { get; set; } = new();

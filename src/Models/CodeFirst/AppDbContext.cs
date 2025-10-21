@@ -31,11 +31,12 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Proveedor> Proveedores { get; set; }
 
     public virtual DbSet<Provincia> Provincias { get; set; }
+    public virtual DbSet<Usuario> Usuarios { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<usuario>(entity =>
+        modelBuilder.Entity<Usuario>(entity =>
         {
-            entity.Property(u => u.activo)
+            entity.Property(u => u.Activo)
                 .HasDefaultValue(true);
         });
 

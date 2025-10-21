@@ -30,4 +30,6 @@ public static partial class DominioMapper
     [MapperIgnoreSource(nameof(EF.Proveedor.IdCondicionPagoHabitual))]
     [MapperIgnoreSource(nameof(EF.Proveedor.IdDomicilio))]
     public static partial Dom.Proveedor Map(EF.Proveedor source);
+
+    public static partial Dom.Usuario Map(EF.Usuario source);
 }

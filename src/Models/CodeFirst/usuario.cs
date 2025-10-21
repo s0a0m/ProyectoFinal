@@ -5,37 +5,45 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace src.Models.CodeFirst;
 
 [Table("usuario")]
-public partial class usuario
+public partial class Usuario
 {
 
     [Key]
-    public short id_usuario { get; set; }
-    public bool activo { get; set; }
+    [Column("id_usuario")]
+    public short IdUsuario { get; set; }
+    [Column("activo")]
+    public bool Activo { get; set; }
 
     [Required]
     [StringLength(100)]
-    public string correo { get; set; }
+    [Column("correo")]
+    public string Correo { get; set; }
 
     [Required]
     [StringLength(20)]
-    public string telefono { get; set; }
+    [Column("telefono")]
+    public string Telefono { get; set; }
 
     [Required]
     [StringLength(50)]
-    public string contrasenia { get; set; }
+    [Column("contrasenia")]
+    public string Contrasenia { get; set; }
 
     [Required]
     [StringLength(50)]
-    public string identificacion { get; set; }
+    [Column("identificacion")]
+    public string Identificacion { get; set; }
 
     [Required]
     [StringLength(50)]
-    public string nombre { get; set; }
+    [Column("nombre")]
+    public string Nombre { get; set; }
 
     [Required]
     [StringLength(50)]
-    public string apellido { get; set; }
+    [Column("apellido")]
+    public string Apellido { get; set; }
 
-    [Column(TypeName = "date")]
-    public DateTime fecha_alta { get; set; }
+    [Column("fecha_alta", TypeName = "date")]
+    public DateTime FechaAlta { get; set; }
 }
