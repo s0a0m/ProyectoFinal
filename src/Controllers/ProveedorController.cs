@@ -19,19 +19,18 @@ public class ProveedorController : Controller
     }
 
     [HttpGet("Ver/{idProv}")]
-    public IActionResult VerProveedor(int idProv)
+    public async Task<IActionResult> VerProveedor(int idProv)
     {
-        return View(_repoProv.GetProvByIdAsync(idProv));
+        return View(await _repoProv.GetProvByIdAsync(idProv));
     }
-    [HttpGet]
-    [ActionName("Index")]
+    [HttpGet("ListarProveedores")]
     public async Task<IActionResult> ListarProveedores()
     {
         var ListarProveedores = await _repoProv.GetAllProvAsync();
         return View("ListarProveedores", ListarProveedores);
     }
 
-    [HttpGet]
+    [HttpGet("Crear")]
     public async Task<IActionResult> CrearProveedor()
     {
 
@@ -47,8 +46,8 @@ public class ProveedorController : Controller
     }
 
 
-    [HttpPost]
-    public async Task<IActionResult> CrearProveedor(CrearProveedorViewModel proveedorVM)
+    [HttpPost("Crear")]
+    public async Task<IActionResult> CrearProveedor([FromForm] CrearProveedorViewModel proveedorVM)
     {
         if (!ModelState.IsValid)
         {
@@ -60,12 +59,19 @@ public class ProveedorController : Controller
         return RedirectToAction("ListarProveedores");
     }
 
-    [HttpGet]
+    [HttpGet("Actualizar/{idProv}")]
     public async Task<IActionResult> ActualizarProveedor(int idProv)
     {
         List<Provincia> ListaProv = await _repoProv.GetAllProvinciasAsync();
         Proveedor prov = await _repoProv.GetProvByIdAsync(idProv);
-        return View();
+        var viewModel = new CrearProveedorViewModel
+        {
+            Direccion = new DireccionViewModel
+            {
+                ListaProvincias = ListaProv
+            }
+        };
+        return View(viewModel);
     }
 
     [HttpPost]
@@ -83,9 +89,9 @@ public class ProveedorController : Controller
 
 
     [HttpGet("Eliminar/{idProv}")]
-    public IActionResult EliminarProveedor(int idProv)
+    public async Task<IActionResult> EliminarProveedor(int idProv)
     {
-        _repoProv.DeleteAsync(idProv);
+        await _repoProv.DeleteAsync(idProv);
         TempData["realizado"] = "El usuario fue Eliminado con exito.";
         return RedirectToAction("ListarProveedores");
     }

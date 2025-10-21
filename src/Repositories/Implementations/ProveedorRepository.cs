@@ -247,8 +247,10 @@ public class ProveedorRepository : IProveedorRepository
 
     private async Task GuardarDireccionAsync(Direccion direccion)
     {
+        var ultimoId = await _context.Domicilios.MaxAsync(d => (int?)d.id_domicilio) ?? 0;
         var direccionEF = new domicilio
         {
+            id_domicilio = (short)((short)(ultimoId) + 1),
             calle = direccion.calle,
             numero = direccion.numero,
             piso = direccion.piso,
@@ -262,14 +264,14 @@ public class ProveedorRepository : IProveedorRepository
     }
 
 
-   
+
     public async Task<List<Provincia>> GetAllProvinciasAsync()
     {
         var provinciasEF = await _context.Provincias.ToListAsync();
         var provinciasMapeadas = _mapper.Map<List<Provincia>>(provinciasEF);
         return provinciasMapeadas;
     }
-   
+
 
 
 

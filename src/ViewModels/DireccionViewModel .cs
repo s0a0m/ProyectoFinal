@@ -15,6 +15,6 @@ namespace src.ViewModels
         public short? piso { get; set; }
         [StringLength(1000)]
         public string? comentario { get; set; }
-        public Provincia[] provincias { get; set; } = Array.Empty<Provincia>();
+        public List<Provincia> ListaProvincias { get; set; } = new List<Provincia>();
     }
 }

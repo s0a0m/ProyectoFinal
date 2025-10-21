@@ -24,49 +24,19 @@ namespace src.Migrations
             modelBuilder.Entity("src.Models.CodeFirst.condicion_pago", b =>
                 {
                     b.Property<short>("id_condicion_pago")
-                        .HasColumnType("smallint");
+                        .HasColumnType("smallint")
+                        .HasColumnName("id_condicion_pago");
 
                     b.Property<short>("dias_pago")
-                        .HasColumnType("smallint");
+                        .HasColumnType("smallint")
+                        .HasColumnName("dias_pago");
 
                     b.HasKey("id_condicion_pago")
                         .HasName("condicion_pago_pkey");
 
                     b.ToTable("condicion_pago", (string)null);
-                });
 
-            modelBuilder.Entity("src.Models.CodeFirst.contado", b =>
-                {
-                    b.Property<short>("id_condicion_pago")
-                        .HasColumnType("smallint");
-
-                    b.Property<short>("dias_pago")
-                        .HasColumnType("smallint");
-
-                    b.HasKey("id_condicion_pago")
-                        .HasName("contado_pkey");
-
-                    b.ToTable("contado", (string)null);
-                });
-
-            modelBuilder.Entity("src.Models.CodeFirst.cuota", b =>
-                {
-                    b.Property<short>("id_condicion_pago")
-                        .HasColumnType("smallint");
-
-                    b.Property<short>("cuotas")
-                        .HasColumnType("smallint");
-
-                    b.Property<short>("dias_pago")
-                        .HasColumnType("smallint");
-
-                    b.Property<decimal>("interes_porcentual")
-                        .HasColumnType("decimal(6, 2)");
-
-                    b.HasKey("id_condicion_pago")
-                        .HasName("cuotas_pkey");
-
-                    b.ToTable("cuota", (string)null);
+                    b.UseTptMappingStrategy();
                 });
 
             modelBuilder.Entity("src.Models.CodeFirst.domicilio", b =>
@@ -179,7 +149,29 @@ namespace src.Migrations
                     b.HasIndex(new[] { "id_provincia" }, "unq_prov")
                         .IsUnique();
 
-                    b.ToTable("provincia", (string)null);
+                    b.ToTable("provincia");
+                });
+
+            modelBuilder.Entity("src.Models.CodeFirst.contado", b =>
+                {
+                    b.HasBaseType("src.Models.CodeFirst.condicion_pago");
+
+                    b.ToTable("contado", (string)null);
+                });
+
+            modelBuilder.Entity("src.Models.CodeFirst.cuota", b =>
+                {
+                    b.HasBaseType("src.Models.CodeFirst.condicion_pago");
+
+                    b.Property<short>("cuotas")
+                        .HasColumnType("smallint")
+                        .HasColumnName("cuotas");
+
+                    b.Property<decimal>("interes_porcentual")
+                        .HasColumnType("decimal(6, 2)")
+                        .HasColumnName("interes_porcentual");
+
+                    b.ToTable("cuota", (string)null);
                 });
 
             modelBuilder.Entity("src.Models.CodeFirst.domicilio", b =>
@@ -196,7 +188,7 @@ namespace src.Migrations
             modelBuilder.Entity("src.Models.CodeFirst.proveedor", b =>
                 {
                     b.HasOne("src.Models.CodeFirst.condicion_pago", "id_condicion_pago_habitualNavigation")
-                        .WithMany("proveedores")
+                        .WithMany()
                         .HasForeignKey("id_condicion_pago_habitual")
                         .IsRequired()
                         .HasConstraintName("proveedor_id_condicion_pago_habitual_fkey");
@@ -212,9 +204,22 @@ namespace src.Migrations
                     b.Navigation("id_domicilioNavigation");
                 });
 
-            modelBuilder.Entity("src.Models.CodeFirst.condicion_pago", b =>
+            modelBuilder.Entity("src.Models.CodeFirst.contado", b =>
                 {
-                    b.Navigation("proveedores");
+                    b.HasOne("src.Models.CodeFirst.condicion_pago", null)
+                        .WithOne()
+                        .HasForeignKey("src.Models.CodeFirst.contado", "id_condicion_pago")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("src.Models.CodeFirst.cuota", b =>
+                {
+                    b.HasOne("src.Models.CodeFirst.condicion_pago", null)
+                        .WithOne()
+                        .HasForeignKey("src.Models.CodeFirst.cuota", "id_condicion_pago")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("src.Models.CodeFirst.domicilio", b =>

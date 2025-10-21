@@ -18,68 +18,48 @@ public static class DbInitializer
     }
     public static void SeedCondicionesPago(AppDbContext context)
     {
-        // var json = File.ReadAllText("data/seed/condiciones_pago.json");
-        // var seedData = JsonSerializer.Deserialize<CondicionesPagoSeed>(json)!;
+        if (context.Condicion_pagos.Any())
+            return; // Ya hay datos, no vuelvas a cargarlos
 
-        // context.ChangeTracker.Clear();
+        string json = File.ReadAllText("data/seed/condiciones_pago.json");
 
-        // // 1️⃣ Insertar solo la tabla base si no existen
-        // foreach (var c in seedData.condiciones_pago)
-        // {
-        //     if (!context.Condicion_pagos.Any(cp => cp.id_condicion_pago == c.id_condicion_pago))
-        //     {
-        //         context.Condicion_pagos.Add(new condicion_pago
-        //         {
-        //             id_condicion_pago = c.id_condicion_pago,
-        //             dias_pago = c.dias_pago
-        //         });
-        //     }
-        // }
-        // context.SaveChanges();
+        using var document = JsonDocument.Parse(json);
 
-        // // 2️⃣ Insertar cuotas usando la fila base existente
-        // foreach (var c in seedData.cuotas)
-        // {
-        //     if (!context.Cuota.Any(cu => cu.id_condicion_pago == c.id_condicion_pago))
-        //     {
-        //         // Traer la fila base existente
-        //         var baseCp = context.Condicion_pagos.Find(c.id_condicion_pago);
-        //         if (baseCp != null)
-        //         {
-        //             // Adjuntar la base para que EF no intente insertarla de nuevo
-        //             context.Entry(baseCp).State = EntityState.Unchanged;
+        var root = document.RootElement;
 
-        //             context.Cuota.Add(new cuota
-        //             {
-        //                 id_condicion_pago = baseCp.id_condicion_pago,
-        //                 dias_pago = c.dias_pago,
-        //                 cuotas = c.cuotas,
-        //                 interes_porcentual = c.interes_porcentual
-        //             });
-        //         }
-        //     }
-        // }
-        // context.SaveChanges();
+        // Leer las secciones del JSON
+        var cuotasArray = root.GetProperty("cuotas").EnumerateArray();
+        var contadosArray = root.GetProperty("contados").EnumerateArray();
 
-        // // 3️⃣ Insertar contados usando la fila base existente
-        // foreach (var c in seedData.contados)
-        // {
-        //     if (!context.Contado.Any(co => co.id_condicion_pago == c.id_condicion_pago))
-        //     {
-        //         var baseCp = context.Condicion_pagos.Find(c.id_condicion_pago);
-        //         if (baseCp != null)
-        //         {
-        //             context.Entry(baseCp).State = EntityState.Unchanged;
+        var condiciones = new List<condicion_pago>();
 
-        //             context.Contado.Add(new contado
-        //             {
-        //                 id_condicion_pago = baseCp.id_condicion_pago,
-        //                 dias_pago = c.dias_pago
-        //             });
-        //         }
-        //     }
-        // }
-        // context.SaveChanges();
+        // Procesar cuotas
+        foreach (var element in cuotasArray)
+        {
+            var c = new cuota
+            {
+                id_condicion_pago = element.GetProperty("id_condicion_pago").GetInt16(),
+                dias_pago = element.GetProperty("dias_pago").GetInt16(),
+                cuotas = element.GetProperty("cuotas").GetInt16(),
+                interes_porcentual = element.GetProperty("interes_porcentual").GetDecimal()
+            };
+            condiciones.Add(c);
+        }
+
+        // Procesar contados
+        foreach (var element in contadosArray)
+        {
+            var c = new contado
+            {
+                id_condicion_pago = element.GetProperty("id_condicion_pago").GetInt16(),
+                dias_pago = element.GetProperty("dias_pago").GetInt16()
+            };
+            condiciones.Add(c);
+        }
+
+        context.Condicion_pagos.AddRange(condiciones);
+        context.SaveChanges();
+
     }
 
 

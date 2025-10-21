@@ -25,24 +25,32 @@ public class Proveedor
   public string razonSocial { get => _razon_social; set => _razon_social = value; }
   public CondicionDePago condicion { get => _condicion; set => _condicion = value; }
 
+  public Proveedor() { }
+  public Proveedor(CrearProveedorViewModel p)
+  {
+    _cuit = p.Cuit;
+    _razon_social = p.RazonSocial;
+    _telefono = p.Telefono; // ← FALTABA ESTA LINEA
+    _correo = p.Correo;
+    _personaResponsable = p.PersonaResponsable;
+    _saldo = p.Saldo;
+    _activo = true;
 
-   public Proveedor(CrearProveedorViewModel p)
+    // ✅ INICIALIZAR dirección ANTES de usar sus propiedades
+    _direccion = new Direccion
     {
-      _cuit = p.Cuit;
-      _razon_social = p.RazonSocial;
-      CondicionDePago _condicion = new();
-      _condicion.dias_pago = p.CondicionPago.DiasPago;
-      _condicion.Tipo = p.CondicionPago.Tipo;
-      
-      _correo= p.Correo ;
-      _personaResponsable = p.PersonaResponsable;
-      _saldo = p.Saldo;
-      _direccion.calle = p.Direccion.calle;
-      _direccion.comentario = p.Direccion.comentario;
-      _direccion.id_provincia = p.Direccion.id_provincia;
-      _direccion.numero = p.Direccion.numero;
-      _direccion.piso = p.Direccion.piso;
-      _activo = true;
-    }
+      calle = p.Direccion.calle,
+      comentario = p.Direccion.comentario,
+      id_provincia = p.Direccion.id_provincia,
+      numero = p.Direccion.numero,
+      piso = p.Direccion.piso
+    };
 
+    // ✅ CORREGIR: Asignar a la propiedad de la clase, no variable local
+    _condicion = new CondicionDePago
+    {
+      dias_pago = p.CondicionPago.DiasPago,
+      Tipo = p.CondicionPago.Tipo
+    };
+  }
 }

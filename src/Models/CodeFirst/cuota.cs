@@ -4,14 +4,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace src.Models.CodeFirst;
 
-[Table("cuota")]
-public partial class cuota
+
+[Table("cuotas")]
+public class cuota : condicion_pago
 {
-    public short id_condicion_pago { get; set; }
-
-    public short dias_pago { get; set; }
-
+    [Column("cuotas")]
     public short cuotas { get; set; }
-    [Column(TypeName = "decimal(6, 2)")]
+    [Column("interes_porcentual", TypeName = "decimal(6, 2)")]
     public decimal interes_porcentual { get; set; }
 }

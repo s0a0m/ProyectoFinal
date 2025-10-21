@@ -33,6 +33,7 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<provincia> Provincias { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<condicion_pago>().UseTptMappingStrategy();
         modelBuilder.Entity<condicion_pago>(entity =>
         {
             entity.HasKey(e => e.id_condicion_pago).HasName("condicion_pago_pkey");
@@ -44,7 +45,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<contado>(entity =>
         {
-            entity.HasKey(e => e.id_condicion_pago).HasName("contado_pkey");
+            // entity.HasKey(e => e.id_condicion_pago).HasName("contado_pkey");
 
             entity.ToTable("contado");
 
@@ -53,8 +54,8 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<cuota>(entity =>
         {
-            entity.HasKey(e => e.id_condicion_pago).HasName("cuotas_pkey");
-
+            // entity.HasKey(e => e.id_condicion_pago).HasName("cuotas_pkey");
+            entity.ToTable("cuota");
             entity.Property(e => e.id_condicion_pago).ValueGeneratedNever();
         });
 
@@ -109,7 +110,7 @@ public partial class AppDbContext : DbContext
                 .IsRequired()
                 .HasMaxLength(12);
 
-            entity.HasOne(d => d.id_condicion_pago_habitualNavigation).WithMany(p => p.proveedores)
+            entity.HasOne(d => d.id_condicion_pago_habitualNavigation).WithMany()
                 .HasForeignKey(d => d.id_condicion_pago_habitual)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("proveedor_id_condicion_pago_habitual_fkey");
