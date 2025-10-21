@@ -10,7 +10,7 @@ public static class DbInitializer
         {
             context.ChangeTracker.Clear();
             var json = File.ReadAllText("data/seed/provincias.json");
-            var provincias = JsonSerializer.Deserialize<List<provincia>>(json)!;
+            var provincias = JsonSerializer.Deserialize<List<Provincia>>(json)!;
             context.Provincias.AddRange(provincias);
         }
 
@@ -31,17 +31,17 @@ public static class DbInitializer
         var cuotasArray = root.GetProperty("cuotas").EnumerateArray();
         var contadosArray = root.GetProperty("contados").EnumerateArray();
 
-        var condiciones = new List<condicion_pago>();
+        var condiciones = new List<CondicionDePago>();
 
         // Procesar cuotas
         foreach (var element in cuotasArray)
         {
-            var c = new cuota
+            var c = new Cuota
             {
-                id_condicion_pago = element.GetProperty("id_condicion_pago").GetInt16(),
-                dias_pago = element.GetProperty("dias_pago").GetInt16(),
-                cuotas = element.GetProperty("cuotas").GetInt16(),
-                interes_porcentual = element.GetProperty("interes_porcentual").GetDecimal()
+                IdCondicionPago = element.GetProperty("id_condicion_pago").GetInt16(),
+                DiasPago = element.GetProperty("dias_pago").GetInt16(),
+                Cuotas = element.GetProperty("cuotas").GetInt16(),
+                InteresPorcentual = element.GetProperty("interes_porcentual").GetDecimal()
             };
             condiciones.Add(c);
         }
@@ -49,10 +49,10 @@ public static class DbInitializer
         // Procesar contados
         foreach (var element in contadosArray)
         {
-            var c = new contado
+            var c = new Contado
             {
-                id_condicion_pago = element.GetProperty("id_condicion_pago").GetInt16(),
-                dias_pago = element.GetProperty("dias_pago").GetInt16()
+                IdCondicionPago = element.GetProperty("id_condicion_pago").GetInt16(),
+                DiasPago = element.GetProperty("dias_pago").GetInt16()
             };
             condiciones.Add(c);
         }
@@ -70,7 +70,7 @@ public static class DbInitializer
         {
             context.ChangeTracker.Clear(); // limpia el tracker
             var json = File.ReadAllText("data/seed/domicilios.json");
-            var domicilios = JsonSerializer.Deserialize<List<domicilio>>(json)!;
+            var domicilios = JsonSerializer.Deserialize<List<Domicilio>>(json)!;
             context.Domicilios.AddRange(domicilios);
             context.SaveChanges();
         }
@@ -82,15 +82,15 @@ public static class DbInitializer
         {
             context.ChangeTracker.Clear(); // limpia el tracker
             var json = File.ReadAllText("data/seed/proveedores.json");
-            var proveedores = JsonSerializer.Deserialize<List<proveedor>>(json)!;
+            var proveedores = JsonSerializer.Deserialize<List<Proveedor>>(json)!;
             context.Proveedores.AddRange(proveedores);
             context.SaveChanges();
         }
     }
     private class CondicionesPagoSeed
     {
-        public List<condicion_pago> condiciones_pago { get; set; } = new();
-        public List<cuota> cuotas { get; set; } = new();
-        public List<contado> contados { get; set; } = new();
+        public List<CondicionDePago> condiciones_pago { get; set; } = new();
+        public List<Cuota> cuotas { get; set; } = new();
+        public List<Contado> contados { get; set; } = new();
     }
 }

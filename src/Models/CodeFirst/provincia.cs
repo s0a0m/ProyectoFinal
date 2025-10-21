@@ -5,10 +5,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace src.Models.CodeFirst;
 
 [Table("provincia")]
-public partial class provincia
+public partial class Provincia
 {
-    public short id_provincia { get; set; }
-    public string nombre { get; set; }
+    [Column("id_provincia")]
+    public short IdProvincia { get; set; }
+    [Column("nombre")]
+    public string Nombre { get; set; }
 
-    public virtual ICollection<domicilio> domicilios { get; set; } = new List<domicilio>();
+    public virtual ICollection<Domicilio> Domicilios { get; set; } = new List<Domicilio>();
 }

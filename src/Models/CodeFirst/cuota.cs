@@ -6,10 +6,10 @@ namespace src.Models.CodeFirst;
 
 
 [Table("cuotas")]
-public class cuota : condicion_pago
+public class Cuota : CondicionDePago
 {
     [Column("cuotas")]
-    public short cuotas { get; set; }
+    public short Cuotas { get; set; }
     [Column("interes_porcentual", TypeName = "decimal(6, 2)")]
-    public decimal interes_porcentual { get; set; }
+    public decimal InteresPorcentual { get; set; }
 }

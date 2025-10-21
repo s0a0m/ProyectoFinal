@@ -1,22 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace src.Models.CodeFirst;
 
-public partial class domicilio
+public partial class Domicilio
 {
-    public short id_domicilio { get; set; }
+    [Key, Required, Column("id_domicilio")]
+    public short IdDomicilio { get; set; }
 
-    public short id_provincia { get; set; }
+    [Column("id_provincia")]
+    public short IdProvincia { get; set; }
 
-    public string calle { get; set; }
+    [Column("calle")]
+    public string Calle { get; set; }
 
-    public short numero { get; set; }
+    [Column("numero")]
+    public short Numero { get; set; }
 
-    public short? piso { get; set; }
-    public string? comentario { get; set; }
+    [Column("piso")]
+    public short? Piso { get; set; }
 
-    public virtual provincia id_provinciaNavigation { get; set; }
+    [Column("comentario")]
+    public string? Comentario { get; set; }
 
-    public virtual ICollection<proveedor> proveedores { get; set; } = new List<proveedor>();
+    public virtual Provincia IdProvinciaNavigation { get; set; }
+
+    public virtual ICollection<Proveedor> Proveedores { get; set; } = new List<Proveedor>();
 }

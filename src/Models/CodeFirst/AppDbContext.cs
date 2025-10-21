@@ -20,114 +20,114 @@ public partial class AppDbContext : DbContext
     {
     }
 
-    public virtual DbSet<condicion_pago> Condicion_pagos { get; set; }
+    public virtual DbSet<CondicionDePago> Condicion_pagos { get; set; }
 
-    public virtual DbSet<contado> Contado { get; set; }
+    public virtual DbSet<Contado> Contado { get; set; }
 
-    public virtual DbSet<cuota> Cuota { get; set; }
+    public virtual DbSet<Cuota> Cuota { get; set; }
 
-    public virtual DbSet<domicilio> Domicilios { get; set; }
+    public virtual DbSet<Domicilio> Domicilios { get; set; }
 
-    public virtual DbSet<proveedor> Proveedores { get; set; }
+    public virtual DbSet<Proveedor> Proveedores { get; set; }
 
-    public virtual DbSet<provincia> Provincias { get; set; }
+    public virtual DbSet<Provincia> Provincias { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<condicion_pago>().UseTptMappingStrategy();
-        modelBuilder.Entity<condicion_pago>(entity =>
+        modelBuilder.Entity<CondicionDePago>().UseTptMappingStrategy();
+        modelBuilder.Entity<CondicionDePago>(entity =>
         {
-            entity.HasKey(e => e.id_condicion_pago).HasName("condicion_pago_pkey");
+            entity.HasKey(e => e.IdCondicionPago).HasName("condicion_pago_pkey");
 
             entity.ToTable("condicion_pago");
 
-            entity.Property(e => e.id_condicion_pago).ValueGeneratedNever();
+            entity.Property(e => e.IdCondicionPago).ValueGeneratedNever();
         });
 
-        modelBuilder.Entity<contado>(entity =>
+        modelBuilder.Entity<Contado>(entity =>
         {
             // entity.HasKey(e => e.id_condicion_pago).HasName("contado_pkey");
 
             entity.ToTable("contado");
 
-            entity.Property(e => e.id_condicion_pago).ValueGeneratedNever();
+            entity.Property(e => e.IdCondicionPago).ValueGeneratedNever();
         });
 
-        modelBuilder.Entity<cuota>(entity =>
+        modelBuilder.Entity<Cuota>(entity =>
         {
             // entity.HasKey(e => e.id_condicion_pago).HasName("cuotas_pkey");
             entity.ToTable("cuota");
-            entity.Property(e => e.id_condicion_pago).ValueGeneratedNever();
+            entity.Property(e => e.IdCondicionPago).ValueGeneratedNever();
         });
 
-        modelBuilder.Entity<domicilio>(entity =>
+        modelBuilder.Entity<Domicilio>(entity =>
         {
-            entity.HasKey(e => e.id_domicilio).HasName("domicilio_pkey");
+            entity.HasKey(e => e.IdDomicilio).HasName("domicilio_pkey");
 
             entity.ToTable("domicilio");
 
-            entity.Property(e => e.id_domicilio).ValueGeneratedNever();
-            entity.Property(e => e.calle)
+            entity.Property(e => e.IdDomicilio).ValueGeneratedNever();
+            entity.Property(e => e.Calle)
                 .IsRequired()
                 .HasMaxLength(100);
 
-            entity.HasOne(d => d.id_provinciaNavigation).WithMany(p => p.domicilios)
-                .HasForeignKey(d => d.id_provincia)
+            entity.HasOne(d => d.IdProvinciaNavigation).WithMany(p => p.Domicilios)
+                .HasForeignKey(d => d.IdProvincia)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("direccion_id_provincia_fkey");
         });
 
-        modelBuilder.Entity<proveedor>(entity =>
+        modelBuilder.Entity<Proveedor>(entity =>
         {
-            entity.HasKey(e => e.id_proveedor).HasName("proveedor_pkey");
+            entity.HasKey(e => e.IdProveedor).HasName("proveedor_pkey");
 
             entity.ToTable("proveedor");
 
-            entity.HasIndex(e => e.cuit, "unq_cuit").IsUnique();
+            entity.HasIndex(e => e.Cuit, "unq_cuit").IsUnique();
 
-            entity.HasIndex(e => e.razon_social, "unq_razon").IsUnique();
+            entity.HasIndex(e => e.RazonSocial, "unq_razon").IsUnique();
 
-            entity.Property(e => e.id_proveedor).ValueGeneratedNever();
-            entity.Property(e => e.activo).HasDefaultValue(true);
-            entity.Property(e => e.correo)
+            entity.Property(e => e.IdProveedor).ValueGeneratedNever();
+            entity.Property(e => e.Activo).HasDefaultValue(true);
+            entity.Property(e => e.Correo)
                 .IsRequired()
                 .HasMaxLength(50);
-            entity.Property(e => e.cuit)
+            entity.Property(e => e.Cuit)
                 .IsRequired()
                 .HasMaxLength(11);
             // entity.Property(e => e.domicilio)
             //     .IsRequired()
             //     .HasMaxLength(80);
-            entity.Property(e => e.persona_responsable)
+            entity.Property(e => e.PersonaResponsable)
                 .IsRequired()
                 .HasMaxLength(80);
-            entity.Property(e => e.razon_social)
+            entity.Property(e => e.RazonSocial)
                 .IsRequired()
                 .HasMaxLength(80);
-            entity.Property(e => e.saldo)
+            entity.Property(e => e.Saldo)
                 .IsRequired()
                 .HasColumnType("character varying");
-            entity.Property(e => e.telefono)
+            entity.Property(e => e.Telefono)
                 .IsRequired()
                 .HasMaxLength(12);
 
-            entity.HasOne(d => d.id_condicion_pago_habitualNavigation).WithMany()
-                .HasForeignKey(d => d.id_condicion_pago_habitual)
+            entity.HasOne(d => d.IdCondicionPagoHabitualNavigation).WithMany()
+                .HasForeignKey(d => d.IdCondicionPagoHabitual)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("proveedor_id_condicion_pago_habitual_fkey");
 
-            entity.HasOne(d => d.id_domicilioNavigation).WithMany(p => p.proveedores)
-                .HasForeignKey(d => d.id_domicilio)
+            entity.HasOne(d => d.IdDomicilioNavigation).WithMany(p => p.Proveedores)
+                .HasForeignKey(d => d.IdDomicilio)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("proveedor_id_domicilio_fkey");
         });
 
-        modelBuilder.Entity<provincia>(entity =>
+        modelBuilder.Entity<Provincia>(entity =>
         {
-            entity.HasKey(e => e.id_provincia).HasName("provincia_pkey");
+            entity.HasKey(e => e.IdProvincia).HasName("provincia_pkey");
 
-            entity.HasIndex(e => e.id_provincia, "unq_prov").IsUnique();
+            entity.HasIndex(e => e.IdProvincia, "unq_prov").IsUnique();
 
-            entity.Property(e => e.nombre)
+            entity.Property(e => e.Nombre)
                 .IsRequired()
                 .HasMaxLength(100);
         });
