@@ -33,6 +33,12 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Provincia> Provincias { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<usuario>(entity =>
+        {
+            entity.Property(u => u.activo)
+                .HasDefaultValue(true);
+        });
+
         modelBuilder.Entity<CondicionDePago>().UseTptMappingStrategy();
         modelBuilder.Entity<CondicionDePago>(entity =>
         {
