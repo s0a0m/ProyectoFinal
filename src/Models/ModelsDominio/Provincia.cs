@@ -1,10 +1,8 @@
-namespace src.Models;
+namespace src.Models.Domain;
 
 public class Provincia
 {
-    private short id;
-    private string nombre;
 
-    public short Id { get => id; set => id = value; }
-    public string Nombre { get => nombre; set => nombre = value; }
+    public short IdProvincia { get; set; }
+    public string Nombre { get; set; } = string.Empty;
 }

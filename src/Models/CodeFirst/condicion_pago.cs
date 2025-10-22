@@ -5,12 +5,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace src.Models.CodeFirst;
 
-public abstract class condicion_pago
+[Table("condicion_pago")]
+public abstract class CondicionDePago
 {
     [Key]
     [Column("id_condicion_pago")]
-    public short id_condicion_pago { get; set; }
+    public short IdCondicionPago { get; set; }
 
     [Column("dias_pago")]
-    public short dias_pago { get; set; }
+    public short DiasPago { get; set; }
 }

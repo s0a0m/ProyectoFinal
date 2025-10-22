@@ -1,0 +1,57 @@
+[
+  {
+    "IdUsuario": 1,
+    "Activo": true,
+    "Correo": "guilloteAValle@gmail.com",
+    "Telefono": "+543815551234",
+    "Contrasenia": "guillotina",
+    "Identificacion": "128927382",
+    "Nombre": "Guillermo Augusto",
+    "Apellido": "Valle",
+    "FechaAlta": "2024-01-15"
+  },
+  {
+    "IdUsuario": 2,
+    "Activo": true,
+    "Correo": "maria.gonzalez@example.com",
+    "Telefono": "+54115559876",
+    "Contrasenia": "hash_del_password_2",
+    "Identificacion": "32987654",
+    "Nombre": "Maria",
+    "Apellido": "Gonzalez",
+    "FechaAlta": "2024-03-22"
+  },
+  {
+    "IdUsuario": 3,
+    "activo": false,
+    "Correo": "carlos.sanchez@example.com",
+    "Telefono": "+542215554567",
+    "Contrasenia": "hash_del_password_3",
+    "Identificacion": "28456123",
+    "Nombre": "Carlos",
+    "Apellido": "Sanchez",
+    "FechaAlta": "2024-05-10"
+  },
+  {
+    "IdUsuario": 4,
+    "activo": true,
+    "Correo": "laura.rodriguez@example.com",
+    "Telefono": "+543515557890",
+    "Contrasenia": "hash_del_password_4",
+    "Identificacion": "35789012",
+    "Nombre": "Laura",
+    "Apellido": "Rodriguez",
+    "FechaAlta": "2024-07-01"
+  },
+  {
+    "IdUsuario": 5,
+    "activo": true,
+    "Correo": "admin@sistema.com",
+    "Telefono": "+54115550001",
+    "Contrasenia": "hash_del_password_5",
+    "Identificacion": "25001002",
+    "Nombre": "Admin",
+    "Apellido": "Sistema",
+    "FechaAlta": "2024-01-01"
+  }
+]

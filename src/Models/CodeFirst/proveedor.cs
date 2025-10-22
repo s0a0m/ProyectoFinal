@@ -3,30 +3,35 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace src.Models.CodeFirst;
-
-public partial class proveedor
+[Table("proveedor")]
+public partial class Proveedor
 {
-    public short id_proveedor { get; set; }
+    [Column("id_proveedor")]
+    public short IdProveedor { get; set; }
+    [Column("cuit")]
+    public string Cuit { get; set; }
 
-    public string cuit { get; set; }
+    [Column("razon_social")]
+    public string RazonSocial { get; set; }
+    [Column("id_condicion_pago_habitual")]
+    public short IdCondicionPagoHabitual { get; set; }
 
-    public string razon_social { get; set; }
+    [Column("telefono")]
+    public string Telefono { get; set; }
 
-    public short id_condicion_pago_habitual { get; set; }
+    [Column("correo")]
+    public string Correo { get; set; }
 
-    public string telefono { get; set; }
+    [Column("persona_responsable")]
+    public string PersonaResponsable { get; set; }
+    [Column("saldo", TypeName = "decimal(11, 2)")]
+    public decimal Saldo { get; set; }
+    [Column("id_domicilio")]
+    public short IdDomicilio { get; set; }
+    [Column("activo")]
+    public bool Activo { get; set; }
 
-    public string correo { get; set; }
+    public virtual CondicionDePago IdCondicionPagoHabitualNavigation { get; set; }
 
-    public string persona_responsable { get; set; }
-    [Column(TypeName = "decimal(11, 2)")]
-    public decimal saldo { get; set; }
-
-    public short id_domicilio { get; set; }
-
-    public bool activo { get; set; }
-
-    public virtual condicion_pago id_condicion_pago_habitualNavigation { get; set; }
-
-    public virtual domicilio id_domicilioNavigation { get; set; }
+    public virtual Domicilio IdDomicilioNavigation { get; set; }
 }

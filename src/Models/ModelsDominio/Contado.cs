@@ -1,9 +1,5 @@
-using src.Models;
+namespace src.Models.Domain;
 
 public class Contado : CondicionDePago
 {
-    public Contado()
-    {
-        Tipo = "Contado";
-    }
 }

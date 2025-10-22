@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace src.Models.CodeFirst;
 
 [Table("contado")]
-public class contado : condicion_pago
+public class Contado : CondicionDePago
 {
     // No agrega campos nuevos (solo hereda)
 }

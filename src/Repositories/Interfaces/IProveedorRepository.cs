@@ -1,29 +1,28 @@
-/* using src.Models;
-using src.Models.CodeFirst;
+// /* using src.Models;
+// using src.Models.CodeFirst;
 
-namespace src.Repositories.Interfaces
-{
-    public interface IProveedorRepository
-    {
-        Task<List<proveedor>> GetAll();
-        Task<proveedor>? GetById(int id);
-        Task Add(proveedor proveedor);
-        Task Update(proveedor proveedor);
-        Task Delete(int id);
-    }
-}*/
+// namespace src.Repositories.Interfaces
+// {
+//     public interface IProveedorRepository
+//     {
+//         Task<List<proveedor>> GetAll();
+//         Task<proveedor>? GetById(int id);
+//         Task Add(proveedor proveedor);
+//         Task Update(proveedor proveedor);
+//         Task Delete(int id);
+//     }
+// }*/
 
 
 // Repositories/IProveedorRepository.cs
-using src.Models;
-using src.Models.CodeFirst;
-
+using EF = src.Models.CodeFirst;
+using Dom = src.Models.Domain;
 namespace src.Repositories.Interfaces;
 
 public interface IProveedorRepository
 {
-    Task<IEnumerable<proveedor>> GetAllProveedorAsync();
-    Task<proveedor?> GetProveedorById(int id);
+    Task<IEnumerable<Dom.Proveedor>> GetAllProveedorAsync();
+    Task<Dom.Proveedor?> GetProveedorById(int id);
     
 
    /* Task<Proveedor?> GetProvByIdAsync(int id);
