@@ -23,8 +23,10 @@ public interface IProveedorRepository
 {
     Task<IEnumerable<Dom.Proveedor>> GetAllProveedorAsync();
     Task<Dom.Proveedor?> GetProveedorById(int id);
-    
+    Task AddAsync(Dom.Proveedor entity);
+    Task UpdateAsync(Dom.Proveedor entity);
 
+    Task<bool> DeleteAsync(int id);
    /* Task<Proveedor?> GetProvByIdAsync(int id);
     Task<List<Proveedor>> GetAllProvAsync();
     Task<Proveedor> CreateAsync(Proveedor proveedor);

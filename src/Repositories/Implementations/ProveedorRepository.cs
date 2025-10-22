@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using EF = src.Models.CodeFirst;
 using Dom = src.Models.Domain;
 using src.Repositories.Interfaces;
-using src.Migrations;
 using src.Models.Mappers;
 
 namespace src.Repositories.Implementations;
