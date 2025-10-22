@@ -19,7 +19,57 @@ public class ProveedorRepository : IProveedorRepository
         _mapper = mapper;
     }
 
-    public async Task<Proveedor?> GetProvByIdAsync(int id)
+    private IQueryable<proveedor> GetQueryProveedor()
+    {
+        return  _context.Proveedores
+        .Include(p => p.id_condicion_pago_habitualNavigation)
+        .Include(p => p.id_domicilioNavigation)
+            .ThenInclude(p => p.id_provinciaNavigation);
+    }
+
+    public async Task<IEnumerable<proveedor>> GetAllProveedorAsync()
+    {
+        return await GetQueryProveedor().ToListAsync();
+    }
+
+    public async Task<proveedor?> GetProveedorById(int idProv)
+    {
+        return await GetQueryProveedor().Where(p => p.id_proveedor == idProv).FirstOrDefaultAsync();
+
+    }
+
+
+    public async Task AddAsync(proveedor entity)
+    {
+        await _context.Proveedores.AddAsync(entity);
+        await _context.SaveChangesAsync();
+    }
+
+   
+    public async Task UpdateAsync(proveedor entity)
+    {
+        _context.Proveedores.Update(entity);
+        await _context.SaveChangesAsync();
+    }
+
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+
+        var proveedorEF = await _context.Proveedores
+            .FirstOrDefaultAsync(p => p.id_proveedor == id);
+        if (proveedorEF == null)
+            return false;
+        proveedorEF.activo = false;
+        await _context.SaveChangesAsync();
+        return true;
+    }
+    
+
+
+
+
+    /*public async Task<Proveedor?> GetProvByIdAsync(int id)
     {
         var proveedorEF = await _context.Proveedores
             .Include(p => p.id_condicion_pago_habitualNavigation)
@@ -214,7 +264,7 @@ public class ProveedorRepository : IProveedorRepository
         }
         await _context.SaveChangesAsync();
         condicion.id = condicionBase.id_condicion_pago; // Actualizar el ID en el objeto dominio
-    } */
+    } 
 
 
     private async Task GuardarCondicionPagoAsync(CondicionDePago condicion)
@@ -273,7 +323,7 @@ public class ProveedorRepository : IProveedorRepository
     }
 
 
-
+ */  
 
 
 }
@@ -371,6 +421,7 @@ namespace src.Repositories.Implementations
         //         activo = p.Activo
         //     };
         // }
+      
     }
 }
 

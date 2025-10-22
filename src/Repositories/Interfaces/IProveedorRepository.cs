@@ -16,15 +16,20 @@ namespace src.Repositories.Interfaces
 
 // Repositories/IProveedorRepository.cs
 using src.Models;
+using src.Models.CodeFirst;
 
 namespace src.Repositories.Interfaces;
 
 public interface IProveedorRepository
 {
-    Task<Proveedor?> GetProvByIdAsync(int id);
+    Task<IEnumerable<proveedor>> GetAllProveedorAsync();
+    Task<proveedor?> GetProveedorById(int id);
+    
+
+   /* Task<Proveedor?> GetProvByIdAsync(int id);
     Task<List<Proveedor>> GetAllProvAsync();
     Task<Proveedor> CreateAsync(Proveedor proveedor);
     Task<Proveedor> UpdateAsync(Proveedor proveedor);
     Task<bool> DeleteAsync(int id);
-    Task<List<Provincia>> GetAllProvinciasAsync();
+    Task<List<Provincia>> GetAllProvinciasAsync(); */
 }
