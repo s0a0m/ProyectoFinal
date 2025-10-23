@@ -42,14 +42,22 @@ public class UsuarioRepository : IUsuarioRepository
     public async Task AddAsync(Dom.Usuario entity)
     {
         EF.Usuario usuarioEF = DominioMapper.Map(entity);
+        usuarioEF.IdUsuario = 0;
         await _context.Usuarios.AddAsync(usuarioEF);
         await _context.SaveChangesAsync();
+        entity.IdUsuario = usuarioEF.IdUsuario;
     }
 
     public async Task UpdateAsync(Dom.Usuario entity)
     {
         EF.Usuario usuarioEF = DominioMapper.Map(entity);
-        _context.Usuarios.Update(usuarioEF);
+        var existingEntity = await _context.Usuarios.FindAsync(usuarioEF.IdUsuario);
+
+        if (existingEntity == null)
+        {
+            throw new InvalidOperationException($"Usuario con ID {usuarioEF.IdUsuario} no encontrado.");
+        }
+        _context.Entry(existingEntity).CurrentValues.SetValues(usuarioEF);
         await _context.SaveChangesAsync();
     }
 
