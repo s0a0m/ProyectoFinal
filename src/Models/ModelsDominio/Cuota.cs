@@ -4,4 +4,11 @@ public class Cuota : CondicionDePago
 {
     public short Cuotas { get; set; }
     public decimal InteresPorcentual { get; set; }
+    public string Tipo { get; set; }
+
+    public Cuota()
+    {
+        Tipo = "Cuota";
+    }
+
 }

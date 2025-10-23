@@ -9,6 +9,7 @@ namespace src.Models.CodeFirst;
 public abstract class CondicionDePago
 {
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id_condicion_pago")]
     public short IdCondicionPago { get; set; }
 

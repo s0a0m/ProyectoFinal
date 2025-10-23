@@ -2,6 +2,9 @@ namespace src.Models.Domain;
 
 public class Proveedor
 {
+  public Proveedor()
+  {
+  }
   public int IdProveedor { get; set; }
   public string Cuit { get; set; } = string.Empty;
   public string Telefono { get; set; } = string.Empty;

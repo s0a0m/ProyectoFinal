@@ -1,4 +1,4 @@
-@* @model src.Models.Proveedor
+ @model src.Models.Domain.Proveedor
 
 @{
     ViewData["Title"] = "Detalles del Proveedor";
@@ -18,9 +18,9 @@
     <div class="card shadow-sm">
         <div class="card-header bg-light">
             <div class="d-flex justify-content-between align-items-center">
-                <h3 class="h5 mb-0">@Model.razonSocial</h3>
-                <span class="badge @(Model.activo ? "bg-success" : "bg-danger") fs-6">
-                    @(Model.activo ? "Activo" : "Inactivo")
+                <h3 class="h5 mb-0">@Model.RazonSocial</h3>
+                <span class="badge @(Model.Activo ? "bg-success" : "bg-danger") fs-6">
+                    @(Model.Activo ? "Activo" : "Inactivo")
                 </span>
             </div>
         </div>
@@ -35,22 +35,22 @@
                 
                 <div class="col-md-6 mb-3">
                     <label class="fw-bold text-muted small">ID Proveedor:</label>
-                    <p class="fs-6 mb-1">@Model.id</p>
+                    <p class="fs-6 mb-1">@Model.IdProveedor</p>
                 </div>
                 
                 <div class="col-md-6 mb-3">
                     <label class="fw-bold text-muted small">CUIT:</label>
-                    <p class="fs-6 mb-1">@Model.cuit</p>
+                    <p class="fs-6 mb-1">@Model.Cuit</p>
                 </div>
                 
                 <div class="col-md-6 mb-3">
                     <label class="fw-bold text-muted small">Razón Social:</label>
-                    <p class="fs-6 mb-1">@Model.razonSocial</p>
+                    <p class="fs-6 mb-1">@Model.RazonSocial</p>
                 </div>
                 
                 <div class="col-md-6 mb-3">
                     <label class="fw-bold text-muted small">Saldo Actual:</label>
-                    <p class="fs-6 mb-1 text-success fw-bold">$@Model.saldo.ToString("N2")</p>
+                    <p class="fs-6 mb-1 text-success fw-bold">$@Model.Saldo.ToString("N2")</p>
                 </div>
             </div>
 
@@ -62,20 +62,20 @@
                 
                 <div class="col-md-6 mb-3">
                     <label class="fw-bold text-muted small">Persona Responsable:</label>
-                    <p class="fs-6 mb-1">@(string.IsNullOrEmpty(Model.personaResponsable) ? "No especificado" : Model.personaResponsable)</p>
+                    <p class="fs-6 mb-1">@(string.IsNullOrEmpty(Model.PersonaResponsable) ? "No especificado" : Model.PersonaResponsable)</p>
                 </div>
                 
                 <div class="col-md-6 mb-3">
                     <label class="fw-bold text-muted small">Teléfono:</label>
-                    <p class="fs-6 mb-1">@(string.IsNullOrEmpty(Model.telefono) ? "No especificado" : Model.telefono)</p>
+                    <p class="fs-6 mb-1">@(string.IsNullOrEmpty(Model.Telefono) ? "No especificado" : Model.Telefono)</p>
                 </div>
                 
                 <div class="col-md-6 mb-3">
                     <label class="fw-bold text-muted small">Correo Electrónico:</label>
                     <p class="fs-6 mb-1">
-                        @if (!string.IsNullOrEmpty(Model.correo))
+                        @if (!string.IsNullOrEmpty(Model.Correo))
                         {
-                            <a href="mailto:@Model.correo" class="text-decoration-none">@Model.correo</a>
+                            <a href="mailto:@Model.Correo" class="text-decoration-none">@Model.Correo</a>
                         }
                         else
                         {
@@ -93,22 +93,39 @@
                 </div>
                 
                 <div class="col-12">
-                    @if (Model.condicion != null)
+                    @if (Model.Condicion != null)
                     {
-                        <div class="row">
+                        @if (Model.Condicion is src.Models.Domain.Contado)
+                        {
+                            <div class="row">
                             <div class="col-md-4 mb-2">
                                 <label class="fw-bold text-muted small">Tipo de Condición:</label>
-                                <p class="fs-6 mb-1">@(string.IsNullOrEmpty(Model.condicion.Tipo) ? "No especificado" : Model.condicion.Tipo)</p>
+                                <p class="fs-6 mb-1">Contado</p>
                             </div>
                             <div class="col-md-4 mb-2">
                                 <label class="fw-bold text-muted small">Días de Pago:</label>
-                                <p class="fs-6 mb-1">@Model.condicion.dias_pago días</p>
-                            </div>
-                            <div class="col-md-4 mb-2">
-                                <label class="fw-bold text-muted small">ID Condición:</label>
-                                <p class="fs-6 mb-1">@Model.condicion.id</p>
+                                <p class="fs-6 mb-1">@Model.Condicion.DiasPago días</p>
                             </div>
                         </div>
+
+                        }else if (Model.Condicion is src.Models.Domain.Cuota cuota)
+                        {
+                            <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="fw-bold text-muted small">Tipo de Condición:</label>
+                                <p class="fs-6 mb-1">Cuota</p>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="fw-bold text-muted small">Cantidad de cuotas:</label>
+                                <p class="fs-6 mb-1">@cuota.Cuotas</p>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="fw-bold text-muted small">Interes porcentual:</label>
+                                <p class="fs-6 mb-1">@cuota.InteresPorcentual %</p>
+                            </div>
+                        </div>
+                        }
+
                     }
                     else
                     {
@@ -124,24 +141,24 @@
                 </div>
                 
                 <div class="col-12">
-                    @if (Model.direccion != null)
+                    @if (Model.Direccion != null)
                     {
                         <div class="row">
                             <div class="col-md-4 mb-2">
                                 <label class="fw-bold text-muted small">Calle:</label>
-                                <p class="fs-6 mb-1">@(string.IsNullOrEmpty(Model.direccion.calle) ? "No especificada" : Model.direccion.calle)</p>
+                                <p class="fs-6 mb-1">@(string.IsNullOrEmpty(Model.Direccion.Calle) ? "No especificada" : Model.Direccion.Calle)</p>
                             </div>
                             <div class="col-md-4 mb-2">
                                 <label class="fw-bold text-muted small">Número:</label>
-                                <p class="fs-6 mb-1">@Model.direccion.numero</p>
+                                <p class="fs-6 mb-1">@Model.Direccion.Numero</p>
                             </div>
                             <div class="col-md-4 mb-2">
                                 <label class="fw-bold text-muted small">Piso:</label>
-                                <p class="fs-6 mb-1">@(Model.direccion.piso.HasValue ? Model.direccion.piso.ToString() : "No especificado")</p>
+                                <p class="fs-6 mb-1">@(Model.Direccion.Piso.HasValue ? Model.Direccion.Piso.ToString() : "No especificado")</p>
                             </div>
                             <div class="col-md-8 mb-2">
                                 <label class="fw-bold text-muted small">Comentario/Referencia:</label>
-                                <p class="fs-6 mb-1">@(string.IsNullOrEmpty(Model.direccion.comentario) ? "Sin comentarios" : Model.direccion.comentario)</p>
+                                <p class="fs-6 mb-1">@(string.IsNullOrEmpty(Model.Direccion.Comentario) ? "Sin comentarios" : Model.Direccion.Comentario)</p>
                             </div>
                         </div>
                         
@@ -220,4 +237,4 @@
     .fs-6 {
         font-size: 1rem !important;
     }
-</style> *@
+</style> 

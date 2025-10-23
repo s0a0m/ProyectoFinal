@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-
+using System.ComponentModel.DataAnnotations;
 namespace src.Models.CodeFirst;
 [Table("proveedor")]
 public partial class Proveedor
 {
+    [Key] // <-- 1. AÑADE ESTO
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id_proveedor")]
     public short IdProveedor { get; set; }
     [Column("cuit")]

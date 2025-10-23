@@ -1,5 +1,5 @@
-@* @using src.Models
-@model List<Proveedor>
+@using src.Models.Domain
+@model IEnumerable<src.Models.Domain.Proveedor>
 
 @if (TempData[key: "realizado"] != null)
 {
@@ -38,16 +38,16 @@ else
                         <img class="card-img-top" alt="icono operador" src="/assets/user.png"> </img>
 
                         <div class="card-body text-center">
-                            <h2 class="h5 card-title">@pr.razonSocial</h2>
-                            <p class="card-text">CUIT: @pr.cuit</p>
-                            <p class="card-text">Saldo: @pr.saldo</p>
+                            <h2 class="h5 card-title">@pr.RazonSocial</h2>
+                            <p class="card-text">CUIT: @pr.Cuit</p>
+                            <p class="card-text">Saldo: @pr.Saldo</p>
                         </div>
                         <div class=" d-flex flex-column align-items-center">
-                            <a asp-controller="Proveedor" asp-action="ActualizarProveedor" asp-route-idUsuario="@pr.id"
+                            <a asp-controller="Proveedor" asp-action="ActualizarProveedor" asp-route-idUsuario="@pr.IdProveedor"
                                 class="btn btn-outline-primary mb-2">Actualizar</a>
                             <button class="btn btn-outline-danger mb-2" data-bs-toggle="modal"
-                                data-bs-target="#mi-modal-@pr.id">Eliminar</button>
-                            <div class="modal fade" id="mi-modal-@pr.id" data-bs-backdrop="static">
+                                data-bs-target="#mi-modal-@pr.IdProveedor">Eliminar</button>
+                            <div class="modal fade" id="mi-modal-@pr.IdProveedor" data-bs-backdrop="static">
                                 <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -57,17 +57,17 @@ else
                                         <div class="modal-body text-center py-3">
                                             <p class="fw-bold text-danger">Esta acción dejara inactivo al proveedor.</p>
                                             <p>¿Está seguro que desea eliminar el siguiente proveedor ?</p>
-                                            <p><strong>Razon social:</strong> @pr.razonSocial</p>
-                                            <p><strong> Persona responsable</strong> @pr.personaResponsable</p>
+                                            <p><strong>Razon social:</strong> @pr.RazonSocial</p>
+                                            <p><strong> Persona responsable</strong> @pr.PersonaResponsable</p>
                                         </div>
                                         <div class="modal-footer">
                                             <a asp-controller="Proveedor" asp-action="EliminarProveedor"
-                                                asp-route-idProv="@pr.id" class="btn btn-outline-danger mb-2">Eliminar</a>
+                                                asp-route-idProv="@pr.IdProveedor" class="btn btn-outline-danger mb-2">Eliminar</a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <a asp-controller="Proveedor" asp-action="VerProveedor" asp-route-idProv="@pr.id"
+                            <a asp-controller="Proveedor" asp-action="VerProveedor" asp-route-idProv="@pr.IdProveedor"
                                 class="btn btn-outline-dark">Ver Detalle</a>
                             <hr>
                         </div>
@@ -80,4 +80,4 @@ else
     </div>
 
 
-} *@
+}

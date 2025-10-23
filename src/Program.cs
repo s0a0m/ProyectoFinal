@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using src.Models.CodeFirst;
-// using src.Repositories.Implementations;
-// using src.Repositories.Interfaces;
+using src.Repositories.Implementations;
+using src.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("PostgresConnection");
@@ -12,7 +12,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 // builder.Services.AddAutoMapper(typeof(Program));
-// builder.Services.AddScoped<IProveedorRepository, ProveedorRepository>();
+builder.Services.AddScoped<IProveedorRepository, ProveedorRepository>();
 
 var app = builder.Build();
 

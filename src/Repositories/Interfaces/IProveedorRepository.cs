@@ -27,6 +27,7 @@ public interface IProveedorRepository
     Task UpdateAsync(Dom.Proveedor entity);
 
     Task<bool> DeleteAsync(int id);
+    Task<IEnumerable<Dom.Provincia>> GetAllProvinciaAsync();
    /* Task<Proveedor?> GetProvByIdAsync(int id);
     Task<List<Proveedor>> GetAllProvAsync();
     Task<Proveedor> CreateAsync(Proveedor proveedor);

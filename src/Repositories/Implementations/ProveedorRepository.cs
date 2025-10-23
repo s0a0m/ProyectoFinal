@@ -25,7 +25,8 @@ public class ProveedorRepository : IProveedorRepository
 
     public async Task<IEnumerable<Dom.Proveedor>> GetAllProveedorAsync()
     {
-        IEnumerable<EF.Proveedor> provEF = await GetQueryProveedor().ToListAsync();
+        IEnumerable<EF.Proveedor> provEF = await GetQueryProveedor()
+        .Where(p => p.Activo == true).ToListAsync();
         IEnumerable<Dom.Proveedor> proveedores = DominioMapper.Map(provEF);
         return  proveedores;
     }
@@ -59,13 +60,20 @@ public class ProveedorRepository : IProveedorRepository
     {
 
         var proveedorEF = await _context.Proveedores
-            .FirstOrDefaultAsync(p => p.IdProveedor== id);
+            .FirstOrDefaultAsync(p => p.IdProveedor == id);
         if (proveedorEF == null)
             return false;
         proveedorEF.Activo = false;
         await _context.SaveChangesAsync();
         return true;
     }
+    
+    public async Task <IEnumerable<Dom.Provincia>> GetAllProvinciaAsync()
+    {
+        IEnumerable <EF.Provincia> provincias = await _context.Provincias.ToListAsync();
+        IEnumerable<Dom.Provincia> provinciasDom = DominioMapper.Map(provincias);
+        return provinciasDom;
+    }   
     
 }
 

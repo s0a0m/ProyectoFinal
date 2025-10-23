@@ -1,27 +1,77 @@
 using System.Diagnostics;
 using src.Repositories.Interfaces;
-using src.Models;
+using EF = src.Models.CodeFirst;
+using Dom = src.Models.Domain;
 using Microsoft.AspNetCore.Mvc;
 using src.ViewModels;
 
 namespace src.Controllers;
 
-[ApiController]
-[Route("[controller]")]
 
 public class ProveedorController : Controller
 {
 
     private readonly IProveedorRepository _repoProv;
 
+
     public ProveedorController(IProveedorRepository repoProv)
     {
         _repoProv = repoProv;
     }
-
+    
+    [HttpGet]
     public async Task<IActionResult> VerProveedor(int idProv)
     {
         return View(await _repoProv.GetProveedorById(idProv));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ListarProveedores()
+    {
+        var ListarProveedores = await _repoProv.GetAllProveedorAsync();
+        return View("ListarProveedores", ListarProveedores);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> CrearProveedor()
+    {
+
+        IEnumerable<Dom.Provincia> listaProvincias = await _repoProv.GetAllProvinciaAsync();
+        var ProveedorViewModel = new CrearProveedorViewModel
+        {
+            Direccion = new DireccionViewModel
+            {
+                ListaProvincias = listaProvincias.ToList()
+            }
+        };
+        return View(ProveedorViewModel);
+    }
+
+
+    [HttpPost]
+    public async Task<IActionResult> CrearProveedor([FromForm] CrearProveedorViewModel proveedorVM)
+    {
+        if (!ModelState.IsValid)
+        {
+            IEnumerable<Dom.Provincia> listaProvincias1 = await _repoProv.GetAllProvinciaAsync();
+            proveedorVM.Direccion.ListaProvincias = listaProvincias1.ToList();
+            return View(proveedorVM);
+        }
+        IEnumerable<Dom.Provincia> listaProvincias = await _repoProv.GetAllProvinciaAsync();
+        proveedorVM.Direccion.ListaProvincias = listaProvincias.ToList();
+        Dom.Proveedor proveedor = CrearProveedorViewModel.cargarProveedor(proveedorVM);
+        await _repoProv.AddAsync(proveedor);
+        TempData["realizado"] = "El Proveedor fue creado con exito.";
+        return RedirectToAction("ListarProveedores");
+    }
+
+
+    [HttpGet]
+    public async Task<IActionResult> EliminarProveedor(int idProv)
+    {
+        await _repoProv.DeleteAsync(idProv);
+        TempData["realizado"] = "El usuario fue Eliminado con exito.";
+        return RedirectToAction("ListarProveedores");
     }
 
 /*
