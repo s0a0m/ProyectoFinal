@@ -1,18 +1,18 @@
 [
   {
-    "id_domicilio": 1,
-    "id_provincia": 1,
-    "calle": "Av. Siempre Viva",
-    "numero": 742,
-    "piso": null,
-    "comentario": "Casa central"
+    "IdDomicilio": 1,
+    "IdProvincia": 1,
+    "Calle": "Av. Siempre Viva",
+    "Numero": 742,
+    "Piso": null,
+    "Comentario": "Casa central"
   },
   {
-    "id_domicilio": 2,
-    "id_provincia": 2,
-    "calle": "Calle Falsa",
-    "numero": 123,
-    "piso": 3,
-    "comentario": "Sucursal"
+    "IdDomicilio": 2,
+    "IdProvincia": 2,
+    "Calle": "Calle Falsa",
+    "Numero": 123,
+    "Piso": 3,
+    "Comentario": "Sucursal"
   }
 ]
