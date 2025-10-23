@@ -4,104 +4,104 @@ using src.Models.CodeFirst;
 
 public static class DbInitializer
 {
-    public static void SeedProvincias(AppDbContext context)
+    private class CondicionesPagoFile
     {
-        if (!context.Provincias.Any())
-        {
-            context.ChangeTracker.Clear();
-            var json = File.ReadAllText("data/seed/provincias.json");
-            var provincias = JsonSerializer.Deserialize<List<Provincia>>(json)!;
-            context.Provincias.AddRange(provincias);
-        }
-
-        context.SaveChanges();
-    }
-    public static void SeedCondicionesPago(AppDbContext context)
-    {
-        if (context.Condicion_pagos.Any())
-            return; // Ya hay datos, no vuelvas a cargarlos
-
-        string json = File.ReadAllText("data/seed/condiciones_pago.json");
-
-        using var document = JsonDocument.Parse(json);
-
-        var root = document.RootElement;
-
-        // Leer las secciones del JSON
-        var cuotasArray = root.GetProperty("cuotas").EnumerateArray();
-        var contadosArray = root.GetProperty("contados").EnumerateArray();
-
-        var condiciones = new List<CondicionDePago>();
-
-        // Procesar cuotas
-        foreach (var element in cuotasArray)
-        {
-            var c = new Cuota
-            {
-                IdCondicionPago = element.GetProperty("id_condicion_pago").GetInt16(),
-                DiasPago = element.GetProperty("dias_pago").GetInt16(),
-                Cuotas = element.GetProperty("cuotas").GetInt16(),
-                InteresPorcentual = element.GetProperty("interes_porcentual").GetDecimal()
-            };
-            condiciones.Add(c);
-        }
-
-        // Procesar contados
-        foreach (var element in contadosArray)
-        {
-            var c = new Contado
-            {
-                IdCondicionPago = element.GetProperty("id_condicion_pago").GetInt16(),
-                DiasPago = element.GetProperty("dias_pago").GetInt16()
-            };
-            condiciones.Add(c);
-        }
-
-        context.Condicion_pagos.AddRange(condiciones);
-        context.SaveChanges();
-
+        public List<Cuota> Cuotas { get; set; } = new();
+        public List<Contado> Contados { get; set; } = new();
     }
 
-
-
-    public static void SeedDomicilios(AppDbContext context)
+    private static readonly JsonSerializerOptions _jsonOptions = new()
     {
-        if (!context.Domicilios.Any())
+        // PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+        NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString
+    };
+
+    public static void SeedAll(AppDbContext context)
+    {
+        using var transaction = context.Database.BeginTransaction();
+
+        try
         {
-            context.ChangeTracker.Clear(); // limpia el tracker
-            var json = File.ReadAllText("data/seed/domicilios.json");
-            var domicilios = JsonSerializer.Deserialize<List<Domicilio>>(json)!;
-            context.Domicilios.AddRange(domicilios);
-            context.SaveChanges();
+            SeedProvincias(context);
+            SeedCondicionesPago(context);
+            SeedDomicilios(context);
+            SeedProveedores(context);
+            SeedUsuarios(context);
+
+            ResetSequence(context, "provincia", "id_provincia");
+            ResetSequence(context, "condicion_pago", "id_condicion_pago");
+            ResetSequence(context, "domicilio", "id_domicilio");
+            ResetSequence(context, "proveedor", "id_proveedor");
+            ResetSequence(context, "usuario", "id_usuario");
+
+            transaction.Commit();
+            Console.WriteLine(">>> Seeding de base de datos completado exitosamente.");
+        }
+        catch (Exception ex)
+        {
+            transaction.Rollback();
+            Console.WriteLine($">>> ERROR en el seeding: {ex.Message}");
         }
     }
 
-    public static void SeedProveedores(AppDbContext context)
+    private static void ResetSequence(AppDbContext context, string tableName, string idColumn)
     {
-        if (!context.Proveedores.Any())
-        {
-            context.ChangeTracker.Clear(); // limpia el tracker
-            var json = File.ReadAllText("data/seed/proveedores.json");
-            var proveedores = JsonSerializer.Deserialize<List<Proveedor>>(json)!;
-            context.Proveedores.AddRange(proveedores);
-            context.SaveChanges();
-        }
+        if (tableName.Contains(';') || idColumn.Contains(';'))
+            throw new ArgumentException("Nombre de tabla o columna inválido.");
+
+        string sql = $"SELECT setval(pg_get_serial_sequence('{tableName}', '{idColumn}'), (SELECT MAX({idColumn}) FROM {tableName}) + 1);";
+        context.Database.ExecuteSqlRaw(sql);
     }
-    public static void SeedUsuarios(AppDbContext context)
+
+    private static void SeedProvincias(AppDbContext context)
     {
-        if (!context.Usuarios.Any())
-        {
-            context.ChangeTracker.Clear();
-            var json = File.ReadAllText("data/seed/usuarios.json");
-            var usuarios = JsonSerializer.Deserialize<List<Usuario>>(json)!;
-            context.Usuarios.AddRange(usuarios);
-            context.SaveChanges();
-        }
+        if (context.Provincias.Any()) return;
+
+        var json = File.ReadAllText("data/seed/provincias.json");
+        var provincias = JsonSerializer.Deserialize<List<Provincia>>(json, _jsonOptions)!;
+        context.Provincias.AddRange(provincias);
+        Console.WriteLine($"- Seeding {provincias.Count} provincias...");
     }
-    private class CondicionesPagoSeed
+
+    private static void SeedCondicionesPago(AppDbContext context)
     {
-        public List<CondicionDePago> condiciones_pago { get; set; } = new();
-        public List<Cuota> cuotas { get; set; } = new();
-        public List<Contado> contados { get; set; } = new();
+        if (context.Condicion_pagos.Any()) return;
+
+        var json = File.ReadAllText("data/seed/condiciones_pago.json");
+        var data = JsonSerializer.Deserialize<CondicionesPagoFile>(json, _jsonOptions)!;
+
+        context.Condicion_pagos.AddRange(data.Cuotas);
+        context.Condicion_pagos.AddRange(data.Contados);
+        Console.WriteLine($"- Seeding {data.Cuotas.Count} Cuotas y {data.Contados.Count} Contados...");
+    }
+
+    private static void SeedDomicilios(AppDbContext context)
+    {
+        if (context.Domicilios.Any()) return;
+
+        var json = File.ReadAllText("data/seed/domicilios.json");
+        var domicilios = JsonSerializer.Deserialize<List<Domicilio>>(json, _jsonOptions)!;
+        context.Domicilios.AddRange(domicilios);
+        Console.WriteLine($"- Seeding {domicilios.Count} domicilios...");
+    }
+
+    private static void SeedProveedores(AppDbContext context)
+    {
+        if (context.Proveedores.Any()) return;
+
+        var json = File.ReadAllText("data/seed/proveedores.json");
+        var proveedores = JsonSerializer.Deserialize<List<Proveedor>>(json, _jsonOptions)!;
+        context.Proveedores.AddRange(proveedores);
+        Console.WriteLine($"- Seeding {proveedores.Count} proveedores...");
+    }
+
+    private static void SeedUsuarios(AppDbContext context)
+    {
+        if (context.Usuarios.Any()) return;
+
+        var json = File.ReadAllText("data/seed/usuarios.json");
+        var usuarios = JsonSerializer.Deserialize<List<Usuario>>(json, _jsonOptions)!;
+        context.Usuarios.AddRange(usuarios);
+        Console.WriteLine($"- Seeding {usuarios.Count} usuarios...");
     }
 }
