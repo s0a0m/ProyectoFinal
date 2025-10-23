@@ -10,6 +10,7 @@ public partial class Usuario
 
     [Key]
     [Column("id_usuario")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public short IdUsuario { get; set; }
     [Column("activo")]
     public bool Activo { get; set; }
