@@ -24,8 +24,10 @@ public static class DbInitializer
         {
             SeedProvincias(context);
             SeedCondicionesPago(context);
+            SeedPermisos(context);
             SeedUsuarios(context);
             context.SaveChanges();
+            SeedUsuarioPermisos(context);
             SeedDomicilios(context);
             context.SaveChanges();
             SeedProveedores(context);
@@ -56,6 +58,24 @@ public static class DbInitializer
         context.Database.ExecuteSqlRaw(sql);
     }
 
+    private static void SeedPermisos(AppDbContext context)
+    {
+        if (context.Permisos.Any()) return;
+        var json = File.ReadAllText("data/seed/permisos.json");
+        var permisos = JsonSerializer.Deserialize<List<Permiso>>(json, _jsonOptions)!;
+        context.Permisos.AddRange(permisos);
+        Console.WriteLine($"- Seeding {permisos.Count} permisos...");
+    }
+    private static void SeedUsuarioPermisos(AppDbContext context)
+    {
+        if (context.UsuariosPermisos.Any()) return;
+        var json = File.ReadAllText("data/seed/usuario_permiso.json");
+        var usuarioPermisos = JsonSerializer.Deserialize<List<UsuarioPermiso>>(json, _jsonOptions)!;
+        context.ChangeTracker.AutoDetectChangesEnabled = false;
+        context.UsuariosPermisos.AddRange(usuarioPermisos);
+        context.ChangeTracker.AutoDetectChangesEnabled = true;
+        Console.WriteLine($"- Seeding {usuarioPermisos.Count} relaciones UsuarioPermiso...");
+    }
     private static void SeedProvincias(AppDbContext context)
     {
         if (context.Provincias.Any()) return;
