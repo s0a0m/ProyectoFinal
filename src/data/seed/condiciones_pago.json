@@ -1,11 +1,11 @@
 {
-  "cuotas": [
+  "Cuotas": [
     {
-      "id_condicion_pago": 1,
-      "dias_pago": 30,
-      "cuotas": 3,
-      "interes_porcentual": 5
+      "IdCondicionPago": 1,
+      "DiasPago": 30,
+      "Cuotas": 3,
+      "InteresPorcentual": 5
     }
   ],
-  "contados": [{ "id_condicion_pago": 2, "dias_pago": 1 }]
+  "Contados": [{ "IdCondicionPago": 2, "DiasPago": 1 }]
 }

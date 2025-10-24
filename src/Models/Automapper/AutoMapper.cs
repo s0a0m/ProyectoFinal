@@ -48,12 +48,12 @@ public static partial class DominioMapper
 
     [MapDerivedType(typeof(Dom.Contado), typeof(EF.Contado))]
     [MapDerivedType(typeof(Dom.Cuota), typeof(EF.Cuota))]
-    
+
     public static partial EF.CondicionDePago Map(Dom.CondicionDePago source);
     public static partial IEnumerable<EF.CondicionDePago> Map(IEnumerable<Dom.CondicionDePago> source);
 
     [MapperIgnoreTarget(nameof(EF.Domicilio.Proveedores))]
-   [MapperIgnoreTarget(nameof(EF.Domicilio.IdProvinciaNavigation))] // <-- Ignora el objeto de navegación
+    [MapperIgnoreTarget(nameof(EF.Domicilio.IdProvinciaNavigation))] // <-- Ignora el objeto de navegación
     [MapProperty(
         nameof(Dom.Direccion.Prov.IdProvincia), // <-- Mapea DESDE el ID
         nameof(EF.Domicilio.IdProvincia)        // <-- Mapea HACIA la clave foránea

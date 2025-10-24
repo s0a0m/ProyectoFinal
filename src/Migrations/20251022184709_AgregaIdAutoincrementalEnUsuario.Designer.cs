@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using src.Models.CodeFirst;
@@ -11,9 +12,11 @@ using src.Models.CodeFirst;
 namespace src.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251022184709_AgregaIdAutoincrementalEnUsuario")]
+    partial class AgregaIdAutoincrementalEnUsuario
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -79,11 +82,8 @@ namespace src.Migrations
             modelBuilder.Entity("src.Models.CodeFirst.Proveedor", b =>
                 {
                     b.Property<short>("IdProveedor")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("smallint")
                         .HasColumnName("id_proveedor");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("IdProveedor"));
 
                     b.Property<bool>("Activo")
                         .ValueGeneratedOnAdd()
@@ -171,7 +171,7 @@ namespace src.Migrations
                     b.HasIndex(new[] { "IdProvincia" }, "unq_prov")
                         .IsUnique();
 
-                    b.ToTable("provincia", (string)null);
+                    b.ToTable("provincia");
                 });
 
             modelBuilder.Entity("src.Models.CodeFirst.Usuario", b =>
@@ -231,7 +231,7 @@ namespace src.Migrations
 
                     b.HasKey("IdUsuario");
 
-                    b.ToTable("usuario", (string)null);
+                    b.ToTable("usuario");
                 });
 
             modelBuilder.Entity("src.Models.CodeFirst.Contado", b =>
