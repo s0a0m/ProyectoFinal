@@ -17,7 +17,7 @@ public class ProveedorRepository : IProveedorRepository
 
     private IQueryable<EF.Proveedor> GetQueryProveedor()
     {
-        return  _context.Proveedores
+        return _context.Proveedores
         .Include(p => p.IdCondicionPagoHabitualNavigation)
         .Include(p => p.IdDomicilioNavigation)
             .ThenInclude(p => p.IdProvinciaNavigation);
@@ -28,7 +28,7 @@ public class ProveedorRepository : IProveedorRepository
         IEnumerable<EF.Proveedor> provEF = await GetQueryProveedor()
         .Where(p => p.Activo == true).ToListAsync();
         IEnumerable<Dom.Proveedor> proveedores = DominioMapper.Map(provEF);
-        return  proveedores;
+        return proveedores;
     }
 
     public async Task<Dom.Proveedor?> GetProveedorById(int idProv)
@@ -42,12 +42,14 @@ public class ProveedorRepository : IProveedorRepository
 
     public async Task AddAsync(Dom.Proveedor entity)
     {
+        entity.Direccion.IdDomicilio = 0;
+        entity.Condicion.IdCondicionPago = 0;
         EF.Proveedor proveedorEF = DominioMapper.Map(entity);
         await _context.Proveedores.AddAsync(proveedorEF);
         await _context.SaveChangesAsync();
     }
 
-   
+
     public async Task UpdateAsync(Dom.Proveedor entity)
     {
         EF.Proveedor proveedorEF = DominioMapper.Map(entity);
@@ -67,14 +69,14 @@ public class ProveedorRepository : IProveedorRepository
         await _context.SaveChangesAsync();
         return true;
     }
-    
-    public async Task <IEnumerable<Dom.Provincia>> GetAllProvinciaAsync()
+
+    public async Task<IEnumerable<Dom.Provincia>> GetAllProvinciaAsync()
     {
-        IEnumerable <EF.Provincia> provincias = await _context.Provincias.ToListAsync();
+        IEnumerable<EF.Provincia> provincias = await _context.Provincias.ToListAsync();
         IEnumerable<Dom.Provincia> provinciasDom = DominioMapper.Map(provincias);
         return provinciasDom;
-    }   
-    
+    }
+
 }
 
 
