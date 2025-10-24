@@ -65,6 +65,7 @@ public class ProveedorController : Controller
         return RedirectToAction("ListarProveedores");
     }
 
+   
 
     [HttpGet]
     public async Task<IActionResult> EliminarProveedor(int idProv)
@@ -75,6 +76,44 @@ public class ProveedorController : Controller
     }
 
 /*
+
+     [HttpGet]
+    
+    public async Task<IActionResult> ActualizarProveedor(int idProv)
+    {
+         IEnumerable<Dom.Provincia> ListaProv = await _repoProv.GetAllProvinciaAsync();
+        Dom.Proveedor prov = await _repoProv.GetProveedorById(idProv);
+        var ProveedorViewModel = new CrearProveedorViewModel
+        {
+            Direccion = new DireccionViewModel
+            {
+                ListaProvincias = ListaProv.ToList()
+            }
+        };
+        return View(prov);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ActualizarProveedor([FromForm] CrearProveedorViewModel proveedorVM)
+    {
+        if (!ModelState.IsValid)
+        {
+            IEnumerable<Dom.Provincia> listaProvincias1 = await _repoProv.GetAllProvinciaAsync();
+            proveedorVM.Direccion.ListaProvincias = listaProvincias1.ToList();
+            return View(proveedorVM);
+        }
+         IEnumerable<Dom.Provincia> listaProvincias = await _repoProv.GetAllProvinciaAsync();
+        proveedorVM.Direccion.ListaProvincias = listaProvincias.ToList();
+        Dom.Proveedor proveedor = CrearProveedorViewModel.cargarProveedor(proveedorVM);
+        await _repoProv.UpdateAsync(proveedor);
+        TempData["realizado"] = "El usuario fue Actualizado con exito.";
+        return RedirectToAction("ListarProveedores");
+    }
+
+
+
+
+
     [HttpGet("Ver/{idProv}")]
     public async Task<IActionResult> VerProveedor(int idProv)
     {

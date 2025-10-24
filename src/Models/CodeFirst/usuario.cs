@@ -9,6 +9,7 @@ public partial class Usuario
 {
 
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id_usuario")]
     public short IdUsuario { get; set; }
     [Column("activo")]

@@ -8,7 +8,9 @@ namespace src.Models.CodeFirst;
 [Table("domicilio")]
 public partial class Domicilio
 {
-    [Key, Required, Column("id_domicilio")]
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Column("id_domicilio")]
     public short IdDomicilio { get; set; }
 
     [Column("id_provincia")]

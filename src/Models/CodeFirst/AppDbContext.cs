@@ -93,7 +93,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasIndex(e => e.RazonSocial, "unq_razon").IsUnique();
 
-            entity.Property(e => e.IdProveedor).ValueGeneratedNever();
+            entity.Property(e => e.IdProveedor).ValueGeneratedOnAdd();
             entity.Property(e => e.Activo).HasDefaultValue(true);
             entity.Property(e => e.Correo)
                 .IsRequired()
