@@ -75,6 +75,113 @@ public class ProveedorController : Controller
         return RedirectToAction("ListarProveedores");
     }
 
+
+        [HttpGet]
+        public async Task<IActionResult> ActualizarProveedor(int idProv)
+        {
+           
+            Dom.Proveedor? prov = await _repoProv.GetProveedorById(idProv);
+            if (prov == null)
+            {
+                // Si el proveedor no existe, redirigir a la lista o mostrar error
+                TempData["Error"] = $"Proveedor con ID {idProv} no encontrado.";
+                return RedirectToAction("ListarProveedores");
+            }
+
+            IEnumerable<Dom.Provincia> listaProvEnumerable = await _repoProv.GetAllProvinciaAsync();
+            var listaProv = listaProvEnumerable.ToList(); 
+
+            var viewModel = new ActualizarProveedorViewModel(prov, listaProv);
+
+            return View("ActualizarProveedor", viewModel); 
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> ActualizarProveedor([FromForm] ActualizarProveedorViewModel proveedorVM)
+        {
+            
+            if (!ModelState.IsValid)
+            {
+                // Si la validación falla, recargar la lista de provincias
+                IEnumerable<Dom.Provincia> listaProvinciasError = await _repoProv.GetAllProvinciaAsync();
+                proveedorVM.Direccion.ListaProvincias = listaProvinciasError.ToList();
+                return View("ActualizarProveedor", proveedorVM);
+            }
+
+           
+            Dom.Proveedor? proveedorExistente = await _repoProv.GetProveedorById(proveedorVM.IdProveedor);
+            if (proveedorExistente == null)
+            {
+                // Manejar el caso raro donde el proveedor fue eliminado mientras se editaba
+                ModelState.AddModelError(string.Empty, "El proveedor que intenta actualizar ya no existe.");
+                IEnumerable<Dom.Provincia> listaProvinciasError = await _repoProv.GetAllProvinciaAsync();
+                proveedorVM.Direccion.ListaProvincias = listaProvinciasError.ToList();
+                return View("ActualizarProveedor", proveedorVM);
+            }
+
+            // 3. Mapear los cambios desde el ViewModel (proveedorVM) a la entidad existente (proveedorExistente)
+            proveedorExistente.Cuit = proveedorVM.Cuit.Trim();
+            proveedorExistente.RazonSocial = proveedorVM.RazonSocial.Trim();
+            proveedorExistente.Telefono = proveedorVM.Telefono.Trim();
+            proveedorExistente.Correo = proveedorVM.Correo.Trim();
+            proveedorExistente.PersonaResponsable = proveedorVM.PersonaResponsable.Trim();
+            proveedorExistente.Saldo = proveedorVM.Saldo;
+            proveedorExistente.Direccion.Calle = proveedorVM.Direccion.calle.Trim();
+            proveedorExistente.Direccion.Numero = proveedorVM.Direccion.numero;
+            proveedorExistente.Direccion.Piso = proveedorVM.Direccion.piso;
+            proveedorExistente.Direccion.Comentario = proveedorVM.Direccion.comentario?.Trim();
+
+
+             IEnumerable<Dom.Provincia> listaProvincias = await _repoProv.GetAllProvinciaAsync();
+           
+             Dom.Provincia? provinciaSeleccionada = listaProvincias
+                 .FirstOrDefault(p => p.IdProvincia == proveedorVM.Direccion.provincia.Id_provincia);
+             if(provinciaSeleccionada != null) {
+                  proveedorExistente.Direccion.Prov = provinciaSeleccionada;
+             } else {
+                 // Manejar error si la provincia seleccionada no es válida (aunque la validación debería prevenir esto)
+                 ModelState.AddModelError("Direccion.provincia.Id_provincia", "La provincia seleccionada no es válida.");
+                 proveedorVM.Direccion.ListaProvincias = listaProvincias.ToList();
+                 return View("ActualizarProveedor", proveedorVM);
+             }
+
+            if (proveedorVM.CondicionPago.Tipo == "Cuota")
+            {
+                // Si ya era Cuota, actualiza; si era Contado, reemplaza
+                var cuota = (proveedorExistente.Condicion as Dom.Cuota) ?? new Dom.Cuota();
+                cuota.DiasPago = proveedorVM.CondicionPago.DiasPago;
+                cuota.Cuotas = proveedorVM.CondicionPago.NumeroCuotas;
+                cuota.InteresPorcentual = proveedorVM.CondicionPago.InteresPorcentual;
+                proveedorExistente.Condicion = cuota; // Asigna la instancia (nueva o actualizada)
+            }
+            else if (proveedorVM.CondicionPago.Tipo == "Contado")
+            {
+                // Si ya era Contado, actualiza; si era Cuota, reemplaza
+                var contado = (proveedorExistente.Condicion as Dom.Contado) ?? new Dom.Contado();
+                contado.DiasPago = proveedorVM.CondicionPago.DiasPago;
+                proveedorExistente.Condicion = contado; // Asigna la instancia (nueva o actualizada)
+            }
+            else
+            {
+                 // Tipo inválido? Manejar error.
+                 ModelState.AddModelError("CondicionPago.Tipo", "El tipo de condición de pago no es válido.");
+                 proveedorVM.Direccion.ListaProvincias = listaProvincias.ToList(); // Necesario recargar
+                 return View("ActualizarProveedor", proveedorVM);
+            }
+
+            // 4. Llamar al Update del Repositorio con la entidad del Dominio actualizada
+            await _repoProv.UpdateAsync(proveedorExistente);
+
+            TempData["realizado"] = "El Proveedor fue actualizado con éxito."; // Mensaje más específico
+            return RedirectToAction("ListarProveedores");
+        }
+
+
+
+
+
+
+
     /*
 
          [HttpGet]

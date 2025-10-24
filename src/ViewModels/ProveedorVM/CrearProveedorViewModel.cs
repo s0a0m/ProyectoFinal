@@ -10,7 +10,9 @@ namespace src.ViewModels;
         {
         }
 
-        [Required(ErrorMessage = "El CUIT es obligatorio.")]
+       [Required(ErrorMessage = "El CUIT es obligatorio.")]
+    [StringLength(11, ErrorMessage = "El CUIT no puede exceder los 11 caracteres.")] 
+    [RegularExpression(@"^\d{11}$", ErrorMessage = "El CUIT debe contener exactamente 11 dígitos numéricos.")]
         public string Cuit { get; set; }
 
         [Required(ErrorMessage = "La razon social es obligatoria.")]

@@ -43,7 +43,7 @@ else
                             <p class="card-text">Saldo: @pr.Saldo</p>
                         </div>
                         <div class=" d-flex flex-column align-items-center">
-                            <a asp-controller="Proveedor" asp-action="ActualizarProveedor" asp-route-idUsuario="@pr.IdProveedor"
+                            <a asp-controller="Proveedor" asp-action="ActualizarProveedor" asp-route-idProv="@pr.IdProveedor"
                                 class="btn btn-outline-primary mb-2">Actualizar</a>
                             <button class="btn btn-outline-danger mb-2" data-bs-toggle="modal"
                                 data-bs-target="#mi-modal-@pr.IdProveedor">Eliminar</button>

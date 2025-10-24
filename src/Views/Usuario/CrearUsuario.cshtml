@@ -1,0 +1,85 @@
+@using src.ViewModels
+@model CrearUsuarioViewModel 
+
+@{
+    ViewData["Title"] = "Registro de Usuario"; 
+}
+
+
+
+<main class="form-signin w-100 m-auto">
+    
+    <form asp-controller="Usuario" asp-action="CrearUsuario" method="post" class="shadow-lg rounded bg-light p-4"> 
+        
+        <h2 class="text-center mb-4">@ViewData["Title"]</h2> 
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div> 
+        }
+
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Información Personal</legend>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Nombre" class="form-control" placeholder="Nombre">
+                <label asp-for="Nombre"></label>
+                <span asp-validation-for="Nombre" class="text-danger small"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Apellido" class="form-control" placeholder="Apellido">
+                <label asp-for="Apellido"></label>
+                <span asp-validation-for="Apellido" class="text-danger small"></span>
+            </div>
+
+             <div class="form-floating mb-3">
+                <input asp-for="Identificacion" class="form-control" placeholder="Identificación">
+                <label asp-for="Identificacion">Identificación (DNI/CUIT)</label>
+                <span asp-validation-for="Identificacion" class="text-danger small"></span>
+            </div>
+        </fieldset>
+
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Información de Contacto</legend>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Correo" class="form-control" placeholder="correo@ejemplo.com" type="email">
+                <label asp-for="Correo">Correo Electrónico</label>
+                <span asp-validation-for="Correo" class="text-danger small"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Telefono" class="form-control" placeholder="Teléfono" type="tel"> @* <-- Sugerencia: type="tel" *@
+                <label asp-for="Telefono"></label>
+                <span asp-validation-for="Telefono" class="text-danger small"></span>
+            </div>
+        </fieldset>
+
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Contraseña</legend>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Contrasenia" class="form-control" type="password"> @* <-- type="password" *@
+                <label asp-for="Contrasenia"></label>
+                <span asp-validation-for="Contrasenia" class="text-danger small"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="ConfirmarContrasenia" class="form-control" type="password"> @* <-- type="password" *@
+                <label asp-for="ConfirmarContrasenia"></label> @* El [Display] del VM se usa aquí *@
+                <span asp-validation-for="ConfirmarContrasenia" class="text-danger small"></span>
+            </div>
+        </fieldset>
+
+        <div class="d-flex justify-content-between gap-3">
+            <button class="btn btn-success w-50 py-2" type="submit">Registrar Usuario</button> @* <-- Texto cambiado *@
+            <a asp-controller="Usuario" asp-action="ListarUsuarios" class="btn btn-outline-secondary w-50 py-2">Cancelar</a> @* <-- Cambiado Action *@
+        </div>
+    </form>
+</main>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" /> @* <-- Necesario para validación del lado cliente *@
+    @* No necesitamos el script de CondicionPago aquí *@
+}
