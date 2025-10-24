@@ -47,7 +47,10 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("condicion_pago");
 
-            entity.Property(e => e.IdCondicionPago).ValueGeneratedNever();
+            // entity.Property(e => e.IdCondicionPago).ValueGeneratedNever();
+            // entity.Property(e => e.IdCondicionPago).ValueGeneratedOnAdd();
+            entity.Property(e => e.IdCondicionPago)
+                    .UseIdentityByDefaultColumn();
         });
 
         modelBuilder.Entity<Contado>(entity =>
@@ -56,14 +59,14 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("contado");
 
-            entity.Property(e => e.IdCondicionPago).ValueGeneratedNever();
+            // entity.Property(e => e.IdCondicionPago).ValueGeneratedNever();
         });
 
         modelBuilder.Entity<Cuota>(entity =>
         {
             // entity.HasKey(e => e.id_condicion_pago).HasName("cuotas_pkey");
             entity.ToTable("cuota");
-            entity.Property(e => e.IdCondicionPago).ValueGeneratedNever();
+            // entity.Property(e => e.IdCondicionPago).ValueGeneratedNever();
         });
 
         modelBuilder.Entity<Domicilio>(entity =>
@@ -72,7 +75,7 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("domicilio");
 
-            entity.Property(e => e.IdDomicilio).ValueGeneratedNever();
+            // entity.Property(e => e.IdDomicilio).ValueGeneratedNever();
             entity.Property(e => e.Calle)
                 .IsRequired()
                 .HasMaxLength(100);

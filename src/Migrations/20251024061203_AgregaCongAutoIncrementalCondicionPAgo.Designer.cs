@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using src.Models.CodeFirst;
@@ -11,9 +12,11 @@ using src.Models.CodeFirst;
 namespace src.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251024061203_AgregaCongAutoIncrementalCondicionPAgo")]
+    partial class AgregaCongAutoIncrementalCondicionPAgo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,11 +28,8 @@ namespace src.Migrations
             modelBuilder.Entity("src.Models.CodeFirst.CondicionDePago", b =>
                 {
                     b.Property<short>("IdCondicionPago")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("smallint")
                         .HasColumnName("id_condicion_pago");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("IdCondicionPago"));
 
                     b.Property<short>("DiasPago")
                         .HasColumnType("smallint")
@@ -46,11 +46,8 @@ namespace src.Migrations
             modelBuilder.Entity("src.Models.CodeFirst.Domicilio", b =>
                 {
                     b.Property<short>("IdDomicilio")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("smallint")
                         .HasColumnName("id_domicilio");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("IdDomicilio"));
 
                     b.Property<string>("Calle")
                         .IsRequired()
