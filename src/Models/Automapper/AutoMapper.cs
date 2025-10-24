@@ -40,6 +40,10 @@ public static partial class DominioMapper
     public static partial Dom.Proveedor Map(EF.Proveedor source);
     public static partial IEnumerable<Dom.Proveedor> Map(IEnumerable<EF.Proveedor> source);
 
+    [MapperIgnoreSource(nameof(EF.Permiso.UsuariosPermisos))]
+    public static partial Dom.Permiso Map(EF.Permiso source);
+    public static partial IEnumerable<Dom.Permiso> Map(IEnumerable<EF.Permiso> source);
+    [MapperIgnoreSource(nameof(EF.Usuario.UsuariosPermisos))]
     public static partial Dom.Usuario Map(EF.Usuario source);
     public static partial IEnumerable<Dom.Usuario> Map(IEnumerable<EF.Usuario> source);
 
@@ -77,7 +81,11 @@ public static partial class DominioMapper
     [MapperIgnoreTarget(nameof(EF.Proveedor.IdDomicilio))]
     public static partial EF.Proveedor Map(Dom.Proveedor source);
     public static partial IEnumerable<EF.Proveedor> Map(IEnumerable<Dom.Proveedor> source);
-
+    [MapperIgnoreTarget(nameof(EF.Usuario.UsuariosPermisos))]
     public static partial EF.Usuario Map(Dom.Usuario source);
     public static partial IEnumerable<EF.Usuario> Map(IEnumerable<Dom.Usuario> source);
+    [MapperIgnoreTarget(nameof(EF.Permiso.UsuariosPermisos))]
+    public static partial EF.Permiso Map(Dom.Permiso source);
+    public static partial IEnumerable<EF.Permiso> Map(IEnumerable<Dom.Permiso> source);
+
 }

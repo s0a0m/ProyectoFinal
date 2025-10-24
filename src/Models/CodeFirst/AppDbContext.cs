@@ -32,8 +32,34 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Provincia> Provincias { get; set; }
     public virtual DbSet<Usuario> Usuarios { get; set; }
+    public virtual DbSet<Permiso> Permisos { get; set; }
+    public virtual DbSet<UsuarioPermiso> UsuariosPermisos { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Permiso>(entity =>
+        {
+            entity.ToTable("permiso");
+            entity.HasIndex(e => e.Nombre).IsUnique().HasDatabaseName("unq_pm");
+        });
+
+        modelBuilder.Entity<UsuarioPermiso>(entity =>
+        {
+            entity.ToTable("usuario_permiso");
+
+            entity.HasKey(up => new { up.IdPermiso, up.IdUsuario })
+                  .HasName("usuario_permiso_pkey");
+
+            entity.HasOne(up => up.Permiso)
+                  .WithMany(p => p.UsuariosPermisos)
+                  .HasForeignKey(up => up.IdPermiso)
+                  .HasConstraintName("usuario_permiso_id_permiso_fkey");
+
+            entity.HasOne(up => up.Usuario)
+                  .WithMany(u => u.UsuariosPermisos)
+                  .HasForeignKey(up => up.IdUsuario)
+                  .HasConstraintName("usuario_permiso_id_usuario_fkey");
+        });
+
         modelBuilder.Entity<Usuario>(entity =>
         {
             entity.Property(u => u.Activo)

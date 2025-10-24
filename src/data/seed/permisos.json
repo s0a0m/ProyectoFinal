@@ -1,0 +1,62 @@
+[
+  {
+    "IdPermiso": 1,
+    "Nombre": "VER_COMPRAS",
+    "Descripcion": "Permite visualizar el listado de órdenes de compra."
+  },
+  {
+    "IdPermiso": 2,
+    "Nombre": "CREAR_COMPRA",
+    "Descripcion": "Permite generar nuevas órdenes de compra."
+  },
+  {
+    "IdPermiso": 3,
+    "Nombre": "EDITAR_COMPRA",
+    "Descripcion": "Permite modificar órdenes de compra existentes."
+  },
+  {
+    "IdPermiso": 4,
+    "Nombre": "ANULAR_COMPRA",
+    "Descripcion": "Permite anular órdenes de compra."
+  },
+  {
+    "IdPermiso": 5,
+    "Nombre": "GESTIONAR_PRODUCTOS",
+    "Descripcion": "Acceso completo a la gestión de productos."
+  },
+  {
+    "IdPermiso": 6,
+    "Nombre": "VER_PROVEEDORES",
+    "Descripcion": "Permite ver la lista de proveedores."
+  },
+  {
+    "IdPermiso": 7,
+    "Nombre": "CREAR_PROVEEDOR",
+    "Descripcion": "Permite registrar nuevos proveedores."
+  },
+  {
+    "IdPermiso": 8,
+    "Nombre": "GESTIONAR_USUARIOS",
+    "Descripcion": "Acceso a la creación y edición de usuarios del sistema."
+  },
+  {
+    "IdPermiso": 9,
+    "Nombre": "ASIGNAR_PERMISOS",
+    "Descripcion": "Permite modificar los roles y permisos de otros usuarios."
+  },
+  {
+    "IdPermiso": 10,
+    "Nombre": "VER_REPORTES_VENTAS",
+    "Descripcion": "Acceso a informes financieros y de ventas."
+  },
+  {
+    "IdPermiso": 11,
+    "Nombre": "GESTIONAR_DEPOSITOS",
+    "Descripcion": "Administración de depósitos y ubicaciones de inventario."
+  },
+  {
+    "IdPermiso": 12,
+    "Nombre": "ADMIN_SISTEMA",
+    "Descripcion": "Permiso de superadministrador para configuraciones críticas."
+  }
+]

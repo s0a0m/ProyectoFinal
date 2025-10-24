@@ -1,17 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
-using src.Repositories.Interfaces; 
+using src.Repositories.Interfaces;
 using src.ViewModels;
-using System.Linq; 
+using System.Linq;
 using Dom = src.Models.Domain;
 
 namespace src.Controllers
 {
 
-    public class UsuarioController : Controller 
+    public class UsuarioController : Controller
     {
         private readonly IUsuarioRepository _repoUsuario;
 
-      
+
         public UsuarioController(IUsuarioRepository repoUsuario)
         {
             _repoUsuario = repoUsuario;
@@ -22,25 +22,25 @@ namespace src.Controllers
         {
             return View(await _repoUsuario.GetUsuarioByIdAsync(idUser));
         }
-        
+
         [HttpGet]
         public async Task<IActionResult> ListarUsuarios()
         {
             var listaUsuarios = await _repoUsuario.GetAllUsuarioAsync();
             var usuariosActivos = listaUsuarios.Where(u => u.Activo == true);
-                                     
+
             return View("ListarUsuarios", usuariosActivos);
         }
 
         [HttpGet]
         public IActionResult CrearUsuario()
         {
-            
+
             var viewModel = new CrearUsuarioViewModel();
             return View("CrearUsuario", viewModel); // Devuelve la vista del formulario
         }
 
-        
+
         [HttpPost]
         public async Task<IActionResult> CrearUsuario([FromForm] CrearUsuarioViewModel usuarioVM)
         {
@@ -58,7 +58,7 @@ namespace src.Controllers
 
             // Usamos el método estático del VM para mapear (igual que tu patrón)
             Dom.Usuario usuario = CrearUsuarioViewModel.CargarUsuario(usuarioVM);
-            
+
             await _repoUsuario.AddAsync(usuario);
 
             TempData["realizado"] = "El Usuario fue creado con éxito.";
@@ -81,11 +81,11 @@ namespace src.Controllers
             return View(usuarioViewModel);
         }
 
-        
+
         [HttpPost]
-        public async Task<IActionResult> ActualizarUsuario([FromForm]   ActualizarUsuarioViewModel usuarioVM)
+        public async Task<IActionResult> ActualizarUsuario([FromForm] ActualizarUsuarioViewModel usuarioVM)
         {
-            
+
             if (!ModelState.IsValid)
             {
                 // Si falla, devolvemos la vista con el VM
@@ -105,11 +105,11 @@ namespace src.Controllers
             usuarioExistente.Identificacion = usuarioVM.Identificacion;
             usuarioExistente.Correo = usuarioVM.Correo;
             usuarioExistente.Telefono = usuarioVM.Telefono;
-            
+
             if (!string.IsNullOrEmpty(usuarioVM.Contrasenia))
             {
-            // falta HASHEAR la contraseña 
-            usuarioExistente.Contrasenia = usuarioVM.Contrasenia; 
+                // falta HASHEAR la contraseña 
+                usuarioExistente.Contrasenia = usuarioVM.Contrasenia;
             }
 
             await _repoUsuario.UpdateAsync(usuarioExistente);
@@ -118,14 +118,14 @@ namespace src.Controllers
             return RedirectToAction("ListarUsuarios");
         }
 
-       /*
-        
-    */
-      
+        /*
+
+     */
+
         [HttpGet]
-        public async Task<IActionResult> EliminarUsuario(int idUsuario) 
+        public async Task<IActionResult> EliminarUsuario(int idUsuario)
         {
-            await _repoUsuario.DeleteAsync(idUsuario); 
+            await _repoUsuario.DeleteAsync(idUsuario);
             TempData["realizado"] = "El Usuario fue desactivado con éxito.";
             return RedirectToAction("ListarUsuarios");
         }
