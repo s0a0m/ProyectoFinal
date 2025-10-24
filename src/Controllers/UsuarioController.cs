@@ -28,7 +28,7 @@ public class UsuariosController : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var usuario = await _repository.GetUsuarioByIdAsync(id);
-        if (usuario == null)
+        if (usuario == null || usuario.Activo == false)
         {
             return NotFound($"Usuario con ID {id} no encontrado.");
         }
