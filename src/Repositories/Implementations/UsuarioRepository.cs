@@ -20,23 +20,20 @@ public class UsuarioRepository : IUsuarioRepository
         return _context.Usuarios;
     }
 
-    public async Task<IEnumerable<Dom.Usuario>> GetAllUsuarioAsync()
+    public async Task<IEnumerable<Dom.Usuario>> GetAllAsync()
     {
         IEnumerable<EF.Usuario> usuarioEF = await GetQueryUsuario().ToListAsync();
         IEnumerable<Dom.Usuario> usuarios = DominioMapper.Map(usuarioEF);
         return usuarios;
     }
 
-    public async Task<Dom.Usuario?> GetUsuarioByIdAsync(int idUsuario)
+    public async Task<Dom.Usuario?> GetByIdAsync(int idUsuario)
     {
         EF.Usuario? usuarioEF = await GetQueryUsuario()
             .Where(u => u.IdUsuario == idUsuario)
             .FirstOrDefaultAsync();
 
-        if (usuarioEF is null) return null;
-
-        Dom.Usuario usuarioDOM = DominioMapper.Map(usuarioEF);
-        return usuarioDOM;
+        return usuarioEF is null ? null : DominioMapper.Map(usuarioEF);
     }
 
     public async Task AddAsync(Dom.Usuario entity)
@@ -51,28 +48,7 @@ public class UsuarioRepository : IUsuarioRepository
     public async Task UpdateAsync(Dom.Usuario entity)
     {
         EF.Usuario usuarioEF = DominioMapper.Map(entity);
-        var existingEntity = await _context.Usuarios.FindAsync(usuarioEF.IdUsuario);
-
-        if (existingEntity == null)
-        {
-            throw new InvalidOperationException($"Usuario con ID {usuarioEF.IdUsuario} no encontrado.");
-        }
-        _context.Entry(existingEntity).CurrentValues.SetValues(usuarioEF);
+        _context.Usuarios.Update(usuarioEF);
         await _context.SaveChangesAsync();
-    }
-
-    public async Task<bool> DeleteAsync(int id)
-    {
-        // Asumiendo soft-delete (Baja lógica)
-        var usuarioEF = await _context.Usuarios
-            .FirstOrDefaultAsync(u => u.IdUsuario == id);
-
-        if (usuarioEF == null)
-            return false;
-
-        // Asumiendo que EF.Usuario tiene una propiedad 'Activo'
-        usuarioEF.Activo = false;
-        await _context.SaveChangesAsync();
-        return true;
     }
 }

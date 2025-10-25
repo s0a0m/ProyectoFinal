@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using src.Core.Services.Interfaces;
 using src.Models.CodeFirst;
 using src.Repositories.Implementations;
 using src.Repositories.Interfaces;
@@ -14,6 +15,7 @@ builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
 // builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<IProveedorRepository, ProveedorRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // swagger
 
