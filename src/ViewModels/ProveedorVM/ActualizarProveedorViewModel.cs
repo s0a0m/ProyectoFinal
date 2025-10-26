@@ -5,12 +5,12 @@ namespace src.ViewModels
 {
     public class ActualizarProveedorViewModel
     {
-        [Required] 
-        public int IdProveedor { get; set; } 
+        [Required]
+        public int IdProveedor { get; set; }
 
 
         [Required(ErrorMessage = "El CUIT es obligatorio.")]
-        [RegularExpression(@"^\d{11}$", ErrorMessage = "El CUIT debe tener 11 dígitos numéricos.")] 
+        [RegularExpression(@"^\d{11}$", ErrorMessage = "El CUIT debe tener 11 dígitos numéricos.")]
         public string Cuit { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "La razón social es obligatoria.")]
@@ -19,7 +19,7 @@ namespace src.ViewModels
 
         [Required(ErrorMessage = "El número de teléfono es obligatorio.")]
         [StringLength(12)]
-        [Phone(ErrorMessage = "Formato de teléfono no válido.")] 
+        [Phone(ErrorMessage = "Formato de teléfono no válido.")]
         public string Telefono { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El Mail es obligatorio.")]
@@ -34,7 +34,7 @@ namespace src.ViewModels
         [Range(0, 9999999999.99, ErrorMessage = "El saldo debe ser un valor positivo.")] // Mantener validación
         public decimal Saldo { get; set; }
 
-      
+
 
         [Required(ErrorMessage = "La condición de pago es obligatoria.")]
         public CondicionDePagoViewModel CondicionPago { get; set; } = new();
@@ -75,7 +75,7 @@ namespace src.ViewModels
                 ListaProvincias = listaProvincias,
                 provincia = new ProvinciaViewModel
                 {
-                    Id_provincia = p.Direccion.Prov.IdProvincia 
+                    Id_provincia = p.Direccion.Prov.IdProvincia
                 }
             };
 
@@ -84,11 +84,48 @@ namespace src.ViewModels
                 CondicionPago = new CondicionDePagoViewModel
                 {
                     DiasPago = p.Condicion.DiasPago,
-                    Tipo = (p.Condicion is Dom.Cuota) ? "Cuota" : "Contado", 
+                    Tipo = (p.Condicion is Dom.Cuota) ? "Cuota" : "Contado",
 
-                 
-                    NumeroCuotas = (p.Condicion as Dom.Cuota)?.Cuotas ?? 0, 
-                    InteresPorcentual = (p.Condicion as Dom.Cuota)?.InteresPorcentual ?? 0M 
+
+                    NumeroCuotas = (p.Condicion as Dom.Cuota)?.Cuotas ?? 0,
+                    InteresPorcentual = (p.Condicion as Dom.Cuota)?.InteresPorcentual ?? 0M
+                };
+            }
+        }
+
+        public ActualizarProveedorViewModel(Dom.Proveedor p)
+        {
+            IdProveedor = p.IdProveedor;
+            Cuit = p.Cuit;
+            RazonSocial = p.RazonSocial;
+            Telefono = p.Telefono;
+            Correo = p.Correo;
+            PersonaResponsable = p.PersonaResponsable;
+            Saldo = p.Saldo;
+
+            // Mapear Dirección
+            Direccion = new DireccionViewModel
+            {
+                calle = p.Direccion.Calle,
+                numero = p.Direccion.Numero,
+                piso = p.Direccion.Piso,
+                comentario = p.Direccion.Comentario,
+                provincia = new ProvinciaViewModel
+                {
+                    Id_provincia = p.Direccion.Prov.IdProvincia
+                }
+            };
+
+            if (p.Condicion != null)
+            {
+                CondicionPago = new CondicionDePagoViewModel
+                {
+                    DiasPago = p.Condicion.DiasPago,
+                    Tipo = (p.Condicion is Dom.Cuota) ? "Cuota" : "Contado",
+
+
+                    NumeroCuotas = (p.Condicion as Dom.Cuota)?.Cuotas ?? 0,
+                    InteresPorcentual = (p.Condicion as Dom.Cuota)?.InteresPorcentual ?? 0M
                 };
             }
         }

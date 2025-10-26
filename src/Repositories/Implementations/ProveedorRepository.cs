@@ -25,8 +25,7 @@ public class ProveedorRepository : IProveedorRepository
 
     public async Task<IEnumerable<Dom.Proveedor>> GetAllProveedorAsync()
     {
-        IEnumerable<EF.Proveedor> provEF = await GetQueryProveedor()
-        .Where(p => p.Activo == true).ToListAsync();
+        IEnumerable<EF.Proveedor> provEF = await GetQueryProveedor().ToListAsync();
         IEnumerable<Dom.Proveedor> proveedores = DominioMapper.Map(provEF);
         return proveedores;
     }
@@ -34,29 +33,34 @@ public class ProveedorRepository : IProveedorRepository
     public async Task<Dom.Proveedor?> GetProveedorById(int idProv)
     {
         EF.Proveedor? proveedorEF = await GetQueryProveedor().Where(p => p.IdProveedor == idProv).FirstOrDefaultAsync();
-        if (proveedorEF is null) return null;
-        Dom.Proveedor proveedorDOM = DominioMapper.Map(proveedorEF);
-        return proveedorDOM;
+        return proveedorEF is null ? null : DominioMapper.Map(proveedorEF);
     }
 
 
     public async Task AddAsync(Dom.Proveedor entity)
     {
-        entity.Direccion.IdDomicilio = 0;
-        entity.Condicion.IdCondicionPago = 0;
         EF.Proveedor proveedorEF = DominioMapper.Map(entity);
+        proveedorEF.IdProveedor = 0;
+        proveedorEF.IdDomicilio = 0;
+        proveedorEF.IdCondicionPagoHabitual = 0;
         await _context.Proveedores.AddAsync(proveedorEF);
         await _context.SaveChangesAsync();
+        entity.IdProveedor = proveedorEF.IdProveedor;
+        entity.Direccion.IdDomicilio = proveedorEF.IdDomicilio;
+        if (entity.Condicion != null)
+        {
+            entity.Condicion.IdCondicionPago = proveedorEF.IdCondicionPagoHabitual;
+        }
     }
 
 
-    
 
-    public async Task UpdateAsync(Dom.Proveedor entity) 
+
+    public async Task UpdateAsync(Dom.Proveedor entity)
     {
         var existingEntity = await _context.Proveedores
-                                        .Include(p => p.IdDomicilioNavigation) 
-                                        .Include(p => p.IdCondicionPagoHabitualNavigation) 
+                                        .Include(p => p.IdDomicilioNavigation)
+                                        .Include(p => p.IdCondicionPagoHabitualNavigation)
                                         .FirstOrDefaultAsync(p => p.IdProveedor == entity.IdProveedor);
 
         if (existingEntity == null)
@@ -71,29 +75,29 @@ public class ProveedorRepository : IProveedorRepository
         _context.Entry(existingEntity).CurrentValues.SetValues(proveedorTemporalEF);
 
         // --- Explicit Handling for Domicilio ---
-        if (existingEntity.IdDomicilioNavigation != null && entity.Direccion != null) 
+        if (existingEntity.IdDomicilioNavigation != null && entity.Direccion != null)
         {
             // Map the updated Domain Direccion to a temporary EF Domicilio
             // Note: Make sure your mapper handles the Provincia FK correctly here!
             // It should map Dom.Direccion.Prov.IdProvincia -> EF.Domicilio.IdProvincia
-            EF.Domicilio domicilioTemporalEF = DominioMapper.Map(entity.Direccion); 
+            EF.Domicilio domicilioTemporalEF = DominioMapper.Map(entity.Direccion);
 
             // Apply changes to the TRACKED DomicilioNavigation
             _context.Entry(existingEntity.IdDomicilioNavigation).CurrentValues.SetValues(domicilioTemporalEF);
-            
+
             // Explicitly ensure the Provincia Foreign Key is set on the tracked Domicilio
             // This relies on the controller having correctly assigned entity.Direccion.Prov
-            if (entity.Direccion.Prov != null) 
+            if (entity.Direccion.Prov != null)
             {
                 existingEntity.IdDomicilioNavigation.IdProvincia = entity.Direccion.Prov.IdProvincia;
-            } 
-            else 
+            }
+            else
             {
                 // Handle cases where Provincia might become null if allowed by DB
                 // existingEntity.IdDomicilioNavigation.IdProvincia = 0; // Or appropriate default/null FK
             }
-        } 
-        else if (entity.Direccion != null) 
+        }
+        else if (entity.Direccion != null)
         {
             // Handle case: Existing provider had no address, but now one is added.
             // This is less likely if Direccion is required, but good practice.
@@ -122,23 +126,23 @@ public class ProveedorRepository : IProveedorRepository
         bool conditionChanged = false;
         EF.CondicionDePago? newConditionEF = null;
 
-        if (entity.Condicion != null) 
+        if (entity.Condicion != null)
         {
-            newConditionEF = DominioMapper.Map(entity.Condicion); 
-            if (existingEntity.IdCondicionPagoHabitualNavigation == null || 
-                existingEntity.IdCondicionPagoHabitualNavigation.GetType() != newConditionEF.GetType() || 
-                existingEntity.IdCondicionPagoHabitual != newConditionEF.IdCondicionPago) 
+            newConditionEF = DominioMapper.Map(entity.Condicion);
+            if (existingEntity.IdCondicionPagoHabitualNavigation == null ||
+                existingEntity.IdCondicionPagoHabitualNavigation.GetType() != newConditionEF.GetType() ||
+                existingEntity.IdCondicionPagoHabitual != newConditionEF.IdCondicionPago)
             {
                 conditionChanged = true;
                 if (existingEntity.IdCondicionPagoHabitualNavigation != null)
                 {
                     _context.Remove(existingEntity.IdCondicionPagoHabitualNavigation);
                 }
-                newConditionEF.IdCondicionPago = 0; 
-                _context.Add(newConditionEF); 
-                existingEntity.IdCondicionPagoHabitualNavigation = newConditionEF; 
+                newConditionEF.IdCondicionPago = 0;
+                _context.Add(newConditionEF);
+                existingEntity.IdCondicionPagoHabitualNavigation = newConditionEF;
             }
-            else 
+            else
             {
                 _context.Entry(existingEntity.IdCondicionPagoHabitualNavigation).CurrentValues.SetValues(newConditionEF);
             }
@@ -148,7 +152,7 @@ public class ProveedorRepository : IProveedorRepository
             _context.Remove(existingEntity.IdCondicionPagoHabitualNavigation);
             existingEntity.IdCondicionPagoHabitualNavigation = null;
             existingEntity.IdCondicionPagoHabitual = 0; // Or null if FK is nullable
-            conditionChanged = true; 
+            conditionChanged = true;
         }
 
         // --- Save Changes ---
@@ -167,14 +171,6 @@ public class ProveedorRepository : IProveedorRepository
         await _context.SaveChangesAsync();
         return true;
     }
-
-    public async Task<IEnumerable<Dom.Provincia>> GetAllProvinciaAsync()
-    {
-        IEnumerable<EF.Provincia> provincias = await _context.Provincias.ToListAsync();
-        IEnumerable<Dom.Provincia> provinciasDom = DominioMapper.Map(provincias);
-        return provinciasDom;
-    }
-
 }
 
 

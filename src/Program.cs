@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using src.Core.Services.Implementations;
 using src.Core.Services.Interfaces;
 using src.Models.CodeFirst;
 using src.Repositories.Implementations;
@@ -11,11 +12,14 @@ var connectionString = builder.Configuration.GetConnectionString("PostgresConnec
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
-builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
-// builder.Services.AddAutoMapper(typeof(Program));
-builder.Services.AddScoped<IProveedorRepository, ProveedorRepository>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IProveedorRepository, ProveedorRepository>();
+builder.Services.AddScoped<IProveedorService, ProveedorService>();
+builder.Services.AddScoped<ICommonDataService, CommonDataService>();
+
+builder.Services.AddScoped<IProvinciaRepository, ProvinciaRepository>();
 
 // swagger
 
