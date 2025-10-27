@@ -5,11 +5,26 @@ using src.Models.CodeFirst;
 using src.Repositories.Implementations;
 using src.Repositories.Interfaces;
 
-var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("PostgresConnection");
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    WebRootPath = "Presentation/wwwroot"
+});
 
+
+var connectionString = builder.Configuration.GetConnectionString("PostgresConnection");
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddRazorOptions(options =>
+    {
+        options.ViewLocationFormats.Clear(); // Opcional: limpiar las rutas por defecto si quieres control total
+        options.ViewLocationFormats.Add("/Presentation/Views/{1}/{0}.cshtml");
+        options.ViewLocationFormats.Add("/Presentation/Views/Shared/{0}.cshtml");
+    });
+
+// builder.Environment.WebRootPath = Path.Combine(builder.Environment.ContentRootPath, "Presentation", "wwwroot");
+builder.Environment.WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), "Presentation", "wwwroot");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
@@ -64,6 +79,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
 
 app.MapControllerRoute(
     name: "default",
