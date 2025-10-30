@@ -34,6 +34,9 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Usuario> Usuarios { get; set; }
     public virtual DbSet<Permiso> Permisos { get; set; }
     public virtual DbSet<UsuarioPermiso> UsuariosPermisos { get; set; }
+    public virtual DbSet<GrupoPermisos> GruposPermisos { get; set; }
+    public virtual DbSet<GrupoPermisoPermiso> GruposPermisosPermisos { get; set; }
+    public virtual DbSet<UsuarioGrupoPermisos> UsuariosGruposPermisos { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Permiso>(entity =>
@@ -58,6 +61,48 @@ public partial class AppDbContext : DbContext
                   .WithMany(u => u.UsuariosPermisos)
                   .HasForeignKey(up => up.IdUsuario)
                   .HasConstraintName("usuario_permiso_id_usuario_fkey");
+        });
+
+        modelBuilder.Entity<GrupoPermisos>(entity =>
+        {
+            entity.ToTable("grupo_permisos");
+            entity.HasIndex(e => e.Nombre).IsUnique().HasDatabaseName("unq_gpm");
+        });
+
+        modelBuilder.Entity<GrupoPermisoPermiso>(entity =>
+        {
+            entity.ToTable("grupo_permiso_permiso");
+
+            entity.HasKey(gpp => new { gpp.IdGrupoPermiso, gpp.IdPermiso })
+                  .HasName("grupo_permiso_permiso_pkey");
+
+            entity.HasOne(gpp => gpp.GrupoPermiso)
+                  .WithMany(gp => gp.GruposPermisosPermisos)
+                  .HasForeignKey(gpp => gpp.IdGrupoPermiso)
+                  .HasConstraintName("gpp_id_grupo_permiso_fkey");
+
+            entity.HasOne(gpp => gpp.Permiso)
+                  .WithMany(p => p.GruposPermisosPermisos)
+                  .HasForeignKey(gpp => gpp.IdPermiso)
+                  .HasConstraintName("gpp_id_permiso_fkey");
+        });
+
+        modelBuilder.Entity<UsuarioGrupoPermisos>(entity =>
+        {
+            entity.ToTable("usuario_grupo_permisos");
+
+            entity.HasKey(ugp => new { ugp.IdUsuario, ugp.IdGrupoPermiso })
+                  .HasName("usuario_grupo_permisos_pkey");
+
+            entity.HasOne(ugp => ugp.Usuario)
+                  .WithMany(u => u.UsuariosGruposPermisos)
+                  .HasForeignKey(ugp => ugp.IdUsuario)
+                  .HasConstraintName("ugp_id_usuario_fkey");
+
+            entity.HasOne(ugp => ugp.GrupoPermiso)
+                  .WithMany(gp => gp.UsuariosGruposPermisos)
+                  .HasForeignKey(ugp => ugp.IdGrupoPermiso)
+                  .HasConstraintName("ugp_id_grupo_permiso_fkey");
         });
 
         modelBuilder.Entity<Usuario>(entity =>

@@ -17,7 +17,7 @@ var connectionString = builder.Configuration.GetConnectionString("PostgresConnec
 builder.Services.AddControllersWithViews()
     .AddRazorOptions(options =>
     {
-        options.ViewLocationFormats.Clear(); // Opcional: limpiar las rutas por defecto si quieres control total
+        // options.ViewLocationFormats.Clear(); // Opcional: limpiar las rutas por defecto si quieres control total
         options.ViewLocationFormats.Add("/Presentation/Views/{1}/{0}.cshtml");
         options.ViewLocationFormats.Add("/Presentation/Views/Shared/{0}.cshtml");
     });

@@ -48,4 +48,5 @@ public partial class Usuario
     [Column("fecha_alta", TypeName = "date")]
     public DateTime FechaAlta { get; set; }
     public ICollection<UsuarioPermiso> UsuariosPermisos { get; set; } = new List<UsuarioPermiso>();
+    public ICollection<UsuarioGrupoPermisos> UsuariosGruposPermisos { get; set; } = new List<UsuarioGrupoPermisos>();
 }
