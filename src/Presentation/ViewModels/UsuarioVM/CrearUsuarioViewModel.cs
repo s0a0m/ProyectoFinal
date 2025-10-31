@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Dom = src.Models.Domain; 
-namespace src.ViewModels
+namespace src.Presentation.ViewModels.UsuarioVM
 {
     /// <summary>
     /// ViewModel para el formulario de creación de nuevos usuarios.
@@ -43,10 +43,16 @@ namespace src.ViewModels
         [DataType(DataType.Password)]
         [Compare(nameof(Contrasenia), ErrorMessage = "Las contraseñas no coinciden.")]
         [Display(Name = "Confirmar Contraseña")] 
-        public string ConfirmarContrasenia { get; set; } 
-        
+        public string ConfirmarContrasenia { get; set; }
+
         // El estado 'Activo' por defecto al crear
         public bool Activo { get; set; } = true;
+        
+        // Para recibir los IDs seleccionados desde el formulario POST
+        public List<int> PermisosSeleccionados { get; set; } = new();
+
+        // Para mostrar la lista de checkboxes en el formulario GET
+        public List<PermisoAsignadoViewModel> TodosLosPermisos { get; set; } = new();
 
        
         public static Dom.Usuario CargarUsuario(CrearUsuarioViewModel vm)
@@ -61,7 +67,10 @@ namespace src.ViewModels
                 Telefono = vm.Telefono.Trim(),
                 Contrasenia = vm.Contrasenia, 
                 Activo = true, 
-                FechaAlta = DateTime.UtcNow 
+                FechaAlta = DateTime.UtcNow ,
+                Permisos = vm.PermisosSeleccionados // <-- Asignamos solo los IDs
+                               .Select(id => new Dom.Permiso { IdPermiso = id })
+                               .ToList()
             };
         }
     }

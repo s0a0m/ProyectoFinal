@@ -1,4 +1,5 @@
 using Dom = src.Models.Domain;
+
 public interface ICommonDataService
 {
     // Obtiene datos de referencia para dropdowns.

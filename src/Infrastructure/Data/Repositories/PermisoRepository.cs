@@ -140,4 +140,48 @@ public class PermisoRepository : IPermisoRepository
         return DominioMapper.Map(efPermisos);
     }
 
+    public async Task ReemplazarPermisosAsync(int idUsuario, IEnumerable<int> nuevosIdsPermisos)
+    {
+        // 1. Obtener los permisos actuales que SÍ tiene el usuario
+        var relacionesActuales = await _context.UsuariosPermisos
+            .Where(up => up.IdUsuario == idUsuario)
+            .ToListAsync();
+
+        var idsActuales = relacionesActuales.Select(up => up.IdPermiso).ToHashSet();
+        var idsNuevos = nuevosIdsPermisos.ToHashSet();
+
+        // 2. Calcular qué quitar
+        var relacionesParaQuitar = relacionesActuales
+            .Where(up => !idsNuevos.Contains(up.IdPermiso))
+            .ToList();
+
+        // 3. Calcular qué agregar
+        var idsParaAgregar = idsNuevos
+            .Where(id => !idsActuales.Contains(id))
+            .ToList();
+
+        var relacionesParaAgregar = idsParaAgregar.Select(idPermiso => new EF.UsuarioPermiso
+        {
+            IdUsuario = (short)idUsuario,
+            IdPermiso = idPermiso
+        }).ToList();
+
+        // 4. Aplicar cambios en una transacción
+        if (relacionesParaQuitar.Any())
+        {
+            _context.UsuariosPermisos.RemoveRange(relacionesParaQuitar);
+        }
+
+        if (relacionesParaAgregar.Any())
+        {
+            _context.UsuariosPermisos.AddRange(relacionesParaAgregar);
+        }
+
+        // Solo guardar si hubo cambios
+        if (relacionesParaQuitar.Any() || relacionesParaAgregar.Any())
+        {
+            await _context.SaveChangesAsync();
+        }
+    }
+
 }

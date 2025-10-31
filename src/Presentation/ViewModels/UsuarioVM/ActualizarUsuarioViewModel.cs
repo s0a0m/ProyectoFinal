@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Dom = src.Models.Domain; 
 
-namespace src.ViewModels
+namespace src.Presentation.ViewModels.UsuarioVM
 {
     public class ActualizarUsuarioViewModel
     {
@@ -42,10 +42,18 @@ namespace src.ViewModels
         public string? ConfirmarContrasenia { get; set; } // SÍ es nulable
         
         // saque la posibilidad de actualizar el estado
+
+        // Para recibir los IDs seleccionados desde el formulario POST
+        public List<int> PermisosSeleccionados { get; set; } = new();
+
+        // Para mostrar la lista de checkboxes en el formulario GET
+        public List<PermisoAsignadoViewModel> TodosLosPermisos { get; set; } = new();
+
+        // --- FIN DE CAMBIOS ---
     
         public ActualizarUsuarioViewModel() { }
 
-        public ActualizarUsuarioViewModel(Dom.Usuario u)
+        public ActualizarUsuarioViewModel(Dom.Usuario u,List<Dom.Permiso> todosLosPermisos)
         {
             IdUsuario = u.IdUsuario;
             Nombre = u.Nombre;
@@ -54,6 +62,15 @@ namespace src.ViewModels
             Correo = u.Correo;
             Telefono = u.Telefono;
             // Intencionalmente, NO cargue la contraseña existente en el formulario
+            var permisosUsuarioIds = new HashSet<int>(u.Permisos.Select(p => p.IdPermiso));
+            
+            TodosLosPermisos = todosLosPermisos.Select(permiso => new PermisoAsignadoViewModel
+            {
+                IdPermiso = permiso.IdPermiso,
+                Nombre = permiso.Nombre,
+                Descripcion = permiso.Descripcion,
+                Asignado = permisosUsuarioIds.Contains(permiso.IdPermiso) // Marcar si el usuario lo tiene
+            }).ToList();
         }
 
         // Nota: No necesitamos un método estático 'CargarUsuario' aquí,

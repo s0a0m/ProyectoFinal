@@ -4,7 +4,7 @@ using src.Repositories.Interfaces;
 using src.ViewModels;
 using System.Linq;
 using Dom = src.Models.Domain;
-
+using src.Presentation.ViewModels.UsuarioVM;
 namespace src.Controllers
 {
 
@@ -39,10 +39,10 @@ namespace src.Controllers
         }
 
         [HttpGet]
-        public IActionResult CrearUsuario()
+        public async Task <IActionResult> CrearUsuario()
         {
 
-            var viewModel = new CrearUsuarioViewModel();
+            var viewModel = await _usuarioService.PrepararCrearViewModelAsync();
             return View("CrearUsuario", viewModel);
         }
 
@@ -52,6 +52,7 @@ namespace src.Controllers
         {
             if (!ModelState.IsValid)
             {
+                await _usuarioService.RepoblarViewModelParaErrorAsync(usuarioVM);
                 return View("CrearUsuario", usuarioVM);
             }
 
@@ -62,6 +63,7 @@ namespace src.Controllers
             catch (ArgumentException ex)
             {
                 ModelState.AddModelError(ex.ParamName ?? string.Empty, ex.Message);
+                await _usuarioService.RepoblarViewModelParaErrorAsync(usuarioVM);
                 return View("CrearUsuario", usuarioVM);
             }
 
@@ -76,10 +78,9 @@ namespace src.Controllers
 
             try
             {
-                usuario = await _usuarioService.GetUserByIdAsync(idUsuario);
-                var usuarioViewModel = new ActualizarUsuarioViewModel(usuario);
+                var usuarioViewModel = await _usuarioService.PrepararActualizarViewModelAsync(idUsuario);
+                return View("ActualizarUsuario", usuarioViewModel);
 
-                return View(usuarioViewModel);
             }
             catch (KeyNotFoundException)
             {
@@ -93,6 +94,7 @@ namespace src.Controllers
         {
             if (!ModelState.IsValid)
             {
+                await _usuarioService.RepoblarViewModelParaErrorAsync(usuarioVM);
                 return View("ActualizarUsuario", usuarioVM);
             }
 
@@ -107,6 +109,7 @@ namespace src.Controllers
             catch (ArgumentException ex) // Para validaciones de negocio futuras (ej. email duplicado)
             {
                 ModelState.AddModelError(ex.ParamName ?? string.Empty, ex.Message);
+                await _usuarioService.RepoblarViewModelParaErrorAsync(usuarioVM);
                 return View("ActualizarUsuario", usuarioVM);
             }
 

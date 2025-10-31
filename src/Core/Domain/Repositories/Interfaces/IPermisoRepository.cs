@@ -9,4 +9,5 @@ public interface IPermisoRepository
     Task<bool> AsignarPermisoAUsuario(int idPermiso, int idUsuario);
     Task<bool> AsignarPermisosAUsuario(IEnumerable<int> idsPermisos, int idUsuario);
     Task<IEnumerable<Dom.Permiso>> GetPermisosByUsuarioIdAsync(int idUsuario);
+    Task ReemplazarPermisosAsync(int idUsuario, IEnumerable<int> nuevosIdsPermisos);
 }

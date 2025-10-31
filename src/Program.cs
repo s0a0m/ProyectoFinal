@@ -33,9 +33,16 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProveedorRepository, ProveedorRepository>();
 builder.Services.AddScoped<IProveedorService, ProveedorService>();
 builder.Services.AddScoped<ICommonDataService, CommonDataService>();
-
+builder.Services.AddScoped<IPermisoRepository, PermisoRepository>();
 builder.Services.AddScoped<IProvinciaRepository, ProvinciaRepository>();
+builder.Services.AddScoped<IGrupoPermisosRepository, GrupoPermisosRepository>();
 
+// Servicios
+builder.Services.AddScoped<IUserService, UserService>();
+// builder.Services.AddScoped<IProveedorService, ProveedorService>();
+
+// ¡AÑADIR ESTA LÍNEA PARA EL NUEVO SERVICIO!
+builder.Services.AddScoped<IGrupoPermisosService, GrupoPermisosService>();
 // swagger
 
 builder.Services.AddEndpointsApiExplorer();

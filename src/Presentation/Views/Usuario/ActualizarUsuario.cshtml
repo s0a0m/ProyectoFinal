@@ -1,4 +1,4 @@
-@using src.ViewModels
+@using src.Presentation.ViewModels.UsuarioVM
 @model ActualizarUsuarioViewModel
 
 @{
@@ -77,6 +77,48 @@
                 </div>
             </div>
         </fieldset>
+        
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Permisos</legend>
+            
+            <div class="p-3 bg-white border rounded">
+                @if (Model.TodosLosPermisos != null && Model.TodosLosPermisos.Any())
+                {
+                    @for (int i = 0; i < Model.TodosLosPermisos.Count; i++)
+                    {
+                        var permiso = Model.TodosLosPermisos[i];
+                        <div class="form-check">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   name="PermisosSeleccionados" 
+                                   value="@permiso.IdPermiso" 
+                                   id="permiso_@permiso.IdPermiso"
+                                   checked="@permiso.Asignado" />
+                                   
+                            <label class="form-check-label" for="permiso_@permiso.IdPermiso">
+                                <strong>@permiso.Nombre</strong>
+                            </label>
+                            
+                            @if (!string.IsNullOrEmpty(permiso.Descripcion))
+                            {
+                                <div class="form-text text-muted ms-4">
+                                    @permiso.Descripcion
+                                </div>
+                            }
+                        </div>
+
+                        @if (i < Model.TodosLosPermisos.Count - 1)
+                        {
+                            <hr class="my-2">
+                        }
+                    }
+                }
+                else
+                {
+                    <p class="text-muted">No hay permisos disponibles para asignar.</p>
+                }
+            </div>
+        </fieldset>
         <div class="d-flex justify-content-between gap-3">
             <button class="btn btn-primary w-50 py-2" type="submit">Guardar Cambios</button>
             <a asp-controller="Usuario" asp-action="ListarUsuarios" class="btn btn-outline-secondary w-50 py-2">Cancelar</a>
@@ -88,22 +130,23 @@
     <partial name="_ValidationScriptsPartial" />
 
     <script>
+        // Script para el toggle de contraseña (ya lo tenías)
         document.addEventListener('DOMContentLoaded', function () {
             const changePasswordCheck = document.getElementById('changePasswordCheck');
             const passwordFieldsDiv = document.getElementById('passwordFields');
             
-
-            changePasswordCheck.addEventListener('change', function () {
+            function togglePasswordFields() {
                 if (changePasswordCheck.checked) {
                     passwordFieldsDiv.style.display = 'block'; 
                 } else {
                     passwordFieldsDiv.style.display = 'none';  
-                   
                 }
-            });
-            if (changePasswordCheck.checked) {
-                 passwordFieldsDiv.style.display = 'block';
             }
+
+            changePasswordCheck.addEventListener('change', togglePasswordFields);
+            
+            // Ejecutar al cargar la página por si vuelve de un error de validación
+            togglePasswordFields();
         });
     </script>
 }

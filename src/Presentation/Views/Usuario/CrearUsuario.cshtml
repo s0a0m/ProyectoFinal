@@ -1,11 +1,9 @@
-@using src.ViewModels
+@using src.Presentation.ViewModels.UsuarioVM
 @model CrearUsuarioViewModel 
 
 @{
     ViewData["Title"] = "Registro de Usuario"; 
 }
-
-
 
 <main class="form-signin w-100 m-auto">
     
@@ -50,7 +48,7 @@
             </div>
 
             <div class="form-floating mb-3">
-                <input asp-for="Telefono" class="form-control" placeholder="Teléfono" type="tel"> @* <-- Sugerencia: type="tel" *@
+                <input asp-for="Telefono" class="form-control" placeholder="Teléfono" type="tel">
                 <label asp-for="Telefono"></label>
                 <span asp-validation-for="Telefono" class="text-danger small"></span>
             </div>
@@ -60,26 +58,69 @@
             <legend class="h5 text-primary border-bottom pb-2">Contraseña</legend>
 
             <div class="form-floating mb-3">
-                <input asp-for="Contrasenia" class="form-control" type="password"> @* <-- type="password" *@
+                <input asp-for="Contrasenia" class="form-control" type="password">
                 <label asp-for="Contrasenia"></label>
                 <span asp-validation-for="Contrasenia" class="text-danger small"></span>
             </div>
 
             <div class="form-floating mb-3">
-                <input asp-for="ConfirmarContrasenia" class="form-control" type="password"> @* <-- type="password" *@
-                <label asp-for="ConfirmarContrasenia"></label> @* El [Display] del VM se usa aquí *@
+                <input asp-for="ConfirmarContrasenia" class="form-control" type="password">
+                <label asp-for="ConfirmarContrasenia"></label>
                 <span asp-validation-for="ConfirmarContrasenia" class="text-danger small"></span>
             </div>
         </fieldset>
 
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Permisos</legend>
+            
+            <div class="p-3 bg-white border rounded">
+                @if (Model.TodosLosPermisos.Any())
+                {
+                    @for (int i = 0; i < Model.TodosLosPermisos.Count; i++)
+                    {
+                        <div class="form-check">
+                            <input type="hidden" asp-for="TodosLosPermisos[i].IdPermiso" />
+                            <input type="hidden" asp-for="TodosLosPermisos[i].Nombre" />
+
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   name="PermisosSeleccionados" 
+                                   value="@Model.TodosLosPermisos[i].IdPermiso"
+                                   id="permiso_@Model.TodosLosPermisos[i].IdPermiso"
+                                   checked="@Model.TodosLosPermisos[i].Asignado" />
+                            
+                            <label class="form-check-label" for="permiso_@Model.TodosLosPermisos[i].IdPermiso">
+                                <strong>@Model.TodosLosPermisos[i].Nombre</strong>
+                            </label>
+                            
+                            @if (!string.IsNullOrEmpty(Model.TodosLosPermisos[i].Descripcion))
+                            {
+                                <div class="form-text text-muted ms-4">
+                                    @Model.TodosLosPermisos[i].Descripcion
+                                </div>
+                            }
+                        </div>
+
+                        @if (i < Model.TodosLosPermisos.Count - 1)
+                        {
+                            <hr class="my-2">
+                        }
+                    }
+                }
+                else
+                {
+                    <p class="text-muted">No hay permisos para asignar.</p>
+                }
+            </div>
+            @* <span asp-validation-for="PermisosSeleccionados" class="text-danger small"></span> *@
+        </fieldset>
         <div class="d-flex justify-content-between gap-3">
-            <button class="btn btn-success w-50 py-2" type="submit">Registrar Usuario</button> @* <-- Texto cambiado *@
-            <a asp-controller="Usuario" asp-action="ListarUsuarios" class="btn btn-outline-secondary w-50 py-2">Cancelar</a> @* <-- Cambiado Action *@
+            <button class="btn btn-success w-50 py-2" type="submit">Registrar Usuario</button>
+            <a asp-controller="Usuario" asp-action="ListarUsuarios" class="btn btn-outline-secondary w-50 py-2">Cancelar</a>
         </div>
     </form>
 </main>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" /> @* <-- Necesario para validación del lado cliente *@
-    @* No necesitamos el script de CondicionPago aquí *@
+    <partial name="_ValidationScriptsPartial" /> 
 }

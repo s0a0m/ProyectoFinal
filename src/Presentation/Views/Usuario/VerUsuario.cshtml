@@ -1,5 +1,5 @@
 @using src.Models.Domain 
-@model Usuario         
+@model Usuario 
 
 @{
     ViewData["Title"] = $"Detalle de Usuario: {Model.Nombre} {Model.Apellido}";
@@ -15,18 +15,25 @@
                     
                     <h5 class="card-title mt-3 mb-4">Lista de Permisos</h5>
                     
-                    <ul class="list-group list-group-flush text-start">
-                        <li class="list-group-item">
-                            <i class="bi bi-check-circle-fill text-success me-2"></i>Ver Reportes
-                        </li>
-                        <li class="list-group-item">
-                            <i class="bi bi-check-circle-fill text-success me-2"></i>Administrar Productos
-                        </li>
-                        <li class="list-group-item">
-                            <i class="bi bi-x-circle-fill text-danger me-2"></i>Gestionar Usuarios (No asignado)
-                        </li>
+                    @if (Model.Permisos != null && Model.Permisos.Any())
+                    {
+                        <ul class="list-group list-group-flush text-start">
+                            @foreach (var permiso in Model.Permisos)
+                            {
+                                <li class="list-group-item">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    @permiso.Nombre 
+                                </li>
+                            }
                         </ul>
-                </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted fst-italic mt-3">
+                            Este usuario no tiene permisos asignados.
+                        </p>
+                    }
+                    </div>
             </div>
         </div>
 
@@ -38,7 +45,7 @@
                        asp-action="ActualizarUsuario" 
                        asp-route-idUsuario="@Model.IdUsuario" 
                        class="btn btn-outline-primary btn-sm">
-                       <i class="bi bi-pencil-square me-1"></i> Editar Perfil
+                        <i class="bi bi-pencil-square me-1"></i> Editar Perfil
                     </a>
                 </div>
                 <div class="card-body p-4">
@@ -70,12 +77,12 @@
                             }
                         </dd>
                         
-                        </dl>
+                    </dl>
                 </div>
                 <div class="card-footer bg-light text-end">
-                     <a asp-controller="Usuario" asp-action="ListarUsuarios" class="btn btn-secondary btn-sm">
-                        <i class="bi bi-arrow-left me-1"></i> Volver a la Lista
-                     </a>
+                       <a asp-controller="Usuario" asp-action="ListarUsuarios" class="btn btn-secondary btn-sm">
+                            <i class="bi bi-arrow-left me-1"></i> Volver a la Lista
+                       </a>
                 </div>
             </div>
         </div>
@@ -93,7 +100,7 @@
              margin-bottom: 0; /* Align header text vertically */
         }
          dl.row dt {
-            font-weight: 600; /* Make definition terms slightly bolder */
-        }
+             font-weight: 600; /* Make definition terms slightly bolder */
+         }
     </style>
 }

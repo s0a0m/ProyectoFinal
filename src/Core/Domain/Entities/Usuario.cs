@@ -11,4 +11,6 @@ public class Usuario
     public string Nombre { get; set; }
     public string Apellido { get; set; }
     public DateTime FechaAlta { get; set; }
+    public IEnumerable<Permiso> Permisos { get; set; }
+
 }
