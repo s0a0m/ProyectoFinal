@@ -1,6 +1,7 @@
 using Riok.Mapperly.Abstractions;
 using EF = src.Models.CodeFirst;
 using Dom = src.Models.Domain;
+using src.Models.CodeFirst;
 
 namespace src.Models.Mappers;
 
@@ -47,8 +48,20 @@ public static partial class DominioMapper
     public static partial Dom.Usuario Map(EF.Usuario source);
     public static partial IEnumerable<Dom.Usuario> Map(IEnumerable<EF.Usuario> source);
 
+    [MapperIgnoreSource(nameof(EF.GrupoPermisos.GruposPermisosPermisos))]
+    [MapperIgnoreSource(nameof(EF.GrupoPermisos.UsuariosGruposPermisos))]
+    public static partial Dom.GrupoPermisos Map(EF.GrupoPermisos source);
+    public static partial IEnumerable<Dom.GrupoPermisos> Map(IEnumerable<EF.GrupoPermisos> source);
+
 
     // --- Domain -> EF (CodeFirst) [BIDIRECCIONAL] ---
+
+    [MapperIgnoreSource(nameof(Dom.GrupoPermisos.Permisos))]
+    [MapperIgnoreTarget(nameof(EF.GrupoPermisos.GruposPermisosPermisos))]
+    [MapperIgnoreTarget(nameof(EF.GrupoPermisos.UsuariosGruposPermisos))]
+    public static partial EF.GrupoPermisos Map(Dom.GrupoPermisos source);
+
+    public static partial IEnumerable<EF.GrupoPermisos> Map(IEnumerable<Dom.GrupoPermisos> source);
 
     [MapDerivedType(typeof(Dom.Contado), typeof(EF.Contado))]
     [MapDerivedType(typeof(Dom.Cuota), typeof(EF.Cuota))]

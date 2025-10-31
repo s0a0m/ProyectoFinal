@@ -8,7 +8,7 @@ public interface IGrupoPermisosRepository
     Task<Dom.GrupoPermisos?> GetByIdAsync(short id);
     Task<bool> AddPermisoToGrupo(short idGrupo, int idPermiso);
     Task<bool> RemovePermisoFromGrupo(short idGrupo, int idPermiso);
-    Task UpdateAsync(Dom.Usuario entity);
+    Task UpdateAsync(Dom.GrupoPermisos domainEntity);
     Task<bool> DeleteAsync(int id);
 
     // Task<bool> AddGrupoToUsuario(short idGrupo, short idUsuario);
