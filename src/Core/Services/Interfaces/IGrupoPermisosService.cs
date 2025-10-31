@@ -1,10 +1,11 @@
-using Dom = src.Core.Domain.Entities; // Corregido
-
+using Dom = src.Models.Domain;
+using src.Presentation.ViewModels.GrupoPermisoVM;
 namespace src.Core.Services.Interfaces;
+
 public interface IGrupoPermisosService
 {
         Task<IEnumerable<Dom.GrupoPermisos>> GetAllAsync();
-        Task<Dom.GrupoPermisos?> GetByIdAsync(short id);
+        Task<Dom.GrupoPermisos> GetByIdAsync(short id);
         
         // Métodos que usan ViewModels (o DTOs)
         Task<Dom.GrupoPermisos> CreateGrupoAsync(CrearGrupoViewModel vm);

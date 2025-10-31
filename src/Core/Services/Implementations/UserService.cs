@@ -6,7 +6,7 @@ using Dom = src.Models.Domain;
 
 public class UserService : IUserService
 {
-    private readonly IUsuarioRepository _userRepository;
+        private readonly IUsuarioRepository _userRepository;
     private readonly IPermisoRepository _permisoRepository;
     public UserService(IUsuarioRepository userRepository, IPermisoRepository permisoRepository)
     {

@@ -1,0 +1,92 @@
+@using src.Presentation.ViewModels.GrupoPermisoVM
+@using src.Presentation.ViewModels.UsuarioVM 
+@model ActualizarGrupoViewModel 
+
+@{
+    ViewData["Title"] = "Actualizar Grupo de Permisos"; 
+}
+
+<main class="form-signin w-100 m-auto">
+
+    <form asp-controller="GrupoPermisos" asp-action="ActualizarGrupo" method="post" class="shadow-lg rounded bg-light p-4"> 
+
+        <h2 class="text-center mb-4">@ViewData["Title"]</h2>
+
+        <input type="hidden" asp-for="IdGrupoPermiso" />
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        }
+
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Información del Grupo</legend>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Nombre" class="form-control" placeholder="Nombre del Grupo">
+                <label asp-for="Nombre">Nombre del Grupo</label>
+                <span asp-validation-for="Nombre" class="text-danger small"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <textarea asp-for="Descripcion" class="form-control" placeholder="Descripción" style="height: 100px"></textarea>
+                <label asp-for="Descripcion"></label>
+                <span asp-validation-for="Descripcion" class="text-danger small"></span>
+            </div>
+        </fieldset>
+        
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Asignar Permisos</legend>
+            
+            <div class="p-3 bg-white border rounded">
+                @if (Model.TodosLosPermisos != null && Model.TodosLosPermisos.Any())
+                {
+                    @for (int i = 0; i < Model.TodosLosPermisos.Count; i++)
+                    {
+                        var permiso = Model.TodosLosPermisos[i];
+                        <div class="form-check">
+                            <input type="hidden" asp-for="TodosLosPermisos[i].IdPermiso" />
+                            <input type="hidden" asp-for="TodosLosPermisos[i].Nombre" />
+
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   name="PermisosSeleccionados" 
+                                   value="@permiso.IdPermiso"
+                                   id="permiso_@permiso.IdPermiso"
+                                   checked="@permiso.Asignado" />
+                            
+                            <label class="form-check-label" for="permiso_@permiso.IdPermiso">
+                                <strong>@permiso.Nombre</strong>
+                            </label>
+                            
+                            @if (!string.IsNullOrEmpty(permiso.Descripcion))
+                            {
+                                <div class="form-text text-muted ms-4">
+                                    @permiso.Descripcion
+                                </div>
+                            }
+                        </div>
+
+                        @if (i < Model.TodosLosPermisos.Count - 1)
+                        {
+                            <hr class="my-2">
+                        }
+                    }
+                }
+                else
+                {
+                    <p class="text-muted">No hay permisos disponibles para asignar.</p>
+                }
+            </div>
+        </fieldset>
+
+        <div class="d-flex justify-content-between gap-3">
+            <button class="btn btn-primary w-50 py-2" type="submit">Guardar Cambios</button>
+            <a asp-controller="GrupoPermisos" asp-action="ListarGrupos" class="btn btn-outline-secondary w-50 py-2">Cancelar</a>
+        </div>
+    </form>
+</main>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" /> 
+}

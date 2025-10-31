@@ -19,6 +19,21 @@ public class GrupoPermisosController : Controller
         return View("ListarGrupos", grupos);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> VerGrupo(short id)
+    {
+        try
+        {
+            // El servicio ahora lanza KeyNotFoundException si no lo encuentra
+            var grupo = await _grupoService.GetByIdAsync(id); 
+            return View("VerGrupo", grupo); // Pasa el modelo a tu vista
+        }
+        catch (KeyNotFoundException)
+        {
+            // Este catch ahora funcionará correctamente
+            return NotFound(); 
+        }
+    }
     // GET: /GrupoPermisos/Crear
     [HttpGet]
     public async Task<IActionResult> CrearGrupo()
