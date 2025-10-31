@@ -15,7 +15,7 @@ public class Permiso
     [MaxLength(80)]
     public string Nombre { get; set; }
 
-    [MaxLength(150)]
+    [MaxLength(500)]
     public string Descripcion { get; set; }
     public ICollection<UsuarioPermiso> UsuariosPermisos { get; set; }
     public ICollection<GrupoPermisoPermiso> GruposPermisosPermisos { get; set; }

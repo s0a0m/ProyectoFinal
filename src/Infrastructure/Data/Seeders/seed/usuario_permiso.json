@@ -6,8 +6,6 @@
   { "IdUsuario": 1, "IdPermiso": 6 },
   { "IdUsuario": 1, "IdPermiso": 7 },
   { "IdUsuario": 2, "IdPermiso": 5 },
-  { "IdUsuario": 2, "IdPermiso": 10 },
-  { "IdUsuario": 4, "IdPermiso": 11 },
   { "IdUsuario": 5, "IdPermiso": 1 },
   { "IdUsuario": 5, "IdPermiso": 2 },
   { "IdUsuario": 5, "IdPermiso": 3 },
@@ -16,8 +14,5 @@
   { "IdUsuario": 5, "IdPermiso": 6 },
   { "IdUsuario": 5, "IdPermiso": 7 },
   { "IdUsuario": 5, "IdPermiso": 8 },
-  { "IdUsuario": 5, "IdPermiso": 9 },
-  { "IdUsuario": 5, "IdPermiso": 10 },
-  { "IdUsuario": 5, "IdPermiso": 11 },
-  { "IdUsuario": 5, "IdPermiso": 12 }
+  { "IdUsuario": 5, "IdPermiso": 9 }
 ]

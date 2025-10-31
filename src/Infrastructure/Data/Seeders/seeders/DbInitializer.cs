@@ -61,7 +61,7 @@ public static class DbInitializer
     private static void SeedPermisos(AppDbContext context)
     {
         if (context.Permisos.Any()) return;
-        var json = File.ReadAllText("data/seed/permisos.json");
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/permisos.json");
         var permisos = JsonSerializer.Deserialize<List<Permiso>>(json, _jsonOptions)!;
         context.Permisos.AddRange(permisos);
         Console.WriteLine($"- Seeding {permisos.Count} permisos...");
@@ -69,7 +69,7 @@ public static class DbInitializer
     private static void SeedUsuarioPermisos(AppDbContext context)
     {
         if (context.UsuariosPermisos.Any()) return;
-        var json = File.ReadAllText("data/seed/usuario_permiso.json");
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/usuario_permiso.json");
         var usuarioPermisos = JsonSerializer.Deserialize<List<UsuarioPermiso>>(json, _jsonOptions)!;
         context.ChangeTracker.AutoDetectChangesEnabled = false;
         context.UsuariosPermisos.AddRange(usuarioPermisos);
@@ -80,7 +80,7 @@ public static class DbInitializer
     {
         if (context.Provincias.Any()) return;
 
-        var json = File.ReadAllText("data/seed/provincias.json");
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/provincias.json");
         var provincias = JsonSerializer.Deserialize<List<Provincia>>(json, _jsonOptions)!;
         context.Provincias.AddRange(provincias);
         Console.WriteLine($"- Seeding {provincias.Count} provincias...");
@@ -90,7 +90,7 @@ public static class DbInitializer
     {
         if (context.Condicion_pagos.Any()) return;
 
-        var json = File.ReadAllText("data/seed/condiciones_pago.json");
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/condiciones_pago.json");
         var data = JsonSerializer.Deserialize<CondicionesPagoFile>(json, _jsonOptions)!;
 
         context.Condicion_pagos.AddRange(data.Cuotas);
@@ -102,7 +102,7 @@ public static class DbInitializer
     {
         if (context.Domicilios.Any()) return;
 
-        var json = File.ReadAllText("data/seed/domicilios.json");
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/domicilios.json");
         var domicilios = JsonSerializer.Deserialize<List<Domicilio>>(json, _jsonOptions)!;
         context.Domicilios.AddRange(domicilios);
         Console.WriteLine($"- Seeding {domicilios.Count} domicilios...");
@@ -112,7 +112,7 @@ public static class DbInitializer
     {
         if (context.Proveedores.Any()) return;
 
-        var json = File.ReadAllText("data/seed/proveedores.json");
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/proveedores.json");
         var proveedores = JsonSerializer.Deserialize<List<Proveedor>>(json, _jsonOptions)!;
         context.Proveedores.AddRange(proveedores);
         Console.WriteLine($"- Seeding {proveedores.Count} proveedores...");
@@ -122,7 +122,7 @@ public static class DbInitializer
     {
         if (context.Usuarios.Any()) return;
 
-        var json = File.ReadAllText("data/seed/usuarios.json");
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/usuarios.json");
         var usuarios = JsonSerializer.Deserialize<List<Usuario>>(json, _jsonOptions)!;
         context.Usuarios.AddRange(usuarios);
         Console.WriteLine($"- Seeding {usuarios.Count} usuarios...");
