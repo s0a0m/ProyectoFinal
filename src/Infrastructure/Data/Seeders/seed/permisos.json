@@ -1,62 +1,47 @@
 [
   {
     "IdPermiso": 1,
-    "Nombre": "VER_COMPRAS",
-    "Descripcion": "Permite visualizar el listado de órdenes de compra."
+    "Nombre": "P01_ADMINISTRADOR",
+    "Descripcion": "Permite el acceso completo a todas las funciones del sistema. Incluye ABM de usuarios, asignación y visualización de permisos/grupos de permisos, y administración de informes de compras, estadísticas y reportes financieros."
   },
   {
     "IdPermiso": 2,
-    "Nombre": "CREAR_COMPRA",
-    "Descripcion": "Permite generar nuevas órdenes de compra."
+    "Nombre": "P02_VER_LISTA_USUARIOS",
+    "Descripcion": "Permite visualizar la lista de todos los usuarios registrados, mostrando sus atributos más relevantes."
   },
   {
     "IdPermiso": 3,
-    "Nombre": "EDITAR_COMPRA",
-    "Descripcion": "Permite modificar órdenes de compra existentes."
+    "Nombre": "P03_ABM_PRODUCTOS",
+    "Descripcion": "Permite realizar operaciones de alta, baja y modificación de productos. Incluye gestión de grupos y categorías, carga de listas de precios (.xlsx) y ajustes de stock."
   },
   {
     "IdPermiso": 4,
-    "Nombre": "ANULAR_COMPRA",
-    "Descripcion": "Permite anular órdenes de compra."
+    "Nombre": "P04_VER_LISTA_PRODUCTOS",
+    "Descripcion": "Permite visualizar la lista de todos los productos registrados, con información respectiva. Así como las categorías y grupos."
   },
   {
     "IdPermiso": 5,
-    "Nombre": "GESTIONAR_PRODUCTOS",
-    "Descripcion": "Acceso completo a la gestión de productos."
+    "Nombre": "P05_ABM_PROVEEDORES",
+    "Descripcion": "Permite realizar alta, baja y modificación de nuevos proveedores."
   },
   {
     "IdPermiso": 6,
-    "Nombre": "VER_PROVEEDORES",
-    "Descripcion": "Permite ver la lista de proveedores."
+    "Nombre": "P06_GESTOR_CC",
+    "Descripcion": "Permite gestionar la cuenta corriente con cada proveedor. Incluye la generación y carga de documentos contables, y consulta del historial de movimientos."
   },
   {
     "IdPermiso": 7,
-    "Nombre": "CREAR_PROVEEDOR",
-    "Descripcion": "Permite registrar nuevos proveedores."
+    "Nombre": "P07_GESTION_COMPRAS",
+    "Descripcion": "Permite registrar compras a proveedores, seleccionando productos, cantidades, precios y condiciones de pago. Incluye la visualización de alertas de stock bajo."
   },
   {
     "IdPermiso": 8,
-    "Nombre": "GESTIONAR_USUARIOS",
-    "Descripcion": "Acceso a la creación y edición de usuarios del sistema."
+    "Nombre": "P08_VER_LISTA_PROVEEDORES",
+    "Descripcion": "Permite visualizar la lista de todos los proveedores registrados, mostrando información respectiva."
   },
   {
     "IdPermiso": 9,
-    "Nombre": "ASIGNAR_PERMISOS",
-    "Descripcion": "Permite modificar los roles y permisos de otros usuarios."
-  },
-  {
-    "IdPermiso": 10,
-    "Nombre": "VER_REPORTES_VENTAS",
-    "Descripcion": "Acceso a informes financieros y de ventas."
-  },
-  {
-    "IdPermiso": 11,
-    "Nombre": "GESTIONAR_DEPOSITOS",
-    "Descripcion": "Administración de depósitos y ubicaciones de inventario."
-  },
-  {
-    "IdPermiso": 12,
-    "Nombre": "ADMIN_SISTEMA",
-    "Descripcion": "Permiso de superadministrador para configuraciones críticas."
+    "Nombre": "P09_VER_LISTA_COMPRAS",
+    "Descripcion": "Permite visualizar la lista de todas las compras registradas, con información respectiva."
   }
 ]
