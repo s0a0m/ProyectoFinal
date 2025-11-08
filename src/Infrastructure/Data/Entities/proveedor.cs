@@ -6,7 +6,7 @@ namespace src.Models.CodeFirst;
 [Table("proveedor")]
 public partial class Proveedor
 {
-    [Key] // <-- 1. AÑADE ESTO
+    [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id_proveedor")]
     public short IdProveedor { get; set; }
@@ -36,4 +36,5 @@ public partial class Proveedor
     public virtual CondicionDePago IdCondicionPagoHabitualNavigation { get; set; }
 
     public virtual Domicilio IdDomicilioNavigation { get; set; }
+    public virtual ICollection<ProductoProveedor> ProductosProveedores { get; set; } = new List<ProductoProveedor>();
 }

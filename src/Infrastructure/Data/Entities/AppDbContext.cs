@@ -37,8 +37,26 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<GrupoPermisos> GruposPermisos { get; set; }
     public virtual DbSet<GrupoPermisoPermiso> GruposPermisosPermisos { get; set; }
     public virtual DbSet<UsuarioGrupoPermisos> UsuariosGruposPermisos { get; set; }
+
+    public DbSet<Producto> Productos { get; set; }
+    public DbSet<ProductoProveedor> ProductosProveedores { get; set; }
+    public DbSet<Grupo> Grupos { get; set; }
+    public DbSet<Categoria> Categorias { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<ProductoProveedor>()
+                .HasKey(pp => new { pp.IdProducto, pp.IdProveedor });
+
+        modelBuilder.Entity<ProductoProveedor>()
+            .HasOne(pp => pp.Producto)
+            .WithMany(p => p.ProductosProveedores)
+            .HasForeignKey(pp => pp.IdProducto);
+
+        modelBuilder.Entity<ProductoProveedor>()
+            .HasOne(pp => pp.Proveedor)
+            .WithMany(p => p.ProductosProveedores)
+            .HasForeignKey(pp => pp.IdProveedor);
+
         modelBuilder.Entity<Permiso>(entity =>
         {
             entity.ToTable("permiso");
