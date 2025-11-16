@@ -7,20 +7,7 @@ public class Producto
     public int StockMinimo { get; set; }
     public int StockTotal { get; set; }
     public bool Activo { get; set; }
-    public Grupo Grupo { get; set; }
-    public Categoria Categoria { get; set; }
-    public CodigoBarra? CodigoBarra { get; set; }
-    public IReadOnlyCollection<ProductoProveedor> RelacionesProveedor { get; init; } = new List<ProductoProveedor>();
-    public Producto(int idProducto, string nombre, int stockMinimo, int stockTotal, bool activo, Grupo grupo, Categoria categoria)
-    {
-        if (grupo == null) throw new ArgumentNullException(nameof(grupo), "El producto debe pertenecer a un grupo.");
-        if (categoria == null) throw new ArgumentNullException(nameof(categoria), "El producto debe pertenecer a una categoría.");
-        IdProducto = idProducto;
-        Nombre = nombre;
-        StockMinimo = stockMinimo;
-        StockTotal = stockTotal;
-        Activo = activo;
-        Grupo = grupo;
-        Categoria = categoria;
-    }
+    public IEnumerable<Grupo> Grupo { get; set; } = new List<Grupo>();
+    public IEnumerable<Categoria> Categoria { get; set; } = new List<Categoria>();
+    public IEnumerable<CodigoBarra> CodigoBarra { get; set; }
 }

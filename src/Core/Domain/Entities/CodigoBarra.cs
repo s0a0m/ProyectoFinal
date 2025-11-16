@@ -4,12 +4,10 @@ public class CodigoBarra
 {
     public int IdCodigoBarra { get; init; }
     public string Codigo { get; set; }
-
-    public Producto Producto { get; init; }
-    public CodigoBarra(int idCodigoBarra, string codigo, Producto producto)
+    public CodigoBarra(int idCodigoBarra, string codigo)
     {
         IdCodigoBarra = idCodigoBarra;
         Codigo = codigo;
-        Producto = producto;
     }
+    public CodigoBarra() { }
 }
