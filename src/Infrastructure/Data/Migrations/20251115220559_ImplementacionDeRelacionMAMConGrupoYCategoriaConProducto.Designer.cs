@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using src.Models.CodeFirst;
@@ -11,9 +12,11 @@ using src.Models.CodeFirst;
 namespace src.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251115220559_ImplementacionDeRelacionMAMConGrupoYCategoriaConProducto")]
+    partial class ImplementacionDeRelacionMAMConGrupoYCategoriaConProducto
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -289,6 +292,10 @@ namespace src.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("activo");
 
+                    b.Property<short>("IdCodigoBarra")
+                        .HasColumnType("smallint")
+                        .HasColumnName("id_codigo_barra");
+
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -304,6 +311,9 @@ namespace src.Migrations
                         .HasColumnName("stock_total");
 
                     b.HasKey("IdProducto");
+
+                    b.HasIndex("IdCodigoBarra")
+                        .IsUnique();
 
                     b.ToTable("producto");
                 });
@@ -323,23 +333,6 @@ namespace src.Migrations
                     b.HasIndex("IdCategoria");
 
                     b.ToTable("producto_categoria");
-                });
-
-            modelBuilder.Entity("src.Models.CodeFirst.ProductoCodigoBarra", b =>
-                {
-                    b.Property<short>("IdProducto")
-                        .HasColumnType("smallint")
-                        .HasColumnName("id_producto");
-
-                    b.Property<short>("IdCodigoBarra")
-                        .HasColumnType("smallint")
-                        .HasColumnName("id_codigo_barra");
-
-                    b.HasKey("IdProducto", "IdCodigoBarra");
-
-                    b.HasIndex("IdCodigoBarra");
-
-                    b.ToTable("producto_codigo_barra");
                 });
 
             modelBuilder.Entity("src.Models.CodeFirst.ProductoCodigoExterno", b =>
@@ -667,6 +660,17 @@ namespace src.Migrations
                     b.Navigation("Proveedor");
                 });
 
+            modelBuilder.Entity("src.Models.CodeFirst.Producto", b =>
+                {
+                    b.HasOne("src.Models.CodeFirst.CodigoBarra", "CodigoBarra")
+                        .WithOne("Producto")
+                        .HasForeignKey("src.Models.CodeFirst.Producto", "IdCodigoBarra")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CodigoBarra");
+                });
+
             modelBuilder.Entity("src.Models.CodeFirst.ProductoCategoria", b =>
                 {
                     b.HasOne("src.Models.CodeFirst.Categoria", "Categoria")
@@ -682,25 +686,6 @@ namespace src.Migrations
                         .IsRequired();
 
                     b.Navigation("Categoria");
-
-                    b.Navigation("Producto");
-                });
-
-            modelBuilder.Entity("src.Models.CodeFirst.ProductoCodigoBarra", b =>
-                {
-                    b.HasOne("src.Models.CodeFirst.CodigoBarra", "CodigoBarra")
-                        .WithMany("ProductosCodigosBarras")
-                        .HasForeignKey("IdCodigoBarra")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("src.Models.CodeFirst.Producto", "Producto")
-                        .WithMany("ProductoCodigoBarras")
-                        .HasForeignKey("IdProducto")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CodigoBarra");
 
                     b.Navigation("Producto");
                 });
@@ -848,7 +833,8 @@ namespace src.Migrations
 
             modelBuilder.Entity("src.Models.CodeFirst.CodigoBarra", b =>
                 {
-                    b.Navigation("ProductosCodigosBarras");
+                    b.Navigation("Producto")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("src.Models.CodeFirst.Domicilio", b =>
@@ -878,8 +864,6 @@ namespace src.Migrations
             modelBuilder.Entity("src.Models.CodeFirst.Producto", b =>
                 {
                     b.Navigation("Novedades");
-
-                    b.Navigation("ProductoCodigoBarras");
 
                     b.Navigation("ProductosCategorias");
 
