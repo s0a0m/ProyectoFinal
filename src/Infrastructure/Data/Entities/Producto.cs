@@ -25,21 +25,9 @@ public class Producto
 
     [Column("activo")]
     public bool Activo { get; set; }
-
-    [Column("id_grupo")]
-    public short IdGrupo { get; set; }
-    [ForeignKey("IdGrupo")]
-    public Grupo Grupo { get; set; }
-    
-    [Column("id_categoria")]
-    public short IdCategoria { get; set; }
-    [ForeignKey("IdCategoria")]
-    public Categoria Categoria { get; set; }
-    
-    [Column("id_codigo_barra")]
-    public short IdCodigoBarra { get; set; }
-    [ForeignKey("IdCodigoBarra")]
-    public CodigoBarra CodigoBarra { get; set; }
-
     public ICollection<ProductoProveedor> ProductosProveedores { get; set; }
+    public ICollection<NovedadesProveedor> Novedades { get; set; } = new List<NovedadesProveedor>();
+    public ICollection<ProductoGrupo> ProductosGrupos { get; set; } = new List<ProductoGrupo>();
+    public ICollection<ProductoCategoria> ProductosCategorias { get; set; } = new List<ProductoCategoria>();
+    public ICollection<ProductoCodigoBarra> ProductoCodigoBarras { get; set; } = new List<ProductoCodigoBarra>();
 }

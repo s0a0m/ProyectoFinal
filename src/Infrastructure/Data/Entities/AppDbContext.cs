@@ -42,8 +42,30 @@ public partial class AppDbContext : DbContext
     public DbSet<ProductoProveedor> ProductosProveedores { get; set; }
     public DbSet<Grupo> Grupos { get; set; }
     public DbSet<Categoria> Categorias { get; set; }
+    public DbSet<CodigoBarra> CodigoBarras { get; set; }
+    public DbSet<NovedadesProveedor> NovedadesProveedores { get; set; }
+    public DbSet<ProductoCodigoExterno> ProductoCodigosExternos { get; set; }
+    public virtual DbSet<ProductoGrupo> ProductosGrupos { get; set; }
+    public virtual DbSet<ProductoCategoria> ProductoCategorias { get; set; }
+    public virtual DbSet<ProductoCodigoBarra> ProductoCodigosBarras { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<ProductoCodigoBarra>()
+            .HasKey(pg => new { pg.IdProducto, pg.IdCodigoBarra });
+
+        modelBuilder.Entity<ProductoGrupo>()
+            .HasKey(pg => new { pg.IdProducto, pg.IdGrupo });
+
+        modelBuilder.Entity<ProductoCategoria>()
+            .HasKey(pc => new { pc.IdProducto, pc.IdCategoria });
+
+        modelBuilder.Entity<ProductoCodigoExterno>()
+            .HasKey(pce => new { pce.IdProveedor, pce.CodigoBarraProveedor });
+
+        modelBuilder.Entity<NovedadesProveedor>()
+            .Property(n => n.Estado)
+            .HasConversion<string>();
+
         modelBuilder.Entity<ProductoProveedor>()
                 .HasKey(pp => new { pp.IdProducto, pp.IdProveedor });
 

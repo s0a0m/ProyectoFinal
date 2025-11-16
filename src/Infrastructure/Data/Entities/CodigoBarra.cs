@@ -17,5 +17,5 @@ public class CodigoBarra
     [Column("codigo_barra")]
     public string Codigo { get; set; }
 
-    public Producto Producto { get; set; }
+    public ICollection<ProductoCodigoBarra> ProductosCodigosBarras { get; set; } = new List<ProductoCodigoBarra>();
 }

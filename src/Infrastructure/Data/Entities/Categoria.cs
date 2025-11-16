@@ -21,5 +21,5 @@ public class Categoria
     [Column("descripcion")]
     public string Descripcion { get; set; }
 
-    public ICollection<Producto> Productos { get; set; } = new List<Producto>();
+    public ICollection<ProductoCategoria> ProductosCategorias { get; set; } = new List<ProductoCategoria>();
 }

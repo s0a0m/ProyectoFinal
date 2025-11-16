@@ -20,6 +20,5 @@ public class Grupo
     [MaxLength(100)]
     [Column("descripcion")]
     public string Descripcion { get; set; }
-
-    public ICollection<Producto> Productos { get; set; } = new List<Producto>();
+    public ICollection<ProductoGrupo> ProductosGrupos { get; set; } = new List<ProductoGrupo>();
 }
