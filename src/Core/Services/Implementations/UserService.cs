@@ -6,7 +6,7 @@ using Dom = src.Models.Domain;
 
 public class UserService : IUserService
 {
-        private readonly IUsuarioRepository _userRepository;
+    private readonly IUsuarioRepository _userRepository;
     private readonly IPermisoRepository _permisoRepository;
     public UserService(IUsuarioRepository userRepository, IPermisoRepository permisoRepository)
     {
@@ -34,11 +34,11 @@ public class UserService : IUserService
         }
 
         var todosLosPermisos = (await _permisoRepository.GetAllPermisosAsync()).ToList();
-        
+
         // El constructor del VM (que te pasé antes) se encarga de rellenar los datos
         // y marcar los checkboxes correctos.
         var viewModel = new ActualizarUsuarioViewModel(usuario, todosLosPermisos);
-        
+
         return viewModel;
     }
 
@@ -75,7 +75,7 @@ public class UserService : IUserService
             Nombre = p.Nombre,
             Descripcion = p.Descripcion,
             // Re-marca los checkboxes que el usuario había seleccionado si falló la validación
-            Asignado = viewModel.PermisosSeleccionados.Contains(p.IdPermiso) 
+            Asignado = viewModel.PermisosSeleccionados.Contains(p.IdPermiso)
         }).ToList();
     }
     public async Task<Dom.Usuario> CreateUserAsync(CrearUsuarioViewModel usuarioVM)
@@ -127,7 +127,7 @@ public class UserService : IUserService
         usuarioExistente.Identificacion = usuarioVM.Identificacion;
         usuarioExistente.Correo = usuarioVM.Correo;
         usuarioExistente.Telefono = usuarioVM.Telefono;
-        usuarioExistente.Permisos = usuarioVM.PermisosSeleccionados
+        usuarioExistente.PermisosUsuario = usuarioVM.PermisosSeleccionados
                                        .Select(id => new Dom.Permiso { IdPermiso = id })
                                        .ToList();
         if (!string.IsNullOrEmpty(usuarioVM.Contrasenia))

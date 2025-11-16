@@ -47,9 +47,14 @@ public class ProveedorRepository : IProveedorRepository
         await _context.SaveChangesAsync();
         entity.IdProveedor = proveedorEF.IdProveedor;
         entity.Direccion.IdDomicilio = proveedorEF.IdDomicilio;
-        if (entity.Condicion != null)
+        if (entity.Direccion != null && proveedorEF.IdDomicilioNavigation != null)
         {
-            entity.Condicion.IdCondicionPago = proveedorEF.IdCondicionPagoHabitual;
+            entity.Direccion.IdDomicilio = proveedorEF.IdDomicilioNavigation.IdDomicilio;
+        }
+
+        if (entity.Condicion != null && proveedorEF.IdCondicionPagoHabitualNavigation != null)
+        {
+            entity.Condicion.IdCondicionPago = proveedorEF.IdCondicionPagoHabitualNavigation.IdCondicionPago;
         }
     }
 

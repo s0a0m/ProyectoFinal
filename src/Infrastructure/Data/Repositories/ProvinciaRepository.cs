@@ -18,7 +18,7 @@ public class ProvinciaRepository : IProvinciaRepository
 
     public async Task<IEnumerable<Dom.Provincia>> GetAllAsync()
     {
-        IEnumerable<EF.Provincia> provinciasEF = await _context.Set<EF.Provincia>().ToListAsync();
+        IEnumerable<EF.Provincia> provinciasEF = await _context.Set<EF.Provincia>().AsNoTracking().ToListAsync();
         IEnumerable<Dom.Provincia> provinciasDom = DominioMapper.Map(provinciasEF);
 
         return provinciasDom;
@@ -27,7 +27,7 @@ public class ProvinciaRepository : IProvinciaRepository
     public async Task<Dom.Provincia?> GetByIdAsync(int idProvincia)
     {
         EF.Provincia? provinciaEF = await _context.Set<EF.Provincia>()
-            .FirstOrDefaultAsync(p => p.IdProvincia == idProvincia);
+            .AsNoTracking().FirstOrDefaultAsync(p => p.IdProvincia == idProvincia);
         if (provinciaEF == null)
         {
             return null;

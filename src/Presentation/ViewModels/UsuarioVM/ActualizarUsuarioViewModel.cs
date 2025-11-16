@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Dom = src.Models.Domain; 
+using Dom = src.Models.Domain;
 
 namespace src.Presentation.ViewModels.UsuarioVM
 {
@@ -20,7 +20,7 @@ namespace src.Presentation.ViewModels.UsuarioVM
         [StringLength(11, ErrorMessage = "La identificación debe tener como máximo 11 caracteres.")]
         [RegularExpression(@"^\d+$", ErrorMessage = "La identificación solo puede contener números.")]
         public string Identificacion { get; set; } = string.Empty;
-        
+
         [Required(ErrorMessage = "El correo es obligatorio.")]
         [EmailAddress(ErrorMessage = "El formato del correo no es válido.")]
         [StringLength(100, ErrorMessage = "El correo no puede exceder los 100 caracteres.")]
@@ -40,7 +40,7 @@ namespace src.Presentation.ViewModels.UsuarioVM
         [Compare(nameof(Contrasenia), ErrorMessage = "Las contraseñas no coinciden.")]
         [Display(Name = "Confirmar Nueva Contraseña")]
         public string? ConfirmarContrasenia { get; set; } // SÍ es nulable
-        
+
         // saque la posibilidad de actualizar el estado
 
         // Para recibir los IDs seleccionados desde el formulario POST
@@ -50,10 +50,10 @@ namespace src.Presentation.ViewModels.UsuarioVM
         public List<PermisoAsignadoViewModel> TodosLosPermisos { get; set; } = new();
 
         // --- FIN DE CAMBIOS ---
-    
+
         public ActualizarUsuarioViewModel() { }
 
-        public ActualizarUsuarioViewModel(Dom.Usuario u,List<Dom.Permiso> todosLosPermisos)
+        public ActualizarUsuarioViewModel(Dom.Usuario u, List<Dom.Permiso> todosLosPermisos)
         {
             IdUsuario = u.IdUsuario;
             Nombre = u.Nombre;
@@ -62,8 +62,8 @@ namespace src.Presentation.ViewModels.UsuarioVM
             Correo = u.Correo;
             Telefono = u.Telefono;
             // Intencionalmente, NO cargue la contraseña existente en el formulario
-            var permisosUsuarioIds = new HashSet<int>(u.Permisos.Select(p => p.IdPermiso));
-            
+            var permisosUsuarioIds = new HashSet<int>(u.PermisosUsuario.Select(p => p.IdPermiso));
+
             TodosLosPermisos = todosLosPermisos.Select(permiso => new PermisoAsignadoViewModel
             {
                 IdPermiso = permiso.IdPermiso,
