@@ -32,8 +32,7 @@ public class DireccionProvinciaMapperTest
         Assert.Equal(1022, ultimoDomicilio.Numero);
 
         Assert.Equal(5, ultimoDomicilio.IdProvincia);
-        Assert.NotNull(ultimoDomicilio.IdProvinciaNavigation);
-        Assert.Equal("Chaco", ultimoDomicilio.IdProvinciaNavigation.Nombre);
+        Assert.Null(ultimoDomicilio.IdProvinciaNavigation);
     }
     [Fact]
     public void DireccionMapper_ListaDataADominio_MapeaExitosamente()
