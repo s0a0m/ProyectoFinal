@@ -21,5 +21,11 @@ public class Categoria
     [Column("descripcion")]
     public string Descripcion { get; set; }
 
+    [Column("id_familia")]
+    public short IdFamilia { get; set; }
+
+    [ForeignKey("IdFamilia")]
+    public Familia Familia { get; set; }
+
     public ICollection<ProductoCategoria> ProductosCategorias { get; set; } = new List<ProductoCategoria>();
 }
