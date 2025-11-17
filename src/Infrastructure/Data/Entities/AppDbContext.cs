@@ -48,6 +48,7 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<ProductoGrupo> ProductosGrupos { get; set; }
     public virtual DbSet<ProductoCategoria> ProductoCategorias { get; set; }
     public virtual DbSet<ProductoCodigoBarra> ProductoCodigosBarras { get; set; }
+    public virtual DbSet<Familia> Familias { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ProductoCodigoBarra>()
