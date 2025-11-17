@@ -4,7 +4,7 @@ using Dom = src.Models.Domain;
 using EF = src.Models.CodeFirst;
 using src.Models.Mappers;
 
-namespace src.Tests;
+namespace src.MapperTests;
 
 public class PermisoGrupoPermisoMapperTest
 {

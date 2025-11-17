@@ -25,7 +25,7 @@ public class Producto
 
     [Column("activo")]
     public bool Activo { get; set; }
-    public ICollection<ProductoProveedor> ProductosProveedores { get; set; }
+    public ICollection<ProductoProveedor> ProductosProveedores { get; set; } = new List<ProductoProveedor>();
     public ICollection<NovedadesProveedor> Novedades { get; set; } = new List<NovedadesProveedor>();
     public ICollection<ProductoGrupo> ProductosGrupos { get; set; } = new List<ProductoGrupo>();
     public ICollection<ProductoCategoria> ProductosCategorias { get; set; } = new List<ProductoCategoria>();

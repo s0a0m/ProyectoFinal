@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Dom = src.Models.Domain;
 using EF = src.Models.CodeFirst;
 using src.Models.Mappers;
+namespace src.MapperTests;
 
 // Nota: Asumimos que todas las clases de unión (ProductoGrupo, ProductoCategoria, etc.)
 // y las entidades base (Grupo, Categoria) existen en ambas capas (EF y Dom).
@@ -25,7 +26,7 @@ public class ProductoMapperTests
     private Dom.Grupo CrearGrupoDom(short id, string nombre) =>
         new Dom.Grupo { IdGrupo = id, Nombre = nombre };
     private EF.Categoria CrearCategoriaEF(short id, string nombre) =>
-        new EF.Categoria { IdCategoria = id, Nombre = nombre };
+        new EF.Categoria { IdCategoria = id, Nombre = nombre, Familia = new EF.Familia { IdFamilia = 1, Nombre = "asd", Descripcion = "asdads" } };
 
     // --- MOCKS DE TABLAS DE UNIÓN M:M ---
     private EF.ProductoGrupo CrearProductoGrupoEF(short prodId, short grupoId, EF.Producto prod, EF.Grupo grupo) =>
