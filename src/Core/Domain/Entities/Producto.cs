@@ -7,7 +7,7 @@ public class Producto
     public int StockMinimo { get; set; }
     public int StockTotal { get; set; }
     public bool Activo { get; set; }
-    public IEnumerable<Grupo> Grupo { get; set; } = new List<Grupo>();
+    // public IEnumerable<Grupo> Grupo { get; set; } = new List<Grupo>();
     public IEnumerable<Categoria> Categoria { get; set; } = new List<Categoria>();
     public IEnumerable<CodigoBarra> CodigoBarra { get; set; }
 }

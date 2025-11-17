@@ -12,7 +12,7 @@ public static partial class DominioMapper
     [MapperIgnoreSource(nameof(EF.Producto.Novedades))]
     [MapProperty(nameof(EF.Producto.ProductoCodigoBarras), nameof(Dom.Producto.CodigoBarra))]
     [MapProperty(nameof(EF.Producto.ProductosCategorias), nameof(Dom.Producto.Categoria))]
-    [MapProperty(nameof(EF.Producto.ProductosGrupos), nameof(Dom.Producto.Grupo))]
+    // [MapProperty(nameof(EF.Producto.ProductosGrupos), nameof(Dom.Producto.Grupo))]
     public static partial Dom.Producto Map(EF.Producto source);
     public static partial IEnumerable<Dom.Producto> Map(IEnumerable<EF.Producto> source);
 
@@ -21,9 +21,9 @@ public static partial class DominioMapper
     [MapperIgnoreTarget(nameof(EF.Producto.Novedades))]
     [MapperIgnoreTarget(nameof(EF.Producto.ProductoCodigoBarras))]
     [MapperIgnoreTarget(nameof(EF.Producto.ProductosCategorias))]
-    [MapperIgnoreTarget(nameof(EF.Producto.ProductosGrupos))]
+    // [MapperIgnoreTarget(nameof(EF.Producto.ProductosGrupos))]
 
-    [MapperIgnoreSource(nameof(Dom.Producto.Grupo))]
+    // [MapperIgnoreSource(nameof(Dom.Producto.Grupo))]
     [MapperIgnoreSource(nameof(Dom.Producto.CodigoBarra))]
     [MapperIgnoreSource(nameof(Dom.Producto.Categoria))]
     public static partial EF.Producto Map(Dom.Producto source);
@@ -45,12 +45,12 @@ public static partial class DominioMapper
         }
         return Map(source.Categoria);
     }
-    public static Dom.Grupo Map(EF.ProductoGrupo source)
-    {
-        if (source.Grupo == null)
-        {
-            return new Dom.Grupo();
-        }
-        return Map(source.Grupo);
-    }
+    // public static Dom.Grupo Map(EF.ProductoGrupo source)
+    // {
+    //     if (source.Grupo == null)
+    //     {
+    //         return new Dom.Grupo();
+    //     }
+    //     return Map(source.Grupo);
+    // }
 }

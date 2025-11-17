@@ -27,7 +27,7 @@ public class Producto
     public bool Activo { get; set; }
     public ICollection<ProductoProveedor> ProductosProveedores { get; set; } = new List<ProductoProveedor>();
     public ICollection<NovedadesProveedor> Novedades { get; set; } = new List<NovedadesProveedor>();
-    public ICollection<ProductoGrupo> ProductosGrupos { get; set; } = new List<ProductoGrupo>();
+    // public ICollection<ProductoGrupo> ProductosGrupos { get; set; } = new List<ProductoGrupo>();
     public ICollection<ProductoCategoria> ProductosCategorias { get; set; } = new List<ProductoCategoria>();
     public ICollection<ProductoCodigoBarra> ProductoCodigoBarras { get; set; } = new List<ProductoCodigoBarra>();
 }

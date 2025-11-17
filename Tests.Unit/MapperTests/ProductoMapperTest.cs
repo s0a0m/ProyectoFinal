@@ -48,10 +48,10 @@ public class ProductoMapperTests
         var efCategoriaHerramienta = CrearCategoriaEF(5, "Herramientas");
 
         // Simular las Tablas de Unión M:M cargadas en la entidad EF (el origen)
-        efProducto.ProductosGrupos = new List<EF.ProductoGrupo>
-        {
-            CrearProductoGrupoEF(100, 1, efProducto, efGrupoMadera), // Grupo: Madera
-        };
+        // efProducto.ProductosGrupos = new List<EF.ProductoGrupo>
+        // {
+        //     CrearProductoGrupoEF(100, 1, efProducto, efGrupoMadera), // Grupo: Madera
+        // };
         efProducto.ProductosCategorias = new List<EF.ProductoCategoria>
         {
             CrearProductoCategoriaEF(100, 5, efProducto, efCategoriaHerramienta) // Categoría: Herramientas
@@ -65,9 +65,9 @@ public class ProductoMapperTests
         Assert.Equal(100, domProducto.IdProducto);
 
         // 1. Verificación de la Proyección de Grupos (M:M -> ICollection<Dom.Grupo>)
-        Assert.NotNull(domProducto.Grupo);
-        Assert.Single(domProducto.Grupo);
-        Assert.Equal("Madera", domProducto.Grupo.First().Nombre);
+        // Assert.NotNull(domProducto.Grupo);
+        // Assert.Single(domProducto.Grupo);
+        // Assert.Equal("Madera", domProducto.Grupo.First().Nombre);
 
         // 2. Verificación de la Proyección de Categorías (M:M -> ICollection<Dom.Categoria>)
         Assert.NotNull(domProducto.Categoria);
@@ -93,7 +93,7 @@ public class ProductoMapperTests
         };
 
         // 2. Asignar la lista completa a la propiedad IEnumerable
-        domProducto.Grupo = listaGrupos; // Esto funciona gracias al 'set;'
+        // domProducto.Grupo = listaGrupos; // Esto funciona gracias al 'set;'
 
         // ACT
         EF.Producto efProducto = DominioMapper.Map(domProducto);
@@ -105,7 +105,7 @@ public class ProductoMapperTests
 
         // 2. Verificación de Seguridad M:M (Las colecciones EF deben estar vacías)
         // Esto confirma que los [MapperIgnoreTarget] funcionaron correctamente en el mapeo Dom -> EF.
-        Assert.Empty(efProducto.ProductosGrupos);
+        // Assert.Empty(efProducto.ProductosGrupos);
         Assert.Empty(efProducto.ProductosCategorias);
         Assert.Empty(efProducto.ProductoCodigoBarras);
         Assert.Empty(efProducto.ProductosProveedores);

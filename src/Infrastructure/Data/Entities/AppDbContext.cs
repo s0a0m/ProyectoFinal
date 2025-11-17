@@ -40,12 +40,12 @@ public partial class AppDbContext : DbContext
 
     public DbSet<Producto> Productos { get; set; }
     public DbSet<ProductoProveedor> ProductosProveedores { get; set; }
-    public DbSet<Grupo> Grupos { get; set; }
+    // public DbSet<Grupo> Grupos { get; set; }
+    // public virtual DbSet<ProductoGrupo> ProductosGrupos { get; set; }
     public DbSet<Categoria> Categorias { get; set; }
     public DbSet<CodigoBarra> CodigoBarras { get; set; }
     public DbSet<NovedadesProveedor> NovedadesProveedores { get; set; }
     public DbSet<ProductoCodigoExterno> ProductoCodigosExternos { get; set; }
-    public virtual DbSet<ProductoGrupo> ProductosGrupos { get; set; }
     public virtual DbSet<ProductoCategoria> ProductoCategorias { get; set; }
     public virtual DbSet<ProductoCodigoBarra> ProductoCodigosBarras { get; set; }
     public virtual DbSet<Familia> Familias { get; set; }
@@ -54,8 +54,8 @@ public partial class AppDbContext : DbContext
         modelBuilder.Entity<ProductoCodigoBarra>()
             .HasKey(pg => new { pg.IdProducto, pg.IdCodigoBarra });
 
-        modelBuilder.Entity<ProductoGrupo>()
-            .HasKey(pg => new { pg.IdProducto, pg.IdGrupo });
+        // modelBuilder.Entity<ProductoGrupo>()
+        //     .HasKey(pg => new { pg.IdProducto, pg.IdGrupo });
 
         modelBuilder.Entity<ProductoCategoria>()
             .HasKey(pc => new { pc.IdProducto, pc.IdCategoria });
