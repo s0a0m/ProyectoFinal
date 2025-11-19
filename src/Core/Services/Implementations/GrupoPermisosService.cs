@@ -35,7 +35,7 @@ namespace src.Core.Services.Implementations
             }
 
             return grupo;
-        }
+            }
         
         public async Task<Dom.GrupoPermisos> CreateGrupoAsync(CrearGrupoViewModel vm)
         {

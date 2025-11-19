@@ -36,8 +36,11 @@ builder.Services.AddScoped<ICommonDataService, CommonDataService>();
 builder.Services.AddScoped<IPermisoRepository, PermisoRepository>();
 builder.Services.AddScoped<IProvinciaRepository, ProvinciaRepository>();
 builder.Services.AddScoped<IGrupoPermisosRepository, GrupoPermisosRepository>();
+builder.Services.AddScoped<IFamiliaRepository, FamiliaRepository>();
+builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 
-// Servicios
+builder.Services.AddScoped<IFamiliaService, FamiliaService>();
+builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IUserService, UserService>();
 // builder.Services.AddScoped<IProveedorService, ProveedorService>();
 

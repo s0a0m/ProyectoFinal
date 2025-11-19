@@ -116,11 +116,9 @@ public class ProveedorController : Controller
         {
             return View("ActualizarProveedor", await PrepareActualizarProveedorViewModel(proveedorVM));
         }
-
         try
         {
-            await _provService.UpdateProveedorAsync(proveedorVM);
-
+            await _provService.UpdateProveedorAsync(proveedorVM);   
             TempData["realizado"] = "El Proveedor fue actualizado con éxito.";
             return RedirectToAction("ListarProveedores");
         }
