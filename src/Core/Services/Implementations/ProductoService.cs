@@ -82,7 +82,7 @@ namespace src.Core.Services.Implementations
             // Parámetro C: Random alfanumérico
             string paramC = GenerarStringRandom(5); 
             string codigoInterno = _barcoRepo.FormatearCodigo128( paramA, paramB,paramC);
-                _barcoRepo.ValidarFormatoCodigo128Async(codigoInterno);
+                _barcoRepo.ValidarFormatoCodigo128(codigoInterno);
             codigosFinales.Add(codigoInterno);
             
              // codigos manuales

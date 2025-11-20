@@ -15,5 +15,6 @@ namespace src.Repositories.Interfaces
 
         // Métodos de soporte para validaciones de negocio (RF 2.3.1)
         Task<bool> ExistsCodigoBarraAsync(string codigo, int? excluirProductoId = null);
+        
     }
 }
