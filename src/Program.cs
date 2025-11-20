@@ -39,6 +39,7 @@ builder.Services.AddScoped<IProvinciaRepository, ProvinciaRepository>();
 builder.Services.AddScoped<IGrupoPermisosRepository, GrupoPermisosRepository>();
 builder.Services.AddScoped<IBarcodeAdapter, ZxIngBarcodeAdapter>();
 builder.Services.AddScoped<IProductoCodigoExternoRepository, ProductoCodigoExternoRepository>();
+builder.Services.AddScoped<IProductoProveedorRepository, ProductoProveedorRepository>();
 
 // Servicios
 builder.Services.AddScoped<IUserService, UserService>();
