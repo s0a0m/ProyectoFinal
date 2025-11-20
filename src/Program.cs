@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using src.Core.Services.Implementations;
 using src.Core.Services.Interfaces;
+using src.External;
 using src.Models.CodeFirst;
 using src.Repositories.Implementations;
 using src.Repositories.Interfaces;
@@ -36,6 +37,8 @@ builder.Services.AddScoped<ICommonDataService, CommonDataService>();
 builder.Services.AddScoped<IPermisoRepository, PermisoRepository>();
 builder.Services.AddScoped<IProvinciaRepository, ProvinciaRepository>();
 builder.Services.AddScoped<IGrupoPermisosRepository, GrupoPermisosRepository>();
+builder.Services.AddScoped<IBarcodeAdapter, ZxIngBarcodeAdapter>();
+builder.Services.AddScoped<IProductoCodigoExternoRepository, ProductoCodigoExternoRepository>();
 
 // Servicios
 builder.Services.AddScoped<IUserService, UserService>();
