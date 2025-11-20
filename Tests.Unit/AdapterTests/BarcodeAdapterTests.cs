@@ -5,7 +5,7 @@ using ZXing;
 using src.External;
 // Asume que las clases Dom/EF y el namespace src.External son accesibles
 
-namespace src.BibliotecaCodigoBarraTests;
+namespace src.AdapterTest;
 
 public class BarcodeAdapterTests
 {
