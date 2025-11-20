@@ -47,7 +47,7 @@ public class ZxIngBarcodeAdapter : IBarcodeAdapter
         if (fontSize < 0 || fontSize > 20)
             throw new ArgumentException($"El tamaño de fuente (fontSize) debe ser positivo y no exceder los 20 puntos. Valor actual: {fontSize}.");
 
-        var pixelData = CrearPixelData(codigo, width, height, margin, pureBarcode);
+        var pixelData = CrearPixelData(BarcodeFormat.EAN_13, codigo, width, height, margin, pureBarcode);
 
         string codigoFormateado = FormatearEAN13(codigo);
 
@@ -83,11 +83,11 @@ public class ZxIngBarcodeAdapter : IBarcodeAdapter
         return Convert.ToBase64String(ms.ToArray());
     }
 
-    private ZXing.Rendering.PixelData CrearPixelData(string codigo, int width, int height, int margin, bool pureBarcode)
+    private ZXing.Rendering.PixelData CrearPixelData(BarcodeFormat formato, string codigo, int width, int height, int margin, bool pureBarcode)
     {
         var writer = new BarcodeWriterPixelData
         {
-            Format = BarcodeFormat.EAN_13,
+            Format = formato,
             Options = new EncodingOptions
             {
                 Height = height,
@@ -150,5 +150,87 @@ public class ZxIngBarcodeAdapter : IBarcodeAdapter
 
         int check = (10 - (sum % 10)) % 10;
         return check == (codigo[12] - '0');
+    }
+
+    private string FormatearCodigo128(string paramA, string paramB, string paramC)
+    {
+        if (string.IsNullOrWhiteSpace(paramA) || string.IsNullOrWhiteSpace(paramB) || string.IsNullOrWhiteSpace(paramC))
+        {
+            throw new ArgumentException("Los parámetros no deben ser nulos o vacíos.");
+        }
+        string codigoCompleto = $"{paramA}-{paramB}-{paramC}";
+        codigoCompleto = codigoCompleto.Replace(" ", "").ToUpperInvariant();
+
+        ValidarFormatoCodigo128Async(codigoCompleto);
+
+        return codigoCompleto;
+    }
+
+    private bool ValidarFormatoCodigo128Async(string codigo)
+    {
+        const int LONGITUD_MAXIMA = 30;
+        return codigo.Length <= LONGITUD_MAXIMA;
+    }
+
+    public async Task<string> GenerarBase64CodigoBarraCodigo128Async(
+        string paramA, string paramB, string paramC,
+        int width = 300,
+        int height = 150,
+        int margin = 2,
+        bool pureBarcode = false,
+        int? fontSize = null
+    )
+    {
+        var codigo = FormatearCodigo128(paramA, paramB, paramC);
+
+        if (!ValidarFormatoCodigo128Async(codigo))
+            throw new ArgumentException($"El código de barras generado excede la longitud máxima de 30 caracteres. El código actual tiene {codigo.Length} caracteres. Por favor, acorte los segmentos.");
+
+        if (width < 30 || width > 500)
+            throw new ArgumentException($"El ancho (width) debe estar entre 30 y 500 píxeles. Valor actual: {width}.");
+
+        if (height < 20 || height > 300)
+            throw new ArgumentException($"La altura (height) debe estar entre 20 y 300 píxeles. Valor actual: {height}.");
+
+        if (margin < 0 || margin > 50)
+            throw new ArgumentException($"El margen (margin) debe ser un valor positivo, entre 0 y 50 píxeles. Valor actual: {margin}.");
+
+        if (fontSize < 0 || fontSize > 20)
+            throw new ArgumentException($"El tamaño de fuente (fontSize) debe ser positivo y no exceder los 20 puntos. Valor actual: {fontSize}.");
+
+        var pixelData = CrearPixelData(BarcodeFormat.CODE_128, codigo, width, height, margin, pureBarcode);
+
+        string codigoFormateado = codigo;
+
+        using var barcodeImage = Image.LoadPixelData<Rgba32>(pixelData.Pixels, pixelData.Width, pixelData.Height);
+
+        (Font font, TextOptions textOptions) = ObtenerConfiguracionDeFuente(codigo, fontSize, pixelData.Width, 72);
+
+        FontRectangle size = TextMeasurer.MeasureBounds(codigoFormateado, textOptions);
+
+        int extraTextHeight = (int)Math.Ceiling(size.Height + 10);
+        int totalHeight = pixelData.Height + extraTextHeight;
+
+        using var finalImage = new Image<Rgba32>(pixelData.Width, totalHeight);
+        finalImage.Mutate(ctx => ctx.Fill(Color.White));
+
+        finalImage.Mutate(ctx => ctx.DrawImage(barcodeImage, new Point(0, 0), 1f));
+
+        float centerX = (pixelData.Width - size.Width) / 2;
+
+        float startY = pixelData.Height + 5;
+        finalImage.Mutate(ctx =>
+        {
+            ctx.DrawText(
+                codigoFormateado,
+                font,
+                Color.Black,
+                new PointF(centerX, startY)
+            );
+        });
+
+        using var ms = new MemoryStream();
+        finalImage.Save(ms, new PngEncoder());
+        return Convert.ToBase64String(ms.ToArray());
     }
 }

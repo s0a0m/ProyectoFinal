@@ -42,6 +42,31 @@ public class BarcodeAdapterTests
         // 3. Opcional: Podrías verificar que la cadena Base64 comience con los bytes PNG.
     }
 
+    [Fact]
+    public async Task GenerarBase64_Codigo128Valido_RetornaCadenaNoVacia()
+    {
+        // ARRANGE
+        // Código EAN-13 Matemáticamente Válido (Ej: Coca-Cola 779-xxxxxxxxx-x)
+        const string paramA = "PepsiNicotra";
+        const string paramB = "Lote3";
+        const string paramC = "10/2026";
+
+        // ACT
+        string base64Resultado = await _adapter.GenerarBase64CodigoBarraCodigo128Async(
+            paramA, paramB, paramC,
+            width: 150,
+            height: 50
+        );
+
+        // ASSERT
+        // 1. La cadena Base64 no debe ser vacía ni nula
+        Assert.False(string.IsNullOrEmpty(base64Resultado));
+        // 2. La cadena debe ser lo suficientemente larga (una imagen PNG pequeña)
+        Assert.True(base64Resultado.Length > 100, "La cadena Base64 es demasiado corta.");
+
+        // 3. Opcional: Podrías verificar que la cadena Base64 comience con los bytes PNG.
+    }
+
 
     // ===================================================================
     // PRUEBA 2: Validación Fallida (Manejo de Excepción)
