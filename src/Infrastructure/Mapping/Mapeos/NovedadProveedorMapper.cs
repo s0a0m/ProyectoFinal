@@ -11,4 +11,11 @@ public static partial class DominioMapper
     [MapperIgnoreSource(nameof(EF.NovedadesProveedor.FechaImportacion))]
     public static partial NovedadPendiente Map(EF.NovedadesProveedor source);
     public static partial IEnumerable<NovedadPendiente> Map(IEnumerable<EF.NovedadesProveedor> source);
+
+    [MapperIgnoreSource(nameof(EF.NovedadesProveedor.IdNovedad))]
+    [MapperIgnoreTarget(nameof(EF.NovedadesProveedor.IdNovedad))]
+    [MapperIgnoreTarget(nameof(EF.NovedadesProveedor.FechaImportacion))]
+    [MapperIgnoreTarget(nameof(EF.NovedadesProveedor.Proveedor))]
+    public static partial EF.NovedadesProveedor Map(NovedadPendiente source);
+    public static partial IEnumerable<EF.NovedadesProveedor> Map(IEnumerable<NovedadPendiente> source);
 }

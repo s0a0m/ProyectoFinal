@@ -20,4 +20,14 @@ public static partial class DominioMapper
     [MapperIgnoreTarget(nameof(EF.ProductoProveedor.Proveedor))]
     public static partial EF.ProductoProveedor Map(Dom.ProductoProveedor source);
     public static partial IEnumerable<EF.ProductoProveedor> Map(IEnumerable<Dom.ProductoProveedor> source);
+
+
+    // datarow del excel a EF
+
+    [MapProperty(nameof(Contracts.ProductoProveedorDataRow.StockActual), nameof(Dom.ProductoProveedor.StockAsignado))]
+    [MapperIgnoreTarget(nameof(Dom.ProductoProveedor.Producto))]
+    [MapperIgnoreTarget(nameof(Dom.ProductoProveedor.Proveedor))]
+    [MapperIgnoreSource(nameof(Contracts.ProductoProveedorDataRow.CodigoBarraExterno))]
+    [MapperIgnoreSource(nameof(Contracts.ProductoProveedorDataRow.NombreSugerido))]
+    public static partial Dom.ProductoProveedor Map(Contracts.ProductoProveedorDataRow source);
 }

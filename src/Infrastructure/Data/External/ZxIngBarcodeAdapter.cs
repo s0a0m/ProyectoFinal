@@ -32,7 +32,7 @@ public class ZxIngBarcodeAdapter : IBarcodeAdapter
         int? fontSize = null
     )
     {
-        if (!ValidarFormatoGS1EAN13Async(codigo))
+        if (!ValidarFormatoGS1EAN13(codigo))
             throw new ArgumentException("El código proporcionado no es válido según el estándar GS1 EAN-13.");
 
         if (width < 30 || width > 500)
@@ -133,7 +133,7 @@ public class ZxIngBarcodeAdapter : IBarcodeAdapter
     {
         return (int)Math.Max(12, anchoImagen / 15);
     }
-    public bool ValidarFormatoGS1EAN13Async(string codigo)
+    public bool ValidarFormatoGS1EAN13(string codigo)
     {
         if (string.IsNullOrEmpty(codigo) || codigo.Length != 13 || !codigo.All(char.IsDigit))
         {
@@ -161,12 +161,12 @@ public class ZxIngBarcodeAdapter : IBarcodeAdapter
         string codigoCompleto = $"{paramA}-{paramB}-{paramC}";
         codigoCompleto = codigoCompleto.Replace(" ", "").ToUpperInvariant();
 
-        ValidarFormatoCodigo128Async(codigoCompleto);
+        ValidarFormatoCodigo128(codigoCompleto);
 
         return codigoCompleto;
     }
 
-    public bool ValidarFormatoCodigo128Async(string codigo)
+    public bool ValidarFormatoCodigo128(string codigo)
     {
         const int LONGITUD_MAXIMA = 30;
         return codigo.Length <= LONGITUD_MAXIMA;
@@ -183,7 +183,7 @@ public class ZxIngBarcodeAdapter : IBarcodeAdapter
     {
         var codigo = FormatearCodigo128(paramA, paramB, paramC);
 
-        if (!ValidarFormatoCodigo128Async(codigo))
+        if (!ValidarFormatoCodigo128(codigo))
             throw new ArgumentException($"El código de barras generado excede la longitud máxima de 30 caracteres. El código actual tiene {codigo.Length} caracteres. Por favor, acorte los segmentos.");
 
         if (width < 30 || width > 500)

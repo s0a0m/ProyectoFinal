@@ -45,6 +45,7 @@ builder.Services.AddScoped<IFamiliaService, FamiliaService>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IBarcodeAdapter, ZxIngBarcodeAdapter>();
 builder.Services.AddScoped<IProductoCodigoExternoRepository, ProductoCodigoExternoRepository>();
+builder.Services.AddScoped<IProductoProveedorRepository, ProductoProveedorRepository>();
 
 // Servicios
 builder.Services.AddScoped<IUserService, UserService>();

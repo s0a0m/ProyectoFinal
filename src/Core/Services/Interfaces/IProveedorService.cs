@@ -1,5 +1,6 @@
 using src.ViewModels;
 using Dom = src.Models.Domain;
+using src.Contracts;
 namespace src.Core.Services.Interfaces;
 
 public interface IProveedorService

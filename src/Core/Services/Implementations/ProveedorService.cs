@@ -1,3 +1,4 @@
+using src.Contracts;
 using src.Core.Services.Interfaces;
 using src.Models.Domain;
 using src.Repositories.Interfaces;
@@ -10,11 +11,13 @@ public class ProveedorService : IProveedorService
 {
     private readonly IProveedorRepository _proveedorRepository;
     private readonly ICommonDataService _commonDataService;
+    private readonly IExcelDataReader _excelReader;
 
-    public ProveedorService(IProveedorRepository proveedorRepository, ICommonDataService _commonDataService)
+    public ProveedorService(IExcelDataReader reader, IProveedorRepository proveedorRepository, ICommonDataService _commonDataService)
     {
         _proveedorRepository = proveedorRepository;
         this._commonDataService = _commonDataService;
+        this._excelReader = reader;
     }
 
     public async Task<Dom.Proveedor> CreateProveedorAsync(CrearProveedorViewModel proveedorVM)
@@ -67,7 +70,6 @@ public class ProveedorService : IProveedorService
         }
         return proveedor;
     }
-
     // src/Core/Services/Implementations/ProveedorService.cs
 
     public async Task UpdateProveedorAsync(ActualizarProveedorViewModel proveedorVM)

@@ -39,7 +39,7 @@ namespace src.Controllers
         }
 
         [HttpGet]
-        public async Task <IActionResult> CrearUsuario()
+        public async Task<IActionResult> CrearUsuario()
         {
 
             var viewModel = await _usuarioService.PrepararCrearViewModelAsync();
