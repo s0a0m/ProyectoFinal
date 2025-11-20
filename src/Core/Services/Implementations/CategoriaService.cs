@@ -63,9 +63,9 @@ namespace src.Core.Services.Implementations
             var categoriaExistente = await _categoriaRepo.GetByIdAsync(vm.IdCategoria);
             if (categoriaExistente == null)
                 throw new KeyNotFoundException($"Categoría con ID {vm.IdCategoria} no encontrada.");
-
+            short idFamiliaActual = categoriaExistente.Familia?.IdFamilia ?? 0;
             // Validar si cambió de familia y si la nueva existe
-            if (categoriaExistente.Familia.IdFamilia != vm.IdFamilia)
+            if (idFamiliaActual != vm.IdFamilia)
             {
                  var nuevaFamilia = await _familiaRepo.GetByIdAsync(vm.IdFamilia);
                  if (nuevaFamilia == null) throw new ArgumentException("La nueva familia seleccionada no existe.");

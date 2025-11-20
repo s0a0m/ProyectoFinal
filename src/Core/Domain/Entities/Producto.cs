@@ -2,7 +2,7 @@ namespace src.Models.Domain;
 
 public class Producto
 {
-    public int IdProducto { get; init; }
+    public int IdProducto { get; set; }
     public string Nombre { get; set; }
     public int StockMinimo { get; set; }
     public int StockTotal { get; set; }

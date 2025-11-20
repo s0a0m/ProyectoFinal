@@ -2,7 +2,7 @@ namespace src.Models.Domain;
 
 public class CodigoBarra
 {
-    public int IdCodigoBarra { get; init; }
+    public int IdCodigoBarra { get; set; }
     public string Codigo { get; set; }
     public CodigoBarra(int idCodigoBarra, string codigo)
     {

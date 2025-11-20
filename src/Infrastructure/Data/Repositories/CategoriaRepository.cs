@@ -20,11 +20,32 @@ namespace src.Repositories.Implementations
 
         public async Task<IEnumerable<Dom.Categoria>> GetAllAsync()
         {
-            var data = await _context.Categorias
-                .Include(c => c.Familia) // Incluimos la familia para mostrar el nombre en listas
+            // 1. Traemos los datos de EF con la Familia incluida
+            var efCategorias = await _context.Categorias
+                .Include(c => c.Familia) 
                 .AsNoTracking()
                 .ToListAsync();
-            return DominioMapper.Map(data);
+
+            // 2. Mapeo MANUAL (Bypaseamos a DominioMapper aquí)
+            //    Esto nos garantiza que la Familia se cargue sí o sí.
+            var categoriasDominio = efCategorias.Select(efCat => new Dom.Categoria
+            {
+                IdCategoria = efCat.IdCategoria,
+                Nombre = efCat.Nombre,
+                Descripcion = efCat.Descripcion,
+                
+                // Aquí construimos la Familia manualmente si existe
+                Familia = efCat.Familia == null ? null : new Dom.Familia 
+                {
+                    IdFamilia = efCat.Familia.IdFamilia,
+                    Nombre = efCat.Familia.Nombre,
+                    Descripcion = efCat.Familia.Descripcion
+                    // IMPORTANTE: No mapeamos la lista 'Categorias' dentro de Familia 
+                    // para evitar el bucle infinito. La dejamos vacía.
+                }
+            }).ToList();
+
+            return categoriasDominio;
         }
 
         public async Task<IEnumerable<Dom.Categoria>> GetByFamiliaIdAsync(short idFamilia)
