@@ -99,7 +99,7 @@ public class ZxIngBarcodeAdapter : IBarcodeAdapter
         return writer.Write(codigo);
     }
 
-    private string FormatearEAN13(string codigo)
+    public string FormatearEAN13(string codigo)
     {
         if (codigo.Length != 13) return codigo;
 
@@ -152,7 +152,7 @@ public class ZxIngBarcodeAdapter : IBarcodeAdapter
         return check == (codigo[12] - '0');
     }
 
-    private string FormatearCodigo128(string paramA, string paramB, string paramC)
+    public string FormatearCodigo128(string paramA, string paramB, string paramC)
     {
         if (string.IsNullOrWhiteSpace(paramA) || string.IsNullOrWhiteSpace(paramB) || string.IsNullOrWhiteSpace(paramC))
         {
@@ -166,7 +166,7 @@ public class ZxIngBarcodeAdapter : IBarcodeAdapter
         return codigoCompleto;
     }
 
-    private bool ValidarFormatoCodigo128Async(string codigo)
+    public bool ValidarFormatoCodigo128Async(string codigo)
     {
         const int LONGITUD_MAXIMA = 30;
         return codigo.Length <= LONGITUD_MAXIMA;
@@ -232,5 +232,9 @@ public class ZxIngBarcodeAdapter : IBarcodeAdapter
         using var ms = new MemoryStream();
         finalImage.Save(ms, new PngEncoder());
         return Convert.ToBase64String(ms.ToArray());
+    }
+    public bool ValidarCodigoExtra(string codigo)
+    {
+        return codigo.Length <= 30 && codigo.Length > 0;
     }
 }
