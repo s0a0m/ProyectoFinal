@@ -134,9 +134,20 @@
 
                             <td class="text-center">
                                 <div class="btn-group" role="group">
-                                    <a asp-action="VerProducto" asp-route-id="@item.IdProducto" class="btn btn-info btn-sm text-white" title="Ver Detalle">
+                                    <button type="button" 
+                                            class="btn btn-info btn-sm text-white me-1" 
+                                            title="Ver Detalle"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#modalDetalleProducto"
+                                            data-nombre="@item.Nombre"
+                                            data-codigos="@item.CodigosBarra"
+                                            data-categorias="@item.Categorias"
+                                            data-stock="@item.StockTotal"
+                                            data-stockmin="@item.StockMinimo"
+                                            data-estado="@(item.Activo ? "Activo" : "Inactivo")"
+                                            data-enalerta="@(item.EnAlertaStock ? "true" : "false")">
                                         <i class="bi bi-eye-fill"></i>
-                                    </a>
+                                    </button>
                                     <a asp-action="ActualizarProducto" asp-route-id="@item.IdProducto" class="btn btn-warning btn-sm text-white" title="Editar">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
@@ -162,6 +173,68 @@
                     }
                 </tbody>
             </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDetalleProducto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-box-seam me-2"></i>Detalle del Producto
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold text-dark" id="detalleNombre">Nombre Producto</h3>
+                    <span class="badge rounded-pill" id="detalleEstado">Activo</span>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="p-3 border rounded bg-light h-100 text-center">
+                            <small class="text-muted text-uppercase fw-bold">Stock Actual</small>
+                            <div class="fs-2 fw-bold" id="detalleStock">0</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 border rounded bg-light h-100 text-center">
+                            <small class="text-muted text-uppercase fw-bold">Stock Mínimo</small>
+                            <div class="fs-2 text-secondary" id="detalleStockMin">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12" id="alertaStockDiv" style="display: none;">
+                        <div class="alert alert-danger d-flex align-items-center mb-0 p-2">
+                            <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+                            <div><strong>¡Atención!</strong> El stock está por debajo del mínimo.</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="fw-bold text-secondary small">CÓDIGOS DE BARRA</label>
+                        <div class="p-2 border rounded bg-white d-flex align-items-center text-break">
+                            <i class="bi bi-upc-scan me-2 text-muted fs-4"></i>
+                            <span class="font-monospace" id="detalleCodigos">...</span>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="fw-bold text-secondary small">CLASIFICACIÓN</label>
+                        <div class="p-2 border rounded bg-white">
+                            <i class="bi bi-tags-fill me-2 text-muted"></i>
+                            <span id="detalleCategorias">...</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
         </div>
     </div>
 </div>
@@ -249,6 +322,47 @@
                 $('#tituloTabla').text('⚠️ Alertas: Productos con Bajo Stock');
                 table.draw();
             };
+        });
+        var modalDetalle = document.getElementById('modalDetalleProducto');
+        modalDetalle.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+
+            // Extraer datos
+            var nombre = button.getAttribute('data-nombre');
+            var codigos = button.getAttribute('data-codigos');
+            var categorias = button.getAttribute('data-categorias');
+            var stock = button.getAttribute('data-stock');
+            var stockMin = button.getAttribute('data-stockmin');
+            var estado = button.getAttribute('data-estado');
+            var enAlerta = button.getAttribute('data-enalerta') === 'true';
+
+            // Inyectar en el Modal
+            modalDetalle.querySelector('#detalleNombre').textContent = nombre;
+            modalDetalle.querySelector('#detalleCodigos').textContent = codigos;
+            modalDetalle.querySelector('#detalleCategorias').textContent = categorias;
+            modalDetalle.querySelector('#detalleStock').textContent = stock;
+            modalDetalle.querySelector('#detalleStockMin').textContent = stockMin;
+            
+            // Estilar Estado
+            var badgeEstado = modalDetalle.querySelector('#detalleEstado');
+            badgeEstado.textContent = estado;
+            if (estado === 'Activo') {
+                badgeEstado.className = 'badge rounded-pill bg-success';
+            } else {
+                badgeEstado.className = 'badge rounded-pill bg-secondary';
+            }
+
+            // Estilar Stock y Alerta
+            var divStock = modalDetalle.querySelector('#detalleStock');
+            var divAlerta = modalDetalle.querySelector('#alertaStockDiv');
+
+            if (enAlerta) {
+                divStock.className = 'fs-2 fw-bold text-danger';
+                divAlerta.style.display = 'block';
+            } else {
+                divStock.className = 'fs-2 fw-bold text-success';
+                divAlerta.style.display = 'none';
+            }
         });
     </script>
 

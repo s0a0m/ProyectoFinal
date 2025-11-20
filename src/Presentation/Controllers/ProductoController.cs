@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using src.Core.Services.Interfaces;
 using src.Presentation.ViewModels.ProductoVM;
+using src.Repositories.Interfaces;
 using System;
 using System.Threading.Tasks;
 
@@ -9,10 +10,12 @@ namespace src.Presentation.Controllers
     public class ProductoController : Controller
     {
         private readonly IProductoService _productoService;
+        private readonly IProductoRepository _repoproducto;
 
-        public ProductoController(IProductoService productoService)
+        public ProductoController(IProductoService productoService,IProductoRepository repoprod)
         {
             _productoService = productoService;
+            _repoproducto = repoprod;
         }
 
         
@@ -85,6 +88,10 @@ namespace src.Presentation.Controllers
         {
             if (!ModelState.IsValid)
             {
+                 var producto = await _repoproducto.GetByIdAsync(vm.IdProducto);
+                 vm.CodigosRegistradosEnBd = producto.CodigoBarra
+                .Select(cb => cb.Codigo)
+                .ToList();
                 await _productoService.RepoblarViewModelAsync(vm);
                 return View("ActualizarProducto", vm);
             }

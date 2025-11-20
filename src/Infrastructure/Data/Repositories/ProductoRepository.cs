@@ -113,6 +113,82 @@ namespace src.Repositories.Implementations
             existing.StockTotal = entity.StockTotal;
             existing.Activo = entity.Activo;
 
+            // 2. Sincronizar Categorías (N-N) - (Tu lógica aquí estaba bien, la mantengo)
+            var nuevosIdsCategorias = entity.Categoria.Select(c => (short)c.IdCategoria).ToList();
+            foreach (var existingLink in existing.ProductosCategorias.ToList())
+            {
+                if (!nuevosIdsCategorias.Contains(existingLink.IdCategoria))
+                    _context.ProductoCategorias.Remove(existingLink);
+            }
+            foreach (var newId in nuevosIdsCategorias)
+            {
+                if (!existing.ProductosCategorias.Any(pc => pc.IdCategoria == newId))
+                    existing.ProductosCategorias.Add(new EF.ProductoCategoria { IdProducto = existing.IdProducto, IdCategoria = newId });
+            }
+
+            // 3. Sincronizar Códigos de Barra (CORREGIDO)
+            var nuevosCodigos = entity.CodigoBarra.Select(c => c.Codigo).ToList();
+
+            // A. Eliminar relaciones viejas
+            foreach (var existingLink in existing.ProductoCodigoBarras.ToList())
+            {
+                if (!nuevosCodigos.Contains(existingLink.CodigoBarra.Codigo))
+                {
+                    _context.ProductoCodigosBarras.Remove(existingLink);
+                }
+            }
+
+            // B. Agregar nuevos
+            foreach (var codigoValor in nuevosCodigos)
+            {
+                // Verificamos si ya está relacionado en memoria o en BD
+                bool yaRelacionado = existing.ProductoCodigoBarras
+                    .Any(pcb => pcb.CodigoBarra.Codigo == codigoValor);
+
+                if (!yaRelacionado)
+                {
+                    // 1. Buscar en la tabla maestra
+                    var codigoMaestro = await _context.CodigoBarras
+                        .FirstOrDefaultAsync(cb => cb.Codigo == codigoValor);
+                    
+                    if (codigoMaestro == null)
+                    {
+                        // 2. CASO CÓDIGO NUEVO: Lo creamos y lo agregamos EXPLÍCITAMENTE al contexto
+                        codigoMaestro = new EF.CodigoBarra { Codigo = codigoValor };
+                        _context.CodigoBarras.Add(codigoMaestro); 
+                        // Al hacer Add, su estado pasa a 'Added'.
+                    }
+
+                    // 3. Crear el enlace
+                    // Nota: Asignamos explícitamente el IdProducto para asegurar la integridad
+                    var nuevaRelacion = new EF.ProductoCodigoBarra
+                    {
+                        IdProducto = existing.IdProducto, // Asegurar enlace con el padre
+                        CodigoBarra = codigoMaestro       // Enlace con el hijo (nuevo o existente)
+                    };
+
+                    existing.ProductoCodigoBarras.Add(nuevaRelacion);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+       /* public async Task UpdateAsync(Dom.Producto entity)
+        {
+            var existing = await _context.Productos
+                .Include(p => p.ProductosCategorias)
+                .Include(p => p.ProductoCodigoBarras)
+                    .ThenInclude(pcb => pcb.CodigoBarra)
+                .FirstOrDefaultAsync(p => p.IdProducto == entity.IdProducto);
+
+            if (existing == null) throw new KeyNotFoundException($"Producto {entity.IdProducto} no encontrado");
+
+            // 1. Actualizar Escalares
+            existing.Nombre = entity.Nombre;
+            existing.StockMinimo = entity.StockMinimo;
+            existing.StockTotal = entity.StockTotal;
+            existing.Activo = entity.Activo;
+
             // 2. Sincronizar Categorías (N-N)
             var nuevosIdsCategorias = entity.Categoria.Select(c => (short)c.IdCategoria).ToList();
             
@@ -177,7 +253,7 @@ namespace src.Repositories.Implementations
 
             await _context.SaveChangesAsync();
         }
-
+        */
         public async Task DeleteAsync(int id)
         {
             var existing = await _context.Productos.FindAsync((short)id);

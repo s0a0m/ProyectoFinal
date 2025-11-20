@@ -3,6 +3,8 @@ using src.Repositories.Interfaces;
 using src.Presentation.ViewModels.ProductoVM;
 using Dom = src.Models.Domain;
 using System.Linq;
+using ZXing;
+using src.Models.CodeFirst;
 
 namespace src.Core.Services.Implementations
 {
@@ -10,11 +12,12 @@ namespace src.Core.Services.Implementations
     {
         private readonly IProductoRepository _productoRepo;
         private readonly ICategoriaRepository _categoriaRepo;
-
-        public ProductoService(IProductoRepository productoRepo, ICategoriaRepository categoriaRepo)
+        private readonly IBarcodeAdapter _barcoRepo;
+        public ProductoService(IProductoRepository productoRepo, ICategoriaRepository categoriaRepo,IBarcodeAdapter barco)
         {
             _productoRepo = productoRepo;
             _categoriaRepo = categoriaRepo;
+            _barcoRepo = barco;
         }
 
         public async Task<IEnumerable<ProductoListarViewModel>> GetAllParaListadoAsync()
@@ -63,19 +66,37 @@ namespace src.Core.Services.Implementations
                 Activo = producto.Activo,
                 // Cargamos los IDs y Strings existentes
                 CodigosBarra = producto.CodigoBarra.Select(cb => cb.Codigo).ToList(),
-                IdsCategoriasSeleccionadas = producto.Categoria.Select(c => (short)c.IdCategoria).ToList()
+                IdsCategoriasSeleccionadas = producto.Categoria.Select(c => (short)c.IdCategoria).ToList(),
+                CodigosRegistradosEnBd = producto.CodigoBarra.Select(cb => cb.Codigo).ToList()
             };
-
             await RepoblarViewModelAsync(vm); // Cargar lista de categorías
             return vm;
         }
 
         public async Task CreateAsync(CrearProductoViewModel vm)
         {
-            if (vm.CodigosBarra.Count == 0)
-                throw new ArgumentException("Debe ingresar al menos un código de barras.");
+            var codigosFinales = new List<string>();
 
-            foreach (var codigo in vm.CodigosBarra)
+            string paramA = vm.Nombre.Length >= 5 ? vm.Nombre.Substring(0, 5).ToUpper() : vm.Nombre.ToUpper();
+            string paramB = DateTime.Now.ToString("yyMMdd");
+            // Parámetro C: Random alfanumérico
+            string paramC = GenerarStringRandom(5); 
+            string codigoInterno = _barcoRepo.FormatearCodigo128( paramA, paramB,paramC);
+                _barcoRepo.ValidarFormatoCodigo128Async(codigoInterno);
+            codigosFinales.Add(codigoInterno);
+            
+             // codigos manuales
+            if (vm.CodigosBarra != null)
+            {
+                codigosFinales.AddRange(vm.CodigosBarra.Where(c => !string.IsNullOrWhiteSpace(c)));
+            }
+
+            if (!codigosFinales.Any())
+            {
+                throw new ArgumentException("Debe generar un código interno o agregar uno manual.");
+            }
+
+            foreach (var codigo in codigosFinales)
             {
                 if (await _productoRepo.ExistsCodigoBarraAsync(codigo)) 
                 {
@@ -92,14 +113,12 @@ namespace src.Core.Services.Implementations
                 Categoria = vm.IdsCategoriasSeleccionadas
                               .Select(id => new Dom.Categoria { IdCategoria = id })
                               .ToList(),
-                CodigoBarra = vm.CodigosBarra
-                              .Where(c => !string.IsNullOrWhiteSpace(c))
-                              .Select(code => new Dom.CodigoBarra { Codigo = code.Trim() })
-                              .ToList()
+                CodigoBarra = codigosFinales.Select(c => new Dom.CodigoBarra { Codigo = c }).ToList()
             };
 
             await _productoRepo.AddAsync(nuevoProducto);
         }
+
 
         public async Task UpdateAsync(ActualizarProductoViewModel vm)
         {
@@ -153,6 +172,33 @@ namespace src.Core.Services.Implementations
                 // Aquí manejamos la lógica del nombre:
                 Familia = c.Familia?.Nombre ?? "Sin Familia" 
             }).OrderBy(c => c.Familia).ThenBy(c => c.Nombre);
+        }
+                // Sobrecarga para Actualizar
+        public async Task RepoblarViewModelAsync(ActualizarProductoViewModel vm)
+        {
+            // 1. Cargar Categorías (lo que ya hacías)
+            var categorias = await _categoriaRepo.GetAllAsync();
+            vm.ListaCategoriasDisponibles = categorias.Select(c => new CategoriaOpcionDto 
+            { 
+                Id = c.IdCategoria, 
+                Nombre = c.Nombre,
+                Familia = c.Familia?.Nombre ?? "Sin Familia" 
+            }).OrderBy(c => c.Familia).ThenBy(c => c.Nombre);
+
+            // 2. NUEVO: Cargar los códigos que REALMENTE existen en la BD
+            var productoEnBd = await _productoRepo.GetByIdAsync(vm.IdProducto);
+            if (productoEnBd != null)
+            {
+                vm.CodigosRegistradosEnBd = productoEnBd.CodigoBarra.Select(c => c.Codigo).ToList();
+            }
+        }
+
+        private string GenerarStringRandom(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, length)
+            .Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }

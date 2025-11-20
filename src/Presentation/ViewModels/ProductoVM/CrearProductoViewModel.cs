@@ -25,9 +25,8 @@ namespace src.Presentation.ViewModels.ProductoVM
         [Display(Name = "Stock Inicial")]
         public int StockTotal { get; set; }
 
-        // RF 2.3.1 - Al menos un código (Validación personalizada o en controlador)
-        [Required(ErrorMessage = "Debe ingresar al menos un código de barras.")]
-        [MinLength(1, ErrorMessage = "Debe haber al menos un código de barras.")]
+        [Display(Name = "Agregar Códigos Adicionales (EAN/UPC)")]
+        public bool AgregarCodigosExtra { get; set; } = false;
         public List<string> CodigosBarra { get; set; } = new List<string>();
 
         // Selección de Categorías (N-N)

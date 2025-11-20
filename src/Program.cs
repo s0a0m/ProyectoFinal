@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using src.Core.Services.Implementations;
 using src.Core.Services.Interfaces;
+using src.External;
 using src.Models.CodeFirst;
 using src.Repositories.Implementations;
 using src.Repositories.Interfaces;
@@ -42,6 +43,10 @@ builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
 builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<IFamiliaService, FamiliaService>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<IBarcodeAdapter, ZxIngBarcodeAdapter>();
+builder.Services.AddScoped<IProductoCodigoExternoRepository, ProductoCodigoExternoRepository>();
+
+// Servicios
 builder.Services.AddScoped<IUserService, UserService>();
 // builder.Services.AddScoped<IProveedorService, ProveedorService>();
 
