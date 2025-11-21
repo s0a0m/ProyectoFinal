@@ -18,5 +18,6 @@ namespace src.Core.Services.Interfaces
         // Método auxiliar para DataTables si necesitas recargar el VM en error
         Task RepoblarViewModelAsync(CrearProductoViewModel vm);
         Task RepoblarViewModelAsync(ActualizarProductoViewModel vm);
+        Task ReactivateAsync(int id);
     }
 }

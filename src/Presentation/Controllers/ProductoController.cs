@@ -134,5 +134,27 @@ namespace src.Presentation.Controllers
             
             return RedirectToAction("ListarProductos");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> ReactivarProducto(int id)
+        {
+
+            if (id <= 0)
+            {
+                TempData["Error"] = "No se recibió un ID válido para reactivar.";
+                return RedirectToAction("ListarProductos");
+            }
+            try
+            {
+                await _productoService.ReactivateAsync(id);
+                TempData["Success"] = "Producto reactivado correctamente.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "No se pudo reactivar el producto: " + ex.Message;
+            }
+            
+            return RedirectToAction("ListarProductos");
+        }
     }
 }

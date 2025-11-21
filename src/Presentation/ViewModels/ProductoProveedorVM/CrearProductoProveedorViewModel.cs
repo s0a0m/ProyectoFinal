@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using src.Models.Domain;
 using System.ComponentModel.DataAnnotations;
 namespace src.Presentation.ViewModels.ProductoVM;
-public class CrearProductoProveedorViewModel
+    public class CrearProductoProveedorViewModel
     {
         [Required(ErrorMessage = "Debe seleccionar un producto")]
         [Display(Name = "Producto")]

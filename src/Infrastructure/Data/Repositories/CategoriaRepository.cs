@@ -111,5 +111,24 @@ namespace src.Repositories.Implementations
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<bool> ExistsNombreEnFamiliaAsync(string nombre, short idFamilia, short? idExcluir = null)
+        {
+            var nombreNormalizado = nombre.Trim().ToLower();
+
+            // Filtramos primero por familia
+            var query = _context.Categorias
+                .Where(c => c.IdFamilia == idFamilia);
+
+            // Si es update, excluimos el ID actual
+            if (idExcluir.HasValue)
+            {
+                query = query.Where(c => c.IdCategoria != idExcluir.Value);
+            }
+
+            return await query.AnyAsync(c => c.Nombre.ToLower() == nombreNormalizado);
+        }
+
+                
     }
 }

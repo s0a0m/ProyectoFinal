@@ -18,5 +18,6 @@ namespace src.Repositories.Interfaces
         // Validación útil: no borrar si tiene productos
         Task<bool> HasProductosAsync(short idCategoria);
         Task DeleteAsync(short id);
+        Task<bool> ExistsNombreEnFamiliaAsync(string nombre, short idFamilia, short? idExcluir = null);
     }
 }

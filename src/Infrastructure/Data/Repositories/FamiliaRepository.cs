@@ -80,5 +80,19 @@ namespace src.Repositories.Implementations
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<bool> ExistsNombreAsync(string nombre, short? idExcluir = null)
+        {
+            var nombreNormalizado = nombre.Trim().ToLower();
+
+            var query = _context.Familias.AsQueryable();
+
+            if (idExcluir.HasValue)
+            {
+                query = query.Where(f => f.IdFamilia != idExcluir.Value);
+            }
+
+            return await query.AnyAsync(f => f.Nombre.ToLower() == nombreNormalizado);
+        }
     }
 }

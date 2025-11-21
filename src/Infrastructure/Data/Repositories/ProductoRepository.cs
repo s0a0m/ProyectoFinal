@@ -277,5 +277,20 @@ namespace src.Repositories.Implementations
 
             return await query.AnyAsync();
         }
+
+        public async Task ReactivateAsync(int id)
+        {
+            var entity = await _context.Productos.FindAsync((short)id);
+            if (entity != null)
+            {
+                entity.Activo = true; 
+                _context.Entry(entity).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
+            else 
+            {
+                throw new Exception($"No se encontró el producto con ID {id}");
+            }
+        }
     }
 }

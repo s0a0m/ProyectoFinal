@@ -18,5 +18,7 @@ namespace src.Repositories.Interfaces
         // Validación antes de borrar
         Task<bool> HasCategoriasAsync(short idFamilia);
         Task DeleteAsync(short id);
+
+        Task<bool> ExistsNombreAsync(string nombre, short? idExcluir = null);
     }
 }

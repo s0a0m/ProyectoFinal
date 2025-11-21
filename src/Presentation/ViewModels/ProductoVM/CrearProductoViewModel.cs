@@ -16,12 +16,12 @@ namespace src.Presentation.ViewModels.ProductoVM
         public string Nombre { get; set; } = string.Empty;
 
         [Required]
-        [Range(0, int.MaxValue)]
+        [Range(-10000, 10000)]
         [Display(Name = "Stock Mínimo")]
         public int StockMinimo { get; set; }
 
         [Required]
-        [Range(0, int.MaxValue)]
+        [Range(0, 10000)]
         [Display(Name = "Stock Inicial")]
         public int StockTotal { get; set; }
 

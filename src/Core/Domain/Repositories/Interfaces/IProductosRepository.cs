@@ -12,6 +12,7 @@ namespace src.Repositories.Interfaces
         Task AddAsync(Dom.Producto entity);
         Task UpdateAsync(Dom.Producto entity);
         Task DeleteAsync(int id);
+        Task ReactivateAsync(int id);
 
         // Métodos de soporte para validaciones de negocio (RF 2.3.1)
         Task<bool> ExistsCodigoBarraAsync(string codigo, int? excluirProductoId = null);

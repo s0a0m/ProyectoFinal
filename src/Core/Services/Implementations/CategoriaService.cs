@@ -44,7 +44,8 @@ namespace src.Core.Services.Implementations
             var familia = await _familiaRepo.GetByIdAsync(vm.IdFamilia);
             if (familia == null)
                 throw new ArgumentException("La familia seleccionada no existe.");
-
+            if (await _categoriaRepo.ExistsNombreEnFamiliaAsync(vm.Nombre,vm.IdFamilia)) 
+            throw new ArgumentException("El nombre de la categoria ya existe en la familia que se intenta agregar, por favor ingrese uno que no se repita");
             // Mapeo manual VM -> Dominio
             // IMPORTANTE: Instanciamos la propiedad 'Familia' con el ID para que el Mapper del Repo funcione
             var nuevaCategoria = new Dom.Categoria
@@ -63,6 +64,10 @@ namespace src.Core.Services.Implementations
             var categoriaExistente = await _categoriaRepo.GetByIdAsync(vm.IdCategoria);
             if (categoriaExistente == null)
                 throw new KeyNotFoundException($"Categoría con ID {vm.IdCategoria} no encontrada.");
+            
+            if (await _categoriaRepo.ExistsNombreEnFamiliaAsync(vm.Nombre,vm.IdFamilia,vm.IdCategoria)) 
+            throw new ArgumentException("El nombre de la categoria ya existe en la familia que se intenta Modificar, por favor ingrese uno que no se repita");
+
             short idFamiliaActual = categoriaExistente.Familia?.IdFamilia ?? 0;
             // Validar si cambió de familia y si la nueva existe
             if (idFamiliaActual != vm.IdFamilia)

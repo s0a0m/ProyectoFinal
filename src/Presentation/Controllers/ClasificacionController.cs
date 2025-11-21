@@ -20,22 +20,16 @@ namespace src.Presentation.Controllers
             _categoriaService = categoriaService;
         }
 
-        // ==========================================
-        // VISTA PRINCIPAL (Dashboard de Clasificación)
-        // ==========================================
-
-        // GET: /Clasificacion?familiaId=5
+     
         [HttpGet]
         public async Task<IActionResult> IndexClasificacion(short? familiaId)
         {
             var vm = new GestionarClasificacionViewModel();
 
-            // 1. Cargar todas las familias (para el panel izquierdo/árbol)
-            // Usamos GetAllWithCategoriasAsync si quieres mostrar un conteo de hijos, 
-            // o simplemente GetAllAsync si solo necesitas los nombres.
+          
             vm.Familias = await _familiaService.GetAllWithCategoriasAsync();
 
-            // 2. Si el usuario seleccionó una familia, cargar sus detalles y categorías hijas
+           
             if (familiaId.HasValue)
             {
                 vm.IdFamiliaSeleccionada = familiaId.Value;
@@ -45,10 +39,7 @@ namespace src.Presentation.Controllers
             return View(vm);
         }
 
-        // ==========================================
         // ACCIONES DE FAMILIA (CRUD)
-        // ==========================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearFamilia(CrearFamiliaViewModel vm)
@@ -56,12 +47,26 @@ namespace src.Presentation.Controllers
             if (!ModelState.IsValid)
             {
                 TempData["Error"] = "Datos de familia inválidos.";
-                return RedirectToAction("IndexClasificacion"); // En una SPA real usaríamos AJAX, aquí recargamos
+                return RedirectToAction("IndexClasificacion"); 
             }
-
-            await _familiaService.CreateAsync(vm);
-            TempData["Success"] = "Familia creada correctamente.";
-            return RedirectToAction("IndexClasificacion");
+            try
+            {
+                await _familiaService.CreateAsync(vm);
+                TempData["Success"] = "Familia creada correctamente.";
+                return RedirectToAction("IndexClasificacion");
+            }
+            catch (ArgumentException ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction("IndexClasificacion");
+            }
+            catch (Exception ex)
+            {
+                // Error inesperado
+                TempData["Error"] = "Error inesperado: " + ex.Message;
+                return RedirectToAction("IndexClasificacion");
+            }
+            
         }
 
         [HttpPost]
@@ -82,13 +87,21 @@ namespace src.Presentation.Controllers
             catch (KeyNotFoundException)
             {
                 TempData["Error"] = "La familia no existe.";
+            }catch(ArgumentException ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction("IndexClasificacion");
+            }catch(Exception ex)
+            {
+                TempData["Error"] = "Error inesperado: " + ex.Message;
+                return RedirectToAction("IndexClasificacion");
             }
 
-            // Redirigimos manteniendo la selección para que el usuario vea los cambios
+            
             return RedirectToAction("IndexClasificacion", new { familiaId = vm.IdFamilia });
         }
 
-        [HttpPost] // Usamos POST para acciones destructivas
+        [HttpPost] 
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarFamilia(short id)
         {
@@ -96,19 +109,19 @@ namespace src.Presentation.Controllers
             {
                 await _familiaService.DeleteAsync(id);
                 TempData["Success"] = "Familia eliminada.";
-                return RedirectToAction("IndexClasificacion"); // Volvemos al inicio (sin selección)
+                return RedirectToAction("IndexClasificacion"); 
             }
             catch (InvalidOperationException ex)
             {
-                // Capturamos la regla de negocio: "No borrar si tiene hijos"
+               
                 TempData["Error"] = ex.Message;
-                return RedirectToAction("IndexClasificacion", new { familiaId = id }); // Mantenemos selección para que vea el error
+                return RedirectToAction("IndexClasificacion", new { familiaId = id }); // 
             }
         }
 
-        // ==========================================
+       
         // ACCIONES DE CATEGORÍA (CRUD)
-        // ==========================================
+    
 
         [HttpPost]
         [ValidateAntiForgeryToken]

@@ -44,6 +44,8 @@ namespace src.Core.Services.Implementations
                 Nombre = vm.Nombre.Trim(),
                 Descripcion = vm.Descripcion?.Trim() ?? string.Empty
             };
+            if (await _familiaRepo.ExistsNombreAsync(nuevaFamilia.Nombre)) 
+            throw new ArgumentException("El nombre de Familia ya existe, por favor ingrese uno que no se repita");
 
             await _familiaRepo.AddAsync(nuevaFamilia);
             return nuevaFamilia; // Retorna con el ID generado
@@ -55,6 +57,7 @@ namespace src.Core.Services.Implementations
             var familiaExistente = await _familiaRepo.GetByIdAsync(vm.IdFamilia);
             if (familiaExistente == null)
                 throw new KeyNotFoundException($"Familia con ID {vm.IdFamilia} no encontrada.");
+            if (await _familiaRepo.ExistsNombreAsync(vm.Nombre, vm.IdFamilia)) throw new ArgumentException("ERROR, actualice la familia con un nombre que no se repita.");
 
             // Actualizamos la entidad de dominio
             familiaExistente.Nombre = vm.Nombre.Trim();
