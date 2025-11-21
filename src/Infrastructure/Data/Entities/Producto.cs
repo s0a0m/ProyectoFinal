@@ -30,4 +30,5 @@ public class Producto
     // public ICollection<ProductoGrupo> ProductosGrupos { get; set; } = new List<ProductoGrupo>();
     public ICollection<ProductoCategoria> ProductosCategorias { get; set; } = new List<ProductoCategoria>();
     public ICollection<ProductoCodigoBarra> ProductoCodigoBarras { get; set; } = new List<ProductoCodigoBarra>();
+    public ICollection<ProductoCodigoExterno> CodigosBarrasExternos { get; set; } = new List<ProductoCodigoExterno>();
 }

@@ -29,7 +29,7 @@ public class FamiliaCategoriaMapperTests
             ProductosCategorias = new List<EF.ProductoCategoria>()
         };
 
-    private Dom.Categoria CrearCategoriaDom(int id, string nombre, Dom.Familia familia) =>
+    private Dom.Categoria CrearCategoriaDom(short id, string nombre, Dom.Familia familia) =>
         new Dom.Categoria
         {
             IdCategoria = id,

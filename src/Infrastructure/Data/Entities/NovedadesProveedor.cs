@@ -35,5 +35,5 @@ public class NovedadesProveedor
     public EstadoNovedad Estado { get; set; } = EstadoNovedad.PENDIENTE;
 
     [Column("fecha_importacion")]
-    public DateTime FechaImportacion { get; set; } = DateTime.Now;
+    public DateTime FechaImportacion { get; set; }
 }

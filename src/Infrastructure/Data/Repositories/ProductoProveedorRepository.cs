@@ -3,7 +3,7 @@ using EF = src.Models.CodeFirst;
 using Dom = src.Models.Domain;
 using src.Repositories.Interfaces;
 using src.Models.Mappers;
-
+using src.Contracts;
 namespace src.Repositories.Implementations;
 
 public class ProductoProveedorRepository : IProductoProveedorRepository
