@@ -1,51 +1,51 @@
 [
   {
-    "id_grupo_permiso": 1,
-    "nombre": "Administradores",
-    "descripcion": "Acceso total al sistema",
-    "gruposPermisosPermisos": [
+    "IdGrupoPermiso": 1,
+    "Nombre": "Administradores",
+    "Descripcion": "Acceso total al sistema",
+    "GruposPermisosPermisos": [
       {
-        "idGrupoPermiso": 1,
-        "idPermiso": 1
+        "IdGrupoPermiso": 1,
+        "IdPermiso": 1
       },
       {
-        "idGrupoPermiso": 1,
-        "idPermiso": 2
+        "IdGrupoPermiso": 1,
+        "IdPermiso": 2
       },
       {
-        "idGrupoPermiso": 1,
-        "idPermiso": 3
+        "IdGrupoPermiso": 1,
+        "IdPermiso": 3
       },
       {
-        "idGrupoPermiso": 1,
-        "idPermiso": 4
+        "IdGrupoPermiso": 1,
+        "IdPermiso": 4
       },
       {
-        "idGrupoPermiso": 1,
-        "idPermiso": 5
+        "IdGrupoPermiso": 1,
+        "IdPermiso": 5
       }
     ]
   },
   {
-    "id_grupo_permiso": 2,
-    "nombre": "Operadores",
-    "descripcion": "Acceso limitado a operaciones",
-    "gruposPermisosPermisos": [
+    "IdGrupoPermiso": 2,
+    "Nombre": "Operadores",
+    "Descripcion": "Acceso limitado a operaciones",
+    "GruposPermisosPermisos": [
       {
-        "idGrupoPermiso": 2,
-        "idPermiso": 6
+        "IdGrupoPermiso": 2,
+        "IdPermiso": 6
       },
       {
-        "idGrupoPermiso": 2,
-        "idPermiso": 7
+        "IdGrupoPermiso": 2,
+        "IdPermiso": 7
       },
       {
-        "idGrupoPermiso": 2,
-        "idPermiso": 8
+        "IdGrupoPermiso": 2,
+        "IdPermiso": 8
       },
       {
-        "idGrupoPermiso": 2,
-        "idPermiso": 9
+        "IdGrupoPermiso": 2,
+        "IdPermiso": 9
       }
     ]
   }
