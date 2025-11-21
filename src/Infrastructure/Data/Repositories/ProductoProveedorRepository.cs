@@ -20,6 +20,7 @@ public class ProductoProveedorRepository : IProductoProveedorRepository
     {
         return _context.ProductosProveedores
             .Include(pp => pp.Producto)
+            .ThenInclude(pp=>pp.CodigosBarrasExternos)
             .Include(pp => pp.Proveedor)
             .ThenInclude(p => p.IdCondicionPagoHabitualNavigation) // Traemos datos anidados si son necesarios
             .Include(pp => pp.Proveedor)

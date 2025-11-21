@@ -12,6 +12,7 @@ public static partial class DominioMapper
     [MapperIgnoreSource(nameof(EF.Producto.Novedades))]
     [MapProperty(nameof(EF.Producto.ProductoCodigoBarras), nameof(Dom.Producto.CodigoBarra))]
     [MapProperty(nameof(EF.Producto.ProductosCategorias), nameof(Dom.Producto.Categoria))]
+    [MapperIgnoreSource(nameof(EF.Producto.CodigosBarrasExternos))]
     // [MapProperty(nameof(EF.Producto.ProductosGrupos), nameof(Dom.Producto.Grupo))]
     public static partial Dom.Producto Map(EF.Producto source);
     public static partial IEnumerable<Dom.Producto> Map(IEnumerable<EF.Producto> source);
@@ -22,6 +23,7 @@ public static partial class DominioMapper
     [MapperIgnoreTarget(nameof(EF.Producto.ProductoCodigoBarras))]
     [MapperIgnoreTarget(nameof(EF.Producto.ProductosCategorias))]
     // [MapperIgnoreTarget(nameof(EF.Producto.ProductosGrupos))]
+    [MapperIgnoreTarget(nameof(EF.Producto.CodigosBarrasExternos))]
 
     // [MapperIgnoreSource(nameof(Dom.Producto.Grupo))]
     [MapperIgnoreSource(nameof(Dom.Producto.CodigoBarra))]
