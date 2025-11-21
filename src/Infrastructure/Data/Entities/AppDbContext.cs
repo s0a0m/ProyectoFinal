@@ -51,6 +51,16 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Familia> Familias { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<ProductoCodigoExterno>()
+            .HasOne(p => p.Producto)
+            .WithMany(p => p.CodigosBarrasExternos)
+            .HasForeignKey(p => p.IdProducto);
+
+        modelBuilder.Entity<ProductoCodigoExterno>()
+            .HasOne(pce => pce.Proveedor)
+            .WithMany(p => p.CodigosBarrasExternos)
+            .HasForeignKey(pce => pce.IdProveedor);
+
         modelBuilder.Entity<NovedadesProveedor>()
             .Property(x => x.FechaImportacion)
             .HasColumnType("date");

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using src.Models.CodeFirst;
@@ -11,9 +12,11 @@ using src.Models.CodeFirst;
 namespace src.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251121033210_AgregaConfiguracionDeProductoCodigoExternoFK")]
+    partial class AgregaConfiguracionDeProductoCodigoExternoFK
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -367,6 +370,9 @@ namespace src.Migrations
 
                     b.HasIndex("IdProducto");
 
+                    b.HasIndex("IdProveedor")
+                        .IsUnique();
+
                     b.ToTable("producto_codigo_externo");
                 });
 
@@ -714,8 +720,8 @@ namespace src.Migrations
                         .IsRequired();
 
                     b.HasOne("src.Models.CodeFirst.Proveedor", "Proveedor")
-                        .WithMany("CodigosBarrasExternos")
-                        .HasForeignKey("IdProveedor")
+                        .WithOne("CodigosBarrasExternos")
+                        .HasForeignKey("src.Models.CodeFirst.ProductoCodigoExterno", "IdProveedor")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -871,7 +877,8 @@ namespace src.Migrations
 
             modelBuilder.Entity("src.Models.CodeFirst.Proveedor", b =>
                 {
-                    b.Navigation("CodigosBarrasExternos");
+                    b.Navigation("CodigosBarrasExternos")
+                        .IsRequired();
 
                     b.Navigation("ProductosProveedores");
                 });

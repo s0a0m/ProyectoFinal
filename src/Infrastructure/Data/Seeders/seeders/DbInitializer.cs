@@ -136,13 +136,6 @@ public static class DbInitializer
 
         var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/novedades.json");
         var novedades = JsonSerializer.Deserialize<List<NovedadesProveedor>>(json, _jsonOptions)!;
-        foreach (var nov in novedades)
-        {
-            if (nov.FechaImportacion.Kind == DateTimeKind.Unspecified)
-            {
-                nov.FechaImportacion = DateTime.SpecifyKind(nov.FechaImportacion, DateTimeKind.Utc);
-            }
-        }
         context.NovedadesProveedores.AddRange(novedades);
         Console.WriteLine($"- Seeding {novedades.Count} usuarios...");
     }
