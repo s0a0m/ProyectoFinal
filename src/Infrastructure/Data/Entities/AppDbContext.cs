@@ -51,6 +51,10 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Familia> Familias { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<NovedadesProveedor>()
+            .Property(x => x.FechaImportacion)
+            .HasColumnType("date");
+
         modelBuilder.Entity<ProductoCodigoBarra>()
             .HasKey(pg => new { pg.IdProducto, pg.IdCodigoBarra });
 

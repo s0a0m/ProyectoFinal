@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 namespace src.Models.CodeFirst;
+
 [Table("proveedor")]
 public partial class Proveedor
 {
@@ -37,4 +38,5 @@ public partial class Proveedor
 
     public virtual Domicilio IdDomicilioNavigation { get; set; }
     public virtual ICollection<ProductoProveedor> ProductosProveedores { get; set; } = new List<ProductoProveedor>();
+    public ProductoCodigoExterno CodigosBarrasExternos { get; set; } = new ProductoCodigoExterno();
 }
