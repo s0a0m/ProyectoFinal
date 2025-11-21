@@ -1,0 +1,182 @@
+[
+  {
+    "IdProducto": 1,
+    "Nombre": "Martillo de Uña Tramontina",
+    "StockMinimo": 5,
+    "StockTotal": 40,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 1, "IdCategoria": 8 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 1, "IdCodigoBarra": 1 }]
+  },
+  {
+    "IdProducto": 2,
+    "Nombre": "Destornillador Phillips N°2",
+    "StockMinimo": 10,
+    "StockTotal": 60,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 2, "IdCategoria": 8 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 2, "IdCodigoBarra": 2 }]
+  },
+  {
+    "IdProducto": 3,
+    "Nombre": "Llave Francesa Ajustable 10''",
+    "StockMinimo": 3,
+    "StockTotal": 25,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 3, "IdCategoria": 8 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 3, "IdCodigoBarra": 3 }]
+  },
+  {
+    "IdProducto": 4,
+    "Nombre": "Tornillos Parker 4x25mm",
+    "StockMinimo": 50,
+    "StockTotal": 500,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 4, "IdCategoria": 9 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 4, "IdCodigoBarra": 4 }]
+  },
+  {
+    "IdProducto": 5,
+    "Nombre": "Arandelas Planas 1/4''",
+    "StockMinimo": 30,
+    "StockTotal": 200,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 5, "IdCategoria": 9 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 5, "IdCodigoBarra": 5 }]
+  },
+  {
+    "IdProducto": 6,
+    "Nombre": "Tuercas Hexagonales 5/16''",
+    "StockMinimo": 25,
+    "StockTotal": 150,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 6, "IdCategoria": 9 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 6, "IdCodigoBarra": 6 }]
+  },
+  {
+    "IdProducto": 7,
+    "Nombre": "Adhesivo de Contacto 250cc",
+    "StockMinimo": 10,
+    "StockTotal": 55,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 7, "IdCategoria": 10 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 7, "IdCodigoBarra": 7 }]
+  },
+  {
+    "IdProducto": 8,
+    "Nombre": "Silicona Neutra Transparente",
+    "StockMinimo": 15,
+    "StockTotal": 70,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 8, "IdCategoria": 10 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 8, "IdCodigoBarra": 8 }]
+  },
+  {
+    "IdProducto": 9,
+    "Nombre": "Sellador Poliuretánico",
+    "StockMinimo": 10,
+    "StockTotal": 45,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 9, "IdCategoria": 10 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 9, "IdCodigoBarra": 9 }]
+  },
+  {
+    "IdProducto": 10,
+    "Nombre": "Bolsa de Cemento Portland 50kg",
+    "StockMinimo": 8,
+    "StockTotal": 100,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 10, "IdCategoria": 11 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 10, "IdCodigoBarra": 10 }]
+  },
+  {
+    "IdProducto": 11,
+    "Nombre": "Cal Hidratada 25kg",
+    "StockMinimo": 6,
+    "StockTotal": 80,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 11, "IdCategoria": 11 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 11, "IdCodigoBarra": 11 }]
+  },
+  {
+    "IdProducto": 12,
+    "Nombre": "Mezcla Lista para Reparación 15kg",
+    "StockMinimo": 5,
+    "StockTotal": 50,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 12, "IdCategoria": 11 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 12, "IdCodigoBarra": 12 }]
+  },
+  {
+    "IdProducto": 13,
+    "Nombre": "Pintura Látex Interior Blanca 4L",
+    "StockMinimo": 10,
+    "StockTotal": 40,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 13, "IdCategoria": 12 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 13, "IdCodigoBarra": 13 }]
+  },
+  {
+    "IdProducto": 14,
+    "Nombre": "Esmalte Sintético Negro 1L",
+    "StockMinimo": 8,
+    "StockTotal": 35,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 14, "IdCategoria": 12 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 14, "IdCodigoBarra": 14 }]
+  },
+  {
+    "IdProducto": 15,
+    "Nombre": "Rodillo de Pintura 22cm",
+    "StockMinimo": 15,
+    "StockTotal": 90,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 15, "IdCategoria": 12 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 15, "IdCodigoBarra": 15 }]
+  },
+  {
+    "IdProducto": 16,
+    "Nombre": "Caño PVC 1'' x 3 metros",
+    "StockMinimo": 20,
+    "StockTotal": 150,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 16, "IdCategoria": 13 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 16, "IdCodigoBarra": 16 }]
+  },
+  {
+    "IdProducto": 17,
+    "Nombre": "Codo PVC 90° 1''",
+    "StockMinimo": 30,
+    "StockTotal": 200,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 17, "IdCategoria": 13 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 17, "IdCodigoBarra": 17 }]
+  },
+  {
+    "IdProducto": 18,
+    "Nombre": "Canilla de Bronce 1/2''",
+    "StockMinimo": 5,
+    "StockTotal": 30,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 18, "IdCategoria": 13 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 18, "IdCodigoBarra": 18 }]
+  },
+  {
+    "IdProducto": 19,
+    "Nombre": "Aislante térmico rollo 10m",
+    "StockMinimo": 4,
+    "StockTotal": 25,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 19, "IdCategoria": 11 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 19, "IdCodigoBarra": 19 }]
+  },
+  {
+    "IdProducto": 20,
+    "Nombre": "Pala Ancha Acero con Cabo",
+    "StockMinimo": 5,
+    "StockTotal": 40,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 20, "IdCategoria": 8 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 20, "IdCodigoBarra": 20 }]
+  }
+]

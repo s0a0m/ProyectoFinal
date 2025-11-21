@@ -1,51 +1,43 @@
 [
   {
-    "IdGrupoPermiso": 1,
-    "Nombre": "Administradores",
-    "Descripcion": "Acceso total al sistema",
+    "IdGrupoPermiso": 3,
+    "Nombre": "Deposito",
+    "Descripcion": "Permisos para manejo de stock y mercadería",
     "GruposPermisosPermisos": [
       {
-        "IdGrupoPermiso": 1,
+        "IdGrupoPermiso": 3,
         "IdPermiso": 1
       },
       {
-        "IdGrupoPermiso": 1,
-        "IdPermiso": 2
-      },
-      {
-        "IdGrupoPermiso": 1,
-        "IdPermiso": 3
-      },
-      {
-        "IdGrupoPermiso": 1,
+        "IdGrupoPermiso": 3,
         "IdPermiso": 4
       },
       {
-        "IdGrupoPermiso": 1,
-        "IdPermiso": 5
+        "IdGrupoPermiso": 3,
+        "IdPermiso": 7
       }
     ]
   },
   {
-    "IdGrupoPermiso": 2,
-    "Nombre": "Operadores",
-    "Descripcion": "Acceso limitado a operaciones",
+    "IdGrupoPermiso": 4,
+    "Nombre": "Ventas",
+    "Descripcion": "Permisos para ventas, clientes y facturación",
     "GruposPermisosPermisos": [
       {
-        "IdGrupoPermiso": 2,
-        "IdPermiso": 6
+        "IdGrupoPermiso": 4,
+        "IdPermiso": 2
       },
       {
-        "IdGrupoPermiso": 2,
-        "IdPermiso": 7
+        "IdGrupoPermiso": 4,
+        "IdPermiso": 3
       },
       {
-        "IdGrupoPermiso": 2,
+        "IdGrupoPermiso": 4,
+        "IdPermiso": 5
+      },
+      {
+        "IdGrupoPermiso": 4,
         "IdPermiso": 8
-      },
-      {
-        "IdGrupoPermiso": 2,
-        "IdPermiso": 9
       }
     ]
   }

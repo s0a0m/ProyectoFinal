@@ -1,0 +1,46 @@
+[
+  {
+    "IdFamilia": 4,
+    "Nombre": "Ferretería",
+    "Descripcion": "Productos y herramientas para reparaciones y construcción",
+    "Categorias": [
+      {
+        "IdCategoria": 8,
+        "Nombre": "Herramientas Manuales",
+        "Descripcion": "Llaves, martillos, destornilladores y herramientas básicas"
+      },
+      {
+        "IdCategoria": 9,
+        "Nombre": "Tornillería",
+        "Descripcion": "Tornillos, tuercas, arandelas y fijaciones varias"
+      },
+      {
+        "IdCategoria": 10,
+        "Nombre": "Adhesivos",
+        "Descripcion": "Pegamentos, selladores y siliconas"
+      }
+    ]
+  },
+  {
+    "IdFamilia": 5,
+    "Nombre": "Construcción",
+    "Descripcion": "Materiales y accesorios para obras y mantenimiento",
+    "Categorias": [
+      {
+        "IdCategoria": 11,
+        "Nombre": "Cementos y Mezclas",
+        "Descripcion": "Cemento, cal, adhesivos y mezclas listas"
+      },
+      {
+        "IdCategoria": 12,
+        "Nombre": "Pinturas",
+        "Descripcion": "Pinturas látex, sintéticas y materiales de revestimiento"
+      },
+      {
+        "IdCategoria": 13,
+        "Nombre": "Plomería",
+        "Descripcion": "Caños, conexiones y repuestos para instalaciones"
+      }
+    ]
+  }
+]

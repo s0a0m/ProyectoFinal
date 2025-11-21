@@ -1,26 +1,50 @@
 [
   {
     "IdProveedor": 1,
-    "Cuit": "20123456789",
-    "RazonSocial": "Proveedor A",
+    "Cuit": "30765432109",
+    "RazonSocial": "Acindar S.A.",
     "IdCondicionPagoHabitual": 1,
-    "Telefono": "12345678",
-    "Correo": "contacto@proveedora.com",
-    "PersonaResponsable": "Juan Pérez",
-    "Saldo": 10000.5,
+    "Telefono": "4200-5500",
+    "Correo": "ventas@acindar.com",
+    "PersonaResponsable": "Carlos Giménez",
+    "Saldo": 152300.75,
     "IdDomicilio": 1,
     "Activo": true
   },
   {
     "IdProveedor": 2,
-    "Cuit": "23876543210",
-    "RazonSocial": "Proveedor B",
+    "Cuit": "30587321945",
+    "RazonSocial": "Fate S.A.I.C.",
     "IdCondicionPagoHabitual": 2,
-    "Telefono": "87654321",
-    "Correo": "contacto@proveedorb.com",
-    "PersonaResponsable": "María López",
-    "Saldo": 5000.75,
+    "Telefono": "4300-9988",
+    "Correo": "contacto@fate.com.ar",
+    "PersonaResponsable": "Lucía Torres",
+    "Saldo": 89750.0,
     "IdDomicilio": 2,
+    "Activo": true
+  },
+  {
+    "IdProveedor": 3,
+    "Cuit": "30245781366",
+    "RazonSocial": "Ferrum S.A.",
+    "IdCondicionPagoHabitual": 1,
+    "Telefono": "3818473647",
+    "Correo": "info@ferrum.com",
+    "PersonaResponsable": "Roberto Quiroga",
+    "Saldo": 45200.3,
+    "IdDomicilio": 3,
+    "Activo": true
+  },
+  {
+    "IdProveedor": 4,
+    "Cuit": "30789213455",
+    "RazonSocial": "Sica S.A.",
+    "IdCondicionPagoHabitual": 2,
+    "Telefono": "3819568704",
+    "Correo": "ventas@sicaelec.com.ar",
+    "PersonaResponsable": "Mariela Suárez",
+    "Saldo": 121500.0,
+    "IdDomicilio": 4,
     "Activo": true
   }
 ]
