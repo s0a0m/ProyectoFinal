@@ -1,0 +1,52 @@
+[
+  {
+    "id_grupo_permiso": 1,
+    "nombre": "Administradores",
+    "descripcion": "Acceso total al sistema",
+    "gruposPermisosPermisos": [
+      {
+        "idGrupoPermiso": 1,
+        "idPermiso": 1
+      },
+      {
+        "idGrupoPermiso": 1,
+        "idPermiso": 2
+      },
+      {
+        "idGrupoPermiso": 1,
+        "idPermiso": 3
+      },
+      {
+        "idGrupoPermiso": 1,
+        "idPermiso": 4
+      },
+      {
+        "idGrupoPermiso": 1,
+        "idPermiso": 5
+      }
+    ]
+  },
+  {
+    "id_grupo_permiso": 2,
+    "nombre": "Operadores",
+    "descripcion": "Acceso limitado a operaciones",
+    "gruposPermisosPermisos": [
+      {
+        "idGrupoPermiso": 2,
+        "idPermiso": 6
+      },
+      {
+        "idGrupoPermiso": 2,
+        "idPermiso": 7
+      },
+      {
+        "idGrupoPermiso": 2,
+        "idPermiso": 8
+      },
+      {
+        "idGrupoPermiso": 2,
+        "idPermiso": 9
+      }
+    ]
+  }
+]

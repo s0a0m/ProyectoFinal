@@ -31,6 +31,7 @@ public static class DbInitializer
             SeedDomicilios(context);
             context.SaveChanges();
             SeedProveedores(context);
+            SeedGrupoPermiso(context);
             context.SaveChanges();
 
             ResetSequence(context, "provincia", "id_provincia");
@@ -126,5 +127,14 @@ public static class DbInitializer
         var usuarios = JsonSerializer.Deserialize<List<Usuario>>(json, _jsonOptions)!;
         context.Usuarios.AddRange(usuarios);
         Console.WriteLine($"- Seeding {usuarios.Count} usuarios...");
+    }
+    private static void SeedGrupoPermiso(AppDbContext context)
+    {
+        if (context.GruposPermisos.Any()) return;
+
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/grupo_permiso.json");
+        var grupoPermiso = JsonSerializer.Deserialize<List<GrupoPermisos>>(json, _jsonOptions)!;
+        context.GruposPermisos.AddRange(grupoPermiso);
+        Console.WriteLine($"- Seeding {grupoPermiso.Count} grupoPermiso...");
     }
 }
