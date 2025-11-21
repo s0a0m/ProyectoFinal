@@ -18,6 +18,12 @@ public class NovedadesProveedor
     [ForeignKey("IdProveedor")]
     public Proveedor? Proveedor { get; set; }
 
+    [Column("id_producto")]
+    public short? IdProducto { get; set; }
+
+    [ForeignKey(nameof(IdProducto))]
+    public Producto? Producto { get; set; }
+
     [Required]
     [MaxLength(50)]
     [Column("codigo_barra_externo")]
