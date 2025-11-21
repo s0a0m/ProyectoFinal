@@ -38,5 +38,5 @@ public partial class Proveedor
 
     public virtual Domicilio IdDomicilioNavigation { get; set; }
     public virtual ICollection<ProductoProveedor> ProductosProveedores { get; set; } = new List<ProductoProveedor>();
-    public ProductoCodigoExterno CodigosBarrasExternos { get; set; } = new ProductoCodigoExterno();
+    public ICollection<ProductoCodigoExterno> ProductoCodigoExterno { get; set; } = new List<ProductoCodigoExterno>();
 }
