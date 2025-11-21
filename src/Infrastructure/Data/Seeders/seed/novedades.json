@@ -1,0 +1,38 @@
+[
+  {
+    "IdNovedad": 1,
+    "IdProveedor": 1,
+    "CodigoBarraExterno": "7791234567890",
+    "NombreSugerido": "Jugo de Naranja 1L",
+    "PrecioSugerido": 450.5,
+    "Estado": 1,
+    "FechaImportacion": "2025-01-10T12:30:00"
+  },
+  {
+    "IdNovedad": 2,
+    "IdProveedor": 1,
+    "CodigoBarraExterno": "7790987654321",
+    "NombreSugerido": "Galletitas de Chocolate",
+    "PrecioSugerido": 320.0,
+    "Estado": 2,
+    "FechaImportacion": "2025-01-11T09:00:00"
+  },
+  {
+    "IdNovedad": 3,
+    "IdProveedor": 2,
+    "CodigoBarraExterno": "7791111222233",
+    "NombreSugerido": "Arroz Premium 1Kg",
+    "PrecioSugerido": 780.75,
+    "Estado": 1,
+    "FechaImportacion": "2025-01-12T15:45:00"
+  },
+  {
+    "IdNovedad": 4,
+    "IdProveedor": 2,
+    "CodigoBarraExterno": "7794444555566",
+    "NombreSugerido": "Aceite de Girasol 900ml",
+    "PrecioSugerido": 980.0,
+    "Estado": 1,
+    "FechaImportacion": "2025-01-12T16:20:00"
+  }
+]

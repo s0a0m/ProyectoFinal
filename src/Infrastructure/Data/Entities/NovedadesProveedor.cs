@@ -16,7 +16,7 @@ public class NovedadesProveedor
     [Column("id_proveedor")]
     public short IdProveedor { get; set; }
     [ForeignKey("IdProveedor")]
-    public Proveedor Proveedor { get; set; }
+    public Proveedor? Proveedor { get; set; }
 
     [Required]
     [MaxLength(50)]

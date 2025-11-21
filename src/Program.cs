@@ -47,6 +47,8 @@ builder.Services.AddScoped<IBarcodeAdapter, ZxIngBarcodeAdapter>();
 builder.Services.AddScoped<IProductoCodigoExternoRepository, ProductoCodigoExternoRepository>();
 builder.Services.AddScoped<IProductoProveedorRepository, ProductoProveedorRepository>();
 builder.Services.AddScoped<IExcelDataReader, ExcelDataAdapter>();
+builder.Services.AddScoped<INovedadesRepository, NovedadesRepository>();
+builder.Services.AddScoped<INovedadesService, NovedadesService>();
 
 // Servicios
 builder.Services.AddScoped<IUserService, UserService>();

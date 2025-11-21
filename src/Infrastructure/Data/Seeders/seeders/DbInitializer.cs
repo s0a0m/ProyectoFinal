@@ -32,6 +32,8 @@ public static class DbInitializer
             context.SaveChanges();
             SeedProveedores(context);
             context.SaveChanges();
+            SeedNovedades(context);
+            context.SaveChanges();
 
             ResetSequence(context, "provincia", "id_provincia");
             ResetSequence(context, "condicion_pago", "id_condicion_pago");
@@ -126,5 +128,15 @@ public static class DbInitializer
         var usuarios = JsonSerializer.Deserialize<List<Usuario>>(json, _jsonOptions)!;
         context.Usuarios.AddRange(usuarios);
         Console.WriteLine($"- Seeding {usuarios.Count} usuarios...");
+    }
+
+    private static void SeedNovedades(AppDbContext context)
+    {
+        if (context.NovedadesProveedores.Any()) return;
+
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/novedades.json");
+        var novedades = JsonSerializer.Deserialize<List<NovedadesProveedor>>(json, _jsonOptions)!;
+        context.NovedadesProveedores.AddRange(novedades);
+        Console.WriteLine($"- Seeding {novedades.Count} usuarios...");
     }
 }
