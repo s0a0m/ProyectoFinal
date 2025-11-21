@@ -8,5 +8,6 @@ namespace src.Core.Services.Interfaces
     public interface INovedadesService
     {
         Task<IEnumerable<NovedadesListarViewModel>> GetAllNovedadesPendientes();
+        Task CrearNovedadAsync(NovedadesCrearViewModel vm);
     }
 }

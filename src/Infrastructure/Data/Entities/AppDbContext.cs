@@ -51,6 +51,12 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Familia> Familias { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<NovedadesProveedor>()
+            .HasOne(n => n.Producto)
+            .WithMany(p => p.Novedades)
+            .HasForeignKey(n => n.IdProducto)
+            .IsRequired(false);
+
         modelBuilder.Entity<ProductoCodigoExterno>()
             .HasOne(p => p.Producto)
             .WithMany(p => p.CodigosBarrasExternos)
