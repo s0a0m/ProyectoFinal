@@ -22,6 +22,29 @@ namespace src.Core.Services.Implementations
             _proveedorRepo = proveedorRepo;
         }
 
+        public async Task CrearNovedadAsync(NovedadesCrearViewModel vm)
+        {
+            if (vm == null)
+                throw new ArgumentNullException(nameof(vm));
+
+            var proveedor = await _proveedorRepo.GetProveedorById(vm.IdProveedor);
+
+            if (proveedor == null)
+                throw new Exception("El proveedor especificado no existe.");
+
+            var novedad = new NovedadPendiente
+            {
+                IdNovedad = 0,
+                IdProveedor = vm.IdProveedor,
+                CodigoBarraExterno = vm.CodigoBarraExterno,
+                NombreSugerido = vm.NombreSugerido,
+                PrecioSugerido = vm.PrecioSugerido,
+                Estado = Models.Common.EstadoNovedad.PENDIENTE
+            };
+
+            await _novedadesRepo.AddAsync(novedad);
+        }
+
         public async Task<IEnumerable<NovedadesListarViewModel>> GetAllNovedadesPendientes()
         {
             var efnovedades = await _novedadesRepo.GetPendientesAsync();
