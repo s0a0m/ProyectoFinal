@@ -5,6 +5,7 @@ using src.Models.Mappers;
 using src.Repositories.Interfaces;
 using src.ViewModels;
 using Dom = src.Models.Domain;
+using src.Presentation.ViewModels.ProductoVM;
 
 namespace src.Core.Services.Implementations;
 
@@ -16,8 +17,9 @@ public class ProductoProveedorService : IProductoProveedorService
     private readonly IProductoCodigoExternoRepository _productoCodigoExternoRepository;
     private readonly IExcelDataReader _excelReader;
     private readonly IBarcodeAdapter _barcodeAdapter;
+    private readonly IProductoRepository _productoRepository;
 
-    public ProductoProveedorService(IExcelDataReader reader, IProveedorRepository proveedorRepository, ICommonDataService _commonDataService, IProductoCodigoExternoRepository productoCodigoExternoRepository, IProductoProveedorRepository productoProveedorRepository, IBarcodeAdapter barcodeAdapter, INovedadesRepository novedadesRepository)
+    public ProductoProveedorService(IExcelDataReader reader, IProveedorRepository proveedorRepository, ICommonDataService _commonDataService, IProductoCodigoExternoRepository productoCodigoExternoRepository, IProductoRepository productoRepository,IProductoProveedorRepository productoProveedorRepository, IBarcodeAdapter barcodeAdapter, INovedadesRepository novedadesRepository)
     {
         _proveedorRepository = proveedorRepository;
         this._excelReader = reader;
@@ -25,6 +27,7 @@ public class ProductoProveedorService : IProductoProveedorService
         this._productoProveedorRepository = productoProveedorRepository;
         _barcodeAdapter = barcodeAdapter;
         _novedadesRepository = novedadesRepository;
+        _productoRepository = productoRepository;
     }
 
     public async Task<IEnumerable<AccionDeFilaCargaAutomatica>> ProcesarListaDePreciosAsync(Stream fileStream, short idProveedor, ImportacionColumnaMap mapaColumnas)
@@ -80,4 +83,140 @@ public class ProductoProveedorService : IProductoProveedorService
         return resultadosAccion;
     }
 
+
+    public async Task<IEnumerable<ProductoProveedorListarViewModel>> GetAllParaListadoAsync()
+        {
+            // El repo devuelve ProductoProveedorDto (que incluye la entidad de dominio + el string del código)
+            var dtos = await _productoProveedorRepository.GetAllAsync();
+
+            return dtos.Select(d => new ProductoProveedorListarViewModel
+            {
+                IdProducto = d.ProductoProveedor.Producto.IdProducto,
+                IdProveedor = d.ProductoProveedor.Proveedor.IdProveedor,
+                NombreProducto = d.ProductoProveedor.Producto.Nombre,
+                NombreProveedor = d.ProductoProveedor.Proveedor.RazonSocial,
+                Precio = d.ProductoProveedor.Precio,
+                StockAsignado = d.ProductoProveedor.StockAsignado,
+                CodigoBarraExterno = d.CodigoBarraExterno // Mapeamos el string suelto del DTO
+            });
+        }
+
+           
+        public async Task<CrearProductoProveedorViewModel> PrepararCrearViewModelAsync()
+        {
+            var vm = new CrearProductoProveedorViewModel();
+            await RepoblarViewModelAsync(vm);
+            return vm;
+        }
+
+        public async Task<ActualizarProductoProveedorViewModel> PrepararActualizarViewModelAsync(int idProducto, int idProveedor)
+        {
+            var dto = await _productoProveedorRepository.GetByIdAsync(idProducto, idProveedor);
+
+            if (dto == null) 
+                throw new KeyNotFoundException("La relación Producto-Proveedor no fue encontrada.");
+
+            var vm = new ActualizarProductoProveedorViewModel
+            {
+                IdProducto = dto.ProductoProveedor.Producto.IdProducto,
+                IdProveedor = dto.ProductoProveedor.Proveedor.IdProveedor,
+                
+                // Campos informativos (normalmente readonly en la vista de editar)
+                NombreProducto = dto.ProductoProveedor.Producto.Nombre,
+                RazonSocialProveedor = dto.ProductoProveedor.Proveedor.RazonSocial,
+                
+                // Campos editables
+                Precio = dto.ProductoProveedor.Precio,
+                StockAsignado = dto.ProductoProveedor.StockAsignado,
+                
+                // Mostramos el código actual, aunque no se edite en el Update
+                CodigoBarraExterno = dto.CodigoBarraExterno 
+            };
+
+            return vm;
+        }
+
+        public async Task CreateAsync(CrearProductoProveedorViewModel vm)
+        {
+            // 1. Validar que no exista ya la relación
+            if (await _productoProveedorRepository.ExistsAsync(vm.IdProducto, vm.IdProveedor))
+            {
+                throw new InvalidOperationException("Este producto ya está asignado a este proveedor.");
+            }
+
+            // 2. Mapear al Dominio
+            var dominio = new Dom.ProductoProveedor
+            {
+                // Usamos objetos dummy solo con el ID para que EF sepa las FKs
+                Producto = new Dom.Producto { IdProducto = vm.IdProducto},
+                Proveedor = new Dom.Proveedor { IdProveedor = vm.IdProveedor },
+                Precio = vm.Precio,
+                StockAsignado = vm.StockAsignado
+            };
+
+            // 3. Llamar al repo pasando el código externo por separado
+            // (El repositorio se encarga de guardar en las dos tablas: ProductoProveedor y ProductoCodigoExterno)      
+            string codigoParaGuardar = vm.CodigoBarraExterno?.Trim() ?? "";
+            
+            await _productoProveedorRepository.AddAsync(dominio, codigoParaGuardar);
+        }
+
+        public async Task UpdateAsync(ActualizarProductoProveedorViewModel vm)
+        {
+            // Validamos existencia antes de intentar mapear (opcional, el repo también lo hace)
+            if (!await _productoProveedorRepository.ExistsAsync(vm.IdProducto, vm.IdProveedor))
+            {
+                 throw new KeyNotFoundException("No se puede actualizar una relación inexistente.");
+            }
+
+            var dominio = new Dom.ProductoProveedor
+            {
+                // Claves compuestas necesarias para identificar el registro
+                Producto = new Dom.Producto { IdProducto = vm.IdProducto },
+                Proveedor = new Dom.Proveedor { IdProveedor = vm.IdProveedor },
+                
+                // Campos actualizables
+                Precio = vm.Precio,
+                StockAsignado = vm.StockAsignado
+            };
+
+            // El repositorio ya sabe que NO debe tocar el código de barras en el Update
+            await _productoProveedorRepository.UpdateAsync(dominio);
+        }
+
+        public async Task DeleteAsync(int idProducto, int idProveedor)
+        {
+            await _productoProveedorRepository.DeleteAsync(idProducto, idProveedor);
+        }
+
+        // Método para llenar los Combos/Selects de la Vista
+        public async Task RepoblarViewModelAsync(CrearProductoProveedorViewModel vm)
+        {
+        // 1. Obtener TODOS los productos del sistema (usando IProductoRepository)
+            var productos = await _productoRepository.GetAllAsync();
+            
+            // 2. Obtener TODOS los proveedores (usando IProveedorRepository)
+            var proveedores = await _proveedorRepository.GetAllProveedorAsync   (); // Asegúrate que este método existe en tu interfaz
+
+            vm.ListaProductos = productos
+                .Where(p => p.Activo)
+                .Select(p => new SelectListItemDto
+                {
+                    Id = p.IdProducto,
+                    Descripcion = p.Nombre // + $" (Stock: {p.StockTotal})" // Opcional: agregar info extra
+                })
+                .OrderBy(x => x.Descripcion)
+                .ToList();
+
+            vm.ListaProveedores = proveedores
+                .Select(p => new SelectListItemDto
+                {
+                    Id = p.IdProveedor,
+                    Descripcion = p.RazonSocial
+                })
+                .OrderBy(x => x.Descripcion)
+                .ToList();
+        }
+
+    
 }

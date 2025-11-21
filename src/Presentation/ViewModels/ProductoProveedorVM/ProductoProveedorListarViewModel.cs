@@ -2,13 +2,22 @@ using System.ComponentModel.DataAnnotations;
 
 namespace src.Presentation.ViewModels.ProductoVM;
 
-public class ProductoProveedorListarViewModel
-{
-    public int IdProducto { get; set; }
-    public int IdProveedor { get; set; }
-    public string NombreProducto { get; set; } = "";
-    public string NombreProveedor { get; set; } = "";
-    public string CodigoBarraExterno { get; set; } = "";
-    public decimal Precio { get; set; }
-    public int StockAsignado { get; set; }
-}
+    public class SelectListItemDto
+    {
+        public int Id { get; set; }
+        public string Descripcion { get; set; } = string.Empty;
+    }
+
+    public class ProductoProveedorListarViewModel
+    {
+        public int IdProducto { get; set; }
+        public int IdProveedor { get; set; }
+        [Display(Name = "Producto")]
+        public string NombreProducto { get; set; } = string.Empty;
+        [Display(Name = "Proveedor")]
+        public string NombreProveedor { get; set; } = string.Empty;
+        public decimal Precio { get; set; }
+        public int StockAsignado { get; set; }
+        [Display(Name = "Cód. Barra Prov.")]
+        public string CodigoBarraExterno { get; set; } = string.Empty;
+    }

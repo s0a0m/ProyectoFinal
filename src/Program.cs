@@ -49,7 +49,7 @@ builder.Services.AddScoped<IProductoProveedorRepository, ProductoProveedorReposi
 builder.Services.AddScoped<IExcelDataReader, ExcelDataAdapter>();
 builder.Services.AddScoped<INovedadesRepository, NovedadesRepository>();
 builder.Services.AddScoped<INovedadesService, NovedadesService>();
-
+builder.Services.AddScoped<IProductoProveedorService, ProductoProveedorService>();
 // Servicios
 builder.Services.AddScoped<IUserService, UserService>();
 // builder.Services.AddScoped<IProveedorService, ProveedorService>();
