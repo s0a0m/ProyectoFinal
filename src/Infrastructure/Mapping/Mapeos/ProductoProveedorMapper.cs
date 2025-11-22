@@ -29,5 +29,6 @@ public static partial class DominioMapper
     [MapperIgnoreTarget(nameof(Dom.ProductoProveedor.Proveedor))]
     [MapperIgnoreSource(nameof(Contracts.ProductoProveedorDataRow.CodigoBarraExterno))]
     [MapperIgnoreSource(nameof(Contracts.ProductoProveedorDataRow.NombreSugerido))]
+    [MapperIgnoreTarget(nameof(Dom.ProductoProveedor.Activo))]
     public static partial Dom.ProductoProveedor Map(Contracts.ProductoProveedorDataRow source);
 }
