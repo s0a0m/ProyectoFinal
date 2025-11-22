@@ -35,7 +35,6 @@
             <legend class="h6 text-secondary text-uppercase fw-bold mb-3">
                 Datos de la Relación (No editables)
             </legend>
-
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label fw-bold text-muted">Producto</label>
@@ -44,7 +43,6 @@
                         <input type="text" class="form-control bg-light text-dark fw-bold" value="@Model.NombreProducto" disabled>
                     </div>
                 </div>
-
                 <div class="col-md-6">
                     <label class="form-label fw-bold text-muted">Proveedor</label>
                     <div class="input-group">
@@ -69,7 +67,6 @@
                         </div>
                         <span asp-validation-for="Precio" class="text-danger small"></span>
                     </div>
-
                     <div class="col-md-6">
                         <label asp-for="StockAsignado" class="form-label fw-bold text-primary">Stock Asignado</label>
                         <div class="input-group input-group-lg">
@@ -77,28 +74,35 @@
                             <input asp-for="StockAsignado" class="form-control border-primary" type="number" placeholder="0">
                         </div>
                         <span asp-validation-for="StockAsignado" class="text-danger small"></span>
-                        <div class="form-text small">Stock físico actual en posesión del proveedor.</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <fieldset class="mb-4 opacity-75">
-            <label class="form-label fw-bold text-muted small">CÓDIGO DE BARRA DEL PROVEEDOR</label>
-            <div class="input-group">
-                <span class="input-group-text bg-light"><i class="bi bi-upc-scan text-muted"></i></span>
-                @if (!string.IsNullOrEmpty(Model.CodigoBarraExterno))
+            <label class="form-label fw-bold text-muted small">CÓDIGOS DE BARRA DEL PROVEEDOR</label>
+            
+            <div class="bg-light p-3 border rounded">
+                @if (Model.CodigosBarraExternos != null && Model.CodigosBarraExternos.Any())
                 {
-                    <input type="text" class="form-control font-monospace bg-light" value="@Model.CodigoBarraExterno" disabled>
-                    <span class="input-group-text bg-light text-muted" title="No se puede editar"><i class="bi bi-lock"></i></span>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (var codigo in Model.CodigosBarraExternos)
+                        {
+                            <div class="input-group input-group-sm" style="width: auto;">
+                                <span class="input-group-text bg-white"><i class="bi bi-upc-scan text-muted"></i></span>
+                                <input type="text" class="form-control font-monospace bg-white" value="@codigo" disabled style="max-width: 150px;">
+                            </div>
+                        }
+                    </div>
                 }
                 else
                 {
-                    <input type="text" class="form-control bg-light fst-italic text-muted" value="Sin código asignado" disabled>
+                    <span class="text-muted fst-italic"><i class="bi bi-info-circle me-1"></i>Sin códigos asignados.</span>
                 }
             </div>
-            <div class="form-text small">
-                <i class="bi bi-info-circle me-1"></i>Para cambiar el código externo, debe eliminar la relación y crearla nuevamente.
+            
+            <div class="form-text small mt-2">
+                <i class="bi bi-lock-fill me-1"></i>Los códigos no son editables aquí. Para modificarlos, elimine la relación y créela nuevamente.
             </div>
         </fieldset>
 

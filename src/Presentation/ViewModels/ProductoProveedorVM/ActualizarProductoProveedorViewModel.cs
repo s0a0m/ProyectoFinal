@@ -16,9 +16,8 @@ namespace src.Presentation.ViewModels.ProductoVM;
         [Display(Name = "Proveedor")]
         public string RazonSocialProveedor { get; set; } = string.Empty;
 
-        [Display(Name = "Código Externo Actual")]
-        public string CodigoBarraExterno { get; set; } = string.Empty;
-
+        [Display(Name = "Código Externo")]
+        public List<string> CodigosBarraExternos{ get; set; } = new();
         // Editables
         [Required]
         [Range(0.01, 99999999)]

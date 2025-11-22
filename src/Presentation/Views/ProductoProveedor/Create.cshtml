@@ -46,7 +46,6 @@
                         </select>
                     </div>
                     <span asp-validation-for="IdProducto" class="text-danger small"></span>
-                    <div class="form-text small">El producto debe estar creado previamente.</div>
                 </div>
 
                 <div class="col-md-6">
@@ -84,7 +83,6 @@
                         <input asp-for="StockAsignado" class="form-control" type="number" placeholder="0">
                     </div>
                     <span asp-validation-for="StockAsignado" class="text-danger small"></span>
-                    <div class="form-text small">Cantidad física disponible de este proveedor.</div>
                 </div>
             </div>
         </fieldset>
@@ -94,18 +92,31 @@
                 <i class="bi bi-upc-scan me-2"></i>Identificación Externa
             </legend>
             
-            <div class="alert alert-info d-flex align-items-center p-2 mb-3 shadow-sm" style="font-size: 0.9em;">
+            <div class="alert alert-info d-flex align-items-center p-2 mb-3 shadow-sm small">
                 <i class="bi bi-info-circle-fill me-2 fs-5"></i>
-                <div>
-                    Este código es útil para actualizaciones automáticas de precios mediante Excel o escaneo directo de productos del proveedor.
-                </div>
+                <div>Puede asociar múltiples códigos de barra (EAN, UPC, propios del proveedor) para identificar este producto al escanearlo.</div>
             </div>
 
-            <div class="form-floating mb-2">
-                <input asp-for="CodigoBarraExterno" class="form-control" placeholder="Escanear código aquí...">
-                <label asp-for="CodigoBarraExterno">Código de Barra del Proveedor (Opcional)</label>
+            <div class="input-group mb-2">
+                <span class="input-group-text bg-white"><i class="bi bi-plus-circle"></i></span>
+                <input type="text" class="form-control" id="inputNuevoCodigo" placeholder="Escanear o escribir código...">
+                <button class="btn btn-secondary" type="button" id="btnAgregarCodigo">Agregar</button>
             </div>
-            <span asp-validation-for="CodigoBarraExterno" class="text-danger small"></span>
+            <span id="msgErrorCodigo" class="text-danger small d-block mb-2"></span>
+
+            <div class="list-group" id="listaCodigosVisual">
+                @if (Model.CodigosBarraExternos != null)
+                {
+                    foreach (var codigo in Model.CodigosBarraExternos)
+                    {
+                        <div class="list-group-item d-flex justify-content-between align-items-center item-codigo animate__animated animate__fadeIn">
+                            <span class="font-monospace"><i class="bi bi-barcode me-2 text-muted"></i>@codigo</span>
+                            <input type="hidden" name="CodigosBarraExternos" value="@codigo">
+                            <button type="button" class="btn btn-sm btn-outline-danger btn-borrar-codigo" title="Quitar"><i class="bi bi-x-lg"></i></button>
+                        </div>
+                    }
+                }
+            </div>
         </fieldset>
 
         <div class="d-flex justify-content-end gap-2 mt-5">
@@ -123,14 +134,66 @@
     <partial name="_ValidationScriptsPartial" />
 
     <script>
-        // Pequeña mejora de UX: Si el usuario escanea un código de barras en el input de Código Externo
-        // y presiona enter, evitamos que se envíe el formulario accidentalmente (comportamiento común de scanners).
-        document.getElementById('CodigoBarraExterno').addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                // Opcional: Pasar el foco al botón de guardar
-                // document.querySelector('button[type="submit"]').focus();
+        document.addEventListener("DOMContentLoaded", function() {
+            const inputCodigo = document.getElementById('inputNuevoCodigo');
+            const btnAgregar = document.getElementById('btnAgregarCodigo');
+            const listaVisual = document.getElementById('listaCodigosVisual');
+            const msgError = document.getElementById('msgErrorCodigo');
+
+            // Función para agregar código a la lista
+            function agregarCodigo() {
+                const codigo = inputCodigo.value.trim();
+                msgError.innerText = "";
+                inputCodigo.classList.remove('is-invalid');
+
+                if (!codigo) return; // No hacer nada si está vacío
+
+                // 1. Validar duplicados visuales (lo que ya agregué en esta sesión)
+                const inputsExistentes = document.querySelectorAll('input[name="CodigosBarraExternos"]');
+                for (let input of inputsExistentes) {
+                    if (input.value === codigo) {
+                        msgError.innerText = "Este código ya está en la lista.";
+                        inputCodigo.classList.add('is-invalid');
+                        inputCodigo.value = "";
+                        return;
+                    }
+                }
+
+                // 2. Crear Elemento Visual + Input Hidden
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'list-group-item d-flex justify-content-between align-items-center item-codigo';
+                itemDiv.innerHTML = `
+                    <span class="font-monospace"><i class="bi bi-barcode me-2 text-muted"></i>${codigo}</span>
+                    <input type="hidden" name="CodigosBarraExternos" value="${codigo}">
+                    <button type="button" class="btn btn-sm btn-outline-danger btn-borrar-codigo" title="Quitar">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                `;
+
+                listaVisual.appendChild(itemDiv);
+                inputCodigo.value = ""; // Limpiar input
+                inputCodigo.focus();    // Mantener foco para seguir escaneando
             }
+
+            // Evento Click Botón Agregar
+            btnAgregar.addEventListener('click', agregarCodigo);
+
+            // Evento Enter en el Input (Evitar submit del form principal y disparar agregarCodigo)
+            inputCodigo.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    agregarCodigo();
+                }
+            });
+
+            // Evento Delegado para el botón borrar (funciona en elementos creados dinámicamente)
+            listaVisual.addEventListener('click', function(e) {
+                const btn = e.target.closest('.btn-borrar-codigo');
+                if (btn) {
+                    const item = btn.closest('.item-codigo');
+                    item.remove();
+                }
+            });
         });
     </script>
 }

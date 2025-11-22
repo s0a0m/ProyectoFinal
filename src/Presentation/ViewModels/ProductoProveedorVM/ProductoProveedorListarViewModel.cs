@@ -19,5 +19,5 @@ namespace src.Presentation.ViewModels.ProductoVM;
         public decimal Precio { get; set; }
         public int StockAsignado { get; set; }
         [Display(Name = "Cód. Barra Prov.")]
-        public string CodigoBarraExterno { get; set; } = string.Empty;
+        public List<string> CodigosBarraExternos{ get; set; } = new();
     }

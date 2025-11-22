@@ -87,15 +87,7 @@ namespace src.Core.Services.Implementations
 
         public async Task DeleteAsync(short id)
         {
-            // 1. REGLA DE NEGOCIO: No borrar si tiene productos
-            bool tieneProductos = await _categoriaRepo.HasProductosAsync(id);
-            if (tieneProductos)
-            {
-                throw new InvalidOperationException("No se puede eliminar la categoría porque tiene productos asociados.");
-            }
-
-            // 2. Si pasa la regla, borrar
-            await _categoriaRepo.DeleteAsync(id);
+           await _categoriaRepo.DeleteAsync(id);
         }
     }
 }

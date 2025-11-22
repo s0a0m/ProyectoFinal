@@ -85,19 +85,21 @@ public class ProductoProveedorService : IProductoProveedorService
 
 
     public async Task<IEnumerable<ProductoProveedorListarViewModel>> GetAllParaListadoAsync()
-        {
-            // El repo devuelve ProductoProveedorDto (que incluye la entidad de dominio + el string del código)
-            var dtos = await _productoProveedorRepository.GetAllAsync();
+    {
+        // El repo ahora devuelve ProductoProveedorDto con List<string> CodigosBarrasExternos
+        var dtos = await _productoProveedorRepository.GetAllAsync();
 
-            return dtos.Select(d => new ProductoProveedorListarViewModel
-            {
-                IdProducto = d.ProductoProveedor.Producto.IdProducto,
-                IdProveedor = d.ProductoProveedor.Proveedor.IdProveedor,
-                NombreProducto = d.ProductoProveedor.Producto.Nombre,
-                NombreProveedor = d.ProductoProveedor.Proveedor.RazonSocial,
-                Precio = d.ProductoProveedor.Precio,
-                StockAsignado = d.ProductoProveedor.StockAsignado,
-                CodigoBarraExterno = d.CodigoBarraExterno // Mapeamos el string suelto del DTO
+        return dtos.Select(d => new ProductoProveedorListarViewModel
+        {
+            IdProducto = d.ProductoProveedor.Producto.IdProducto,
+            IdProveedor = d.ProductoProveedor.Proveedor.IdProveedor,
+            NombreProducto = d.ProductoProveedor.Producto.Nombre,
+            NombreProveedor = d.ProductoProveedor.Proveedor.RazonSocial,
+            Precio = d.ProductoProveedor.Precio,
+            StockAsignado = d.ProductoProveedor.StockAsignado,
+                
+                // Asignación directa de la lista (El ViewModel ahora espera List<string>)
+                CodigosBarraExternos = d.CodigosBarrasExternos ?? new List<string>()
             });
         }
 
@@ -113,24 +115,24 @@ public class ProductoProveedorService : IProductoProveedorService
         {
             var dto = await _productoProveedorRepository.GetByIdAsync(idProducto, idProveedor);
 
-            if (dto == null) 
+            if (dto == null)
                 throw new KeyNotFoundException("La relación Producto-Proveedor no fue encontrada.");
 
             var vm = new ActualizarProductoProveedorViewModel
             {
                 IdProducto = dto.ProductoProveedor.Producto.IdProducto,
                 IdProveedor = dto.ProductoProveedor.Proveedor.IdProveedor,
-                
-                // Campos informativos (normalmente readonly en la vista de editar)
+
+                // Campos informativos
                 NombreProducto = dto.ProductoProveedor.Producto.Nombre,
                 RazonSocialProveedor = dto.ProductoProveedor.Proveedor.RazonSocial,
-                
+
                 // Campos editables
                 Precio = dto.ProductoProveedor.Precio,
                 StockAsignado = dto.ProductoProveedor.StockAsignado,
-                
-                // Mostramos el código actual, aunque no se edite en el Update
-                CodigoBarraExterno = dto.CodigoBarraExterno 
+
+                // Asignamos la lista para que se vea en la vista (como ReadOnly)
+                CodigosBarraExternos = dto.CodigosBarrasExternos ?? new List<string>()
             };
 
             return vm;
@@ -143,7 +145,25 @@ public class ProductoProveedorService : IProductoProveedorService
             {
                 throw new InvalidOperationException("Este producto ya está asignado a este proveedor.");
             }
+            var codigosLimpios = new List<string>();
+            if (vm.CodigosBarraExternos != null && vm.CodigosBarraExternos.Any())
+            {
+                // Filtramos nulos, vacíos y hacemos Trim
+                codigosLimpios = vm.CodigosBarraExternos
+                    .Where(c => !string.IsNullOrWhiteSpace(c))
+                    .Select(c => c.Trim())
+                    .Distinct() // Evitamos duplicados en la misma carga
+                    .ToList();
 
+                // 3. Validar unicidad global en la base de datos
+                foreach (var codigo in codigosLimpios)
+                {
+                    if (await _productoCodigoExternoRepository.ExistsAsync(codigo))
+                    {
+                        throw new ArgumentException($"El código de barras '{codigo}' ya está asignado a otro producto en el sistema.");
+                    }
+                }
+            }
             // 2. Mapear al Dominio
             var dominio = new Dom.ProductoProveedor
             {
@@ -154,11 +174,7 @@ public class ProductoProveedorService : IProductoProveedorService
                 StockAsignado = vm.StockAsignado
             };
 
-            // 3. Llamar al repo pasando el código externo por separado
-            // (El repositorio se encarga de guardar en las dos tablas: ProductoProveedor y ProductoCodigoExterno)      
-            string codigoParaGuardar = vm.CodigoBarraExterno?.Trim() ?? "";
-            
-            await _productoProveedorRepository.AddAsync(dominio, codigoParaGuardar);
+            await _productoProveedorRepository.AddAsync(dominio, codigosLimpios);
         }
 
         public async Task UpdateAsync(ActualizarProductoProveedorViewModel vm)

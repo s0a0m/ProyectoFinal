@@ -22,7 +22,7 @@ namespace src.Presentation.ViewModels.ProductoVM;
         public int StockAsignado { get; set; }
 
         [Display(Name = "Código de Barra del Proveedor")]
-        public string CodigoBarraExterno { get; set; } = string.Empty;
+        public List<string> CodigosBarraExternos{ get; set; } = new();
 
         // Listas para los desplegables (Dropdowns)
         public List<SelectListItemDto> ListaProductos { get; set; } = new();

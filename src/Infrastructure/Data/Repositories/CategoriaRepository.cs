@@ -102,11 +102,26 @@ namespace src.Repositories.Implementations
             return await _context.ProductoCategorias.AnyAsync(pc => pc.IdCategoria == idCategoria);
         }
 
-        public async Task DeleteAsync(short id)
+        /*public async Task DeleteAsync(short id)
         {
             var existing = await _context.Categorias.FindAsync(id);
             if (existing != null)
             {
+                _context.Categorias.Remove(existing);
+                await _context.SaveChangesAsync();
+            }
+        }*/
+        public async Task DeleteAsync(short id)
+        {
+           
+            var existing = await _context.Categorias.FindAsync(id);
+            
+            if (existing != null)
+            {
+                
+                var relaciones = _context.ProductoCategorias
+                    .Where(pc => pc.IdCategoria == id);
+                _context.ProductoCategorias.RemoveRange(relaciones);
                 _context.Categorias.Remove(existing);
                 await _context.SaveChangesAsync();
             }
@@ -129,6 +144,6 @@ namespace src.Repositories.Implementations
             return await query.AnyAsync(c => c.Nombre.ToLower() == nombreNormalizado);
         }
 
-                
+
     }
 }

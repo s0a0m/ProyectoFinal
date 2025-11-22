@@ -31,4 +31,11 @@ public class ProductoCodigoExternoRepository : IProductoCodigoExternoRepository
 
         return cb is null ? null : DominioMapper.Map(cb.Producto);
     }
+
+    public async Task<bool> ExistsAsync(string codigo)
+    {
+        if (string.IsNullOrWhiteSpace(codigo)) return false;  
+        return await _context.ProductoCodigosExternos
+            .AnyAsync(x => x.CodigoBarraProveedor == codigo.Trim());
+    }
 }

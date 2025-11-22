@@ -1,171 +1,127 @@
-        using Microsoft.EntityFrameworkCore;
-        using EF = src.Models.CodeFirst;
-        using Dom = src.Models.Domain;
-        using src.Repositories.Interfaces;
-        using src.Models.Mappers;
-        using src.Contracts;
-        using src.Models.CodeFirst;
-        namespace src.Repositories.Implementations;
+using Microsoft.EntityFrameworkCore;
+using EF = src.Models.CodeFirst;
+using Dom = src.Models.Domain;
+ using src.Repositories.Interfaces;
+using src.Models.Mappers;
+using src.Contracts;
+using src.Models.CodeFirst;
+namespace src.Repositories.Implementations;
 
-        public class ProductoProveedorRepository : IProductoProveedorRepository
+public class ProductoProveedorRepository : IProductoProveedorRepository
+{
+    private readonly EF.AppDbContext _context;
+
+    public ProductoProveedorRepository(EF.AppDbContext context)
+    {
+        _context = context;
+    }
+
+    private IQueryable<EF.ProductoProveedor> GetQueryFull()
+    {
+        return _context.ProductosProveedores
+            .Include(pp => pp.Producto)
+                .ThenInclude(p => p.CodigosBarrasExternos)
+            .Include(pp => pp.Proveedor)
+                .ThenInclude(p => p.IdCondicionPagoHabitualNavigation);
+    }  
+
+    public async Task<IEnumerable<ProductoProveedorDto>> GetAllAsync()
+    {
+        var efEntities = await GetQueryFull().ToListAsync();
+        var resultado = new List<ProductoProveedorDto>();
+
+        foreach (var efItem in efEntities)
         {
-            private readonly EF.AppDbContext _context;
-
-            public ProductoProveedorRepository(EF.AppDbContext context)
+            // --- CAMBIO CRÍTICO: MAPEO MANUAL ---
+            // NO usamos DominioMapper.Map(efItem) porque intenta mapear Domicilios/Provincias
+            // que no trajimos de la BD, causando NullReferenceException.
+            
+            var domItem = new Dom.ProductoProveedor
             {
-                _context = context;
-            }
+                Precio = efItem.Precio,
+                StockAsignado = efItem.StockAsignado,
+                
+                // Construimos el Producto manualmente (Solo lo necesario)
+                Producto = efItem.Producto == null ? null : new Dom.Producto 
+                { 
+                    IdProducto = efItem.Producto.IdProducto, 
+                    Nombre = efItem.Producto.Nombre 
+                },
 
-            // Query con Includes
-            private IQueryable<EF.ProductoProveedor> GetQueryFull()
-            {
-                return _context.ProductosProveedores
-                    .Include(pp => pp.Producto)
-                        .ThenInclude(p => p.CodigosBarrasExternos)
-                    .Include(pp => pp.Proveedor)
-                        .ThenInclude(p => p.IdCondicionPagoHabitualNavigation)
-                .Include(pp => pp.Proveedor)
-                    .ThenInclude(p => p.IdDomicilioNavigation)
-                    .ThenInclude(d => d.IdProvinciaNavigation); 
-            }   
-
-        
-            /*public async Task<IEnumerable<ProductoProveedorDto>> GetAllAsync()
-            {
-                var efEntities = await GetQueryFull().ToListAsync();
-
-                var dominio = DominioMapper.Map(efEntities);
-
-                var resultado = new List<ProductoProveedorDto>();
-
-                foreach (var domItem in dominio)
+                // Construimos el Proveedor manualmente (Solo lo necesario)
+                Proveedor = efItem.Proveedor == null ? null : new Dom.Proveedor
                 {
-                    var efItem = efEntities.First(x =>
-                        x.IdProducto == domItem.Producto.IdProducto &&
-                        x.IdProveedor == domItem.Proveedor.IdProveedor
-                    );
-
-                    // Buscar código externo asociado a este proveedor
-                    var codigoExterno = efItem.Producto.CodigosBarrasExternos
-                        .FirstOrDefault(c => c.IdProveedor == efItem.IdProveedor)?
-                        .CodigoBarraProveedor ?? "";
-
-                    resultado.Add(new ProductoProveedorDto
-                    {
-                        ProductoProveedor = domItem,
-                        CodigoBarraExterno = codigoExterno
-                    });
+                    IdProveedor = efItem.Proveedor.IdProveedor,
+                    RazonSocial = efItem.Proveedor.RazonSocial
+                    // NO asignamos IdDomicilioNavigation para que el mapper no moleste
                 }
+            };
 
-                return resultado;
-            }*/
-            public async Task<IEnumerable<ProductoProveedorDto>> GetAllAsync()
+            // Obtenemos lista de códigos
+            var listaCodigos = efItem.Producto.CodigosBarrasExternos
+                .Where(c => c.IdProveedor == efItem.IdProveedor)
+                .Select(c => c.CodigoBarraProveedor)
+                .ToList();
+
+            resultado.Add(new ProductoProveedorDto
             {
-            // Traemos los datos de EF
-            var efEntities = await GetQueryFull().ToListAsync();
-            var resultado = new List<ProductoProveedorDto>();
+                ProductoProveedor = domItem,
+                CodigosBarrasExternos = listaCodigos
+            });
+        }
 
-            // Iteramos DIRECTAMENTE sobre la entidad de EF.
-            // Así tenemos acceso al objeto original y podemos mapear al vuelo.
-            foreach (var efItem in efEntities)
-            {
-                // Mapeamos este item individual al dominio
-                var domItem = DominioMapper.Map(efItem);
-
-                // PARCHE DE SEGURIDAD:
-                // Si por alguna razón el Mapper devuelve el Producto nulo, lo forzamos manualmente
-                // para evitar que la Vista o el Servicio exploten después.
-                if (domItem.Producto == null && efItem.Producto != null)
-                {
-                    domItem.Producto = new Dom.Producto 
-                    { 
-                        IdProducto = efItem.IdProducto, 
-                        Nombre = efItem.Producto.Nombre 
-                    };
-                }
-                if (domItem.Proveedor == null && efItem.Proveedor != null)
-                {
-                    domItem.Proveedor = new Dom.Proveedor
-                    {
-                        IdProveedor = efItem.IdProveedor,
-                        RazonSocial = efItem.Proveedor.RazonSocial
-                    };
-                }
-
-                // Extraemos el código de barras usando el efItem que ya tenemos en la mano
-                // (No hace falta usar .First ni buscar nada)
-                var codigoExterno = efItem.Producto.CodigosBarrasExternos
-                    .FirstOrDefault(c => c.IdProveedor == efItem.IdProveedor)?
-                    .CodigoBarraProveedor ?? "";
-
-                resultado.Add(new ProductoProveedorDto
-                {
-                    ProductoProveedor = domItem,
-                    CodigoBarraExterno = codigoExterno
-                });
-            }
-
-            return resultado;
-            }
-
+        return resultado;
+    }
     public async Task<ProductoProveedorDto?> GetByIdAsync(int idProducto, int idProveedor)
     {
-        // 1. Obtenemos la entidad de EF
         var efEntity = await GetQueryFull()
             .FirstOrDefaultAsync(x => x.IdProducto == idProducto && x.IdProveedor == idProveedor);
 
-        if (efEntity == null)
-            return null;
+        if (efEntity == null) return null;
 
-        // 2. Mapeamos (El Mapper puede fallar y dejar nulos)
-        var dom = DominioMapper.Map(efEntity);
-
-        // 3. --- PARCHE DE SEGURIDAD (IGUAL QUE EN GetAllAsync) ---
-        // Si el mapper devuelve nulo pero tenemos los datos en EF, los llenamos a mano.
-        if (dom.Producto == null && efEntity.Producto != null)
+        // --- CAMBIO CRÍTICO: MAPEO MANUAL TAMBIÉN AQUÍ ---
+        var dom = new Dom.ProductoProveedor
         {
-            dom.Producto = new Dom.Producto 
+            Precio = efEntity.Precio,
+            StockAsignado = efEntity.StockAsignado,
+            
+            Producto = efEntity.Producto == null ? null : new Dom.Producto 
             { 
-                IdProducto = efEntity.IdProducto, 
+                IdProducto = efEntity.Producto.IdProducto, 
                 Nombre = efEntity.Producto.Nombre 
-            };
-        }
+            },
 
-        if (dom.Proveedor == null && efEntity.Proveedor != null)
-        {
-            dom.Proveedor = new Dom.Proveedor
+            Proveedor = efEntity.Proveedor == null ? null : new Dom.Proveedor
             {
-                IdProveedor = efEntity.IdProveedor,
+                IdProveedor = efEntity.Proveedor.IdProveedor,
                 RazonSocial = efEntity.Proveedor.RazonSocial
-            };
-        }
-        // ---------------------------------------------------------
+            }
+        };
 
-        var codigoExterno = efEntity.Producto.CodigosBarrasExternos
-            .FirstOrDefault(c => c.IdProveedor == idProveedor)?
-            .CodigoBarraProveedor ?? "";
+        var listaCodigos = efEntity.Producto.CodigosBarrasExternos
+            .Where(c => c.IdProveedor == efEntity.IdProveedor)
+            .Select(c => c.CodigoBarraProveedor)
+            .ToList();
 
         return new ProductoProveedorDto
         {
             ProductoProveedor = dom,
-            CodigoBarraExterno = codigoExterno
+            CodigosBarrasExternos = listaCodigos
         };
     }
+    public async Task<IEnumerable<Dom.ProductoProveedor>> GetByProveedorIdAsync(int idProveedor)
+    {
+        var efEntities = await GetQueryFull()
+            .Where(x => x.IdProveedor == idProveedor)
+            .ToListAsync();
 
-            public async Task<IEnumerable<Dom.ProductoProveedor>> GetByProveedorIdAsync(int idProveedor)
-            {
-                var efEntities = await GetQueryFull()
-                    .Where(x => x.IdProveedor == idProveedor)
-                    .ToListAsync();
-
-                return DominioMapper.Map(efEntities);
-            }
+        return DominioMapper.Map(efEntities);
+    }
 
         
 
-    public async Task AddAsync(Dom.ProductoProveedor entity, string codigoExterno)
+    public async Task AddAsync(Dom.ProductoProveedor entity, List<string> codigosExternos)
     {
-        // Iniciamos una transacción: O se guardan las dos cosas, o no se guarda ninguna.
         using var transaction = await _context.Database.BeginTransactionAsync();
 
         try
@@ -179,29 +135,32 @@
             };
 
             await _context.ProductosProveedores.AddAsync(efEntity);
-            await _context.SaveChangesAsync(); // Primer guardado
+            await _context.SaveChangesAsync();
 
-            if (!string.IsNullOrWhiteSpace(codigoExterno))
+            // --- CAMBIO: Iteramos la lista para guardar múltiples códigos ---
+            if (codigosExternos != null && codigosExternos.Any())
             {
-                var codigo = new ProductoCodigoExterno
+                foreach (var codigoStr in codigosExternos)
                 {
-                    IdProducto = efEntity.IdProducto,
-                    IdProveedor = efEntity.IdProveedor,
-                    CodigoBarraProveedor = codigoExterno.Trim()
-                };
+                    if (string.IsNullOrWhiteSpace(codigoStr)) continue;
 
-                await _context.ProductoCodigosExternos.AddAsync(codigo);
-                await _context.SaveChangesAsync(); // Segundo guardado
+                    var nuevoCodigo = new ProductoCodigoExterno
+                    {
+                        IdProducto = efEntity.IdProducto,
+                        IdProveedor = efEntity.IdProveedor,
+                        CodigoBarraProveedor = codigoStr.Trim()
+                    };
+                    await _context.ProductoCodigosExternos.AddAsync(nuevoCodigo);
+                }
+                await _context.SaveChangesAsync();
             }
 
-            // Si llegamos aquí, todo salió bien. Confirmamos.
             await transaction.CommitAsync();
         }
         catch (Exception)
         {
-            // Si algo falló, deshacemos TODO lo que se haya hecho en este bloque.
             await transaction.RollbackAsync();
-            throw; // Re-lanzamos el error para que el Controller lo muestre
+            throw;
         }
     }
 
