@@ -26,13 +26,15 @@ public static class DbInitializer
             SeedCondicionesPago(context);
             SeedPermisos(context);
             SeedUsuarios(context);
+            SeedFamilia(context);
+            SeedCodigoBarra(context);
             context.SaveChanges();
             SeedUsuarioPermisos(context);
             SeedDomicilios(context);
+            SeedProductos(context);
             context.SaveChanges();
             SeedProveedores(context);
-            context.SaveChanges();
-            SeedNovedades(context);
+            SeedGrupoPermiso(context);
             context.SaveChanges();
 
             ResetSequence(context, "provincia", "id_provincia");
@@ -40,6 +42,10 @@ public static class DbInitializer
             ResetSequence(context, "domicilio", "id_domicilio");
             ResetSequence(context, "proveedor", "id_proveedor");
             ResetSequence(context, "usuario", "id_usuario");
+            ResetSequence(context, "familia", "id_familia");
+            ResetSequence(context, "codigo_barra", "id_codigo_barra");
+            ResetSequence(context, "producto", "id_producto");
+            ResetSequence(context, "grupo_permisos", "id_grupo_permiso");
 
             transaction.Commit();
             Console.WriteLine(">>> Seeding de base de datos completado exitosamente.");
@@ -129,14 +135,40 @@ public static class DbInitializer
         context.Usuarios.AddRange(usuarios);
         Console.WriteLine($"- Seeding {usuarios.Count} usuarios...");
     }
-
-    private static void SeedNovedades(AppDbContext context)
+    private static void SeedGrupoPermiso(AppDbContext context)
     {
-        if (context.NovedadesProveedores.Any()) return;
+        if (context.GruposPermisos.Any()) return;
 
-        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/novedades.json");
-        var novedades = JsonSerializer.Deserialize<List<NovedadesProveedor>>(json, _jsonOptions)!;
-        context.NovedadesProveedores.AddRange(novedades);
-        Console.WriteLine($"- Seeding {novedades.Count} usuarios...");
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/grupo_permiso.json");
+        var grupoPermiso = JsonSerializer.Deserialize<List<GrupoPermisos>>(json, _jsonOptions)!;
+        context.GruposPermisos.AddRange(grupoPermiso);
+        Console.WriteLine($"- Seeding {grupoPermiso.Count} grupoPermiso...");
+    }
+    private static void SeedFamilia(AppDbContext context)
+    {
+        if (context.Familias.Any()) return;
+
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/familias.json");
+        var familias = JsonSerializer.Deserialize<List<Familia>>(json, _jsonOptions)!;
+        context.Familias.AddRange(familias);
+        Console.WriteLine($"- Seeding {familias.Count} familias...");
+    }
+    private static void SeedCodigoBarra(AppDbContext context)
+    {
+        if (context.CodigoBarras.Any()) return;
+
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/codigos_de_barra.json");
+        var codigoBarras = JsonSerializer.Deserialize<List<CodigoBarra>>(json, _jsonOptions)!;
+        context.CodigoBarras.AddRange(codigoBarras);
+        Console.WriteLine($"- Seeding {codigoBarras.Count} codigoBarras...");
+    }
+    private static void SeedProductos(AppDbContext context)
+    {
+        if (context.Productos.Any()) return;
+
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/productos.json");
+        var productos = JsonSerializer.Deserialize<List<Producto>>(json, _jsonOptions)!;
+        context.Productos.AddRange(productos);
+        Console.WriteLine($"- Seeding {productos.Count} productos...");
     }
 }

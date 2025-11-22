@@ -1,0 +1,44 @@
+[
+  {
+    "IdGrupoPermiso": 3,
+    "Nombre": "Deposito",
+    "Descripcion": "Permisos para manejo de stock y mercadería",
+    "GruposPermisosPermisos": [
+      {
+        "IdGrupoPermiso": 3,
+        "IdPermiso": 1
+      },
+      {
+        "IdGrupoPermiso": 3,
+        "IdPermiso": 4
+      },
+      {
+        "IdGrupoPermiso": 3,
+        "IdPermiso": 7
+      }
+    ]
+  },
+  {
+    "IdGrupoPermiso": 4,
+    "Nombre": "Ventas",
+    "Descripcion": "Permisos para ventas, clientes y facturación",
+    "GruposPermisosPermisos": [
+      {
+        "IdGrupoPermiso": 4,
+        "IdPermiso": 2
+      },
+      {
+        "IdGrupoPermiso": 4,
+        "IdPermiso": 3
+      },
+      {
+        "IdGrupoPermiso": 4,
+        "IdPermiso": 5
+      },
+      {
+        "IdGrupoPermiso": 4,
+        "IdPermiso": 8
+      }
+    ]
+  }
+]

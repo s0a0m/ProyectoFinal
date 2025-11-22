@@ -2,17 +2,33 @@
   {
     "IdDomicilio": 1,
     "IdProvincia": 1,
-    "Calle": "Av. Siempre Viva",
-    "Numero": 742,
+    "Calle": "Av. Rivadavia",
+    "Numero": 8450,
     "Piso": null,
-    "Comentario": "Casa central"
+    "Comentario": "Sucursal principal - CABA"
   },
   {
     "IdDomicilio": 2,
     "IdProvincia": 2,
-    "Calle": "Calle Falsa",
-    "Numero": 123,
-    "Piso": 3,
-    "Comentario": "Sucursal"
+    "Calle": "Av. Juan B. Justo",
+    "Numero": 3250,
+    "Piso": 1,
+    "Comentario": "Depósito central - Buenos Aires"
+  },
+  {
+    "IdDomicilio": 3,
+    "IdProvincia": 3,
+    "Calle": "Av. Colón",
+    "Numero": 1125,
+    "Piso": null,
+    "Comentario": "Proveedor regional - Córdoba"
+  },
+  {
+    "IdDomicilio": 4,
+    "IdProvincia": 4,
+    "Calle": "San Martín",
+    "Numero": 554,
+    "Piso": 2,
+    "Comentario": "Oficina administrativa - Mendoza"
   }
 ]

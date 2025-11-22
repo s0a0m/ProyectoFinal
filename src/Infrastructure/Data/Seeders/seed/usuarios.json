@@ -23,7 +23,7 @@
   },
   {
     "IdUsuario": 3,
-    "activo": false,
+    "Activo": true,
     "Correo": "carlos.sanchez@example.com",
     "Telefono": "+542215554567",
     "Contrasenia": "hash_del_password_3",
@@ -34,7 +34,7 @@
   },
   {
     "IdUsuario": 4,
-    "activo": true,
+    "Activo": true,
     "Correo": "laura.rodriguez@example.com",
     "Telefono": "+543515557890",
     "Contrasenia": "hash_del_password_4",
@@ -45,7 +45,7 @@
   },
   {
     "IdUsuario": 5,
-    "activo": true,
+    "Activo": true,
     "Correo": "admin@sistema.com",
     "Telefono": "+54115550001",
     "Contrasenia": "hash_del_password_5",
