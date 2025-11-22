@@ -51,6 +51,13 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Familia> Familias { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
+        modelBuilder.Entity<ProductoProveedor>(entity =>
+        {
+            entity.Property(u => u.Activo)
+                .HasDefaultValue(true);
+        });
+
         modelBuilder.Entity<NovedadesProveedor>()
             .HasOne(n => n.Producto)
             .WithMany(p => p.Novedades)

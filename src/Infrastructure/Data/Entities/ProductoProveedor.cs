@@ -23,4 +23,7 @@ public class ProductoProveedor
 
     [Column("stock_asignado")]
     public int StockAsignado { get; set; }
+
+    [Column("activo")]
+    public bool Activo{get;set;} = true;
 }
