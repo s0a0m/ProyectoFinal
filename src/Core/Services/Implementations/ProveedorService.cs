@@ -12,12 +12,14 @@ public class ProveedorService : IProveedorService
     private readonly IProveedorRepository _proveedorRepository;
     private readonly ICommonDataService _commonDataService;
     private readonly IExcelDataReader _excelReader;
+    IProductoProveedorService _prodService;
 
-    public ProveedorService(IExcelDataReader reader, IProveedorRepository proveedorRepository, ICommonDataService _commonDataService)
+    public ProveedorService(IExcelDataReader reader, IProveedorRepository proveedorRepository, ICommonDataService _commonDataService, IProductoProveedorService proProvSv)
     {
         _proveedorRepository = proveedorRepository;
         this._commonDataService = _commonDataService;
         this._excelReader = reader;
+        _prodService = proProvSv;
     }
 
     public async Task<Dom.Proveedor> CreateProveedorAsync(CrearProveedorViewModel proveedorVM)
@@ -40,24 +42,41 @@ public class ProveedorService : IProveedorService
         return proveedor;
     }
 
-    public async Task DisableProveedorAsync(int IdProveedor)
-    {
-        var proveedor = _proveedorRepository.GetProveedorById(IdProveedor).Result;
-        if (proveedor != null)
+    public async Task DeleteAsync(int id)
         {
-            proveedor.Activo = false;
-            await _proveedorRepository.UpdateAsync(proveedor);
+            // 1. Desactivamos el Proveedor en su propia tabla
+            bool eliminado = await _proveedorRepository.DeleteAsync(id);
+
+            if (!eliminado)
+            {
+                throw new KeyNotFoundException($"Proveedor con ID {id} no encontrado.");
+            }
+
+            // 2. PROPAGACIÓN: Avisamos a la relación que se apague (Cascada)
+            // false = estamos desactivando
+            await _prodService.GestionarCascadaProveedorAsync(id, false);
         }
-        else
+
+        // NUEVO: Método Reactivate con propagación
+        public async Task ReactivateAsync(int id)
         {
-            throw new KeyNotFoundException($"Proveedor con ID {IdProveedor} no encontrado.");
+            // 1. Reactivamos el Proveedor
+            bool reactivado = await _proveedorRepository.ReactivateAsync(id);
+
+            if (!reactivado)
+            {
+                throw new KeyNotFoundException($"Proveedor con ID {id} no encontrado.");
+            }
+
+            // 2. PROPAGACIÓN: Avisamos a la relación que intente revivir
+            // true = estamos activando (el servicio validará si el producto está activo)
+            await _prodService.GestionarCascadaProveedorAsync(id, true);
         }
-    }
 
     public async Task<IEnumerable<Proveedor>> GetActiveProveedoresAsync()
     {
         var proveedores = await _proveedorRepository.GetAllProveedorAsync();
-        return proveedores.Where(p => p.Activo == true);
+        return proveedores;
     }
 
     public async Task<Proveedor> GetProveedorByIdAsync(int IdProveedor)

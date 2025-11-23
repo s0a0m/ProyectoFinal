@@ -200,10 +200,33 @@ public class ProductoProveedorService : IProductoProveedorService
             await _productoProveedorRepository.UpdateAsync(dominio);
         }
 
-        public async Task DeleteAsync(int idProducto, int idProveedor)
+        public async Task GestionarCascadaProductoAsync(int idProducto, bool activando)
         {
-            await _productoProveedorRepository.DeleteAsync(idProducto, idProveedor);
+            if (activando)
+            {
+                // El producto se reactivó -> Intentamos reactivar sus relaciones (validando proveedores)
+                await _productoProveedorRepository.ReactivarPorProductoAsync(idProducto);
+            }
+            else
+            {
+                // El producto se desactivó -> Apagamos todas sus relaciones
+                await _productoProveedorRepository.DesactivarPorProductoAsync(idProducto);
+            }
         }
+
+    public async Task GestionarCascadaProveedorAsync(int idProveedor, bool activando)
+    {
+        if (activando)
+        {
+            // El proveedor se reactivó -> Intentamos reactivar sus relaciones (validando productos)
+            await _productoProveedorRepository.ReactivarPorProveedorAsync(idProveedor);
+        }
+        else
+        {
+            // El proveedor se desactivó -> Apagamos todas sus relaciones
+            await _productoProveedorRepository.DesactivarPorProveedorAsync(idProveedor);
+        }
+    }
 
         // Método para llenar los Combos/Selects de la Vista
         public async Task RepoblarViewModelAsync(CrearProductoProveedorViewModel vm)
@@ -225,6 +248,7 @@ public class ProductoProveedorService : IProductoProveedorService
                 .ToList();
 
             vm.ListaProveedores = proveedores
+                .Where(p => p.Activo)
                 .Select(p => new SelectListItemDto
                 {
                     Id = p.IdProveedor,

@@ -20,4 +20,5 @@ namespace src.Presentation.ViewModels.ProductoVM;
         public int StockAsignado { get; set; }
         [Display(Name = "Cód. Barra Prov.")]
         public List<string> CodigosBarraExternos{ get; set; } = new();
+        public bool Activo { get; set; }
     }

@@ -27,4 +27,5 @@ namespace src.Presentation.ViewModels.ProductoVM;
         // Listas para los desplegables (Dropdowns)
         public List<SelectListItemDto> ListaProductos { get; set; } = new();
         public List<SelectListItemDto> ListaProveedores { get; set; } = new();
+        public bool Activo { get; set; }
     }

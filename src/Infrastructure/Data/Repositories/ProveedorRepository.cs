@@ -176,6 +176,19 @@ public class ProveedorRepository : IProveedorRepository
         await _context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<bool> ReactivateAsync(int id)
+    {
+        var proveedorEF = await _context.Proveedores
+            .FirstOrDefaultAsync(p => p.IdProveedor == id);
+
+        if (proveedorEF == null)
+            return false;
+
+        proveedorEF.Activo = true;
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }
 
 

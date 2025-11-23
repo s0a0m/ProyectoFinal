@@ -70,23 +70,53 @@ public class ProveedorController : Controller
         }
     }
 
-    [HttpGet]
-    public async Task<IActionResult> EliminarProveedor(int idProv)
-    {
-        try
+    [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EliminarProveedor(int idProv)
         {
-            await _provService.DisableProveedorAsync(idProv);
+            try
+            {
+                // Llamamos al nuevo método estandarizado que incluye la lógica en cascada
+                await _provService.DeleteAsync(idProv);
 
-            TempData["realizado"] = "El Proveedor fue eliminado con éxito.";
+                TempData["realizado"] = "El Proveedor fue desactivado con éxito (y sus productos asociados se ocultaron).";
+            }
+            catch (KeyNotFoundException)
+            {
+                TempData["error"] = $"Error: El Proveedor con ID {idProv} no fue encontrado.";
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = $"Ocurrió un error inesperado: {ex.Message}";
+            }
+
             return RedirectToAction("ListarProveedores");
         }
-        catch (KeyNotFoundException)
+
+        // NUEVO MÉTODO: Reactivar
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReactivarProveedor(int idProv)
         {
-            TempData["error"] = $"Error: El Proveedor con ID {idProv} no fue encontrado.";
+            try
+            {
+                // Llama al servicio que reactiva el proveedor y
+                // chequea qué productos pueden volver a activarse
+                await _provService.ReactivateAsync(idProv);
+
+                TempData["realizado"] = "El Proveedor fue reactivado correctamente.";
+            }
+            catch (KeyNotFoundException)
+            {
+                TempData["error"] = $"Error: El Proveedor con ID {idProv} no fue encontrado.";
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = $"Ocurrió un error al reactivar: {ex.Message}";
+            }
 
             return RedirectToAction("ListarProveedores");
         }
-    }
 
 
     [HttpGet]

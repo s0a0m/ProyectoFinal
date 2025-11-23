@@ -9,5 +9,6 @@ public interface IProveedorService
     Task<Dom.Proveedor> GetProveedorByIdAsync(int IdProveedor);
     Task<IEnumerable<Dom.Proveedor>> GetActiveProveedoresAsync();
     Task UpdateProveedorAsync(ActualizarProveedorViewModel proveedorVM);
-    Task DisableProveedorAsync(int IdProveedor);
+    Task DeleteAsync(int id);      
+    Task ReactivateAsync(int id);
 }

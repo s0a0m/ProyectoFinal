@@ -8,4 +8,5 @@ public interface IProveedorRepository
     Task AddAsync(Dom.Proveedor entity);
     Task UpdateAsync(Dom.Proveedor entity);
     Task<bool> DeleteAsync(int id);
+    Task<bool> ReactivateAsync(int id);
 }

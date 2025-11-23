@@ -27,7 +27,7 @@ public class ProductoProveedorRepository : IProductoProveedorRepository
 
     public async Task<IEnumerable<ProductoProveedorDto>> GetAllAsync()
     {
-        var efEntities = await GetQueryFull().ToListAsync();
+        var efEntities = await GetQueryFull().Where(x=>x.Activo).ToListAsync();
         var resultado = new List<ProductoProveedorDto>();
 
         foreach (var efItem in efEntities)
@@ -40,7 +40,7 @@ public class ProductoProveedorRepository : IProductoProveedorRepository
             {
                 Precio = efItem.Precio,
                 StockAsignado = efItem.StockAsignado,
-                
+                Activo = efItem.Activo,
                 // Construimos el Producto manualmente (Solo lo necesario)
                 Producto = efItem.Producto == null ? null : new Dom.Producto 
                 { 
@@ -84,7 +84,7 @@ public class ProductoProveedorRepository : IProductoProveedorRepository
         {
             Precio = efEntity.Precio,
             StockAsignado = efEntity.StockAsignado,
-            
+            Activo = efEntity.Activo,
             Producto = efEntity.Producto == null ? null : new Dom.Producto 
             { 
                 IdProducto = efEntity.Producto.IdProducto, 
@@ -131,7 +131,8 @@ public class ProductoProveedorRepository : IProductoProveedorRepository
                 IdProducto = (short)entity.Producto.IdProducto,
                 IdProveedor = (short)entity.Proveedor.IdProveedor,
                 Precio = entity.Precio,
-                StockAsignado = entity.StockAsignado
+                StockAsignado = entity.StockAsignado,
+                Activo = true
             };
 
             await _context.ProductosProveedores.AddAsync(efEntity);
@@ -191,17 +192,79 @@ public class ProductoProveedorRepository : IProductoProveedorRepository
                 await _context.SaveChangesAsync();
             }
 
-            public async Task DeleteAsync(int idProducto, int idProveedor)
-            {
-                var entity = await _context.ProductosProveedores
-                    .FirstOrDefaultAsync(x => x.IdProducto == idProducto && x.IdProveedor == idProveedor);
+    public async Task DesactivarPorProductoAsync(int idProducto)
+    {
+        var relaciones = await _context.ProductosProveedores
+            .Where(pp => pp.IdProducto == idProducto && pp.Activo)
+            .ToListAsync();
 
-                if (entity != null)
+        if (relaciones.Any())
+        {
+            foreach (var rel in relaciones)
+            {
+                rel.Activo = false;
+            }
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task DesactivarPorProveedorAsync(int idProveedor)
+    {
+        var relaciones = await _context.ProductosProveedores
+            .Where(pp => pp.IdProveedor == idProveedor && pp.Activo)
+            .ToListAsync();
+
+        if (relaciones.Any())
+        {
+            foreach (var rel in relaciones)
+            {
+                rel.Activo = false;
+            }
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task ReactivarPorProductoAsync(int idProducto)
+    {
+        var relaciones = await _context.ProductosProveedores
+            .Include(pp => pp.Proveedor)
+            .Where(pp => pp.IdProducto == idProducto && !pp.Activo)
+            .ToListAsync();
+
+        if (relaciones.Any())
+        {
+            foreach (var rel in relaciones)
+            {
+                
+                if (rel.Proveedor != null && rel.Proveedor.Activo)
                 {
-                    _context.ProductosProveedores.Remove(entity);
-                    await _context.SaveChangesAsync();
+                    rel.Activo = true;
                 }
             }
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task ReactivarPorProveedorAsync(int idProveedor)
+    {
+        
+        var relaciones = await _context.ProductosProveedores
+            .Include(pp => pp.Producto)
+            .Where(pp => pp.IdProveedor == idProveedor && !pp.Activo)
+            .ToListAsync();
+
+        if (relaciones.Any())
+        {
+            foreach (var rel in relaciones)
+            {
+                if (rel.Producto != null && rel.Producto.Activo)
+                {
+                    rel.Activo = true;
+                }
+            }
+            await _context.SaveChangesAsync();
+        }
+    }
 
             public async Task<bool> ExistsAsync(int idProducto, int idProveedor)
             {

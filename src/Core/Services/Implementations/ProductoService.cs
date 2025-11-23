@@ -13,11 +13,13 @@ namespace src.Core.Services.Implementations
         private readonly IProductoRepository _productoRepo;
         private readonly ICategoriaRepository _categoriaRepo;
         private readonly IBarcodeAdapter _barcoRepo;
-        public ProductoService(IProductoRepository productoRepo, ICategoriaRepository categoriaRepo,IBarcodeAdapter barco)
+        private readonly IProductoProveedorService _productoProveedorService;
+        public ProductoService(IProductoRepository productoRepo, ICategoriaRepository categoriaRepo,IBarcodeAdapter barco,IProductoProveedorService prodProvsv)
         {
             _productoRepo = productoRepo;
             _categoriaRepo = categoriaRepo;
             _barcoRepo = barco;
+            _productoProveedorService = prodProvsv;
         }
 
         public async Task<IEnumerable<ProductoListarViewModel>> GetAllParaListadoAsync()
@@ -157,6 +159,8 @@ namespace src.Core.Services.Implementations
         public async Task DeleteAsync(int id)
         {
             await _productoRepo.DeleteAsync(id);
+            await _productoProveedorService.GestionarCascadaProductoAsync(id, false);
+            
         }
 
         public async Task RepoblarViewModelAsync(CrearProductoViewModel vm)
@@ -204,6 +208,7 @@ namespace src.Core.Services.Implementations
         public async Task ReactivateAsync(int id)
         {
             await _productoRepo.ReactivateAsync(id);
+            await _productoProveedorService.GestionarCascadaProductoAsync(id, true);
         }
     }
 }

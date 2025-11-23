@@ -26,4 +26,5 @@ namespace src.Presentation.ViewModels.ProductoVM;
         [Required]
         [Range(0, int.MaxValue)]
         public int StockAsignado { get; set; }
+        public bool Activo { get; set; }
     }

@@ -41,6 +41,7 @@ namespace src.Presentation.Controllers
             try
             {
                 await _service.CreateAsync(vm);
+                TempData["Success"] = "Relación creada correctamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (InvalidOperationException ex)
@@ -50,13 +51,17 @@ namespace src.Presentation.Controllers
                 await _service.RepoblarViewModelAsync(vm);
                 return View(vm);
             }
+            catch (ArgumentException ex) 
+            {
+                ModelState.AddModelError("", ex.Message);
+                await _service.RepoblarViewModelAsync(vm);
+                return View(vm);
+            }
             catch (Exception ex)
             {
                 var mensajeError = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
         
                 ModelState.AddModelError("", $"ERROR TÉCNICO: {mensajeError}");
-                // --------------------------------------
-
                 await _service.RepoblarViewModelAsync(vm);
                 return View(vm);
             }
@@ -73,7 +78,8 @@ namespace src.Presentation.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return NotFound();
+                TempData["Error"] = "La relación solicitada no existe.";
+                return RedirectToAction(nameof(Index));
             }
         }
 
@@ -91,6 +97,7 @@ namespace src.Presentation.Controllers
             try
             {
                 await _service.UpdateAsync(vm);
+                TempData["Success"] = "Relación actualizada correctamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (KeyNotFoundException)
@@ -104,21 +111,5 @@ namespace src.Presentation.Controllers
             }
         }
 
-        // POST: ProductoProveedor/Delete
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int idProducto, int idProveedor)
-        {
-            try
-            {
-                await _service.DeleteAsync(idProducto, idProveedor);
-                TempData["Success"] = "Relación eliminada correctamente.";
-            }
-            catch (Exception)
-            {
-                TempData["Error"] = "No se pudo eliminar el registro.";
-            }
-            return RedirectToAction(nameof(Index));
-        }
     }
 }

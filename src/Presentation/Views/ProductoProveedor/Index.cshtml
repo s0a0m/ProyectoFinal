@@ -4,20 +4,22 @@
 @{
     ViewData["Title"] = "Relación Producto - Proveedor";
 
-    var totalRelaciones = Model.Count();
+    // KPIs
+    var totalRelaciones = Model.Count(p => p.Activo);
     var totalStockAsignado = Model.Sum(x => x.StockAsignado);
     var valorInventarioExterno = Model.Sum(x => x.StockAsignado * x.Precio);
 }
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+<!-- TARJETAS KPI -->
 <div class="row mb-4">
     <div class="col-md-4">
         <div class="card border-start border-primary border-4 shadow-sm py-2 h-100 zoom-hover">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Relaciones</div>
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Relaciones Activas</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">@totalRelaciones</div>
                     </div>
                     <div class="col-auto"><i class="bi bi-link-45deg text-gray-300" style="font-size: 2rem;"></i></div>
@@ -30,7 +32,7 @@
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Stock Asignado</div>
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Stock Total Externo</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">@totalStockAsignado u.</div>
                     </div>
                     <div class="col-auto"><i class="bi bi-boxes text-success" style="font-size: 2rem;"></i></div>
@@ -82,9 +84,10 @@
                     <tr>
                         <th>Producto</th>
                         <th>Proveedor</th>
-                        <th>Códigos Externos</th> <th class="text-end">Precio Costo</th>
+                        <th>Códigos Externos</th>
+                        <th class="text-end">Precio Costo</th>
                         <th class="text-center">Stock Asig.</th>
-                        <th class="text-center" style="width: 120px;">Acciones</th>
+                        <th class="text-center" style="width: 100px;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -133,6 +136,21 @@
 
                             <td class="text-center">
                                 <div class="btn-group" role="group">
+                                    <!-- Botón Ver Detalle (Modal) -->
+                                    <button type="button" 
+                                            class="btn btn-info btn-sm text-white me-1"
+                                            title="Ver Detalle"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#modalDetalleRelacion"
+                                            data-producto="@item.NombreProducto"
+                                            data-proveedor="@item.NombreProveedor"
+                                            data-precio="@item.Precio.ToString("N2")"
+                                            data-stock="@item.StockAsignado"
+                                            data-codigos='@Json.Serialize(item.CodigosBarraExternos)'>
+                                        <i class="bi bi-eye-fill"></i>
+                                    </button>
+
+                                    <!-- Botón Editar Precio/Stock -->
                                     <a asp-action="Edit" 
                                        asp-route-idProducto="@item.IdProducto" 
                                        asp-route-idProveedor="@item.IdProveedor"
@@ -140,14 +158,6 @@
                                        title="Editar Precio/Stock">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
-                                    
-                                    <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('¿Estás seguro de eliminar esta relación?');">
-                                        <input type="hidden" name="idProducto" value="@item.IdProducto" />
-                                        <input type="hidden" name="idProveedor" value="@item.IdProveedor" />
-                                        <button type="submit" class="btn btn-danger btn-sm rounded-0 rounded-end" title="Eliminar Relación">
-                                            <i class="bi bi-trash-fill"></i>
-                                        </button>
-                                    </form>
                                 </div>
                             </td>
                         </tr>
@@ -158,9 +168,66 @@
     </div>
 </div>
 
+<!-- MODAL DE DETALLE -->
+<div class="modal fade" id="modalDetalleRelacion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-card-list me-2"></i>Detalle de la Relación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                
+                <div class="text-center mb-4 p-3 bg-light rounded border">
+                    <small class="text-muted text-uppercase fw-bold d-block mb-1">Producto</small>
+                    <h4 class="fw-bold text-dark mb-0" id="modalProducto">...</h4>
+                </div>
+
+                <div class="mb-4">
+                    <label class="fw-bold text-secondary small">PROVEEDOR ASIGNADO</label>
+                    <div class="d-flex align-items-center p-2 border-bottom">
+                        <i class="bi bi-shop fs-4 text-primary me-3"></i>
+                        <span class="fs-5" id="modalProveedor">...</span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <div class="p-3 border rounded bg-white h-100 text-center shadow-sm">
+                            <small class="text-muted text-uppercase fw-bold">Precio Costo</small>
+                            <div class="fs-3 fw-bold text-success" id="modalPrecio">...</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 border rounded bg-white h-100 text-center shadow-sm">
+                            <small class="text-muted text-uppercase fw-bold">Stock Asignado</small>
+                            <div class="fs-3 fw-bold text-dark" id="modalStock">...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="fw-bold text-secondary small mb-2">CÓDIGOS EXTERNOS (PROVEEDOR)</label>
+                    <div id="modalContenedorCodigos" class="d-flex flex-wrap gap-2 p-3 bg-light rounded border">
+                        <!-- Aquí se inyectan los badges via JS -->
+                        <span class="text-muted fst-italic small">Cargando...</span>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         $(document).ready(function() {
+            // 1. Inicializar DataTables
             $('#tablaRelaciones').DataTable({
                 language: { url: "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json" },
                 order: [[0, 'asc']],
@@ -173,6 +240,48 @@
                 dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
                      "<'row'<'col-sm-12'tr>>" +
                      "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            });
+
+            // 2. Lógica del Modal de Detalle
+            var modalDetalle = document.getElementById('modalDetalleRelacion');
+            modalDetalle.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+
+                // Extraer datos simples
+                var producto = button.getAttribute('data-producto');
+                var proveedor = button.getAttribute('data-proveedor');
+                var precio = button.getAttribute('data-precio');
+                var stock = button.getAttribute('data-stock');
+                
+                // Extraer y parsear lista de códigos (JSON)
+                var codigosRaw = button.getAttribute('data-codigos');
+                var codigos = [];
+                try {
+                    codigos = JSON.parse(codigosRaw);
+                } catch (e) {
+                    console.error("Error parseando códigos", e);
+                }
+
+                // Asignar a elementos del modal
+                modalDetalle.querySelector('#modalProducto').textContent = producto;
+                modalDetalle.querySelector('#modalProveedor').textContent = proveedor;
+                modalDetalle.querySelector('#modalPrecio').textContent = '$' + precio;
+                modalDetalle.querySelector('#modalStock').textContent = stock;
+
+                // Renderizar lista de códigos
+                var contenedor = modalDetalle.querySelector('#modalContenedorCodigos');
+                contenedor.innerHTML = ''; // Limpiar anterior
+
+                if (codigos && codigos.length > 0) {
+                    codigos.forEach(function(cod) {
+                        var badge = document.createElement('span');
+                        badge.className = 'badge bg-white text-dark border font-monospace shadow-sm py-2 px-3';
+                        badge.innerHTML = '<i class="bi bi-upc-scan me-2 text-muted"></i>' + cod;
+                        contenedor.appendChild(badge);
+                    });
+                } else {
+                    contenedor.innerHTML = '<span class="text-muted fst-italic small">Este producto no tiene códigos externos asociados a este proveedor.</span>';
+                }
             });
         });
     </script>
