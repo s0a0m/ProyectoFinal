@@ -11,11 +11,11 @@ namespace src.Presentation.ViewModels.UsuarioVM
         // Nota: No hay IdUsuario en el ViewModel de creación
 
         [Required(ErrorMessage = "El nombre es obligatorio.")]
-        [StringLength(100, ErrorMessage = "El nombre no puede exceder los 100 caracteres.")]
+        [StringLength(50, ErrorMessage = "El nombre no puede exceder los 100 caracteres.")]
         public string Nombre { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El apellido es obligatorio.")]
-        [StringLength(100, ErrorMessage = "El apellido no puede exceder los 100 caracteres.")]
+        [StringLength(50, ErrorMessage = "El apellido no puede exceder los 100 caracteres.")]
         public string Apellido { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "La identificación (DNI/CUIT) es obligatoria.")]
@@ -36,7 +36,7 @@ namespace src.Presentation.ViewModels.UsuarioVM
 
         [Required(ErrorMessage = "La contraseña es obligatoria.")]
         [DataType(DataType.Password)]
-        [StringLength(100, MinimumLength = 6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres.")]
+        [StringLength(50, MinimumLength = 6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres.")]
         public string Contrasenia { get; set; }
 
         [Required(ErrorMessage = "Debe confirmar la contraseña.")]

@@ -17,7 +17,7 @@ public class CrearProveedorViewModel
     public string Cuit { get; set; }
 
     [Required(ErrorMessage = "La razon social es obligatoria.")]
-    [StringLength(100)]
+    [StringLength(80)]
     public string RazonSocial { get; set; }
 
     [Required(ErrorMessage = "El numero de telefono es obligatorio.")]
@@ -34,7 +34,7 @@ public class CrearProveedorViewModel
     public string PersonaResponsable { get; set; }
 
     [Required(ErrorMessage = "El Saldo es obligatorio.")]
-    [Range(0, 9999999999.99)]
+    [Range(0, 99999999.99)]
     public decimal Saldo { get; set; }
 
 

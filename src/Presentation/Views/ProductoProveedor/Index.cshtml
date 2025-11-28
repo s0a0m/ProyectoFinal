@@ -7,7 +7,7 @@
     // KPIs
     var totalRelaciones = Model.Count(p => p.Activo);
     var totalStockAsignado = Model.Sum(x => x.StockAsignado);
-    var valorInventarioExterno = Model.Sum(x => x.StockAsignado * x.Precio);
+    @* var valorInventarioExterno = Model.Sum(x => x.StockAsignado * x.Precio); *@
 }
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -40,7 +40,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    @* <div class="col-md-4">
         <div class="card border-start border-info border-4 shadow-sm py-2 h-100 zoom-hover">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
@@ -52,7 +52,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> *@
 </div>
 
 @if (TempData["Success"] != null)

@@ -9,11 +9,11 @@ namespace src.Presentation.ViewModels.UsuarioVM
         public short IdUsuario { get; set; }
 
         [Required(ErrorMessage = "El nombre es obligatorio.")]
-        [StringLength(100, ErrorMessage = "El nombre no puede exceder los 100 caracteres.")]
+        [StringLength(50, ErrorMessage = "El nombre no puede exceder los 100 caracteres.")]
         public string Nombre { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El apellido es obligatorio.")]
-        [StringLength(100, ErrorMessage = "El apellido no puede exceder los 100 caracteres.")]
+        [StringLength(50, ErrorMessage = "El apellido no puede exceder los 100 caracteres.")]
         public string Apellido { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "La identificación (DNI/CUIT) es obligatoria.")]
@@ -32,7 +32,7 @@ namespace src.Presentation.ViewModels.UsuarioVM
         public string Telefono { get; set; } = string.Empty;
 
         [DataType(DataType.Password)]
-        [StringLength(100, MinimumLength = 6, ErrorMessage = "La nueva contraseña debe tener al menos 6 caracteres.")]
+        [StringLength(50, MinimumLength = 6, ErrorMessage = "La nueva contraseña debe tener al menos 6 caracteres.")]
         [Display(Name = "Nueva Contraseña (Opcional)")]
         public string? Contrasenia { get; set; } // SÍ es nulable
 

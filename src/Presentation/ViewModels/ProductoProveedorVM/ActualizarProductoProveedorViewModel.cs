@@ -19,7 +19,8 @@ namespace src.Presentation.ViewModels.ProductoVM;
         [Display(Name = "Código Externo")]
         public List<string> CodigosBarraExternos{ get; set; } = new();
         // Editables
-        [Required]
+        
+        [Required(ErrorMessage = "Debe ingresar el precio")]
         [Range(0.01, 99999999)]
         public decimal Precio { get; set; }
 
