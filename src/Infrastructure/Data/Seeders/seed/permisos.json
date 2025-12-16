@@ -26,8 +26,8 @@
   },
   {
     "IdPermiso": 6,
-    "Nombre": "P06_GESTOR_CC",
-    "Descripcion": "Permite gestionar la cuenta corriente con cada proveedor. Incluye la generación y carga de documentos contables, y consulta del historial de movimientos."
+    "Nombre": "P06_VER_LISTA_PROVEEDORES",
+    "Descripcion": "Permite visualizar la lista de todos los proveedores registrados, mostrando información respectiva."
   },
   {
     "IdPermiso": 7,
@@ -36,12 +36,27 @@
   },
   {
     "IdPermiso": 8,
-    "Nombre": "P08_VER_LISTA_PROVEEDORES",
-    "Descripcion": "Permite visualizar la lista de todos los proveedores registrados, mostrando información respectiva."
+    "Nombre": "P08_VER_LISTA_COMPRAS",
+    "Descripcion": "Permite visualizar la lista de todas las compras registradas, con información respectiva."
   },
   {
     "IdPermiso": 9,
-    "Nombre": "P09_VER_LISTA_COMPRAS",
-    "Descripcion": "Permite visualizar la lista de todas las compras registradas, con información respectiva."
+    "Nombre": "P09_GESTOR_CC",
+    "Descripcion": "Permite gestionar la cuenta corriente con cada proveedor. Incluye la generación y carga de documentos contables, y consulta del historial de movimientos."
+  },
+  {
+    "IdPermiso": 10,
+    "Nombre": "P10_ABM_USUARIOS",
+    "Descripcion": "Permite gestionar los usuarios, incluye su alta, edicion y desactivado"
+  },
+  {
+    "IdPermiso": 11,
+    "Nombre": "P11_ABM_GRUPO_PERMISOS",
+    "Descripcion": "Permite gestionar los grupos de permisos, incluye su listado, alta, edicion y desactivado"
+  },
+  {
+    "IdPermiso": 12,
+    "Nombre": "P12_ABM_CLASIFICACION_PRODUCTOS",
+    "Descripcion": "Permite gestionar las familias y categorias de los productos, incluye su listado,alta, edicion y desactivado"
   }
 ]

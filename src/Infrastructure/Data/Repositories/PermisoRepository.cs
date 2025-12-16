@@ -120,7 +120,7 @@ public class PermisoRepository : IPermisoRepository
         }
     }
 
-    // Asegúrate de que este código se agregue a la clase PermisoRepository que ya tienes
+ 
 
     public async Task<IEnumerable<Permiso>> GetPermisosByUsuarioIdAsync(int idUsuario)
     {

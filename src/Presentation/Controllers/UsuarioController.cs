@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using src.Core.Services.Interfaces;
-using src.Repositories.Interfaces;
-using src.ViewModels;
-using System.Linq;
+using src.Presentation.Attributes;
 using Dom = src.Models.Domain;
 using src.Presentation.ViewModels.UsuarioVM;
+using Microsoft.AspNetCore.Session;
+using Microsoft.AspNetCore.Http;
+
 namespace src.Controllers
 {
 
@@ -18,6 +19,7 @@ namespace src.Controllers
         }
 
         [HttpGet]
+        [AuthorizePermiso("P02_VER_LISTA_USUARIOS")]
         public async Task<IActionResult> VerUsuario(int idUser)
         {
             try
@@ -32,13 +34,15 @@ namespace src.Controllers
         }
 
         [HttpGet]
+        [AuthorizePermiso("P02_VER_LISTA_USUARIOS")]
         public async Task<IActionResult> ListarUsuarios()
         {
-            var usuariosActivos = await _usuarioService.GetActiveUsersAsync();
+            var usuariosActivos = await _usuarioService.GetUsersAsync();
             return View("ListarUsuarios", usuariosActivos);
         }
 
         [HttpGet]
+        [AuthorizePermiso("P10_ABM_USUARIOS")]
         public async Task<IActionResult> CrearUsuario()
         {
 
@@ -48,6 +52,7 @@ namespace src.Controllers
 
 
         [HttpPost]
+        [AuthorizePermiso("P10_ABM_USUARIOSR")]
         public async Task<IActionResult> CrearUsuario([FromForm] CrearUsuarioViewModel usuarioVM)
         {
             if (!ModelState.IsValid)
@@ -72,6 +77,7 @@ namespace src.Controllers
         }
 
         [HttpGet]
+         [AuthorizePermiso("P10_ABM_USUARIOS")]
         public async Task<IActionResult> ActualizarUsuario(int idUsuario)
         {
             Dom.Usuario usuario;
@@ -90,6 +96,7 @@ namespace src.Controllers
 
 
         [HttpPost]
+        [AuthorizePermiso("P10_ABM_USUARIOS")]
         public async Task<IActionResult> ActualizarUsuario([FromForm] ActualizarUsuarioViewModel usuarioVM)
         {
             if (!ModelState.IsValid)
@@ -117,7 +124,8 @@ namespace src.Controllers
             return RedirectToAction("ListarUsuarios");
         }
 
-        [HttpGet]
+        [HttpPost]
+        [AuthorizePermiso("P10_ABM_USUARIOS")]
         public async Task<IActionResult> EliminarUsuario(int idUsuario)
         {
             try
@@ -130,6 +138,27 @@ namespace src.Controllers
             {
                 return NotFound();
             }
+        }
+
+        [HttpPost]
+        [AuthorizePermiso("P10_ABM_USUARIOS")]
+        public async Task<IActionResult> ReactivarUsuario(int idUsuario)
+        {
+            try
+            {
+                await _usuarioService.ReactivarUsuarioAsync(idUsuario); 
+                TempData["realizado"] = "El usuario ha sido reactivado y sus permisos restaurados.";
+            }
+            catch (KeyNotFoundException)
+            {
+                TempData["error"] = "El usuario que intentas reactivar no existe.";
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = "Ocurrió un error al reactivar: " + ex.Message;
+            }
+
+            return RedirectToAction("ListarUsuarios");
         }
     }
 }

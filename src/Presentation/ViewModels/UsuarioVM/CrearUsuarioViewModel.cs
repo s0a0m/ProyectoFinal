@@ -48,12 +48,10 @@ namespace src.Presentation.ViewModels.UsuarioVM
         // El estado 'Activo' por defecto al crear
         public bool Activo { get; set; } = true;
 
-        // Para recibir los IDs seleccionados desde el formulario POST
         public List<int> PermisosSeleccionados { get; set; } = new();
-
-        // Para mostrar la lista de checkboxes en el formulario GET
         public List<PermisoAsignadoViewModel> TodosLosPermisos { get; set; } = new();
-
+        public List<int> GruposSeleccionados { get; set; } = new();
+        public List<GrupoAsignadoViewModel> TodosLosGrupos { get; set; } = new();
 
         public static Dom.Usuario CargarUsuario(CrearUsuarioViewModel vm)
         {
@@ -70,7 +68,10 @@ namespace src.Presentation.ViewModels.UsuarioVM
                 FechaAlta = DateTime.UtcNow,
                 PermisosUsuario = vm.PermisosSeleccionados // <-- Asignamos solo los IDs
                                .Select(id => new Dom.Permiso { IdPermiso = id })
-                               .ToList()
+                               .ToList(),
+                GrupoPermisos = vm.GruposSeleccionados
+                    .Select(id => new Dom.GrupoPermisos { IdGrupoPermiso = (short)id })
+                    .ToList()
             };
         }
     }

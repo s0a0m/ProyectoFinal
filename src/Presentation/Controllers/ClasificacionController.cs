@@ -3,8 +3,11 @@ using src.Core.Services.Interfaces;
 using src.Presentation.ViewModels.ClasificacionVM;
 using src.Presentation.ViewModels.FamiliaVM;
 using src.Presentation.ViewModels.CategoriaVM;
+using src.Presentation.Attributes;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Session;
+using Microsoft.AspNetCore.Http;
 
 namespace src.Presentation.Controllers
 {
@@ -22,6 +25,7 @@ namespace src.Presentation.Controllers
 
      
         [HttpGet]
+        [AuthorizePermiso("P12_ABM_CLASIFICACION_PRODUCTOS")]
         public async Task<IActionResult> IndexClasificacion(short? familiaId)
         {
             var vm = new GestionarClasificacionViewModel();
@@ -42,6 +46,7 @@ namespace src.Presentation.Controllers
         // ACCIONES DE FAMILIA (CRUD)
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AuthorizePermiso("P12_ABM_CLASIFICACION_PRODUCTOS")]
         public async Task<IActionResult> CrearFamilia(CrearFamiliaViewModel vm)
         {
             if (!ModelState.IsValid)
@@ -71,6 +76,7 @@ namespace src.Presentation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AuthorizePermiso("P12_ABM_CLASIFICACION_PRODUCTOS")]
         public async Task<IActionResult> ActualizarFamilia(ActualizarFamiliaViewModel vm)
         {
             if (!ModelState.IsValid)
@@ -103,6 +109,7 @@ namespace src.Presentation.Controllers
 
         [HttpPost] 
         [ValidateAntiForgeryToken]
+        [AuthorizePermiso("P12_ABM_CLASIFICACION_PRODUCTOS")]
         public async Task<IActionResult> EliminarFamilia(short id)
         {
             try
@@ -125,6 +132,7 @@ namespace src.Presentation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AuthorizePermiso("P12_ABM_CLASIFICACION_PRODUCTOS")]
         public async Task<IActionResult> CrearCategoria(CrearCategoriaViewModel vm)
         {
             if (!ModelState.IsValid)
@@ -149,6 +157,7 @@ namespace src.Presentation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AuthorizePermiso("P12_ABM_CLASIFICACION_PRODUCTOS")]
         public async Task<IActionResult> ActualizarCategoria(ActualizarCategoriaViewModel vm)
         {
             if (!ModelState.IsValid)
@@ -173,6 +182,7 @@ namespace src.Presentation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AuthorizePermiso("P12_ABM_CLASIFICACION_PRODUCTOS")]
         public async Task<IActionResult> EliminarCategoria(short id, short idFamiliaPadre)
         {
             // Nota: Recibimos 'idFamiliaPadre' solo para poder redirigir correctamente a la vista

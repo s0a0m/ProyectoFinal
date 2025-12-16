@@ -1,6 +1,9 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using src.Models;
+using Microsoft.AspNetCore.Session;
+using Microsoft.AspNetCore.Http;
+using src.Presentation.Attributes;
 
 namespace src.Controllers;
 
@@ -27,5 +30,11 @@ public class HomeController : Controller
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+
+    public IActionResult AccesoDenegado()
+    {
+       
+        return View(); 
     }
 }

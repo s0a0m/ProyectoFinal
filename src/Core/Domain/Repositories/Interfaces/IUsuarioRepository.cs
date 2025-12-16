@@ -8,4 +8,5 @@ public interface IUsuarioRepository
     Task<Dom.Usuario?> GetByIdAsync(int id);
     Task AddAsync(Dom.Usuario entity);
     Task UpdateAsync(Dom.Usuario entity);
+    Task<Dom.Usuario?> ObtenerPorCorreoAsync(string correo);
 }

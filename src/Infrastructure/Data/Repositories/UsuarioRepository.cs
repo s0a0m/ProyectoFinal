@@ -11,47 +11,41 @@ public class UsuarioRepository : IUsuarioRepository
 {
     private readonly EF.AppDbContext _context;
     private readonly IPermisoRepository _repoPermiso;
+    private readonly IGrupoPermisosRepository _repoGrupoPermiso;
 
-    public UsuarioRepository(EF.AppDbContext context, IPermisoRepository repoPermiso)
+    public UsuarioRepository(EF.AppDbContext context, IPermisoRepository repoPermiso,IGrupoPermisosRepository repoGrupo)
     {
         _context = context;
         _repoPermiso = repoPermiso;
+        _repoGrupoPermiso = repoGrupo;
     }
 
     private IQueryable<EF.Usuario> GetQueryUsuario()
     {
         return _context.Usuarios
             .Include(u => u.UsuariosPermisos)
-            .ThenInclude(up => up.Permiso)
+                .ThenInclude(up => up.Permiso)
             .Include(u => u.UsuariosGruposPermisos)
-            .ThenInclude(ugp => ugp.GrupoPermiso);
+                .ThenInclude(ugp => ugp.GrupoPermiso)
+                    .ThenInclude(gp => gp.GruposPermisosPermisos) 
+                        .ThenInclude(gpp => gpp.Permiso);
     }
 
     public async Task<IEnumerable<Dom.Usuario>> GetAllAsync()
     {
-        IEnumerable<EF.Usuario> usuarioEF = await GetQueryUsuario().ToListAsync();
+        IEnumerable<EF.Usuario> usuarioEF = await GetQueryUsuario().AsNoTracking().ToListAsync();
         IEnumerable<Dom.Usuario> usuarios = DominioMapper.Map(usuarioEF);
-        //  Una solución mejor sería un Include(u => u.UsuarioPermisos).ThenInclude(up => up.Permiso) 
-        //  y un mapper que lo soporte, pero eso es para la deuda técnica)
-        // foreach (var u in usuarios)
-        // {
-        //     u.Permisos = await _repoPermiso.GetPermisosByUsuarioIdAsync(u.IdUsuario);
-        // }
         return usuarios;
     }
 
     public async Task<Dom.Usuario?> GetByIdAsync(int idUsuario)
     {
         EF.Usuario? usuarioEF = await GetQueryUsuario()
-            .AsNoTracking() // <-- Añadido AsNoTracking
+            .AsNoTracking() 
             .Where(u => u.IdUsuario == idUsuario)
             .FirstOrDefaultAsync();
-
         if (usuarioEF is null) return null;
-
         Dom.Usuario user = DominioMapper.Map(usuarioEF);
-
-        // user.Permisos = await _repoPermiso.GetPermisosByUsuarioIdAsync(user.IdUsuario);
         return user;
     }
 
@@ -59,30 +53,31 @@ public class UsuarioRepository : IUsuarioRepository
     public async Task AddAsync(Dom.Usuario entity)
     {
         EF.Usuario usuarioEF = DominioMapper.Map(entity);
-
         usuarioEF.IdUsuario = 0;
+        // Limpiamos las navegaciones para evitar duplicados si EF intenta insertar hijos
+        // Las relaciones se manejan manualmente abajo.
+        usuarioEF.UsuariosPermisos.Clear(); 
+        usuarioEF.UsuariosGruposPermisos.Clear();
+
         await _context.Usuarios.AddAsync(usuarioEF);
         await _context.SaveChangesAsync();
         entity.IdUsuario = usuarioEF.IdUsuario;
+
         if (entity.PermisosUsuario != null && entity.PermisosUsuario.Any())
         {
-            // await _repoPermiso.ReemplazarPermisosAsync(
-            //     entity.IdUsuario,
-            //     entity.Permisos.Select(p => p.IdPermiso)
-            // );
             await _repoPermiso.ReemplazarPermisosAsync(
                 entity.IdUsuario,
                 entity.PermisosUsuario.Select(p => p.IdPermiso)
             );
         }
-        // implementar luego: sirve para reemplazar los grupos de permisos de usuario
-        // if (entity.GrupoPermisos != null && entity.GrupoPermisos.Any())
-        // {
-        //     await _repoGrupoPermiso.ReemplazarGruposAsync(
-        //         entity.IdUsuario,
-        //         entity.GrupoPermisos.Select(g => g.IdGrupoPermiso)
-        //     );
-        // }
+       
+        if (entity.GrupoPermisos != null && entity.GrupoPermisos.Any())
+        {
+            await ReemplazarGruposUsuarioAsync(
+                entity.IdUsuario,
+                entity.GrupoPermisos.Select(g => g.IdGrupoPermiso)
+            );
+        }
     }
 
     public async Task UpdateAsync(Dom.Usuario entity)
@@ -110,5 +105,70 @@ public class UsuarioRepository : IUsuarioRepository
                 entity.PermisosUsuario.Select(p => p.IdPermiso)
             );
         }
+
+        if (entity.GrupoPermisos != null)
+        {
+            await ReemplazarGruposUsuarioAsync(
+                entity.IdUsuario,
+                entity.GrupoPermisos.Select(g => g.IdGrupoPermiso)
+            );
+        }
     }
+
+    public async Task<Dom.Usuario?> ObtenerPorCorreoAsync(string correo)
+    {
+        EF.Usuario? usuarioEF = await GetQueryUsuario()
+            .AsNoTracking()
+            .Where(u => u.Correo == correo && u.Activo) 
+            .FirstOrDefaultAsync();
+
+        if (usuarioEF is null) return null;
+        return DominioMapper.Map(usuarioEF);
+    }
+
+
+
+    private async Task ReemplazarGruposUsuarioAsync(int idUsuario, IEnumerable<short> nuevosIdsGrupos)
+    {
+        // A. Obtener asignaciones actuales
+        var relacionesActuales = await _context.UsuariosGruposPermisos
+            .Where(ugp => ugp.IdUsuario == idUsuario)
+            .ToListAsync();
+
+        var idsActuales = relacionesActuales.Select(ugp => ugp.IdGrupoPermiso).ToHashSet();
+        var idsNuevos = nuevosIdsGrupos.ToHashSet();
+
+        // B. Calcular qué quitar (estaba antes, pero no en la nueva lista)
+        var relacionesParaQuitar = relacionesActuales
+            .Where(ugp => !idsNuevos.Contains(ugp.IdGrupoPermiso))
+            .ToList();
+
+        // C. Calcular qué agregar (está en la nueva lista, pero no estaba antes)
+        var idsParaAgregar = idsNuevos
+            .Where(id => !idsActuales.Contains(id))
+            .ToList();
+
+        var relacionesParaAgregar = idsParaAgregar.Select(idGrupo => new EF.UsuarioGrupoPermisos
+        {
+            IdUsuario = (short)idUsuario,
+            IdGrupoPermiso = idGrupo
+        }).ToList();
+
+        // D. Ejecutar cambios en BD
+        if (relacionesParaQuitar.Any())
+        {
+            _context.UsuariosGruposPermisos.RemoveRange(relacionesParaQuitar);
+        }
+
+        if (relacionesParaAgregar.Any())
+        {
+            _context.UsuariosGruposPermisos.AddRange(relacionesParaAgregar);
+        }
+
+        if (relacionesParaQuitar.Any() || relacionesParaAgregar.Any())
+        {
+            await _context.SaveChangesAsync();
+        }
+    }
+
 }

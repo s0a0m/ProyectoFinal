@@ -41,19 +41,17 @@ namespace src.Presentation.ViewModels.UsuarioVM
         [Display(Name = "Confirmar Nueva Contraseña")]
         public string? ConfirmarContrasenia { get; set; } // SÍ es nulable
 
-        // saque la posibilidad de actualizar el estado
-
-        // Para recibir los IDs seleccionados desde el formulario POST
+      
         public List<int> PermisosSeleccionados { get; set; } = new();
-
-        // Para mostrar la lista de checkboxes en el formulario GET
         public List<PermisoAsignadoViewModel> TodosLosPermisos { get; set; } = new();
+        public List<int> GruposSeleccionados { get; set; } = new();
+        public List<GrupoAsignadoViewModel> TodosLosGrupos { get; set; } = new();
 
         // --- FIN DE CAMBIOS ---
 
         public ActualizarUsuarioViewModel() { }
 
-        public ActualizarUsuarioViewModel(Dom.Usuario u, List<Dom.Permiso> todosLosPermisos)
+        public ActualizarUsuarioViewModel(Dom.Usuario u, List<Dom.Permiso> todosLosPermisos,List<Dom.GrupoPermisos> todosLosGrupos)
         {
             IdUsuario = u.IdUsuario;
             Nombre = u.Nombre;
@@ -71,10 +69,17 @@ namespace src.Presentation.ViewModels.UsuarioVM
                 Descripcion = permiso.Descripcion,
                 Asignado = permisosUsuarioIds.Contains(permiso.IdPermiso) // Marcar si el usuario lo tiene
             }).ToList();
+            var gruposUsuarioIds = new HashSet<short>(u.GrupoPermisos?.Select(g => g.IdGrupoPermiso) ?? new List<short>());
+    
+            TodosLosGrupos = todosLosGrupos.Select(grupo => new GrupoAsignadoViewModel
+            {
+                IdGrupo = grupo.IdGrupoPermiso,
+                Nombre = grupo.Nombre,
+                Descripcion = grupo.Descripcion,
+                Asignado = gruposUsuarioIds.Contains(grupo.IdGrupoPermiso),
+                PermisosDelGrupo = grupo.Permisos.Select(p => p.Nombre).ToList()
+            }).ToList();
         }
 
-        // Nota: No necesitamos un método estático 'CargarUsuario' aquí,
-        // ya que la lógica de actualización en el controlador es diferente
-        // (obtiene el usuario existente y actualiza sus propiedades).
     }
 }

@@ -48,7 +48,7 @@
     "Activo": true,
     "Correo": "admin@sistema.com",
     "Telefono": "+54115550001",
-    "Contrasenia": "hash_del_password_5",
+    "Contrasenia": "admin123",
     "Identificacion": "25001002",
     "Nombre": "Admin",
     "Apellido": "Sistema",
