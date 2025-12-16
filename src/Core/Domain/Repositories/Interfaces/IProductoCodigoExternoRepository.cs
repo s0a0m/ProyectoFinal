@@ -3,6 +3,6 @@ namespace src.Repositories.Interfaces;
 
 public interface IProductoCodigoExternoRepository
 {
-    Task<Dom.Producto?> ObtenerProductoPorCodigoAsync(string codigoExterno, short idProveedor);
+    Task<Dom.Producto?> ObtenerProductoPorCodigoAsync(string codigoExterno, short idProveedor, CancellationToken cancellationToken = default);
     Task<bool> ExistsAsync(string codigo);
 }

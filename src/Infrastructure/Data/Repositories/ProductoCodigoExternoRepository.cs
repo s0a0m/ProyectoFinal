@@ -22,19 +22,19 @@ public class ProductoCodigoExternoRepository : IProductoCodigoExternoRepository
         .Include(p => p.Producto);
     }
 
-    public async Task<Producto?> ObtenerProductoPorCodigoAsync(string codigoExterno, short idProveedor)
+    public async Task<Producto?> ObtenerProductoPorCodigoAsync(string codigoExterno, short idProveedor, CancellationToken cancellationToken = default)
     {
         var cb = await GetQueryProductoCodigosExternos()
             .Where(p => p.CodigoBarraProveedor == codigoExterno && p.IdProveedor == idProveedor)
             .AsNoTracking()
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
 
         return cb is null ? null : DominioMapper.Map(cb.Producto);
     }
 
     public async Task<bool> ExistsAsync(string codigo)
     {
-        if (string.IsNullOrWhiteSpace(codigo)) return false;  
+        if (string.IsNullOrWhiteSpace(codigo)) return false;
         return await _context.ProductoCodigosExternos
             .AnyAsync(x => x.CodigoBarraProveedor == codigo.Trim());
     }

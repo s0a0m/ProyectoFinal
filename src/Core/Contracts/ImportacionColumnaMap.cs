@@ -3,8 +3,8 @@ namespace src.Contracts;
 
 public class ImportacionColumnaMap
 {
-    public int CodigosBarrasExternosIndex { get; set; }
-    public int NombreSugeridoIndex { get; set; }
-    public int PrecioIndex { get; set; }
-    public int StockIndex { get; set; }
+    public int CodigosBarrasExternosIndex { get; set; } = -1;
+    public int NombreSugeridoIndex { get; set; } = -1;
+    public int PrecioIndex { get; set; } = -1;
+    public int StockIndex { get; set; } = -1;
 }

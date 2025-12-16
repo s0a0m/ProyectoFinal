@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using EF = src.Models.CodeFirst;
 using Dom = src.Models.Domain;
- using src.Repositories.Interfaces;
+using src.Repositories.Interfaces;
 using src.Models.Mappers;
 using src.Contracts;
 using src.Models.CodeFirst;
@@ -23,11 +23,11 @@ public class ProductoProveedorRepository : IProductoProveedorRepository
                 .ThenInclude(p => p.CodigosBarrasExternos)
             .Include(pp => pp.Proveedor)
                 .ThenInclude(p => p.IdCondicionPagoHabitualNavigation);
-    }  
+    }
 
     public async Task<IEnumerable<ProductoProveedorDto>> GetAllAsync()
     {
-        var efEntities = await GetQueryFull().Where(x=>x.Activo).ToListAsync();
+        var efEntities = await GetQueryFull().Where(x => x.Activo).ToListAsync();
         var resultado = new List<ProductoProveedorDto>();
 
         foreach (var efItem in efEntities)
@@ -35,17 +35,17 @@ public class ProductoProveedorRepository : IProductoProveedorRepository
             // --- CAMBIO CRÍTICO: MAPEO MANUAL ---
             // NO usamos DominioMapper.Map(efItem) porque intenta mapear Domicilios/Provincias
             // que no trajimos de la BD, causando NullReferenceException.
-            
+
             var domItem = new Dom.ProductoProveedor
             {
                 Precio = efItem.Precio,
                 StockAsignado = efItem.StockAsignado,
                 Activo = efItem.Activo,
                 // Construimos el Producto manualmente (Solo lo necesario)
-                Producto = efItem.Producto == null ? null : new Dom.Producto 
-                { 
-                    IdProducto = efItem.Producto.IdProducto, 
-                    Nombre = efItem.Producto.Nombre 
+                Producto = efItem.Producto == null ? null : new Dom.Producto
+                {
+                    IdProducto = efItem.Producto.IdProducto,
+                    Nombre = efItem.Producto.Nombre
                 },
 
                 // Construimos el Proveedor manualmente (Solo lo necesario)
@@ -85,10 +85,10 @@ public class ProductoProveedorRepository : IProductoProveedorRepository
             Precio = efEntity.Precio,
             StockAsignado = efEntity.StockAsignado,
             Activo = efEntity.Activo,
-            Producto = efEntity.Producto == null ? null : new Dom.Producto 
-            { 
-                IdProducto = efEntity.Producto.IdProducto, 
-                Nombre = efEntity.Producto.Nombre 
+            Producto = efEntity.Producto == null ? null : new Dom.Producto
+            {
+                IdProducto = efEntity.Producto.IdProducto,
+                Nombre = efEntity.Producto.Nombre
             },
 
             Proveedor = efEntity.Proveedor == null ? null : new Dom.Proveedor
@@ -118,7 +118,7 @@ public class ProductoProveedorRepository : IProductoProveedorRepository
         return DominioMapper.Map(efEntities);
     }
 
-        
+
 
     public async Task AddAsync(Dom.ProductoProveedor entity, List<string> codigosExternos)
     {
@@ -172,25 +172,25 @@ public class ProductoProveedorRepository : IProductoProveedorRepository
 
 
 
-            public async Task UpdateAsync(Dom.ProductoProveedor entity)
-            {
-                var idProducto = entity.Producto?.IdProducto ?? 0;
-                var idProveedor = entity.Proveedor?.IdProveedor ?? 0;
+    public async Task UpdateAsync(Dom.ProductoProveedor entity, CancellationToken cancellationToken = default)
+    {
+        var idProducto = entity.Producto?.IdProducto ?? 0;
+        var idProveedor = entity.Proveedor?.IdProveedor ?? 0;
 
-                var existingEfEntity = await _context.ProductosProveedores
-                    .FirstOrDefaultAsync(x => x.IdProducto == idProducto && x.IdProveedor == idProveedor);
+        var existingEfEntity = await _context.ProductosProveedores
+            .FirstOrDefaultAsync(x => x.IdProducto == idProducto && x.IdProveedor == idProveedor, cancellationToken);
 
-                if (existingEfEntity == null)
-                {
-                    throw new KeyNotFoundException("Relación Producto-Proveedor no encontrada para actualización.");
-                }
+        if (existingEfEntity == null)
+        {
+            throw new KeyNotFoundException("Relación Producto-Proveedor no encontrada para actualización.");
+        }
 
-                existingEfEntity.Precio = entity.Precio;
-                existingEfEntity.StockAsignado = entity.StockAsignado;
+        existingEfEntity.Precio = entity.Precio;
+        existingEfEntity.StockAsignado = entity.StockAsignado;
 
-                _context.ProductosProveedores.Update(existingEfEntity);
-                await _context.SaveChangesAsync();
-            }
+        _context.ProductosProveedores.Update(existingEfEntity);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 
     public async Task DesactivarPorProductoAsync(int idProducto)
     {
@@ -235,7 +235,7 @@ public class ProductoProveedorRepository : IProductoProveedorRepository
         {
             foreach (var rel in relaciones)
             {
-                
+
                 if (rel.Proveedor != null && rel.Proveedor.Activo)
                 {
                     rel.Activo = true;
@@ -247,7 +247,7 @@ public class ProductoProveedorRepository : IProductoProveedorRepository
 
     public async Task ReactivarPorProveedorAsync(int idProveedor)
     {
-        
+
         var relaciones = await _context.ProductosProveedores
             .Include(pp => pp.Producto)
             .Where(pp => pp.IdProveedor == idProveedor && !pp.Activo)
@@ -266,9 +266,9 @@ public class ProductoProveedorRepository : IProductoProveedorRepository
         }
     }
 
-            public async Task<bool> ExistsAsync(int idProducto, int idProveedor)
-            {
-                return await _context.ProductosProveedores
-                    .AnyAsync(x => x.IdProducto == idProducto && x.IdProveedor == idProveedor);
-            }
-        }
+    public async Task<bool> ExistsAsync(int idProducto, int idProveedor)
+    {
+        return await _context.ProductosProveedores
+            .AnyAsync(x => x.IdProducto == idProducto && x.IdProveedor == idProveedor);
+    }
+}

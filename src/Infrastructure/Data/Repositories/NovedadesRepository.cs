@@ -27,12 +27,12 @@ public class NovedadesRepository : INovedadesRepository
         return DominioMapper.Map(novedadesef);
     }
 
-    public async Task AddAsync(NovedadPendiente entity)
+    public async Task AddAsync(NovedadPendiente entity, CancellationToken cancellationToken = default)
     {
         var novedadef = DominioMapper.Map(entity);
         novedadef.FechaImportacion = DateTime.Now;
         novedadef.IdNovedad = 0;
-        await _context.AddAsync(novedadef);
-        await _context.SaveChangesAsync();
+        await _context.AddAsync(novedadef, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }

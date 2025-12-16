@@ -54,14 +54,41 @@ namespace src.Core.Services.Implementations
 
         private async Task<IEnumerable<NovedadesListarViewModel>> MapListarNovedadeVM(IEnumerable<NovedadPendiente> source)
         {
+            // 1. Identificar todos los IdProveedor únicos necesarios.
+            // Usamos Select() para obtener todos los Ids y Distinct() para obtener solo los únicos.
+            var idsProveedores = source
+                .Select(x => x.IdProveedor)
+                .Distinct()
+                .ToList();
+
+            // 2. Ejecutar UNA SOLA consulta masiva (BATCH LOAD)
+            // Asumo que tienes un método en tu repositorio de proveedores para esto.
+            // **ESTO REEMPLAZA LAS N CONSULTAS.**
+            // un for para todos los ids. Porque el metodo solo trae 1 proveedor por vez.
+
+            var proveedores = new List<Dom.Proveedor>();
+            foreach (var id in idsProveedores)
+            {
+                var proveedor = await _proveedorRepo.GetProveedorById(id);
+                if (proveedor != null)
+                {
+                    proveedores.Add(proveedor);
+                }
+            }
+            // 3. Convertir la lista de proveedores a un diccionario para una búsqueda rápida O(1)
+            var dictProveedores = proveedores.ToDictionary(p => p.IdProveedor, p => p.RazonSocial);
+
             var lista = new List<NovedadesListarViewModel>();
 
             foreach (var x in source)
             {
+                // 4. Buscar la Razón Social en el diccionario (MUCHO más rápido que ir a la BD)
+                string razonSocial = dictProveedores.GetValueOrDefault(x.IdProveedor, "Proveedor Desconocido");
+
                 lista.Add(new NovedadesListarViewModel
                 {
                     IdNovedad = x.IdNovedad,
-                    RazonSocialProveedor = await ObtenerRazonSocialProveedor(x.IdProveedor),
+                    RazonSocialProveedor = razonSocial, // <--- Uso del diccionario O(1)
                     CodigoBarraExterno = x.CodigoBarraExterno,
                     NombreSugerido = x.NombreSugerido,
                     PrecioSugerido = x.PrecioSugerido
@@ -69,12 +96,6 @@ namespace src.Core.Services.Implementations
             }
 
             return lista;
-        }
-
-        private async Task<string> ObtenerRazonSocialProveedor(short id)
-        {
-            var proveedor = await _proveedorRepo.GetProveedorById(id);
-            return proveedor?.RazonSocial ?? "desconocido";
         }
     }
 }
