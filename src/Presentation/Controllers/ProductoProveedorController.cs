@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using src.Core.Services.Interfaces;
 using src.Presentation.ViewModels.ProductoVM;
-
+using Microsoft.AspNetCore.Session;
+using src.Presentation.Attributes;
+using Microsoft.AspNetCore.Http;
 namespace src.Presentation.Controllers
 {
     public class ProductoProveedorController : Controller
@@ -13,14 +15,16 @@ namespace src.Presentation.Controllers
             _service = service;
         }
 
-        // GET: ProductoProveedor
+        [HttpGet]
+        [AuthorizePermiso("P08_VER_LISTA_COMPRAS")]
         public async Task<IActionResult> Index()
         {
             var lista = await _service.GetAllParaListadoAsync();
             return View(lista);
         }
 
-        // GET: ProductoProveedor/Create
+        [HttpGet]
+        [AuthorizePermiso("P07_GESTION_COMPRAS")]
         public async Task<IActionResult> Create()
         {
             var vm = await _service.PrepararCrearViewModelAsync();
@@ -30,6 +34,7 @@ namespace src.Presentation.Controllers
         // POST: ProductoProveedor/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AuthorizePermiso("P07_GESTION_COMPRAS")]
         public async Task<IActionResult> Create(CrearProductoProveedorViewModel vm)
         {
             if (!ModelState.IsValid)
@@ -67,8 +72,9 @@ namespace src.Presentation.Controllers
             }
         }
 
-        // GET: ProductoProveedor/Edit?idProducto=1&idProveedor=5
+       
         [HttpGet]
+        [AuthorizePermiso("P07_GESTION_COMPRAS")]
         public async Task<IActionResult> Edit(int idProducto, int idProveedor)
         {
             try
@@ -83,9 +89,10 @@ namespace src.Presentation.Controllers
             }
         }
 
-        // POST: ProductoProveedor/Edit
+      
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AuthorizePermiso("P07_GESTION_COMPRAS")]
         public async Task<IActionResult> Edit(ActualizarProductoProveedorViewModel vm)
         {
             if (!ModelState.IsValid)

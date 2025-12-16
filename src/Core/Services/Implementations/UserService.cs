@@ -8,10 +8,12 @@ public class UserService : IUserService
 {
     private readonly IUsuarioRepository _userRepository;
     private readonly IPermisoRepository _permisoRepository;
-    public UserService(IUsuarioRepository userRepository, IPermisoRepository permisoRepository)
+    private readonly IGrupoPermisosRepository _grupoRepository;
+    public UserService(IUsuarioRepository userRepository, IPermisoRepository permisoRepository,IGrupoPermisosRepository grup)
     {
         _userRepository = userRepository;
         _permisoRepository = permisoRepository;
+        _grupoRepository = grup;
     }
 
 
@@ -32,14 +34,10 @@ public class UserService : IUserService
         {
             throw new KeyNotFoundException($"Usuario con ID {idUsuario} no encontrado.");
         }
-
         var todosLosPermisos = (await _permisoRepository.GetAllPermisosAsync()).ToList();
-
-        // El constructor del VM (que te pasé antes) se encarga de rellenar los datos
-        // y marcar los checkboxes correctos.
-        var viewModel = new ActualizarUsuarioViewModel(usuario, todosLosPermisos);
-
-        return viewModel;
+        var todosLosGrupos = (await _grupoRepository.GetAllAsync()).ToList();
+ 
+        return new ActualizarUsuarioViewModel(usuario, todosLosPermisos, todosLosGrupos);
     }
 
     public async Task RepoblarViewModelParaErrorAsync(CrearUsuarioViewModel viewModelConErrores)
@@ -48,27 +46,53 @@ public class UserService : IUserService
         await RepoblarPermisosAsync(viewModelConErrores);
     }
 
-    public async Task RepoblarViewModelParaErrorAsync(ActualizarUsuarioViewModel viewModelConErrores)
+
+    public async Task RepoblarViewModelParaErrorAsync(ActualizarUsuarioViewModel viewModel)
     {
-        // El VM ya tiene los datos y errores, solo le falta la lista de permisos
-        var todosLosPermisos = (await _permisoRepository.GetAllPermisosAsync()).ToList();
+        var todosLosPermisos = await _permisoRepository.GetAllPermisosAsync();
+        var todosLosGrupos = await _grupoRepository.GetAllAsync();
 
-        // Obtenemos los IDs que el usuario *intentó* enviar, para que no se borren del formulario
-        var permisosUsuarioIds = new HashSet<int>(viewModelConErrores.PermisosSeleccionados);
-
-        viewModelConErrores.TodosLosPermisos = todosLosPermisos.Select(p => new PermisoAsignadoViewModel
+        var permisosSeleccionados = new HashSet<int>(viewModel.PermisosSeleccionados);
+        viewModel.TodosLosPermisos = todosLosPermisos.Select(p => new PermisoAsignadoViewModel
         {
             IdPermiso = p.IdPermiso,
             Nombre = p.Nombre,
             Descripcion = p.Descripcion,
-            // Re-marca los checkboxes que el usuario había seleccionado
-            Asignado = permisosUsuarioIds.Contains(p.IdPermiso)
+            Asignado = permisosSeleccionados.Contains(p.IdPermiso)
+        }).ToList();
+
+        var gruposSeleccionados = new HashSet<int>(viewModel.GruposSeleccionados);
+        viewModel.TodosLosGrupos = todosLosGrupos.Select(g => new GrupoAsignadoViewModel
+        {
+            IdGrupo = g.IdGrupoPermiso,
+            Nombre = g.Nombre,
+            Descripcion = g.Descripcion,
+            Asignado = gruposSeleccionados.Contains(g.IdGrupoPermiso),
+            PermisosDelGrupo = g.Permisos.Select(p => p.Nombre).ToList()
         }).ToList();
     }
+    // public async Task RepoblarViewModelParaErrorAsync(ActualizarUsuarioViewModel viewModelConErrores)
+    // {
+    //     // El VM ya tiene los datos y errores, solo le falta la lista de permisos
+    //     var todosLosPermisos = (await _permisoRepository.GetAllPermisosAsync()).ToList();
+
+    //     // Obtenemos los IDs que el usuario *intentó* enviar, para que no se borren del formulario
+    //     var permisosUsuarioIds = new HashSet<int>(viewModelConErrores.PermisosSeleccionados);
+
+    //     viewModelConErrores.TodosLosPermisos = todosLosPermisos.Select(p => new PermisoAsignadoViewModel
+    //     {
+    //         IdPermiso = p.IdPermiso,
+    //         Nombre = p.Nombre,
+    //         Descripcion = p.Descripcion,
+    //         // Re-marca los checkboxes que el usuario había seleccionado
+    //         Asignado = permisosUsuarioIds.Contains(p.IdPermiso)
+    //     }).ToList();
+    // }
 
     private async Task RepoblarPermisosAsync(CrearUsuarioViewModel viewModel)
     {
         var todosLosPermisos = await _permisoRepository.GetAllPermisosAsync();
+        var todosLosGrupos = await _grupoRepository.GetAllAsync();
         viewModel.TodosLosPermisos = todosLosPermisos.Select(p => new PermisoAsignadoViewModel
         {
             IdPermiso = p.IdPermiso,
@@ -77,7 +101,17 @@ public class UserService : IUserService
             // Re-marca los checkboxes que el usuario había seleccionado si falló la validación
             Asignado = viewModel.PermisosSeleccionados.Contains(p.IdPermiso)
         }).ToList();
+        viewModel.TodosLosGrupos = todosLosGrupos.Select(g => new GrupoAsignadoViewModel
+        {
+            IdGrupo = g.IdGrupoPermiso,
+            Nombre = g.Nombre,
+            Descripcion = g.Descripcion,
+            Asignado = viewModel.GruposSeleccionados.Contains(g.IdGrupoPermiso),
+            PermisosDelGrupo = g.Permisos.Select(p => p.Nombre).ToList()
+        }).ToList();
     }
+
+
     public async Task<Dom.Usuario> CreateUserAsync(CrearUsuarioViewModel usuarioVM)
     {
         if (string.IsNullOrEmpty(usuarioVM.Contrasenia))
@@ -93,11 +127,10 @@ public class UserService : IUserService
         return usuario;
     }
 
-    public async Task<IEnumerable<Dom.Usuario>> GetActiveUsersAsync()
+    public async Task<IEnumerable<Dom.Usuario>> GetUsersAsync()
     {
         var listaUsuarios = await _userRepository.GetAllAsync();
-        var usuariosActivos = listaUsuarios.Where(u => u.Activo == true);
-        return usuariosActivos;
+        return listaUsuarios;
     }
 
     public async Task<Dom.Usuario> GetUserByIdAsync(int idUser)
@@ -130,6 +163,8 @@ public class UserService : IUserService
         usuarioExistente.PermisosUsuario = usuarioVM.PermisosSeleccionados
                                        .Select(id => new Dom.Permiso { IdPermiso = id })
                                        .ToList();
+        usuarioExistente.GrupoPermisos = usuarioVM.GruposSeleccionados
+            .Select(id => new Dom.GrupoPermisos { IdGrupoPermiso = (short)id }).ToList();
         if (!string.IsNullOrEmpty(usuarioVM.Contrasenia))
         {
             // Para despues: Agregar hash de la contraseña aquí
@@ -138,6 +173,8 @@ public class UserService : IUserService
 
         await _userRepository.UpdateAsync(usuarioExistente);
     }
+
+
     public async Task DisableUserAsync(int idUsuario)
     {
         Dom.Usuario? usuario = await _userRepository.GetByIdAsync(idUsuario);
@@ -153,4 +190,49 @@ public class UserService : IUserService
             await _userRepository.UpdateAsync(usuario);
         }
     }
+
+    public async Task ReactivarUsuarioAsync(int idUsuario)
+    {
+        Dom.Usuario? usuario = await _userRepository.GetByIdAsync(idUsuario);
+
+        if (usuario == null)
+        {
+            throw new KeyNotFoundException($"Usuario con ID {idUsuario} no encontrado.");
+        }
+        if (usuario.Activo) return;
+        usuario.Activo = true;
+        await _userRepository.UpdateAsync(usuario);
+    }
+
+
+
+    public async Task<Dom.Usuario?> ValidarUsuario(string correo, string clave)
+    {
+        var usuario = await _userRepository.ObtenerPorCorreoAsync(correo);
+
+        if (usuario == null) return null;
+
+       
+        //Cambiar a BCrypt o Hashing seguro en el futuro
+        if (usuario.Contrasenia != clave) return null;
+
+        //LOGICA DE APLANADO DE PERMISOS
+        var permisosDirectos = usuario.PermisosUsuario ?? new List<Dom.Permiso>();
+
+        var permisosDeGrupos = usuario.GrupoPermisos != null 
+            ? usuario.GrupoPermisos.SelectMany(g => g.Permisos) 
+            : new List<Dom.Permiso>();
+
+        //Unir y Eliminar Duplicados
+        var permisosUnificados = permisosDirectos
+            .Concat(permisosDeGrupos)
+            .DistinctBy(p => p.IdPermiso) 
+            .ToList();
+
+        // 4. Asignamos la lista limpia al usuario para que el Controlador la use fácil
+        usuario.PermisosUsuario = permisosUnificados;
+
+        return usuario;
+    }
+
 }

@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/src.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
 
@@ -25,35 +26,76 @@
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Proveedor"
-                                asp-action="ListarProveedores">Proveedores</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Usuario"
-                                asp-action="ListarUsuarios">Usuarios</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="GrupoPermisos"
-                                asp-action="ListarGrupos">Grupo de permisos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Producto"
-                                asp-action="ListarProductos">Lista de Productos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Clasificacion"
-                                asp-action="IndexClasificacion">Clasificacion de productos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ProductoProveedor"
-                                asp-action="Index">Productos de Proveedores</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home"
-                                asp-action="Privacy">Privacy</a>
-                        </li>
+                        </li> 
+                       
+                      @if (LayoutService.EstaLogueado())
+                        {
+                            @if (LayoutService.TienePermiso("P02_VER_LISTA_USUARIOS"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Usuario" asp-action="ListarUsuarios">Usuarios</a>
+                                </li>
+                            }
+
+                            @if (LayoutService.TienePermiso("P11_ABM_GRUPO_PERMISOS"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="GrupoPermisos" asp-action="ListarGrupos">Roles y Permisos</a>
+                                </li>
+                            }
+
+                            @if (LayoutService.TienePermiso("P04_VER_LISTA_PRODUCTOS"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Producto" asp-action="ListarProductos">Productos</a>
+                                </li>
+                            }
+                            
+                            @if (LayoutService.TienePermiso("P12_ABM_CLASIFICACION_PRODUCTOS"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Clasificacion" asp-action="IndexClasificacion">Categorías</a>
+                                </li>
+                            }
+
+                            @if (LayoutService.TienePermiso("P06_VER_LISTA_PROVEEDORES"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Proveedor" asp-action="ListarProveedores">Proveedores</a>
+                                </li>
+                            }
+
+                            @if (LayoutService.TienePermiso("P07_GESTION_COMPRAS"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="ProductoProveedor" asp-action="Index">Catálogo Proveedores</a>
+                                </li>
+                            }
+                        }
+                    </ul>
+                
+                    <ul class="navbar-nav">
+                         @if (LayoutService.EstaLogueado())
+                         {
+                             <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">
+                                    Hola, @LayoutService.ObtenerNombreUsuario()
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item text-danger" asp-controller="Acceso" asp-action="Logout">
+                                            <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                                        </a>
+                                    </li>
+                                </ul>
+                             </li>
+                         }
+                         else
+                         {
+                             <li class="nav-item">
+                                <a class="nav-link text-primary fw-bold" asp-controller="Acceso" asp-action="Login">Iniciar Sesión</a>
+                             </li>
+                         }
                     </ul>
                 </div>
             </div>

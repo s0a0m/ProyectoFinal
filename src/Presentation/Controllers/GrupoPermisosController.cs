@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using src.Core.Services.Interfaces; // <-- Este 'using' AHORA SÍ es necesario
 using src.Presentation.ViewModels.GrupoPermisoVM;
 namespace src.Presentation.Controllers;
+using src.Presentation.Attributes;
+using Microsoft.AspNetCore.Session;
+using Microsoft.AspNetCore.Http;
 public class GrupoPermisosController : Controller
 {
     private readonly IGrupoPermisosService _grupoService;
@@ -13,6 +16,7 @@ public class GrupoPermisosController : Controller
 
     // GET: /GrupoPermisos
     [HttpGet]
+    [AuthorizePermiso("P11_ABM_GRUPO_PERMISOS")]
     public async Task<IActionResult> ListarGrupos()
     {
         var grupos = await _grupoService.GetAllAsync();
@@ -20,6 +24,7 @@ public class GrupoPermisosController : Controller
     }
 
     [HttpGet]
+    [AuthorizePermiso("P11_ABM_GRUPO_PERMISOS")]
     public async Task<IActionResult> VerGrupo(short id)
     {
         try
@@ -36,6 +41,7 @@ public class GrupoPermisosController : Controller
     }
     // GET: /GrupoPermisos/Crear
     [HttpGet]
+    [AuthorizePermiso("P11_ABM_GRUPO_PERMISOS")]
     public async Task<IActionResult> CrearGrupo()
     {
         var vm = await _grupoService.PrepararCrearViewModelAsync();
@@ -44,6 +50,7 @@ public class GrupoPermisosController : Controller
     
     // POST: /GrupoPermisos/Crear
     [HttpPost]
+    [AuthorizePermiso("P11_ABM_GRUPO_PERMISOS")]
     public async Task<IActionResult> CrearGrupo(CrearGrupoViewModel vm)
     {
         if (!ModelState.IsValid)
@@ -59,6 +66,7 @@ public class GrupoPermisosController : Controller
 
     // GET: /GrupoPermisos/Actualizar/5
     [HttpGet]
+    [AuthorizePermiso("P11_ABM_GRUPO_PERMISOS")]
     public async Task<IActionResult> ActualizarGrupo(short id)
     {
         try
@@ -74,6 +82,7 @@ public class GrupoPermisosController : Controller
 
     // POST: /GrupoPermisos/Actualizar
     [HttpPost]
+    [AuthorizePermiso("P11_ABM_GRUPO_PERMISOS")]
     public async Task<IActionResult> ActualizarGrupo(ActualizarGrupoViewModel vm)
     {
         if (!ModelState.IsValid)
@@ -96,6 +105,7 @@ public class GrupoPermisosController : Controller
     
     // GET: /GrupoPermisos/Eliminar/5
     [HttpGet] 
+    [AuthorizePermiso("P11_ABM_GRUPO_PERMISOS")]
     public async Task<IActionResult> EliminarGrupo(short id)
     {
         // (En una app real, esto debería ser un POST)

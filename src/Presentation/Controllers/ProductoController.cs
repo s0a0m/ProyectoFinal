@@ -2,8 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using src.Core.Services.Interfaces;
 using src.Presentation.ViewModels.ProductoVM;
 using src.Repositories.Interfaces;
+using src.Presentation.Attributes;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Session;
+using Microsoft.AspNetCore.Http;
 
 namespace src.Presentation.Controllers
 {
@@ -20,6 +23,7 @@ namespace src.Presentation.Controllers
 
         
         [HttpGet]
+        [AuthorizePermiso("P04_VER_LISTA_PRODUCTOS")]
         public async Task<IActionResult> ListarProductos()
         {
             // Obtenemos la lista plana optimizada para la vista
@@ -28,6 +32,7 @@ namespace src.Presentation.Controllers
         }
 
         [HttpGet]
+        [AuthorizePermiso("P03_ABM_PRODUCTOS")]
         public async Task<IActionResult> CrearProducto()
         {
             var vm = await _productoService.PrepararCrearViewModelAsync();
@@ -36,6 +41,7 @@ namespace src.Presentation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AuthorizePermiso("P03_ABM_PRODUCTOS")]
         public async Task<IActionResult> CrearProducto(CrearProductoViewModel vm)
         {
             if (!ModelState.IsValid)
@@ -68,6 +74,7 @@ namespace src.Presentation.Controllers
 
 
         [HttpGet]
+        [AuthorizePermiso("P03_ABM_PRODUCTOS")]
         public async Task<IActionResult> ActualizarProducto(int id)
         {
             try
@@ -84,6 +91,7 @@ namespace src.Presentation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AuthorizePermiso("P03_ABM_PRODUCTOS")]
         public async Task<IActionResult> ActualizarProducto(ActualizarProductoViewModel vm)
         {
             if (!ModelState.IsValid)
@@ -120,6 +128,7 @@ namespace src.Presentation.Controllers
 
         [HttpPost] 
         [ValidateAntiForgeryToken]
+        [AuthorizePermiso("P03_ABM_PRODUCTOS")]
         public async Task<IActionResult> EliminarProducto(int id)
         {
             try
@@ -136,6 +145,7 @@ namespace src.Presentation.Controllers
         }
 
         [HttpPost]
+        [AuthorizePermiso("P03_ABM_PRODUCTOS")]
         public async Task<IActionResult> ReactivarProducto(int id)
         {
 

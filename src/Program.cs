@@ -52,11 +52,18 @@ builder.Services.AddScoped<INovedadesService, NovedadesService>();
 builder.Services.AddScoped<IProductoProveedorService, ProductoProveedorService>();
 // Servicios
 builder.Services.AddScoped<IUserService, UserService>();
-// builder.Services.AddScoped<IProveedorService, ProveedorService>();
-
-// ¡AÑADIR ESTA LÍNEA PARA EL NUEVO SERVICIO!
 builder.Services.AddScoped<IGrupoPermisosService, GrupoPermisosService>();
-// swagger
+builder.Services.AddHttpContextAccessor(); // Ya lo tenías
+builder.Services.AddTransient<src.Presentation.Services.LayoutService>();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(60); 
+    options.Cookie.HttpOnly = true; 
+    options.Cookie.IsEssential = true; 
+});
+builder.Services.AddHttpContextAccessor();
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -97,13 +104,13 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseSession();
 app.UseAuthorization();
 
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Acceso}/{action=Login}/{id?}");
 
 app.Run();
 public partial class Program { }
