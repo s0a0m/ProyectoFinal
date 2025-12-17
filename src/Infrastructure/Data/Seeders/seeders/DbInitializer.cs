@@ -37,6 +37,7 @@ public static class DbInitializer
             SeedGrupoPermiso(context);
             context.SaveChanges();
             SeedCompras(context);
+            SeedProductoProveedores(context);
             context.SaveChanges();
             SeedFacturas(context);
             context.SaveChanges();
@@ -50,6 +51,8 @@ public static class DbInitializer
             ResetSequence(context, "codigo_barra", "id_codigo_barra");
             ResetSequence(context, "producto", "id_producto");
             ResetSequence(context, "grupo_permisos", "id_grupo_permiso");
+            ResetSequence(context, "compra", "id_compra");
+            ResetSequence(context, "factura", "id_factura");
 
             transaction.Commit();
             Console.WriteLine(">>> Seeding de base de datos completado exitosamente.");
@@ -204,4 +207,15 @@ public static class DbInitializer
 
         Console.WriteLine($"- Seeding {facturas.Count} facturas con éxito.");
     }
+    private static void SeedProductoProveedores(AppDbContext context)
+    {
+        if (context.ProductosProveedores.Any()) return;
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/producto_proveedor.json");
+        var productoProveedores = JsonSerializer.Deserialize<List<ProductoProveedor>>(json, _jsonOptions)!;
+        context.ProductosProveedores.AddRange(productoProveedores);
+        context.SaveChanges();
+
+        Console.WriteLine($"- Seeding {productoProveedores.Count} producto proveedores con éxito.");
+    }
 }
+
