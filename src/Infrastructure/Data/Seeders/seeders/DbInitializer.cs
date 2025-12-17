@@ -38,6 +38,8 @@ public static class DbInitializer
             context.SaveChanges();
             SeedCompras(context);
             context.SaveChanges();
+            SeedFacturas(context);
+            context.SaveChanges();
 
             ResetSequence(context, "provincia", "id_provincia");
             ResetSequence(context, "condicion_pago", "id_condicion_pago");
@@ -186,5 +188,20 @@ public static class DbInitializer
         context.SaveChanges();
 
         Console.WriteLine($"- Seeding {compras.Count} compras con sus detalles...");
+    }
+    private static void SeedFacturas(AppDbContext context)
+    {
+        if (context.Facturas.Any()) return;
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/factura_con_detalle.json");
+        var facturas = JsonSerializer.Deserialize<List<Factura>>(json, _jsonOptions)!;
+        foreach (var factura in facturas)
+        {
+            factura.FechaEmision = DateTime.SpecifyKind(factura.FechaEmision, DateTimeKind.Utc);
+        }
+
+        context.Facturas.AddRange(facturas);
+        context.SaveChanges();
+
+        Console.WriteLine($"- Seeding {facturas.Count} facturas con éxito.");
     }
 }
