@@ -35,4 +35,10 @@ public class NovedadesRepository : INovedadesRepository
         await _context.AddAsync(novedadef, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<int> ContarPendientesAsync()
+    {
+        return await _context.NovedadesProveedores
+            .CountAsync(n => n.Estado == src.Models.Common.EstadoNovedad.PENDIENTE);
+    }
 }

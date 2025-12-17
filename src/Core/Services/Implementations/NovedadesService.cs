@@ -97,5 +97,9 @@ namespace src.Core.Services.Implementations
 
             return lista;
         }
+        public async Task<int> ObtenerCantidadNovedadesPendientes()
+        {
+            return await _novedadesRepo.ContarPendientesAsync();
+        }
     }
 }

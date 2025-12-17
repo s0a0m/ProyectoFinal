@@ -9,7 +9,7 @@ using src.Presentation.Attributes;
 
 [ApiController]
 [Route("api/[controller]")]
-public class NovedadesControler : ControllerBase
+public class NovedadesControler : Controller
 {
     private readonly INovedadesService _novedadesService;
 
@@ -17,43 +17,31 @@ public class NovedadesControler : ControllerBase
     {
         _novedadesService = novedadesService;
     }
-    [HttpGet("novedades")]
-    public async Task<IActionResult> ListarNovedades()
+
+    [HttpGet]
+    public async Task<IActionResult> Index()
     {
-        var grupos = await _novedadesService.GetAllNovedadesPendientes();
-        return Ok(grupos);
+        var novedades = await _novedadesService.GetAllNovedadesPendientes();
+        return View(novedades);
     }
 
-    [HttpPost("crear")]
-    public async Task<IActionResult> CrearNovedades([FromBody] NovedadesCrearViewModel novedadVM)
+    [HttpPost]
+    public async Task<IActionResult> CrearNovedades(NovedadesCrearViewModel novedadVM)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
+        if (!ModelState.IsValid){
+            var lista = await _novedadesService.GetAllNovedadesPendientes();
+            return View("Index", lista);
+        }
         try
         {
             await _novedadesService.CrearNovedadAsync(novedadVM);
-
-            return Ok(new
-            {
-                message = "Novedad creada con éxito"
-            });
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new
-            {
-                campo = ex.ParamName,
-                error = ex.Message
-            });
+            TempData["Success"] = "Novedad creada con éxito";
+            return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new
-            {
-                error = "Ocurrió un error inesperado.",
-                detalle = ex.Message
-            });
+            TempData["Error"] = ex.Message;
+            return RedirectToAction(nameof(Index));
         }
     }
 

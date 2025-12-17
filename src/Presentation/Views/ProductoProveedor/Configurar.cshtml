@@ -1,0 +1,264 @@
+@model src.Presentation.ViewModels.ImportacionVM.ConfigurarCargaViewModel
+
+@{
+    ViewData["Title"] = "Importación Masiva";
+}
+
+<div class="container py-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0"><i class="bi bi-file-earmark-excel me-2"></i>Actualización Masiva de Precios y Stock</h4>
+        </div>
+        <div class="card-body p-4">
+            
+            <form id="formCarga" enctype="multipart/form-data">
+                
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <label asp-for="IdProveedor" class="form-label fw-bold">Seleccione Proveedor</label>
+                        <select asp-for="IdProveedor" asp-items="Model.ProveedoresDisponibles" class="form-select form-select-lg" required>
+                            <option value="">-- Seleccione un proveedor --</option>
+                        </select>
+                        <span asp-validation-for="IdProveedor" class="text-danger"></span>
+                        <div class="form-text">Los códigos del Excel se buscarán asociados a este proveedor.</div>
+                    </div>
+                </div>
+
+                <hr class="text-muted my-4">
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="ArchivoExcel" class="form-label fw-bold"></label>
+                        <input asp-for="ArchivoExcel" type="file" class="form-control" accept=".xlsx, .xls" required />
+                    </div>
+                    <div class="col-md-6 d-flex align-items-center pt-3">
+                         <div class="form-check form-switch">
+                            <input asp-for="ContieneEncabezado" class="form-check-input" type="checkbox" role="switch" checked />
+                            <label asp-for="ContieneEncabezado" class="form-check-label">La primera fila es encabezado (se ignorará)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <h6 class="fw-bold text-muted mb-3"><i class="bi bi-table me-1"></i>Mapeo de Columnas (0 = A, 1 = B, etc.)</h6>
+                <div class="row g-3 mb-4 p-3 bg-light rounded border">
+                    <div class="col-md-3">
+                        <label class="form-label small">Col. Código Barras <span class="text-danger">*</span></label>
+                        <input asp-for="ColumnaCodigoBarra" class="form-control" type="number" min="0" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small">Col. Nombre/Desc. <span class="text-danger">*</span></label>
+                        <input asp-for="ColumnaNombre" class="form-control" type="number" min="0" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small">Col. Precio <span class="text-danger">*</span></label>
+                        <input asp-for="ColumnaPrecio" class="form-control" type="number" min="0" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small">Col. Stock (Opcional)</label>
+                        <input asp-for="ColumnaStock" class="form-control" type="number" min="-1" />
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <button type="submit" id="btnIniciar" class="btn btn-primary px-4">
+                        <i class="bi bi-play-fill me-1"></i> Iniciar Proceso
+                    </button>
+                    <button type="button" id="btnCancelar" class="btn btn-outline-danger" disabled>
+                        <i class="bi bi-stop-circle me-1"></i> Cancelar
+                    </button>
+                    <a asp-controller="ProductoProveedor" asp-action="Index" id="btnVolver" class="btn btn-link text-decoration-none ms-auto">
+                        Volver al listado
+                    </a>
+                </div>
+            </form>
+
+            <div id="seccionResultados" class="mt-5" style="display:none;">
+                <h5 class="d-flex justify-content-between align-items-center">
+                    <span>Progreso</span>
+                    <span id="badgeEstado" class="badge bg-primary">Procesando...</span>
+                </h5>
+                <div class="progress mb-3" style="height: 10px;">
+                    <div id="barraProgreso" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%"></div>
+                </div>
+
+                <div class="row text-center mb-3">
+                    <div class="col-4 border-end">
+                        <h3 class="fw-bold text-success" id="countActualizados">0</h3>
+                        <small class="text-muted">Actualizados</small>
+                    </div>
+                    <div class="col-4 border-end">
+                        <h3 class="fw-bold text-warning" id="countNovedades">0</h3>
+                        <small class="text-muted">Novedades (Pendientes)</small>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="fw-bold text-secondary" id="countIgnorados">0</h3>
+                        <small class="text-muted">Ignorados</small>
+                    </div>
+                </div>
+
+                <div class="table-responsive border rounded" style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-sm table-hover mb-0" style="font-size: 0.9rem;">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th>Código</th>
+                                <th>Producto</th>
+                                <th>Resultado</th>
+                                <th class="text-center">GS1</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaResultadosBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let abortController = null;
+
+        document.getElementById('formCarga').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Setup UI
+            document.getElementById('seccionResultados').style.display = 'block';
+            const btnIniciar = document.getElementById('btnIniciar');
+            const btnCancelar = document.getElementById('btnCancelar');
+            const tabla = document.getElementById('tablaResultadosBody');
+            const badge = document.getElementById('badgeEstado');
+            
+            // Reset contadores
+            document.getElementById('countActualizados').innerText = '0';
+            document.getElementById('countNovedades').innerText = '0';
+            document.getElementById('countIgnorados').innerText = '0';
+            
+            btnIniciar.disabled = true;
+            btnCancelar.disabled = false;
+            tabla.innerHTML = ''; 
+            
+            // Preparar envío
+            const formElement = this;
+            const formData = new FormData(formElement);
+            // DEBUG: Verificar qué se está enviando (puedes verlo en la consola del navegador)
+            for (var pair of formData.entries()) {
+                console.log(pair[0]+ ', ' + pair[1]); 
+            }
+            abortController = new AbortController();
+            console.log(formData);
+            try {
+                const response = await fetch('@Url.Action("ProcesarStream", "ProductoProveedor")', {
+                    method: 'POST',
+                    body: formData,
+                    signal: abortController.signal
+                });
+
+                if (!response.ok) throw new Error("Error HTTP: " + response.status);
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let buffer = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    // Decodificar el fragmento recibido
+                    buffer += decoder.decode(value, { stream: true });
+                    
+                    // Separar por salto de línea
+                    let lines = buffer.split('\n');
+                    
+                    // Procesar todas las líneas MENOS la última (que podría estar incompleta)
+                    // Guardamos la última en el buffer para el siguiente ciclo
+                    buffer = lines.pop(); 
+
+                    for (let line of lines) {
+                        if (line.trim()) { // Si la línea no está vacía
+                            try {
+                                const item = JSON.parse(line);
+                                
+                                // Verificar si el backend mandó un error controlado
+                                if (item.error) {
+                                    throw new Error(item.mensaje);
+                                }
+
+                                agregarFila(item);
+                            } catch (e) {
+                                if (e.message !== "Unexpected end of JSON input") {
+                                    console.error("Error parseando línea JSON:", e);
+                                    // Opcional: mostrar error en UI
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Procesar lo que haya quedado en el buffer final (si hubo)
+                if (buffer.trim()) {
+                     try {
+                        const item = JSON.parse(buffer);
+                        if (!item.error) agregarFila(item);
+                     } catch(e) {}
+                }
+
+                badge.className = "badge bg-success";
+                badge.innerText = "Completado";
+                alert("Proceso finalizado correctamente.");
+            } catch (err) {
+                if (err.name === 'AbortError') {
+                    badge.className = "badge bg-danger";
+                    badge.innerText = "Cancelado";
+                    tabla.insertAdjacentHTML('afterbegin', `<tr class="table-danger"><td colspan="4" class="text-center fw-bold">CANCELADO POR EL USUARIO</td></tr>`);
+                } else {
+                    alert("Error: " + err.message);
+                }
+            } finally {
+                btnIniciar.disabled = false;
+                btnCancelar.disabled = true;
+                document.getElementById('barraProgreso').classList.remove('progress-bar-animated');
+                abortController = null;
+            }
+        });
+
+        document.getElementById('btnCancelar').addEventListener('click', function() {
+            if (abortController) abortController.abort();
+        });
+
+        function agregarFila(item) {
+            let claseFila = "";
+            let icono = "";
+            
+            // Actualizar contadores y estilos según la acción que viene del backend
+            if (item.accion.includes("Actualización")) {
+                claseFila = "table-success";
+                const el = document.getElementById('countActualizados');
+                el.innerText = parseInt(el.innerText) + 1;
+                icono = '<i class="bi bi-check-circle-fill text-success"></i>';
+            } 
+            else if (item.accion.includes("Novedad")) {
+                claseFila = "table-warning";
+                const el = document.getElementById('countNovedades');
+                el.innerText = parseInt(el.innerText) + 1;
+                icono = '<i class="bi bi-exclamation-circle-fill text-warning"></i>';
+            } 
+            else {
+                const el = document.getElementById('countIgnorados');
+                el.innerText = parseInt(el.innerText) + 1;
+                icono = '<i class="bi bi-slash-circle text-muted"></i>';
+            }
+
+            const row = `
+                <tr class="${claseFila}">
+                    <td class="font-monospace">${item.codigoBarra || '-'}</td>
+                    <td>${item.nombre || 'Sin nombre'}</td>
+                    <td>${icono} ${item.accion}</td>
+                    <td class="text-center">${item.esGs1 ? '<span class="badge bg-primary">GS1</span>' : '<span class="badge bg-secondary">INT</span>'}</td>
+                </tr>`;
+            
+            document.getElementById('tablaResultadosBody').insertAdjacentHTML('afterbegin', row);
+        }
+    </script>
+}

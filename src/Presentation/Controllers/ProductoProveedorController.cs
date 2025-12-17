@@ -6,15 +6,23 @@ using src.Presentation.ViewModels.ProductoVM;
 using Microsoft.AspNetCore.Session;
 using src.Presentation.Attributes;
 using Microsoft.AspNetCore.Http;
+using src.Presentation.ViewModels.ImportacionVM;
+using src.Repositories.Interfaces;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
 namespace src.Presentation.Controllers
 {
     public class ProductoProveedorController : Controller
     {
         private readonly IProductoProveedorService _service;
+        private readonly IProveedorRepository _proveedorRepository;
+        private readonly INovedadesService _novedadesService;
 
-        public ProductoProveedorController(IProductoProveedorService service)
+        public ProductoProveedorController(IProductoProveedorService service,IProveedorRepository proveedorRepository,INovedadesService novedadesService)
         {
             _service = service;
+            _proveedorRepository = proveedorRepository;
+            _novedadesService = novedadesService;
         }
 
         [HttpGet]
@@ -22,6 +30,8 @@ namespace src.Presentation.Controllers
         public async Task<IActionResult> Index()
         {
             var lista = await _service.GetAllParaListadoAsync();
+            var cantidadNovedades = await _novedadesService.ObtenerCantidadNovedadesPendientes();
+            ViewBag.TotalNovedades = cantidadNovedades; 
             return View(lista);
         }
 
@@ -120,22 +130,73 @@ namespace src.Presentation.Controllers
             }
         }
 
-        [HttpPost("upload-lista-precios")]
-        // Ahora devolvemos Task<IActionResult> (la forma estándar de ASP.NET Core)
-        public IActionResult SubirListaDePrecios(
-            IFormFile archivo,
-            [FromQuery] short idProveedor,
-            [FromQuery] ImportacionColumnaMap mapaColumnas,
-            CancellationToken cancellationToken,
-            bool contieneEncabezado = true
-            )
+      
+        [HttpPost]
+        public async Task ProcesarStream(
+            [FromForm] ConfigurarCargaViewModel model,
+            CancellationToken cancellationToken)
         {
-            // Llamamos al método auxiliar que maneja la asincronía y el yield return
-            var resultadosStream = EjecutarCargaStream(archivo, idProveedor, mapaColumnas, contieneEncabezado, cancellationToken);
+            // 1. Configurar la respuesta para Streaming de Texto
+            Response.ContentType = "application/x-ndjson"; // Newline Delimited JSON
+            Response.StatusCode = 200;
 
-            // Devolvemos el IAsyncEnumerable envuelto en Ok() para que el framework lo serialice
-            return Ok(resultadosStream);
+            try
+            {
+                // 2. Validaciones Manuales
+                // Si fallan, escribimos un JSON de error y cortamos
+                if (model.ArchivoExcel == null || model.ArchivoExcel.Length == 0)
+                    throw new ArgumentException("El archivo es obligatorio.");
+
+                if (model.IdProveedor <= 0)
+                    throw new ArgumentException("El proveedor es obligatorio.");
+
+                var mapaColumnas = new ImportacionColumnaMap
+                {
+                    CodigosBarrasExternosIndex = model.ColumnaCodigoBarra,
+                    NombreSugeridoIndex = model.ColumnaNombre,
+                    PrecioIndex = model.ColumnaPrecio,
+                    StockIndex = model.ColumnaStock
+                };
+
+                // 3. Procesamiento
+                // Usamos OpenReadStream para no copiar todo a memoria (más eficiente)
+                using var stream = model.ArchivoExcel.OpenReadStream();
+
+                var opcionesJson = new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                };
+
+                await foreach (var accion in _service.ProcesarListaDePreciosAsync(
+                    stream,
+                    model.IdProveedor,
+                    mapaColumnas,
+                    model.ContieneEncabezado,
+                    cancellationToken))
+                {
+                    // 4. Escribir cada resultado como una línea JSON independiente
+                    var jsonLinea = System.Text.Json.JsonSerializer.Serialize(accion, opcionesJson);
+                    
+                    // Escribimos la línea + salto de línea
+                    await Response.WriteAsync(jsonLinea + "\n", cancellationToken);
+                    
+                    // Forzamos el envío al navegador para que la barra de progreso se mueva
+                    await Response.Body.FlushAsync(cancellationToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Si ocurre un error EN MEDIO del proceso, necesitamos avisar al front
+                // Como ya mandamos status 200, mandamos un JSON especial de error
+                var errorJson = System.Text.Json.JsonSerializer.Serialize(new 
+                { 
+                    error = true, 
+                    mensaje = ex.Message 
+                });
+                await Response.WriteAsync(errorJson + "\n", cancellationToken);
+            }
         }
+
 
         // MÉTODO AUXILIAR que combina await con yield return
         private async IAsyncEnumerable<AccionDeFilaCargaAutomatica> EjecutarCargaStream(
@@ -178,5 +239,66 @@ namespace src.Presentation.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Configurar(short idProveedor, string razonSocial)
+        {
+            var proveedores = await _proveedorRepository.GetAllProveedorAsync();
+            var proveedoresActivos =  proveedores.Where(p => p.Activo == true).ToList();
+            var model = new ConfigurarCargaViewModel
+            {
+                ProveedoresDisponibles = proveedoresActivos.Select(p => new SelectListItem
+                {
+                    Value = p.IdProveedor.ToString(),
+                    Text = p.RazonSocial
+                }),
+                ColumnaCodigoBarra = -1, 
+                ColumnaNombre = -1,      
+                ColumnaPrecio = -1,      
+                ColumnaStock = -1     
+            };
+            return View(model);
+        }
+
     }
 }
+
+
+
+  // [HttpPost]
+        // // Ahora devolvemos Task<IActionResult> (la forma estándar de ASP.NET Core)
+        // public async IAsyncEnumerable<AccionDeFilaCargaAutomatica> ProcesarStream(
+        //     [FromForm] ConfigurarCargaViewModel model, 
+        //     [EnumeratorCancellation] CancellationToken cancellationToken)
+        // {
+        //     if (model.ArchivoExcel == null || model.ArchivoExcel.Length == 0) 
+        //         throw new ArgumentException("El archivo es obligatorio.");
+            
+        //     if (model.IdProveedor <= 0)
+        //         throw new ArgumentException("El proveedor es obligatorio.");
+
+        //     var mapaColumnas = new ImportacionColumnaMap
+        //     {
+        //         CodigosBarrasExternosIndex = model.ColumnaCodigoBarra,
+        //         NombreSugeridoIndex = model.ColumnaNombre,
+        //         PrecioIndex = model.ColumnaPrecio,
+        //         StockIndex = model.ColumnaStock
+        //     };
+
+        //     // 2. Copia del Stream
+        //     await using var memoryStream = new MemoryStream();
+        //     await model.ArchivoExcel.CopyToAsync(memoryStream, cancellationToken);
+        //     memoryStream.Position = 0;
+
+        //     // 3. STREAMING PURO (Aprovechamos la lógica de tu compañero)
+        //     // Al hacer yield return aquí, cada objeto se envía al JS en cuanto se procesa.
+        //     // Si el JS cancela, el 'cancellationToken' de aquí se cancela y se corta el servicio.
+        //     await foreach (var accion in _service.ProcesarListaDePreciosAsync(
+        //         memoryStream, 
+        //         model.IdProveedor, 
+        //         mapaColumnas, 
+        //         model.ContieneEncabezado, 
+        //         cancellationToken))
+        //     {
+        //         yield return accion;
+        //     }
+        // }
