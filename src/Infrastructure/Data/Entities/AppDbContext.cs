@@ -49,8 +49,52 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<ProductoCategoria> ProductoCategorias { get; set; }
     public virtual DbSet<ProductoCodigoBarra> ProductoCodigosBarras { get; set; }
     public virtual DbSet<Familia> Familias { get; set; }
+
+    public virtual DbSet<Compra> Compras { get; set; }
+    public virtual DbSet<DetalleCompra> DetallesCompra { get; set; }
+    public virtual DbSet<Factura> Facturas { get; set; }
+    public virtual DbSet<DetalleFactura> DetallesFactura { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
+        modelBuilder.Entity<Compra>(entity =>
+        {
+            entity.Property(e => e.Estado)
+                  .HasConversion<string>();
+
+            // Relación Compra -> Factura
+            entity.HasMany(c => c.Facturas)
+                  .WithOne(f => f.Compra)
+                  .HasForeignKey(f => f.IdCompra)
+                  .OnDelete(DeleteBehavior.Restrict); // Evita borrar compras si hay facturas
+        });
+
+        modelBuilder.Entity<DetalleCompra>(entity =>
+        {
+            entity.Property(d => d.PrecioPactado).HasPrecision(18, 2);
+        });
+
+        modelBuilder.Entity<Factura>(entity =>
+        {
+            entity.Property(f => f.TotalFacturado).HasPrecision(18, 2);
+
+            entity.HasOne(f => f.Proveedor)
+                  .WithMany()
+                  .HasForeignKey(f => f.IdProveedor)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<DetalleFactura>(entity =>
+        {
+            entity.Property(d => d.PrecioBruto).HasPrecision(18, 2);
+            entity.Property(d => d.PrecioNeto).HasPrecision(18, 2);
+            entity.Property(d => d.PorcentajeDescuento).HasPrecision(5, 2);
+
+            entity.HasOne(d => d.Factura)
+                  .WithMany(f => f.Detalles)
+                  .HasForeignKey(d => d.IdFactura)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
 
         modelBuilder.Entity<ProductoProveedor>(entity =>
         {
