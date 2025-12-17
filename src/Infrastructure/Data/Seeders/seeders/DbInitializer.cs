@@ -36,6 +36,8 @@ public static class DbInitializer
             SeedProveedores(context);
             SeedGrupoPermiso(context);
             context.SaveChanges();
+            SeedCompras(context);
+            context.SaveChanges();
 
             ResetSequence(context, "provincia", "id_provincia");
             ResetSequence(context, "condicion_pago", "id_condicion_pago");
@@ -170,5 +172,19 @@ public static class DbInitializer
         var productos = JsonSerializer.Deserialize<List<Producto>>(json, _jsonOptions)!;
         context.Productos.AddRange(productos);
         Console.WriteLine($"- Seeding {productos.Count} productos...");
+    }
+    private static void SeedCompras(AppDbContext context)
+    {
+        if (context.Compras.Any()) return;
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/compra_con_detalle.json");
+        var compras = JsonSerializer.Deserialize<List<Compra>>(json, _jsonOptions)!;
+        foreach (var compra in compras)
+        {
+            compra.FechaCompra = DateTime.SpecifyKind(compra.FechaCompra, DateTimeKind.Utc);
+        }
+        context.Compras.AddRange(compras);
+        context.SaveChanges();
+
+        Console.WriteLine($"- Seeding {compras.Count} compras con sus detalles...");
     }
 }
