@@ -3,17 +3,16 @@ using src.Core.Services.Interfaces;
 using src.Presentation.ViewModels.NovedadesVM;
 using src.Repositories.Interfaces;
 namespace src.Presentation.Controllers;
+
 using Microsoft.AspNetCore.Session;
 using Microsoft.AspNetCore.Http;
 using src.Presentation.Attributes;
 
-[ApiController]
-[Route("api/[controller]")]
-public class NovedadesControler : Controller
+public class NovedadesController : Controller
 {
     private readonly INovedadesService _novedadesService;
 
-    public NovedadesControler(INovedadesService novedadesService)
+    public NovedadesController(INovedadesService novedadesService)
     {
         _novedadesService = novedadesService;
     }
@@ -28,7 +27,8 @@ public class NovedadesControler : Controller
     [HttpPost]
     public async Task<IActionResult> CrearNovedades(NovedadesCrearViewModel novedadVM)
     {
-        if (!ModelState.IsValid){
+        if (!ModelState.IsValid)
+        {
             var lista = await _novedadesService.GetAllNovedadesPendientes();
             return View("Index", lista);
         }
