@@ -40,6 +40,7 @@ public static class DbInitializer
             SeedProductoProveedores(context);
             context.SaveChanges();
             SeedFacturas(context);
+            SeedProductoCodigosExternos(context);
             context.SaveChanges();
 
             ResetSequence(context, "provincia", "id_provincia");
@@ -216,6 +217,17 @@ public static class DbInitializer
         context.SaveChanges();
 
         Console.WriteLine($"- Seeding {productoProveedores.Count} producto proveedores con éxito.");
+    }
+    private static void SeedProductoCodigosExternos(AppDbContext context)
+    {
+        if (context.ProductoCodigosExternos.Any()) return;
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/producto_codigo_externo.json");
+        var items = JsonSerializer.Deserialize<List<ProductoCodigoExterno>>(json, _jsonOptions)!;
+
+        context.ProductoCodigosExternos.AddRange(items);
+        context.SaveChanges();
+
+        Console.WriteLine($"- Seeding {items.Count} códigos externos de proveedores...");
     }
 }
 

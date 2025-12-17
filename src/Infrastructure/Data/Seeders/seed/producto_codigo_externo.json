@@ -1,0 +1,78 @@
+[
+  {
+    "IdProducto": 1,
+    "IdProveedor": 1,
+    "CodigoBarraProveedor": "7791234567890"
+  },
+  {
+    "IdProducto": 1,
+    "IdProveedor": 3,
+    "CodigoBarraProveedor": "7891112223334"
+  },
+  {
+    "IdProducto": 2,
+    "IdProveedor": 1,
+    "CodigoBarraProveedor": "7799876543210"
+  },
+  {
+    "IdProducto": 3,
+    "IdProveedor": 3,
+    "CodigoBarraProveedor": "7795554443332"
+  },
+  {
+    "IdProducto": 4,
+    "IdProveedor": 4,
+    "CodigoBarraProveedor": "7894445556667"
+  },
+  {
+    "IdProducto": 7,
+    "IdProveedor": 2,
+    "CodigoBarraProveedor": "7791110002223"
+  },
+  {
+    "IdProducto": 8,
+    "IdProveedor": 2,
+    "CodigoBarraProveedor": "7792223334445"
+  },
+  {
+    "IdProducto": 10,
+    "IdProveedor": 3,
+    "CodigoBarraProveedor": "7890001112223"
+  },
+  {
+    "IdProducto": 13,
+    "IdProveedor": 2,
+    "CodigoBarraProveedor": "7793334445556"
+  },
+  {
+    "IdProducto": 13,
+    "IdProveedor": 4,
+    "CodigoBarraProveedor": "7895556667778"
+  },
+  {
+    "IdProducto": 15,
+    "IdProveedor": 4,
+    "CodigoBarraProveedor": "7896667778889"
+  },
+  {
+    "IdProducto": 16,
+    "IdProveedor": 1,
+    "CodigoBarraProveedor": "7797778889990"
+  },
+  {
+    "IdProducto": 18,
+    "IdProveedor": 1,
+    "CodigoBarraProveedor": "7798889990001"
+  },
+  {
+    "IdProducto": 20,
+    "IdProveedor": 1,
+    "CodigoBarraProveedor": "7799990001112"
+  },
+  {
+    "IdProducto": 20,
+    "IdProveedor": 3,
+    "CodigoBarraProveedor": "7890001112224"
+  }
+]
+    
