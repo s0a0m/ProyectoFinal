@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using src.Core.Services.Implementations;
 using src.Core.Services.Interfaces;
 using src.External;
+using src.Interfaces;
 using src.Models.CodeFirst;
 using src.Repositories.Implementations;
 using src.Repositories.Interfaces;
@@ -50,6 +51,7 @@ builder.Services.AddScoped<IExcelDataReader, ExcelDataAdapter>();
 builder.Services.AddScoped<INovedadesRepository, NovedadesRepository>();
 builder.Services.AddScoped<INovedadesService, NovedadesService>();
 builder.Services.AddScoped<IProductoProveedorService, ProductoProveedorService>();
+builder.Services.AddScoped<ICompraRepository, CompraRepository>();
 // Servicios
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGrupoPermisosService, GrupoPermisosService>();
@@ -58,9 +60,9 @@ builder.Services.AddTransient<src.Presentation.Services.LayoutService>();
 
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(60); 
-    options.Cookie.HttpOnly = true; 
-    options.Cookie.IsEssential = true; 
+    options.IdleTimeout = TimeSpan.FromMinutes(60);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
 });
 builder.Services.AddHttpContextAccessor();
 
