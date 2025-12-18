@@ -11,10 +11,12 @@ namespace src.Presentation.ViewModels.UsuarioVM
         // Nota: No hay IdUsuario en el ViewModel de creación
 
         [Required(ErrorMessage = "El nombre es obligatorio.")]
+        [RegularExpression(@"^[\p{L}\s]+$", ErrorMessage = "El Nombre no puede contener caracteres especiales")]
         [StringLength(50, ErrorMessage = "El nombre no puede exceder los 100 caracteres.")]
         public string Nombre { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El apellido es obligatorio.")]
+        [RegularExpression(@"^[\p{L}\s]+$", ErrorMessage = "El apellido no puede contener numeros o caracteres especiales")]
         [StringLength(50, ErrorMessage = "El apellido no puede exceder los 100 caracteres.")]
         public string Apellido { get; set; } = string.Empty;
 

@@ -17,6 +17,7 @@ public class CrearProveedorViewModel
     public string Cuit { get; set; }
 
     [Required(ErrorMessage = "La razon social es obligatoria.")]
+    [RegularExpression(@"^[\p{L}\p{N}\s]+$", ErrorMessage = "La razón social no puede contener caracteres especiales")]
     [StringLength(80)]
     public string RazonSocial { get; set; }
 
@@ -31,6 +32,7 @@ public class CrearProveedorViewModel
 
     [Required(ErrorMessage = "El nombre de la Persona responsable es obligatorio.")]
     [StringLength(80)]
+    [RegularExpression(@"^[\p{L}\p{N}\s]+$", ErrorMessage = "La Persona no puede contener caracteres especiales")]
     public string PersonaResponsable { get; set; }
 
     [Required(ErrorMessage = "El Saldo es obligatorio.")]

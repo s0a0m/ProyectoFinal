@@ -156,8 +156,6 @@
                                         <a asp-action="ActualizarProducto"      asp-route-id="@item.IdProducto" class="btn btn-warning btn-sm text-white" title="Editar">
                                         <i class="bi bi-pencil-square"></i>
                                         </a>
-
-
                                         <form asp-action="EliminarProducto" method="post" class="d-inline" onsubmit="return confirm('¿Estás seguro de desactivar este producto?');">
                                             <input type="hidden" name="id" value="@item.IdProducto" />
                                             <button type="submit" class="btn btn-danger btn-sm rounded-0 rounded-end" title="Desactivar">

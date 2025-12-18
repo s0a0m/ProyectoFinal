@@ -15,6 +15,7 @@ namespace src.ViewModels
 
         [Required(ErrorMessage = "La razón social es obligatoria.")]
         [StringLength(100)]
+        [RegularExpression(@"^[\p{L}\p{N}\s]+$", ErrorMessage = "La razón social no puede contener caracteres especiales")]
         public string RazonSocial { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El número de teléfono es obligatorio.")]
@@ -28,6 +29,7 @@ namespace src.ViewModels
 
         [Required(ErrorMessage = "El nombre de la Persona responsable es obligatorio.")]
         [StringLength(80)]
+        [RegularExpression(@"^[\p{L}\p{N}\s]+$", ErrorMessage = "La razón social no puede contener caracteres especiales")]
         public string PersonaResponsable { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El Saldo es obligatorio.")]

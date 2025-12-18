@@ -34,7 +34,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Producto</th>
-                                    <th>SKU</th>
+                                    <th>Codigos</th>
                                     <th class="text-center">Cant.</th>
                                     <th class="text-end">Precio</th>
                                     <th class="text-end">Subtotal</th>
@@ -46,7 +46,24 @@
                                 {
                                     <tr>
                                         <td>@item.NombreProducto</td>
-                                        <td class="small text-muted">@item.CodigoSku</td>
+                                        <td>
+                                            @if (item.CodigosExternos != null && item.CodigosExternos.Any())
+                                            {
+                                                <div class="d-flex flex-wrap gap-1">
+                                                    @foreach (var codigo in item.CodigosExternos)
+                                                    {
+                                                        <span class="badge bg-light text-dark border font-monospace text-wrap" 
+                                                            style="font-size: 0.75rem;">
+                                                            @codigo
+                                                        </span>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small fst-italic">Sin códigos externos</span>
+                                            }
+                                        </td>
                                         <td class="text-center fw-bold">@item.Cantidad</td>
                                         <td class="text-end text-muted">$@item.PrecioUnitario.ToString("N2")</td>
                                         <td class="text-end fw-bold">$@item.Subtotal.ToString("N2")</td>

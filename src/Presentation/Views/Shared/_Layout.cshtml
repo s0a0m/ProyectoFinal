@@ -40,7 +40,7 @@
                             @if (LayoutService.TienePermiso("P11_ABM_GRUPO_PERMISOS"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="GrupoPermisos" asp-action="ListarGrupos">Roles y Permisos</a>
+                                    <a class="nav-link text-dark" asp-controller="GrupoPermisos" asp-action="ListarGrupos">Grupo de Permisos</a>
                                 </li>
                             }
 
@@ -75,6 +75,10 @@
                     </ul>
                 
                     <ul class="navbar-nav">
+                        @if (LayoutService.EstaLogueado() && LayoutService.TienePermiso("P07_GESTION_COMPRAS"))
+                        {
+                            @await Component.InvokeAsync("Carrito")
+                        }
                          @if (LayoutService.EstaLogueado())
                          {
                              <li class="nav-item dropdown">
@@ -117,6 +121,25 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        // Función global para agregar al carrito via AJAX
+        function agregarAlCarrito(idProducto, idProveedor, cantidad = 1) {
+            $.post('/Carrito/Agregar', { idProducto: idProducto, idProveedor: idProveedor, cantidad: cantidad })
+                .done(function (response) {
+                    // 1. Actualizar el numerito rojo
+                    var badge = $("#cart-badge");
+                    badge.text(response.totalItems);
+                    
+                    if(response.totalItems > 0) {
+                        badge.show();
+                    }
+
+                })
+                .fail(function (xhr) {
+                    alert("Error al agregar: " + xhr.responseText);
+                });
+        }
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 

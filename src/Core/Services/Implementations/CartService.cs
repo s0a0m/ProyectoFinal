@@ -89,7 +89,8 @@ namespace src.Core.Services.Implementations
         public async Task<int> GetCantidadTotalItemsAsync()
         {
             var carrito = await ObtenerCarritoCompletoAsync();
-            return carrito.Sum(x => x.Cantidad);
+            //return carrito.Sum(x => x.Cantidad);
+            return carrito.Count;
         }
     }
 }

@@ -12,11 +12,11 @@ namespace src.Presentation.ViewModels.ProductoVM;
         [Display(Name = "Proveedor")]
         public int IdProveedor { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Debe ingresar el precio")]
         [Range(0.01, 99999999, ErrorMessage = "El precio debe ser mayor a 0")]
         public decimal Precio { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Debe ingresar el stock")]
         [Range(0, int.MaxValue, ErrorMessage = "El stock no puede ser negativo")]
         [Display(Name = "Stock Asignado")]
         public int StockAsignado { get; set; }
