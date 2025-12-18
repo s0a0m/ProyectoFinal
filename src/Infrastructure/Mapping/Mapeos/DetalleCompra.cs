@@ -8,6 +8,8 @@ public static partial class DominioMapper
 {
     [MapperIgnoreSource(nameof(EF.DetalleCompra.IdCompra))]
     [MapperIgnoreSource(nameof(EF.DetalleCompra.IdProducto))]
+    [MapperIgnoreSource(nameof(EF.DetalleCompra.Compra))]
+    [MapperIgnoreTarget(nameof(Dom.DetalleCompra.Compra))]
     public static partial Dom.DetalleCompra Map(EF.DetalleCompra source);
     public static partial IEnumerable<Dom.DetalleCompra> Map(IEnumerable<EF.DetalleCompra> source);
 

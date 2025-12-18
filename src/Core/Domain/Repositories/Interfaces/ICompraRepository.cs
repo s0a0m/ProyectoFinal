@@ -7,6 +7,9 @@ public interface ICompraRepository
     Task<IEnumerable<Compra>> GetAllAsync();
     Task<Compra?> GetByIdAsync(int id);
     Task AddAsync(Compra compra);
-    // void Update(Compra compra);
-    // Task<bool> SaveChangesAsync();
+    Task UpdateAsync(Compra compra);
+    Task FinalizarCompraAsync(int idCompra);
+    Task CancelarCompraAsync(int idCompra, string motivo);
+    Task MarcarComoEnviadaAsync(int idCompra);
+
 }

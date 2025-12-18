@@ -32,6 +32,9 @@ public class Compra
     [Column("estado")]
     public EstadoCompra Estado { get; set; } = EstadoCompra.PENDIENTE;
 
+    [Column("fecha_recepcion")]
+    public DateTime? FechaRecepcion { get; set; } = null;
+
     // Relaciones (Propiedades de Navegación)
     [ForeignKey("IdProveedor")]
     public virtual Proveedor Proveedor { get; set; } = null!;

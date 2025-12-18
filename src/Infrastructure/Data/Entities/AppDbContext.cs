@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using src.Models.CodeFirst.Auditoria;
 
 namespace src.Models.CodeFirst;
 
@@ -37,6 +39,7 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<GrupoPermisos> GruposPermisos { get; set; }
     public virtual DbSet<GrupoPermisoPermiso> GruposPermisosPermisos { get; set; }
     public virtual DbSet<UsuarioGrupoPermisos> UsuariosGruposPermisos { get; set; }
+    public DbSet<CompraAuditoria> AuditoriaCompras { get; set; }
 
     public DbSet<Producto> Productos { get; set; }
     public DbSet<ProductoProveedor> ProductosProveedores { get; set; }
@@ -329,4 +332,66 @@ public partial class AppDbContext : DbContext
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var entradasModificadas = ChangeTracker.Entries()
+            .Where(e => (e.Entity is Compra || e.Entity is DetalleCompra) &&
+                         e.State == EntityState.Modified)
+            .ToList();
+
+        foreach (var entrada in entradasModificadas)
+        {
+            // Determinamos el ID de la compra padre
+            int idCompraPadre = 0;
+            string entidadNombre = "";
+
+            if (entrada.Entity is Compra c)
+            {
+                idCompraPadre = c.IdCompra;
+                entidadNombre = "CABECERA_COMPRA";
+            }
+            else if (entrada.Entity is DetalleCompra d)
+            {
+                idCompraPadre = d.IdCompra;
+                entidadNombre = $"DETALLE_PRODUCTO_{d.IdProducto}";
+            }
+
+            string logCambios = GenerarLogDeCambios(entrada);
+
+            if (!string.IsNullOrEmpty(logCambios))
+            {
+                var auditoria = new CompraAuditoria
+                {
+                    IdCompra = idCompraPadre,
+                    Fecha = DateTime.UtcNow,
+                    Accion = $"MODIFICACION_{entidadNombre}",
+                    Motivo = (entrada.Entity is Compra comp) ? (comp.Observaciones ?? "sin observaciones") : "Cambio en ítem de la orden",
+                    Detalles = logCambios
+                };
+
+                this.Set<CompraAuditoria>().Add(auditoria);
+            }
+        }
+
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    private string GenerarLogDeCambios(EntityEntry entrada)
+    {
+        var cambios = new List<string>();
+
+        foreach (var propiedad in entrada.OriginalValues.Properties)
+        {
+            var original = entrada.OriginalValues[propiedad]?.ToString();
+            var actual = entrada.CurrentValues[propiedad]?.ToString();
+
+            if (original != actual)
+            {
+                cambios.Add($"{propiedad.Name}: '{original}' -> '{actual}'");
+            }
+        }
+
+        return string.Join(" | ", cambios);
+    }
 }
