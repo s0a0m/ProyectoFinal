@@ -57,15 +57,16 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGrupoPermisosService, GrupoPermisosService>();
 builder.Services.AddHttpContextAccessor(); // Ya lo tenías
 builder.Services.AddTransient<src.Presentation.Services.LayoutService>();
-
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(60);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+    options.Cookie.Name = ".MiSistema.Session";
 });
 builder.Services.AddHttpContextAccessor();
-
+builder.Services.AddScoped<ICartService, CartService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
