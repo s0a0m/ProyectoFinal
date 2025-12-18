@@ -32,6 +32,8 @@ public class NovedadesRepository : INovedadesRepository
         var novedadef = DominioMapper.Map(entity);
         novedadef.FechaImportacion = DateTime.Now;
         novedadef.IdNovedad = 0;
+        novedadef.FechaImportacion = DateTime.UtcNow;
+
         await _context.AddAsync(novedadef, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
     }

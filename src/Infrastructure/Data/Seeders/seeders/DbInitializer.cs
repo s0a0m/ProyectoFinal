@@ -54,6 +54,7 @@ public static class DbInitializer
             ResetSequence(context, "grupo_permisos", "id_grupo_permiso");
             ResetSequence(context, "compra", "id_compra");
             ResetSequence(context, "factura", "id_factura");
+            ResetSequence(context, "novedades_proveedor", "id_novedad");
 
             transaction.Commit();
             Console.WriteLine(">>> Seeding de base de datos completado exitosamente.");
