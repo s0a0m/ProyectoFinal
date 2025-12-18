@@ -7,6 +7,7 @@ using src.ViewModels;
 using Dom = src.Models.Domain;
 using src.Presentation.ViewModels.ProductoVM;
 using ZXing.Maxicode;
+using Microsoft.EntityFrameworkCore;
 
 namespace src.Core.Services.Implementations;
 
@@ -98,10 +99,24 @@ public class ProductoProveedorService : IProductoProveedorService
                 yield return accion;
                 continue;
             }
+
+
             // 1. ver si alguno de los fila.CodigoBarraExterno esta asociado con algun producto (ProductoCodigoExterno) 
             var productoAsociado = await _productoCodigoExternoRepository.ObtenerProductoPorCodigoAsync(fila.CodigoBarraExterno, idProveedor, cancellationToken);
 
             // 1. SI
+            const decimal MAX_PRECIO_PERMITIDO = 99999999.99m;
+
+            if (fila.Precio > MAX_PRECIO_PERMITIDO || fila.Precio < 0)
+            {
+                yield return new AccionDeFilaCargaAutomatica
+                {
+                    Nombre = fila.NombreSugerido,
+                    CodigoBarra = fila.CodigoBarraExterno,
+                    Accion = "Error: El precio excede el límite permitido (max 8 dígitos enteros)."
+                };
+                continue;
+            }
             if (productoAsociado is not null)
             {
                 // 2. actualizar valores (ProductoProveedor) ignora nombre

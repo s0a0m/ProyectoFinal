@@ -160,7 +160,8 @@ public class ExcelDataAdapter : Repositories.Interfaces.IExcelDataReader
             }
 
             // 3. Conversión: Lee como double (nativo) y convierte a Decimal.
-            return Convert.ToDecimal(reader.GetDouble(index));
+            decimal valor = Convert.ToDecimal(reader.GetDouble(index));
+            return Math.Round(valor, 2);
         }
         catch (System.InvalidCastException)
         {
