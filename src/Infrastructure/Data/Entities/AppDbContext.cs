@@ -39,6 +39,7 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<GrupoPermisos> GruposPermisos { get; set; }
     public virtual DbSet<GrupoPermisoPermiso> GruposPermisosPermisos { get; set; }
     public virtual DbSet<UsuarioGrupoPermisos> UsuariosGruposPermisos { get; set; }
+    public DbSet<CompraAuditoria> AuditoriaCompras { get; set; }
 
     public DbSet<Producto> Productos { get; set; }
     public DbSet<ProductoProveedor> ProductosProveedores { get; set; }
