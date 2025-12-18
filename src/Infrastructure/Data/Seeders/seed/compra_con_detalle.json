@@ -5,7 +5,8 @@
     "IdUsuario": 1,
     "FechaCompra": "2025-12-01T09:00:00",
     "Observaciones": "Pedido inicial de stock de limpieza",
-    "Estado": 0,
+    "Estado": 2,
+    "FechaRecepcion": null,
     "Detalles": [
       {
         "IdProducto": 1,
@@ -26,6 +27,7 @@
     "FechaCompra": "2025-12-10T14:30:00",
     "Observaciones": "Compra de repuestos de oficina",
     "Estado": 1,
+    "FechaRecepcion": null,
     "Detalles": [
       {
         "IdProducto": 3,

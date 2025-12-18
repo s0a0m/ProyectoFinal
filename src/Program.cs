@@ -57,6 +57,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGrupoPermisosService, GrupoPermisosService>();
 builder.Services.AddHttpContextAccessor(); // Ya lo tenías
 builder.Services.AddTransient<src.Presentation.Services.LayoutService>();
+builder.Services.AddScoped<ICompraService, CompraService>();
 
 builder.Services.AddSession(options =>
 {

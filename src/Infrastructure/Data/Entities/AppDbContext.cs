@@ -364,7 +364,7 @@ public partial class AppDbContext : DbContext
                 var auditoria = new CompraAuditoria
                 {
                     IdCompra = idCompraPadre,
-                    Fecha = DateTime.Now,
+                    Fecha = DateTime.UtcNow,
                     Accion = $"MODIFICACION_{entidadNombre}",
                     Motivo = (entrada.Entity is Compra comp) ? (comp.Observaciones ?? "sin observaciones") : "Cambio en ítem de la orden",
                     Detalles = logCambios

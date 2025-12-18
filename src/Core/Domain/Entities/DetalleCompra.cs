@@ -6,6 +6,6 @@ public class DetalleCompra
     public int Cantidad { get; set; }
     public decimal PrecioPactado { get; set; }
     public decimal Subtotal => Cantidad * PrecioPactado;
-    public Producto? Producto { get; set; }
-    public Compra? Compra { get; set; }
+    public Producto Producto { get; set; } = new();
+    public Compra Compra { get; set; } = new();
 }
