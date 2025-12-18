@@ -36,6 +36,12 @@ public static class DbInitializer
             SeedProveedores(context);
             SeedGrupoPermiso(context);
             context.SaveChanges();
+            SeedCompras(context);
+            SeedProductoProveedores(context);
+            context.SaveChanges();
+            SeedFacturas(context);
+            SeedProductoCodigosExternos(context);
+            context.SaveChanges();
 
             ResetSequence(context, "provincia", "id_provincia");
             ResetSequence(context, "condicion_pago", "id_condicion_pago");
@@ -46,6 +52,8 @@ public static class DbInitializer
             ResetSequence(context, "codigo_barra", "id_codigo_barra");
             ResetSequence(context, "producto", "id_producto");
             ResetSequence(context, "grupo_permisos", "id_grupo_permiso");
+            ResetSequence(context, "compra", "id_compra");
+            ResetSequence(context, "factura", "id_factura");
 
             transaction.Commit();
             Console.WriteLine(">>> Seeding de base de datos completado exitosamente.");
@@ -171,4 +179,55 @@ public static class DbInitializer
         context.Productos.AddRange(productos);
         Console.WriteLine($"- Seeding {productos.Count} productos...");
     }
+    private static void SeedCompras(AppDbContext context)
+    {
+        if (context.Compras.Any()) return;
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/compra_con_detalle.json");
+        var compras = JsonSerializer.Deserialize<List<Compra>>(json, _jsonOptions)!;
+        foreach (var compra in compras)
+        {
+            compra.FechaCompra = DateTime.SpecifyKind(compra.FechaCompra, DateTimeKind.Utc);
+        }
+        context.Compras.AddRange(compras);
+        context.SaveChanges();
+
+        Console.WriteLine($"- Seeding {compras.Count} compras con sus detalles...");
+    }
+    private static void SeedFacturas(AppDbContext context)
+    {
+        if (context.Facturas.Any()) return;
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/factura_con_detalle.json");
+        var facturas = JsonSerializer.Deserialize<List<Factura>>(json, _jsonOptions)!;
+        foreach (var factura in facturas)
+        {
+            factura.FechaEmision = DateTime.SpecifyKind(factura.FechaEmision, DateTimeKind.Utc);
+        }
+
+        context.Facturas.AddRange(facturas);
+        context.SaveChanges();
+
+        Console.WriteLine($"- Seeding {facturas.Count} facturas con éxito.");
+    }
+    private static void SeedProductoProveedores(AppDbContext context)
+    {
+        if (context.ProductosProveedores.Any()) return;
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/producto_proveedor.json");
+        var productoProveedores = JsonSerializer.Deserialize<List<ProductoProveedor>>(json, _jsonOptions)!;
+        context.ProductosProveedores.AddRange(productoProveedores);
+        context.SaveChanges();
+
+        Console.WriteLine($"- Seeding {productoProveedores.Count} producto proveedores con éxito.");
+    }
+    private static void SeedProductoCodigosExternos(AppDbContext context)
+    {
+        if (context.ProductoCodigosExternos.Any()) return;
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/producto_codigo_externo.json");
+        var items = JsonSerializer.Deserialize<List<ProductoCodigoExterno>>(json, _jsonOptions)!;
+
+        context.ProductoCodigosExternos.AddRange(items);
+        context.SaveChanges();
+
+        Console.WriteLine($"- Seeding {items.Count} códigos externos de proveedores...");
+    }
 }
+

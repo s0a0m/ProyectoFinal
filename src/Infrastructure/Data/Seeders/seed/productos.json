@@ -6,7 +6,10 @@
     "StockTotal": 40,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 1, "IdCategoria": 8 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 1, "IdCodigoBarra": 1 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 1, "IdCodigoBarra": 1 },
+      { "IdProducto": 1, "IdCodigoBarra": 101 }
+    ]
   },
   {
     "IdProducto": 2,
@@ -15,7 +18,10 @@
     "StockTotal": 60,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 2, "IdCategoria": 8 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 2, "IdCodigoBarra": 2 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 2, "IdCodigoBarra": 2 },
+      { "IdProducto": 2, "IdCodigoBarra": 102 }
+    ]
   },
   {
     "IdProducto": 3,
@@ -24,7 +30,10 @@
     "StockTotal": 25,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 3, "IdCategoria": 8 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 3, "IdCodigoBarra": 3 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 3, "IdCodigoBarra": 3 },
+      { "IdProducto": 3, "IdCodigoBarra": 103 }
+    ]
   },
   {
     "IdProducto": 4,
@@ -33,7 +42,11 @@
     "StockTotal": 500,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 4, "IdCategoria": 9 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 4, "IdCodigoBarra": 4 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 4, "IdCodigoBarra": 4 },
+      { "IdProducto": 4, "IdCodigoBarra": 104 },
+      { "IdProducto": 4, "IdCodigoBarra": 204 }
+    ]
   },
   {
     "IdProducto": 5,
@@ -42,7 +55,10 @@
     "StockTotal": 200,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 5, "IdCategoria": 9 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 5, "IdCodigoBarra": 5 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 5, "IdCodigoBarra": 5 },
+      { "IdProducto": 5, "IdCodigoBarra": 105 }
+    ]
   },
   {
     "IdProducto": 6,
@@ -51,7 +67,10 @@
     "StockTotal": 150,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 6, "IdCategoria": 9 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 6, "IdCodigoBarra": 6 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 6, "IdCodigoBarra": 6 },
+      { "IdProducto": 6, "IdCodigoBarra": 106 }
+    ]
   },
   {
     "IdProducto": 7,
@@ -60,7 +79,10 @@
     "StockTotal": 55,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 7, "IdCategoria": 10 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 7, "IdCodigoBarra": 7 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 7, "IdCodigoBarra": 7 },
+      { "IdProducto": 7, "IdCodigoBarra": 107 }
+    ]
   },
   {
     "IdProducto": 8,
@@ -69,7 +91,10 @@
     "StockTotal": 70,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 8, "IdCategoria": 10 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 8, "IdCodigoBarra": 8 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 8, "IdCodigoBarra": 8 },
+      { "IdProducto": 8, "IdCodigoBarra": 108 }
+    ]
   },
   {
     "IdProducto": 9,
@@ -78,7 +103,10 @@
     "StockTotal": 45,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 9, "IdCategoria": 10 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 9, "IdCodigoBarra": 9 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 9, "IdCodigoBarra": 9 },
+      { "IdProducto": 9, "IdCodigoBarra": 109 }
+    ]
   },
   {
     "IdProducto": 10,
@@ -87,7 +115,10 @@
     "StockTotal": 100,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 10, "IdCategoria": 11 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 10, "IdCodigoBarra": 10 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 10, "IdCodigoBarra": 10 },
+      { "IdProducto": 10, "IdCodigoBarra": 110 }
+    ]
   },
   {
     "IdProducto": 11,
@@ -96,7 +127,10 @@
     "StockTotal": 80,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 11, "IdCategoria": 11 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 11, "IdCodigoBarra": 11 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 11, "IdCodigoBarra": 11 },
+      { "IdProducto": 11, "IdCodigoBarra": 111 }
+    ]
   },
   {
     "IdProducto": 12,
@@ -105,7 +139,10 @@
     "StockTotal": 50,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 12, "IdCategoria": 11 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 12, "IdCodigoBarra": 12 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 12, "IdCodigoBarra": 12 },
+      { "IdProducto": 12, "IdCodigoBarra": 112 }
+    ]
   },
   {
     "IdProducto": 13,
@@ -114,7 +151,10 @@
     "StockTotal": 40,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 13, "IdCategoria": 12 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 13, "IdCodigoBarra": 13 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 13, "IdCodigoBarra": 13 },
+      { "IdProducto": 13, "IdCodigoBarra": 113 }
+    ]
   },
   {
     "IdProducto": 14,
@@ -123,7 +163,10 @@
     "StockTotal": 35,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 14, "IdCategoria": 12 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 14, "IdCodigoBarra": 14 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 14, "IdCodigoBarra": 14 },
+      { "IdProducto": 14, "IdCodigoBarra": 114 }
+    ]
   },
   {
     "IdProducto": 15,
@@ -132,7 +175,10 @@
     "StockTotal": 90,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 15, "IdCategoria": 12 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 15, "IdCodigoBarra": 15 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 15, "IdCodigoBarra": 15 },
+      { "IdProducto": 15, "IdCodigoBarra": 115 }
+    ]
   },
   {
     "IdProducto": 16,
@@ -141,7 +187,10 @@
     "StockTotal": 150,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 16, "IdCategoria": 13 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 16, "IdCodigoBarra": 16 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 16, "IdCodigoBarra": 16 },
+      { "IdProducto": 16, "IdCodigoBarra": 116 }
+    ]
   },
   {
     "IdProducto": 17,
@@ -150,7 +199,10 @@
     "StockTotal": 200,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 17, "IdCategoria": 13 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 17, "IdCodigoBarra": 17 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 17, "IdCodigoBarra": 17 },
+      { "IdProducto": 17, "IdCodigoBarra": 117 }
+    ]
   },
   {
     "IdProducto": 18,
@@ -159,7 +211,10 @@
     "StockTotal": 30,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 18, "IdCategoria": 13 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 18, "IdCodigoBarra": 18 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 18, "IdCodigoBarra": 18 },
+      { "IdProducto": 18, "IdCodigoBarra": 118 }
+    ]
   },
   {
     "IdProducto": 19,
@@ -168,7 +223,10 @@
     "StockTotal": 25,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 19, "IdCategoria": 11 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 19, "IdCodigoBarra": 19 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 19, "IdCodigoBarra": 19 },
+      { "IdProducto": 19, "IdCodigoBarra": 119 }
+    ]
   },
   {
     "IdProducto": 20,
@@ -177,6 +235,9 @@
     "StockTotal": 40,
     "Activo": true,
     "ProductosCategorias": [{ "IdProducto": 20, "IdCategoria": 8 }],
-    "ProductoCodigoBarras": [{ "IdProducto": 20, "IdCodigoBarra": 20 }]
+    "ProductoCodigoBarras": [
+      { "IdProducto": 20, "IdCodigoBarra": 20 },
+      { "IdProducto": 20, "IdCodigoBarra": 120 }
+    ]
   }
 ]

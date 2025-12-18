@@ -1,0 +1,37 @@
+[
+  {
+    "IdCompra": 1,
+    "IdProveedor": 1,
+    "IdUsuario": 1,
+    "FechaCompra": "2025-12-01T09:00:00",
+    "Observaciones": "Pedido inicial de stock de limpieza",
+    "Estado": 0,
+    "Detalles": [
+      {
+        "IdProducto": 1,
+        "Cantidad": 50,
+        "PrecioPactado": 1500.5
+      },
+      {
+        "IdProducto": 2,
+        "Cantidad": 20,
+        "PrecioPactado": 2300.0
+      }
+    ]
+  },
+  {
+    "IdCompra": 2,
+    "IdProveedor": 2,
+    "IdUsuario": 2,
+    "FechaCompra": "2025-12-10T14:30:00",
+    "Observaciones": "Compra de repuestos de oficina",
+    "Estado": 1,
+    "Detalles": [
+      {
+        "IdProducto": 3,
+        "Cantidad": 100,
+        "PrecioPactado": 450.0
+      }
+    ]
+  }
+]
