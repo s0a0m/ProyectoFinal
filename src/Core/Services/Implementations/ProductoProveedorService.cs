@@ -7,6 +7,7 @@ using src.ViewModels;
 using Dom = src.Models.Domain;
 using src.Presentation.ViewModels.ProductoVM;
 using ZXing.Maxicode;
+using Microsoft.EntityFrameworkCore;
 
 namespace src.Core.Services.Implementations;
 
@@ -98,47 +99,72 @@ public class ProductoProveedorService : IProductoProveedorService
                 yield return accion;
                 continue;
             }
+
+
             // 1. ver si alguno de los fila.CodigoBarraExterno esta asociado con algun producto (ProductoCodigoExterno) 
             var productoAsociado = await _productoCodigoExternoRepository.ObtenerProductoPorCodigoAsync(fila.CodigoBarraExterno, idProveedor, cancellationToken);
 
             // 1. SI
-            if (productoAsociado is not null)
+            try
             {
-                // 2. actualizar valores (ProductoProveedor) ignora nombre
-                ProductoProveedor domProductoProveedor = DominioMapper.Map(fila);
-                domProductoProveedor.Precio = fila.Precio;
-                domProductoProveedor.Producto = new Dom.Producto { IdProducto = productoAsociado.IdProducto };
-                domProductoProveedor.Proveedor = new Dom.Proveedor { IdProveedor = idProveedor };
-                domProductoProveedor.StockAsignado = fila.StockActual;
-                await _productoProveedorRepository.UpdateAsync(domProductoProveedor, cancellationToken);
+                if (productoAsociado is not null)
+                {
+                    // 2. actualizar valores (ProductoProveedor) ignora nombre
+                    ProductoProveedor domProductoProveedor = DominioMapper.Map(fila);
+                    domProductoProveedor.Precio = fila.Precio;
+                    domProductoProveedor.Producto = new Dom.Producto { IdProducto = productoAsociado.IdProducto };
+                    domProductoProveedor.Proveedor = new Dom.Proveedor { IdProveedor = idProveedor };
+                    domProductoProveedor.StockAsignado = fila.StockActual;
+                    await _productoProveedorRepository.UpdateAsync(domProductoProveedor, cancellationToken);
+                    accion = new AccionDeFilaCargaAutomatica
+                    {
+                        Nombre = productoAsociado.Nombre,
+                        CodigoBarra = fila.CodigoBarraExterno,
+                        EsGs1 = _barcodeAdapter.ValidarFormatoGS1EAN13(fila.CodigoBarraExterno),
+                        Accion = "Actualización de Precio"
+                    };
+                }
+                else
+                {
+                    // 1. NO 
+                    // 2. Mappear con NovedadesProveedor (ProductoIdProcuto = 0, Estado = PENDIENTE)
+                    var novedad = DominioMapper.MapDataRow(fila);
+                    novedad.IdNovedad = 0;
+                    novedad.IdProveedor = idProveedor;
+                    novedad.Estado = Models.Common.EstadoNovedad.PENDIENTE;
+
+                    // agregar novedad
+                    await _novedadesRepository.AddAsync(novedad, cancellationToken);
+                    // TODO: ver si el codigo es GS1 y ponerle una flag
+                    bool esGs1 = _barcodeAdapter.ValidarFormatoGS1EAN13(fila.CodigoBarraExterno);
+                    // Retornar una clase con (codigo y Nombre del producto y ACCION (guardado, novedad))
+                    accion = new AccionDeFilaCargaAutomatica
+                    {
+                        Nombre = novedad.NombreSugerido,
+                        CodigoBarra = novedad.CodigoBarraExterno,
+                        EsGs1 = esGs1,
+                        Accion = $"Novedad Creada (Calidad: {(esGs1 ? "GS1" : "SKU")})"
+                    };
+                }
+            }
+            catch (DbUpdateException dbEx)
+            {
                 accion = new AccionDeFilaCargaAutomatica
                 {
-                    Nombre = productoAsociado.Nombre,
+                    Nombre = fila.NombreSugerido,
                     CodigoBarra = fila.CodigoBarraExterno,
                     EsGs1 = _barcodeAdapter.ValidarFormatoGS1EAN13(fila.CodigoBarraExterno),
-                    Accion = "Actualización de Precio"
+                    Accion = $"Error en los datos: {dbEx.InnerException?.Message ?? dbEx.Message}"
                 };
             }
-            else
+            catch (System.Exception)
             {
-                // 1. NO 
-                // 2. Mappear con NovedadesProveedor (ProductoIdProcuto = 0, Estado = PENDIENTE)
-                var novedad = DominioMapper.MapDataRow(fila);
-                novedad.IdNovedad = 0;
-                novedad.IdProveedor = idProveedor;
-                novedad.Estado = Models.Common.EstadoNovedad.PENDIENTE;
-
-                // agregar novedad
-                await _novedadesRepository.AddAsync(novedad, cancellationToken);
-                // TODO: ver si el codigo es GS1 y ponerle una flag
-                bool esGs1 = _barcodeAdapter.ValidarFormatoGS1EAN13(fila.CodigoBarraExterno);
-                // Retornar una clase con (codigo y Nombre del producto y ACCION (guardado, novedad))
                 accion = new AccionDeFilaCargaAutomatica
                 {
-                    Nombre = novedad.NombreSugerido,
-                    CodigoBarra = novedad.CodigoBarraExterno,
-                    EsGs1 = esGs1,
-                    Accion = $"Novedad Creada (Calidad: {(esGs1 ? "GS1" : "SKU")})"
+                    Nombre = fila.NombreSugerido,
+                    CodigoBarra = fila.CodigoBarraExterno,
+                    EsGs1 = _barcodeAdapter.ValidarFormatoGS1EAN13(fila.CodigoBarraExterno),
+                    Accion = "Error al procesar la fila."
                 };
             }
             yield return accion;
