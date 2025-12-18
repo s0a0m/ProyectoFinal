@@ -192,6 +192,31 @@ public class ProductoProveedorRepository : IProductoProveedorRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task UpdateAsync2(Dom.ProductoProveedor entity)
+    {
+        // Buscar por clave compuesta (Producto + Proveedor)
+        if (entity.Producto == null || entity.Proveedor == null)
+        {
+            throw new ArgumentException("La entidad ProductoProveedor debe tener Producto y Proveedor asignados para actualizar.");
+        }
+        var idProducto = entity.Producto.IdProducto;
+        var idProveedor = entity.Proveedor.IdProveedor;
+        var efEntity = await _context.ProductosProveedores
+            .FirstOrDefaultAsync(pp => pp.IdProducto == idProducto 
+                                    && pp.IdProveedor == idProveedor);
+
+        if (efEntity != null)
+        {
+            // Actualizar campos
+            efEntity.Precio = entity.Precio;
+            efEntity.StockAsignado = entity.StockAsignado;
+            efEntity.Activo = entity.Activo;
+
+            // Guardar
+            await _context.SaveChangesAsync();
+        }
+    }
+
     public async Task DesactivarPorProductoAsync(int idProducto)
     {
         var relaciones = await _context.ProductosProveedores
@@ -271,4 +296,42 @@ public class ProductoProveedorRepository : IProductoProveedorRepository
         return await _context.ProductosProveedores
             .AnyAsync(x => x.IdProducto == idProducto && x.IdProveedor == idProveedor);
     }
+
+    public async Task AddAsync(Dom.ProductoProveedor entity)
+    {
+        // Mapeo manual directo a EF (igual que en tu método original)
+        var efEntity = new EF.ProductoProveedor
+        {
+            IdProducto = (short)entity.Producto.IdProducto,
+            IdProveedor = (short)entity.Proveedor.IdProveedor,
+            Precio = entity.Precio,
+            StockAsignado = entity.StockAsignado,
+            Activo = true // O entity.Activo si quieres respetar lo que viene
+        };
+
+        await _context.ProductosProveedores.AddAsync(efEntity);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<Dom.ProductoProveedor?> GetByProductoAndProveedorAsync(short idProducto, short idProveedor)
+    {
+        var efEntity = await _context.ProductosProveedores
+            .Include(pp => pp.Producto)
+            .Include(pp => pp.Proveedor)
+            .FirstOrDefaultAsync(x => x.IdProducto == idProducto && x.IdProveedor == idProveedor);
+
+        if (efEntity == null) return null;
+
+        // MAPEO MANUAL SEGURO (Evita que el DominioMapper devuelva nulls)
+        return new Dom.ProductoProveedor
+        {
+            Producto = new Dom.Producto { IdProducto = efEntity.IdProducto },
+            Proveedor = new Dom.Proveedor { IdProveedor = efEntity.IdProveedor },
+            Precio = efEntity.Precio,
+            StockAsignado = efEntity.StockAsignado,
+            Activo = efEntity.Activo
+        };
+    }
+
+
 }

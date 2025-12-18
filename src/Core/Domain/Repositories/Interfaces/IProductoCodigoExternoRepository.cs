@@ -5,4 +5,5 @@ public interface IProductoCodigoExternoRepository
 {
     Task<Dom.Producto?> ObtenerProductoPorCodigoAsync(string codigoExterno, short idProveedor, CancellationToken cancellationToken = default);
     Task<bool> ExistsAsync(string codigo);
+    Task AddAsync(short idProducto, short idProveedor, string codigo);
 }

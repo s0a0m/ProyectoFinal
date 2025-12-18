@@ -19,4 +19,8 @@ public interface IProductoProveedorRepository
 
     Task ReactivarPorProveedorAsync(int idProveedor);
     Task<bool> ExistsAsync(int idProducto, int idProveedor);
+    Task<Dom.ProductoProveedor?> GetByProductoAndProveedorAsync(short idProducto, short idProveedor);
+// Sobrecarga nueva para guardar solo la relación sin códigos
+    Task AddAsync(Dom.ProductoProveedor entity);
+    Task UpdateAsync2(Dom.ProductoProveedor entity);
 }

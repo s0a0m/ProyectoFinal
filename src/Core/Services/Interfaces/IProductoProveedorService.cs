@@ -15,4 +15,5 @@ public interface IProductoProveedorService
     Task RepoblarViewModelAsync(CrearProductoProveedorViewModel vm);
     Task GestionarCascadaProductoAsync(int idProducto, bool activando);
     Task GestionarCascadaProveedorAsync(int idProveedor, bool activando);
+    
 }

@@ -10,5 +10,8 @@ namespace src.Core.Services.Interfaces
         Task<IEnumerable<NovedadesListarViewModel>> GetAllNovedadesPendientes();
         Task CrearNovedadAsync(NovedadesCrearViewModel vm);
         Task<int> ObtenerCantidadNovedadesPendientes();
+        Task AceptarNovedadAsync(ResolverNovedadViewModel model);
+        Task RechazarNovedadAsync(int idNovedad);
+        Task<ResolverNovedadViewModel> ObtenerDatosParaResolverAsync(int idNovedad);
     }
 }

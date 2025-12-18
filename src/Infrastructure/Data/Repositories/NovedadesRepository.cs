@@ -41,4 +41,45 @@ public class NovedadesRepository : INovedadesRepository
         return await _context.NovedadesProveedores
             .CountAsync(n => n.Estado == src.Models.Common.EstadoNovedad.PENDIENTE);
     }
+
+    public async Task<NovedadPendiente?> GetByIdAsync(int id)
+    {
+        var efEntity = await _context.NovedadesProveedores
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.IdNovedad == id);
+        if (efEntity is null) return null;
+        return new NovedadPendiente
+    {
+        IdNovedad = efEntity.IdNovedad,
+        IdProveedor = efEntity.IdProveedor,
+        // Si agregaste IdProducto al DTO:
+        IdProducto = efEntity.IdProducto ?? 0, 
+        CodigoBarraExterno = efEntity.CodigoBarraExterno,
+        NombreSugerido = efEntity.NombreSugerido,
+        PrecioSugerido =efEntity.PrecioSugerido,
+        Estado =efEntity.Estado
+    };
+    }
+
+    public async Task UpdateAsync(NovedadPendiente entity)
+    {
+        var efEntity = await _context.NovedadesProveedores.FindAsync(entity.IdNovedad);
+        
+        if (efEntity != null)
+        {
+            // Actualizamos solo los campos que cambian en la resolución
+            efEntity.Estado = entity.Estado;
+            if (entity.IdProducto > 0)
+            {
+                efEntity.IdProducto = entity.IdProducto;
+            }
+            // Si tu DTO NovedadPendiente tiene la propiedad IdProducto (debería tenerla para persistir la relación)
+            // efEntity.IdProducto = entity.IdProducto; 
+            
+            // Si el DTO no tiene IdProducto pero el dominio sí, deberías mapearlo. 
+            // Asumo que agregaste IdProducto a NovedadPendiente como vimos antes.
+            
+            await _context.SaveChangesAsync();
+        }
+    }
 }

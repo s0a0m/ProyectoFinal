@@ -38,4 +38,18 @@ public class ProductoCodigoExternoRepository : IProductoCodigoExternoRepository
         return await _context.ProductoCodigosExternos
             .AnyAsync(x => x.CodigoBarraProveedor == codigo.Trim());
     }
+
+    public async Task AddAsync(short idProducto, short idProveedor, string codigo)
+    {
+        // Mapeamos directamente a la entidad de EF CodeFirst
+        var efEntity = new EF.ProductoCodigoExterno
+        {
+            IdProducto = idProducto,
+            IdProveedor = idProveedor,
+            CodigoBarraProveedor = codigo.Trim()
+        };
+
+        await _context.ProductoCodigosExternos.AddAsync(efEntity);
+        await _context.SaveChangesAsync();
+    }
 }
