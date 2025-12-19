@@ -5,6 +5,7 @@ using src.Models.Common;
 using src.Models.Domain;
 using src.Models.Mappers;
 using src.Presentation.ViewModels.CompraVM;
+using src.Presentation.ViewModels.FacturaVM;
 using src.Repositories.Interfaces;
 
 namespace src.Core.Services.Implementations
@@ -16,6 +17,29 @@ namespace src.Core.Services.Implementations
         public FacturaService(IFacturaRepository facturaRepo)
         {
             _facturaRepository = facturaRepo;
+        }
+
+        public Task<bool> ActualizarEstadoPagoAsync(int id, bool pagada)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> CrearFacturaAsync(CrearFacturaViewModel modelo)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<bool> ExisteNumeroFacturaAsync(short idProveedor, string numero)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<ListarFacturaViewModel>> ObtenerPendientesPagoAsync()
+        {
+            throw new NotImplementedException();
+        }
+        Task<ListarDetalleFacturaViewModel?> IFacturaService.ObtenerPorIdAsync(int id)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<IEnumerable<ListarFacturaViewModel>> ObtenerTodasAsync()
@@ -35,5 +59,6 @@ namespace src.Core.Services.Implementations
                 CantidadItems = f.Detalles?.Count ?? 0
             }).ToList();
         }
+
     }
 }

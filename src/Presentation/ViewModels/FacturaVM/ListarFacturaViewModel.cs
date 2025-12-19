@@ -1,4 +1,4 @@
-namespace src.Presentation.ViewModels.CompraVM;
+namespace src.Presentation.ViewModels.FacturaVM;
 
 public class ListarFacturaViewModel
 {
