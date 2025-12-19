@@ -14,6 +14,28 @@ namespace src.Presentation.Controllers
             _facturaService = facturaService;
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            try
+            {
+                var facturaVM = await _facturaService.ObtenerPorIdAsync(id);
+                if (facturaVM == null)
+                {
+                    return NotFound(new { mensaje = $"No se encontró la factura con el ID {id}" });
+                }
+                return Ok(facturaVM);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    mensaje = $"Error interno al obtener la factura {id}",
+                    error = ex.Message
+                });
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
