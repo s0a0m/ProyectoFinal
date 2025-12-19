@@ -235,7 +235,7 @@ public class ProductoProveedorService : IProductoProveedorService
             // 3. Validar unicidad global en la base de datos
             foreach (var codigo in codigosLimpios)
             {
-                if (await _productoCodigoExternoRepository.ExistsAsync(codigo))
+                if (await _productoCodigoExternoRepository.ExistsAsync(codigo, (short)vm.IdProveedor))
                 {
                     throw new ArgumentException($"El código de barras '{codigo}' ya está asignado a otro producto en el sistema.");
                 }

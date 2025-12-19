@@ -15,7 +15,7 @@ public class NovedadesController : Controller
     private readonly INovedadesRepository _novedadesRepo;
     private readonly IProveedorRepository _proveedorRepo;
     private readonly IProductoRepository _productoRepository;
-    public NovedadesController(INovedadesService novedadesService, INovedadesRepository novedadesRepo, IProveedorRepository proveedorRepo,IProductoRepository productoRepository)
+    public NovedadesController(INovedadesService novedadesService, INovedadesRepository novedadesRepo, IProveedorRepository proveedorRepo, IProductoRepository productoRepository)
     {
         _novedadesService = novedadesService;
         _novedadesRepo = novedadesRepo;
@@ -55,7 +55,7 @@ public class NovedadesController : Controller
     [HttpGet]
     public async Task<IActionResult> Resolver(int id)
     {
-        try 
+        try
         {
             // Reutilizamos tu lógica para obtener datos, pero ahora mapeamos al nuevo VM
             var novedad = await _novedadesRepo.GetByIdAsync(id);
@@ -70,16 +70,16 @@ public class NovedadesController : Controller
                 CodigoBarraNovedad = novedad.CodigoBarraExterno,
                 NombreSugerido = novedad.NombreSugerido,
                 PrecioSugerido = novedad.PrecioSugerido,
-                
+
                 // Pre-cargamos los inputs con los datos del Excel (si existen)
                 PrecioFinal = novedad.PrecioSugerido, // Si es 0, el usuario deberá editarlo
-                StockFinal = 0 
+                StockFinal = 0
             };
-            
+
             // Cargar lista de productos para el Select (Dropdown)
             // Recomendación: Si tienes 5000 productos, usa Select2 con búsqueda AJAX en el futuro.
             // Por ahora cargamos todos como pediste.
-           model.ProductosDisponibles = await ObtenerListaProductos();
+            model.ProductosDisponibles = await ObtenerListaProductos();
 
             return View(model);
         }
@@ -93,11 +93,11 @@ public class NovedadesController : Controller
         if (!ModelState.IsValid)
         {
             model.ProductosDisponibles = await ObtenerListaProductos();
-            
+
             // Asegurarnos de que los datos de solo lectura no se pierdan
             // (Aunque deberían venir por los input hidden, a veces es mejor recargarlos si es posible
             // o confiar en que la vista los mandó bien).
-            
+
             return View(model);
         }
 
@@ -134,7 +134,7 @@ public class NovedadesController : Controller
         {
             Value = p.IdProducto.ToString(),
             // Usamos string interpolation segura (?. y ?? para nulos)
-            Text = $"{p.Nombre}" 
+            Text = $"{p.Nombre}"
         });
     }
 

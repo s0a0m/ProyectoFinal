@@ -17,7 +17,7 @@ namespace src.Core.Services.Implementations
         private readonly IProveedorRepository _proveedorRepo;
         private readonly IProductoProveedorRepository _productoProveedorRepository;
         private readonly IProductoCodigoExternoRepository _productoCodigoExternoRepository;
-        public NovedadesService(INovedadesRepository novedadesRepo, IProveedorRepository proveedorRepo,IProductoProveedorRepository productoProveedorRepository, IProductoCodigoExternoRepository productoCodigoExternoRepository)
+        public NovedadesService(INovedadesRepository novedadesRepo, IProveedorRepository proveedorRepo, IProductoProveedorRepository productoProveedorRepository, IProductoCodigoExternoRepository productoCodigoExternoRepository)
         {
             _novedadesRepo = novedadesRepo;
             _proveedorRepo = proveedorRepo;
@@ -120,7 +120,7 @@ namespace src.Core.Services.Implementations
                 relacionExistente.Precio = model.PrecioFinal;
                 relacionExistente.StockAsignado = model.StockFinal;
                 relacionExistente.Activo = true;
-                
+
                 await _productoProveedorRepository.UpdateAsync2(relacionExistente);
             }
             else
@@ -134,13 +134,13 @@ namespace src.Core.Services.Implementations
                     StockAsignado = model.StockFinal,
                     Activo = true
                 };
-                
-                await _productoProveedorRepository.AddAsync(nuevaRelacion); 
+
+                await _productoProveedorRepository.AddAsync(nuevaRelacion);
             }
 
             // 2. Gestionar el Código de Barras Externo
             bool existeCodigo = await _productoCodigoExternoRepository
-                .ExistsAsync(novedad.CodigoBarraExterno);
+                .ExistsAsync(novedad.CodigoBarraExterno, novedad.IdProveedor);
 
             if (!existeCodigo)
             {
@@ -171,7 +171,7 @@ namespace src.Core.Services.Implementations
         public async Task<ResolverNovedadViewModel> ObtenerDatosParaResolverAsync(int idNovedad)
         {
             // Necesitas un GetById en tu repo de Novedades (si no lo tienes, agrégalo)
-            var novedad = await _novedadesRepo.GetByIdAsync(idNovedad); 
+            var novedad = await _novedadesRepo.GetByIdAsync(idNovedad);
             if (novedad == null) throw new KeyNotFoundException("Novedad no encontrada.");
 
             // Cargar proveedor para mostrar el nombre
