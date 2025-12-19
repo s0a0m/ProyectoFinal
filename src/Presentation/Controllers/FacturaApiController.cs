@@ -3,11 +3,13 @@ using src.Core.Services.Interfaces;
 
 namespace src.Presentation.Controllers
 {
-    public class FacturaController : Controller
+    [ApiController]
+    [Route("api/[controller]")]
+    public class FacturaApiController : ControllerBase
     {
         private readonly IFacturaService _facturaService;
 
-        public FacturaController(IFacturaService facturaService)
+        public FacturaApiController(IFacturaService facturaService)
         {
             _facturaService = facturaService;
         }
