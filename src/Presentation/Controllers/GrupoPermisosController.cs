@@ -104,13 +104,28 @@ public class GrupoPermisosController : Controller
     }
     
     // GET: /GrupoPermisos/Eliminar/5
-    [HttpGet] 
+    [HttpPost] 
     [AuthorizePermiso("P11_ABM_GRUPO_PERMISOS")]
     public async Task<IActionResult> EliminarGrupo(short id)
     {
         // (En una app real, esto debería ser un POST)
-        await _grupoService.DeleteGrupoAsync(id);
-        TempData["realizado"] = "Grupo eliminado con éxito.";
+        try
+        {
+            await _grupoService.DeleteGrupoAsync(id);
+            TempData["realizado"] = "Grupo eliminado con éxito.";
+        }
+        catch (KeyNotFoundException)
+        {
+            TempData["Error"] = "No se encontró el grupo a eliminar.";
+            throw;
+        }catch (Exception ex)
+        {
+        // opcional: loguear ex
+        TempData["Error"] = "Error al eliminar: " + ex.Message;
+        }
         return RedirectToAction("ListarGrupos");
     }
+
+
+
 }

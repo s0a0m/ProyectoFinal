@@ -1,8 +1,170 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Centro de Control";
+    var fechaActual = DateTime.Now.ToString("dddd, dd 'de' MMMM yyyy"); // Formato más largo y elegante
+    var horaAcceso = DateTime.Now.ToString("HH:mm");
+    
+    // Lógica para obtener iniciales (Alternativa al icono)
+    string nombre = ViewBag.NombreUsuario ?? "Usuario";
+    string iniciales = nombre.Length >= 2 ? nombre.Substring(0, 2).ToUpper() : nombre.Substring(0, 1).ToUpper();
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<style>
+    /* Forzamos altura mínima para que no se vea "aplastado" */
+    .dashboard-container {
+        min-height: 65vh; /* Ocupa al menos el 65% de la altura de la ventana */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .main-card {
+        flex: 1; /* Hace que la tarjeta crezca para llenar el espacio */
+        border: none;
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.08);
+        border-radius: 1rem; /* Bordes más redondeados */
+        overflow: hidden;
+    }
+
+    /* MONOGRAMA (La alternativa al icono) */
+    .avatar-circle {
+        width: 120px;
+        height: 120px;
+        /* Esto es clave para que sea un circulo perfecto y no se aplaste */
+        aspect-ratio: 1 / 1; 
+        flex-shrink: 0; 
+        
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        color: white;
+        font-size: 3rem;
+        font-weight: 300; /* Letra fina se ve más elegante */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        box-shadow: 0 10px 20px rgba(13, 110, 253, 0.2);
+    }
+
+    /* Línea divisoria vertical elegante */
+    .vertical-divider {
+        border-right: 1px solid #e9ecef;
+    }
+
+    /* Ajustes para móvil */
+    @@media (max-width: 991px) {
+        .vertical-divider {
+            border-right: none;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 2rem;
+            margin-bottom: 2rem;
+        }
+        .avatar-circle {
+            width: 90px;
+            height: 90px;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .text-center-mobile {
+            text-align: center !important;
+            align-items: center !important;
+        }
+    }
+</style>
+
+<div class="container py-5 dashboard-container">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+        <h3 class="fw-bold text-dark mb-0">Tablero Principal</h3>
+        <span class="text-muted"><i class="bi bi-clock me-1"></i> Acceso: @horaAcceso hs</span>
+    </div>
+
+    <div class="card main-card bg-white">
+        <div class="card-body p-0"> <div class="row g-0 h-100">
+                
+                <div class="col-lg-7 p-5 vertical-divider d-flex flex-column justify-content-center">
+                    
+                    <div class="d-flex flex-column flex-md-row align-items-center gap-4 text-center-mobile">
+                        <div class="avatar-circle">
+                            @iniciales
+                        </div>
+
+                        <div>
+                            <h5 class="text-uppercase text-muted small fw-bold mb-1">Bienvenido nuevamente,</h5>
+                            <h1 class="display-6 fw-bold text-dark mb-2">@ViewBag.NombreUsuario</h1>
+                            <p class="text-muted mb-4">Gestión de Compras MyL</p>
+                            
+                            <div class="d-flex gap-3 flex-wrap justify-content-center justify-content-md-start">
+                                <div class="px-3 py-2 bg-light rounded-3 border">
+                                    <i class="bi bi-envelope text-primary me-2"></i>
+                                    <span class="fw-medium text-dark">@ViewBag.CorreoUsuario</span>
+                                </div>
+                                <div class="px-3 py-2 bg-light rounded-3 border">
+                                    <i class="bi bi-shield-lock text-primary me-2"></i>
+                                    <span class="fw-medium text-dark">Administrador</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 p-3 rounded-3 bg-primary bg-opacity-10 border border-primary border-opacity-10">
+                        <div class="d-flex">
+                            <i class="bi bi-info-circle-fill text-primary fs-4 me-3"></i>
+                            <div>
+                                <h6 class="fw-bold text-primary mb-1">¿Qué desea hacer hoy?</h6>
+                                <p class="mb-0 small text-muted">Recuerde que puede iniciar una nueva orden de compra o auditar el stock desde el menú superior.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-lg-5 p-5 bg-light d-flex flex-column justify-content-center">
+                    
+                    <div class="mb-5">
+                        <h6 class="text-uppercase text-xs fw-bold text-secondary mb-3">Fecha del Sistema</h6>
+                        <h2 class="text-dark fw-light">@fechaActual</h2>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="fw-bold small text-dark">Base de Datos MyL</span>
+                            <span class="badge bg-success rounded-pill">En línea</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 100%"></div>
+                        </div>
+                    </div>
+
+                    <div class="vstack gap-3">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-3 d-flex align-items-center">
+                                <div class="bg-warning bg-opacity-10 p-3 rounded-circle me-3 flex-shrink-0">
+                                    <i class="bi bi-eye-fill text-warning fs-5"></i>
+                                </div>
+                                <div>
+                                    <strong class="d-block text-dark">Sistema Auditado</strong>
+                                    <small class="text-muted">Trazabilidad de acciones activa.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-3 d-flex align-items-center">
+                                <div class="bg-info bg-opacity-10 p-3 rounded-circle me-3 flex-shrink-0">
+                                    <i class="bi bi-shield-check-fill text-info fs-5"></i>
+                                </div>
+                                <div>
+                                    <strong class="d-block text-dark">Sesión Segura</strong>
+                                    <small class="text-muted">Conexión cifrada establecida.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center mt-4">
+        <small class="text-muted">MyL Backoffice System &copy; @DateTime.Now.Year</small>
+    </div>
 </div>
