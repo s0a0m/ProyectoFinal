@@ -84,7 +84,7 @@ public class ProveedorController : Controller
     {
         try
         {
-                // Llamamos al nuevo método estandarizado que incluye la lógica en cascada
+            // Llamamos al nuevo método estandarizado que incluye la lógica en cascada
             await _provService.DeleteAsync(idProv);
 
             TempData["realizado"] = "El Proveedor fue desactivado con éxito (y sus productos asociados se ocultaron).";
@@ -98,34 +98,34 @@ public class ProveedorController : Controller
             TempData["error"] = $"Ocurrió un error inesperado: {ex.Message}";
         }
 
-            return RedirectToAction("ListarProveedores");
-        }
+        return RedirectToAction("ListarProveedores");
+    }
 
-        // NUEVO MÉTODO: Reactivar
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [AuthorizePermiso("P05_ABM_PROVEEDORES")]
-        public async Task<IActionResult> ReactivarProveedor(int idProv)
+    // NUEVO MÉTODO: Reactivar
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [AuthorizePermiso("P05_ABM_PROVEEDORES")]
+    public async Task<IActionResult> ReactivarProveedor(int idProv)
+    {
+        try
         {
-            try
-            {
-                // Llama al servicio que reactiva el proveedor y
-                // chequea qué productos pueden volver a activarse
-                await _provService.ReactivateAsync(idProv);
+            // Llama al servicio que reactiva el proveedor y
+            // chequea qué productos pueden volver a activarse
+            await _provService.ReactivateAsync(idProv);
 
-                TempData["realizado"] = "El Proveedor fue reactivado correctamente.";
-            }
-            catch (KeyNotFoundException)
-            {
-                TempData["error"] = $"Error: El Proveedor con ID {idProv} no fue encontrado.";
-            }
-            catch (Exception ex)
-            {
-                TempData["error"] = $"Ocurrió un error al reactivar: {ex.Message}";
-            }
-
-            return RedirectToAction("ListarProveedores");
+            TempData["realizado"] = "El Proveedor fue reactivado correctamente.";
         }
+        catch (KeyNotFoundException)
+        {
+            TempData["error"] = $"Error: El Proveedor con ID {idProv} no fue encontrado.";
+        }
+        catch (Exception ex)
+        {
+            TempData["error"] = $"Ocurrió un error al reactivar: {ex.Message}";
+        }
+
+        return RedirectToAction("ListarProveedores");
+    }
 
 
     [HttpGet]
@@ -159,7 +159,7 @@ public class ProveedorController : Controller
         }
         try
         {
-            await _provService.UpdateProveedorAsync(proveedorVM);   
+            await _provService.UpdateProveedorAsync(proveedorVM);
             TempData["realizado"] = "El Proveedor fue actualizado con éxito.";
             return RedirectToAction("ListarProveedores");
         }

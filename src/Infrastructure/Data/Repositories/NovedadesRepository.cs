@@ -4,7 +4,9 @@ using Dom = src.Models.Domain;
 using src.Repositories.Interfaces;
 using src.Models.Mappers;
 using src.Models.Domain;
+using src.Models.Common;
 using src.Contracts;
+using src.Models.CodeFirst;
 
 namespace src.Repositories.Implementations;
 
@@ -85,5 +87,30 @@ public class NovedadesRepository : INovedadesRepository
 
             await _context.SaveChangesAsync();
         }
+    }
+
+    public async Task<IDictionary<string, NovedadesProveedor>> ObtenerPendientesPorCodigosAsync(
+                List<string> codigos,
+                short idProveedor,
+                CancellationToken ct)
+    {
+        if (codigos == null || !codigos.Any())
+        {
+            return new Dictionary<string, NovedadesProveedor>();
+        }
+
+        var query = _context.NovedadesProveedores
+            .Where(n => n.IdProveedor == idProveedor
+                        && n.Estado == EstadoNovedad.PENDIENTE
+                        && codigos.Contains(n.CodigoBarraExterno));
+
+        return await query.ToDictionaryAsync(
+            n => n.CodigoBarraExterno,
+            n => n,
+            ct);
+    }
+    public async Task AddSinGuardarAsync(NovedadesProveedor novedad, CancellationToken ct)
+    {
+        await _context.Set<NovedadesProveedor>().AddAsync(novedad, ct);
     }
 }

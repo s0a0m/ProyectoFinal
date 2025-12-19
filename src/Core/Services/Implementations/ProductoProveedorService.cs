@@ -15,151 +15,16 @@ public class ProductoProveedorService : IProductoProveedorService
 {
     private readonly IProveedorRepository _proveedorRepository;
     private readonly IProductoProveedorRepository _productoProveedorRepository;
-    private readonly INovedadesRepository _novedadesRepository;
     private readonly IProductoCodigoExternoRepository _productoCodigoExternoRepository;
-    private readonly IExcelDataReader _excelReader;
-    private readonly IBarcodeAdapter _barcodeAdapter;
     private readonly IProductoRepository _productoRepository;
 
-    public ProductoProveedorService(IExcelDataReader reader, IProveedorRepository proveedorRepository, ICommonDataService _commonDataService, IProductoCodigoExternoRepository productoCodigoExternoRepository, IProductoRepository productoRepository, IProductoProveedorRepository productoProveedorRepository, IBarcodeAdapter barcodeAdapter, INovedadesRepository novedadesRepository)
+    public ProductoProveedorService(IProveedorRepository proveedorRepository, IProductoCodigoExternoRepository productoCodigoExternoRepository, IProductoRepository productoRepository, IProductoProveedorRepository productoProveedorRepository)
     {
         _proveedorRepository = proveedorRepository;
-        this._excelReader = reader;
         this._productoCodigoExternoRepository = productoCodigoExternoRepository;
         this._productoProveedorRepository = productoProveedorRepository;
-        _barcodeAdapter = barcodeAdapter;
-        _novedadesRepository = novedadesRepository;
         _productoRepository = productoRepository;
     }
-
-    public async IAsyncEnumerable<AccionDeFilaCargaAutomatica> ProcesarListaDePreciosAsync(Stream fileStream, short idProveedor, ImportacionColumnaMap mapaColumnas, bool contieneEncabezado = true, CancellationToken cancellationToken = default)
-    {
-        // const int MAX_FILAS_PERMITIDAS = 3000000;
-
-        // int totalFilasDeDatos = _excelReader.GetRowsCount(fileStream);
-
-        // if (totalFilasDeDatos > MAX_FILAS_PERMITIDAS)
-        // {
-        //     throw new ArgumentException($"El archivo excede el límite de {MAX_FILAS_PERMITIDAS} filas de datos. Por favor, divida el archivo e inténtelo de nuevo.");
-        // }
-
-        if (await _proveedorRepository.GetProveedorById(idProveedor) == null)
-        {
-            throw new KeyNotFoundException($"El proveedor con ID {idProveedor} no existe.");
-        }
-
-        if (!_excelReader.EsArchivoExcelValido(fileStream))
-        {
-            throw new InvalidOperationException("El archivo Excel está corrupto o protegido con contraseña y no puede ser procesado.");
-        }
-
-        var indicesMapeadosValidos = new List<int>();
-
-        // Esta lista incluirá todos los campos que el usuario haya seleccionado.
-        if (mapaColumnas.CodigosBarrasExternosIndex >= 0)
-            indicesMapeadosValidos.Add(mapaColumnas.CodigosBarrasExternosIndex);
-
-        if (mapaColumnas.PrecioIndex >= 0)
-            indicesMapeadosValidos.Add(mapaColumnas.PrecioIndex);
-
-        if (mapaColumnas.NombreSugeridoIndex >= 0)
-            indicesMapeadosValidos.Add(mapaColumnas.NombreSugeridoIndex);
-
-        if (mapaColumnas.StockIndex >= 0)
-            indicesMapeadosValidos.Add(mapaColumnas.StockIndex);
-
-        if (indicesMapeadosValidos.Count == 0)
-        {
-            throw new ArgumentException("La lista de precios no puede ser procesada. Debe mapear al menos una columna de datos (ej. Código de Barras, Precio o Nombre).");
-        }
-
-        var indicesUnicos = new HashSet<int>(indicesMapeadosValidos);
-
-        if (indicesUnicos.Count < indicesMapeadosValidos.Count)
-        {
-            throw new ArgumentException("Error en el mapeo: Se asignaron múltiples campos de destino a la misma columna de Excel. Por favor, corrija el mapeo.");
-        }
-
-        IEnumerable<ProductoProveedorDataRow> filasBrutas = _excelReader.ReadDataAsync(fileStream, mapaColumnas, contieneEncabezado, cancellationToken);
-
-        foreach (var fila in filasBrutas)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            AccionDeFilaCargaAutomatica accion;
-            if (string.IsNullOrWhiteSpace(fila.CodigoBarraExterno))
-            {
-                accion = new AccionDeFilaCargaAutomatica
-                {
-                    Nombre = fila.NombreSugerido,
-                    CodigoBarra = fila.CodigoBarraExterno,
-                    EsGs1 = false,
-                    Accion = "Fila ignorada: Código de barras vacío."
-                };
-                yield return accion;
-                continue;
-            }
-
-
-            // 1. ver si alguno de los fila.CodigoBarraExterno esta asociado con algun producto (ProductoCodigoExterno) 
-            var productoAsociado = await _productoCodigoExternoRepository.ObtenerProductoPorCodigoAsync(fila.CodigoBarraExterno, idProveedor, cancellationToken);
-
-            // 1. SI
-            const decimal MAX_PRECIO_PERMITIDO = 99999999.99m;
-
-            if (fila.Precio > MAX_PRECIO_PERMITIDO || fila.Precio < 0)
-            {
-                yield return new AccionDeFilaCargaAutomatica
-                {
-                    Nombre = fila.NombreSugerido,
-                    CodigoBarra = fila.CodigoBarraExterno,
-                    Accion = "Error: El precio excede el límite permitido (max 8 dígitos enteros)."
-                };
-                continue;
-            }
-            if (productoAsociado is not null)
-            {
-                // 2. actualizar valores (ProductoProveedor) ignora nombre
-                ProductoProveedor domProductoProveedor = DominioMapper.Map(fila);
-                domProductoProveedor.Precio = fila.Precio;
-                domProductoProveedor.Producto = new Dom.Producto { IdProducto = productoAsociado.IdProducto };
-                domProductoProveedor.Proveedor = new Dom.Proveedor { IdProveedor = idProveedor };
-                domProductoProveedor.StockAsignado = fila.StockActual;
-                await _productoProveedorRepository.UpdateAsync(domProductoProveedor, cancellationToken);
-                accion = new AccionDeFilaCargaAutomatica
-                {
-                    Nombre = productoAsociado.Nombre,
-                    CodigoBarra = fila.CodigoBarraExterno,
-                    EsGs1 = _barcodeAdapter.ValidarFormatoGS1EAN13(fila.CodigoBarraExterno),
-                    Accion = "Actualización de Precio"
-                };
-            }
-            else
-            {
-                // 1. NO 
-                // 2. Mappear con NovedadesProveedor (ProductoIdProcuto = 0, Estado = PENDIENTE)
-                var novedad = DominioMapper.MapDataRow(fila);
-                novedad.IdNovedad = 0;
-                novedad.IdProveedor = idProveedor;
-                novedad.Estado = Models.Common.EstadoNovedad.PENDIENTE;
-
-                // agregar novedad
-                await _novedadesRepository.AddAsync(novedad, cancellationToken);
-                // TODO: ver si el codigo es GS1 y ponerle una flag
-                bool esGs1 = _barcodeAdapter.ValidarFormatoGS1EAN13(fila.CodigoBarraExterno);
-                // Retornar una clase con (codigo y Nombre del producto y ACCION (guardado, novedad))
-                accion = new AccionDeFilaCargaAutomatica
-                {
-                    Nombre = novedad.NombreSugerido,
-                    CodigoBarra = novedad.CodigoBarraExterno,
-                    EsGs1 = esGs1,
-                    Accion = $"Novedad Creada (Calidad: {(esGs1 ? "GS1" : "SKU")})"
-                };
-            }
-            yield return accion;
-        }
-    }
-
 
     public async Task<IEnumerable<ProductoProveedorListarViewModel>> GetAllParaListadoAsync()
     {

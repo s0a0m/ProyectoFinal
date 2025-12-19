@@ -52,4 +52,33 @@ public class ProductoCodigoExternoRepository : IProductoCodigoExternoRepository
         await _context.ProductoCodigosExternos.AddAsync(efEntity);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<IDictionary<string, EF.ProductoProveedor>> ObtenerDiccionarioPorCodigosAsync(
+        List<string> codigos,
+        short idProveedor,
+        CancellationToken ct)
+    {
+        if (codigos == null || !codigos.Any())
+            return new Dictionary<string, EF.ProductoProveedor>();
+
+        var query = from pce in _context.ProductoCodigosExternos
+                    join pp in _context.ProductosProveedores
+                         on pce.IdProducto equals pp.IdProducto
+                    where pce.IdProveedor == idProveedor
+                          && pp.IdProveedor == idProveedor
+                          && codigos.Contains(pce.CodigoBarraProveedor)
+                    select new
+                    {
+                        Codigo = pce.CodigoBarraProveedor,
+                        EntidadPP = pp
+                    };
+
+        var resultado = await query.ToDictionaryAsync(
+            item => item.Codigo,
+            item => item.EntidadPP,
+            cancellationToken: ct
+        );
+
+        return resultado;
+    }
 }
