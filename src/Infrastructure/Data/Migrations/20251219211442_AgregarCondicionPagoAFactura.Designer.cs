@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using src.Models.CodeFirst;
@@ -11,9 +12,11 @@ using src.Models.CodeFirst;
 namespace src.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251219211442_AgregarCondicionPagoAFactura")]
+    partial class AgregarCondicionPagoAFactura
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -316,6 +319,9 @@ namespace src.Migrations
                         .HasColumnType("smallint")
                         .HasColumnName("id_condicion_pago_usada");
 
+                    b.Property<short>("IdCondicionPagoUsadaNavigationIdCondicionPago")
+                        .HasColumnType("smallint");
+
                     b.Property<short>("IdProveedor")
                         .HasColumnType("smallint")
                         .HasColumnName("id_proveedor");
@@ -332,14 +338,14 @@ namespace src.Migrations
 
                     b.Property<decimal>("TotalFacturado")
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)")
+                        .HasColumnType("numeric(18,2)")
                         .HasColumnName("total_facturado");
 
                     b.HasKey("IdFactura");
 
                     b.HasIndex("IdCompra");
 
-                    b.HasIndex("IdCondicionPagoUsada");
+                    b.HasIndex("IdCondicionPagoUsadaNavigationIdCondicionPago");
 
                     b.HasIndex("IdProveedor");
 
@@ -927,9 +933,9 @@ namespace src.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("src.Models.CodeFirst.CondicionDePago", "CondicionPago")
+                    b.HasOne("src.Models.CodeFirst.CondicionDePago", "IdCondicionPagoUsadaNavigation")
                         .WithMany()
-                        .HasForeignKey("IdCondicionPagoUsada")
+                        .HasForeignKey("IdCondicionPagoUsadaNavigationIdCondicionPago")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -941,7 +947,7 @@ namespace src.Migrations
 
                     b.Navigation("Compra");
 
-                    b.Navigation("CondicionPago");
+                    b.Navigation("IdCondicionPagoUsadaNavigation");
 
                     b.Navigation("Proveedor");
                 });

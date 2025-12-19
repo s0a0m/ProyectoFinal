@@ -30,7 +30,7 @@ public class DetalleFactura
 
     [Required]
     [Column("porcentaje_descuento")]
-    public decimal PorcentajeDescuento { get; set; }
+    public decimal PorcentajeDescuento { get; set; } = 0;
 
     [Required]
     [Column("precio_neto")]

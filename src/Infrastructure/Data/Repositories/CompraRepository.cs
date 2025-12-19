@@ -71,7 +71,7 @@ namespace src.Repositories.Implementations
 
 
             var detallesEliminar = compraEF.Detalles.Where(d => !compra.Detalles.Any(dd => dd.IdDetalleCompra == d.IdDetalleCompra)).ToList();
-            if(detallesEliminar.Any()) _context.DetallesCompra.RemoveRange(detallesEliminar);
+            if (detallesEliminar.Any()) _context.DetallesCompra.RemoveRange(detallesEliminar);
 
             foreach (var detDom in compra.Detalles)
             {

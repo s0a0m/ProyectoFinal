@@ -49,6 +49,7 @@ builder.Services.AddScoped<IProductoCodigoExternoRepository, ProductoCodigoExter
 builder.Services.AddScoped<IProductoProveedorRepository, ProductoProveedorRepository>();
 builder.Services.AddScoped<IExcelDataReader, ExcelDataAdapter>();
 builder.Services.AddScoped<INovedadesRepository, NovedadesRepository>();
+builder.Services.AddScoped<IFacturaRepository, FacturaRepository>();
 builder.Services.AddScoped<INovedadesService, NovedadesService>();
 builder.Services.AddScoped<IProductoProveedorService, ProductoProveedorService>();
 builder.Services.AddScoped<ICompraRepository, CompraRepository>();
@@ -61,6 +62,7 @@ builder.Services.AddHttpContextAccessor(); // Ya lo tenías
 builder.Services.AddTransient<src.Presentation.Services.LayoutService>();
 builder.Services.AddScoped<ICompraService, CompraService>();
 builder.Services.AddScoped<IImportacionService, ImportacionService>();
+builder.Services.AddScoped<IFacturaService, FacturaService>();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
