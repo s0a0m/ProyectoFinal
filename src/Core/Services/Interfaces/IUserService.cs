@@ -1,3 +1,4 @@
+using src.Models.CodeFirst;
 using src.Presentation.ViewModels.UsuarioVM;
 using Dom = src.Models.Domain;
 namespace src.Core.Services.Interfaces;
@@ -15,4 +16,6 @@ public interface IUserService
     Task RepoblarViewModelParaErrorAsync(CrearUsuarioViewModel viewModelConErrores);
     Task RepoblarViewModelParaErrorAsync(ActualizarUsuarioViewModel viewModelConErrores);
     Task ReactivarUsuarioAsync(int idUsuario);
+    Dom.Usuario? ObtenerUsuarioActual();
+    
 }

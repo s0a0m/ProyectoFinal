@@ -13,5 +13,6 @@ namespace src.Core.Services.Interfaces
         Task<int> GetCantidadTotalItemsAsync();
         Task<List<CarritoItemViewModel>> ObtenerItemsPorProveedorAsync(short idProveedor);
         Task LimpiarCarritoPorProveedorAsync(short idProveedor); // Se usa al confirmar compra
+        Task ActualizarCantidadAsync(short idProducto, short idProveedor, int cantidad);
     }
 }

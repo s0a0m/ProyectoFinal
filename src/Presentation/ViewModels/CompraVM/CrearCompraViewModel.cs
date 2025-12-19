@@ -7,7 +7,7 @@ namespace src.Presentation.ViewModels.CompraVM
         [Required(ErrorMessage = "Debe seleccionar un proveedor.")]
         public int IdProveedor { get; set; }
 
-        [StringLength(200, ErrorMessage = "Las observaciones no pueden superar los 200 caracteres.")]
+        [StringLength(500, ErrorMessage = "Las observaciones no pueden superar los 500 caracteres.")]
         public string? Observaciones { get; set; }
 
         [Required(ErrorMessage = "La compra debe tener al menos un detalle.")]

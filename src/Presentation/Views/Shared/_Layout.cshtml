@@ -71,6 +71,15 @@
                                     <a class="nav-link text-dark" asp-controller="ProductoProveedor" asp-action="Index">Catálogo Proveedores</a>
                                 </li>
                             }
+
+                                @if (LayoutService.TienePermiso("P07_GESTION_COMPRAS")) // O el código de permiso que definas
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-controller="Compra" asp-action="Index">
+                                            <i class="bi bi-bag-check me-1"></i>Gestionar Compras
+                                        </a>
+                                    </li>
+                                }
                         }
                     </ul>
                 

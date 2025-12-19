@@ -1,0 +1,138 @@
+@using src.Presentation.ViewModels.CompraVM
+@model ConfirmarCompraViewModel
+
+@{
+    ViewData["Title"] = "Previsualizar Compra";
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-octagon-fill me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="bi bi-card-checklist me-2"></i>Previsualizar Compra</h2>
+            <small class="text-muted">Revise los datos antes de confirmar la orden</small>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Index" asp-controller="Carrito" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Volver al Carrito
+            </a>
+        </div>
+    </div>
+
+    <form asp-action="Confirmar" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="IdProveedor" />
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="small text-muted fw-bold">PROVEEDOR</label>
+                        <div class="fs-5">@Model.NombreProveedor</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="FechaCompra" class="small text-muted fw-bold"></label>
+                        <input asp-for="FechaCompra" class="form-control" type="datetime-local" 
+                               value="@(Model.FechaCompra.ToString("yyyy-MM-ddTHH:mm"))" />
+                        <span asp-validation-for="FechaCompra" class="text-danger small validation-placeholder"></span>
+                    </div>
+                </div>
+
+                <hr class="my-3" />
+
+                <div class="row">
+                    <div class="col-12">
+                        <label asp-for="Observaciones" class="small text-muted fw-bold mb-1"></label>
+                        <textarea asp-for="Observaciones" class="form-control" rows="2" placeholder="Notas internas o instrucciones para el proveedor..."></textarea>
+                        <span asp-validation-for="Observaciones" class="text-danger small validation-placeholder"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Items (solo lectura) -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Detalle de Productos</h6>
+                <small class="text-muted">@Model.Items?.Count() ?? 0 items</small>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Producto</th>
+                                <th>Codigos</th>
+                                <th class="text-center" style="width:120px;">Cant.</th>
+                                <th class="text-end">Precio Unit.</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td class="align-middle">
+                                        <span class="fw-bold">@item.NombreProducto</span>
+                                    </td>
+                                    <td>
+                                        @if (item.CodigosExternos != null && item.CodigosExternos.Any())
+                                        {
+                                            <div class="d-flex flex-wrap gap-1">
+                                                @foreach (var codigo in item.CodigosExternos)
+                                                {
+                                                    <span class="badge bg-light text-dark border font-monospace text-wrap" style="font-size:0.75rem;">
+                                                        @codigo
+                                                    </span>
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small fst-italic">Sin códigos</span>
+                                        }
+                                    </td>
+                                    <td class="text-center align-middle">@item.Cantidad</td>
+                                    <td class="text-end align-middle">$@item.PrecioUnitario.ToString("N2")</td>
+                                    <td class="text-end align-middle">$@item.Subtotal.ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-active">
+                                <td colspan="4" class="text-end fw-bold">TOTAL</td>
+                                <td class="text-end fw-bold fs-5 text-success">$@Model.TotalOrden.ToString("N2")</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer bg-white text-end py-3">
+                <a asp-controller="Carrito" asp-action="Index" class="btn btn-outline-secondary me-2">Volver</a>
+                <button type="submit" class="btn btn-success px-4">
+                    <i class="bi bi-check-lg me-1"></i>Confirmar Compra
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+<style>
+    .validation-placeholder {
+        min-height: 1.25rem;
+        display: block;
+    }
+</style>

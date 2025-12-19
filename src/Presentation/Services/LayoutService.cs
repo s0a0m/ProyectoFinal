@@ -26,5 +26,16 @@ namespace src.Presentation.Services
         {
              return _httpContextAccessor.HttpContext?.Session.GetString("Nombre") ?? "Usuario";
         }
+
+        public int? ObtenerIdUsuario()
+        {
+            var idStr = _httpContextAccessor.HttpContext?.Session.GetString("UsuarioId");
+
+            if (int.TryParse(idStr, out int id))
+                return id;
+
+            return null;
+        }
+
     }
 }

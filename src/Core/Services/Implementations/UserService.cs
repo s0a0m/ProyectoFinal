@@ -9,15 +9,56 @@ public class UserService : IUserService
     private readonly IUsuarioRepository _userRepository;
     private readonly IPermisoRepository _permisoRepository;
     private readonly IGrupoPermisosRepository _grupoRepository;
-    public UserService(IUsuarioRepository userRepository, IPermisoRepository permisoRepository,IGrupoPermisosRepository grup)
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    public UserService(IUsuarioRepository userRepository, IPermisoRepository permisoRepository,IGrupoPermisosRepository grup,IHttpContextAccessor httpContextAccessor)
     {
         _userRepository = userRepository;
         _permisoRepository = permisoRepository;
         _grupoRepository = grup;
+        _httpContextAccessor = httpContextAccessor;
     }
 
 
     // --- Nuevos Métodos para Preparar ViewModels ---
+
+    public Dom.Usuario? ObtenerUsuarioActual()
+        {
+            var context = _httpContextAccessor.HttpContext;
+            if (context == null) return null;
+            short idFinal = 0;
+            // Leemos el entero desde la sesión. 
+            // Asumo que la key es "IdUsuario", si usas otra en tu Login, cámbiala aquí.
+            var idString = context.Session.GetString("UsuarioId");
+            if (!string.IsNullOrEmpty(idString) && short.TryParse(idString, out short parsedId))
+            {
+                idFinal = parsedId;
+            }
+            else 
+            {
+                var idInt = context.Session.GetInt32("UsuarioId");
+                if (idInt.HasValue)
+                {
+                    idFinal = (short)idInt.Value;
+                }
+            }
+            if (idFinal > 0)
+            {
+                return new Dom.Usuario 
+                { 
+                    IdUsuario = idFinal,
+                    Nombre = string.Empty,
+                    Apellido = string.Empty,
+                    Correo = string.Empty,
+                    Telefono = string.Empty,
+                    Contrasenia = string.Empty,
+                    Identificacion = string.Empty
+                };
+            }
+
+            return null;
+        }
+
+
 
     public async Task<CrearUsuarioViewModel> PrepararCrearViewModelAsync()
     {

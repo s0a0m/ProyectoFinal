@@ -67,10 +67,12 @@ namespace src.Repositories.Implementations
             var compraEF = await GetQueryCompras().FirstOrDefaultAsync(c => c.IdCompra == compra.IdCompra);
 
             if (compraEF == null) return;
+            compraEF.Observaciones = compra.Observaciones;
 
-            _context.Entry(compraEF).CurrentValues.SetValues(compraEF);
+
             var detallesEliminar = compraEF.Detalles.Where(d => !compra.Detalles.Any(dd => dd.IdDetalleCompra == d.IdDetalleCompra)).ToList();
-            _context.DetallesCompra.RemoveRange(detallesEliminar);
+            if(detallesEliminar.Any()) _context.DetallesCompra.RemoveRange(detallesEliminar);
+
             foreach (var detDom in compra.Detalles)
             {
                 var detEf = compraEF.Detalles.FirstOrDefault(d => d.IdDetalleCompra == detDom.IdDetalleCompra);
@@ -94,17 +96,17 @@ namespace src.Repositories.Implementations
         }
         public async Task FinalizarCompraAsync(int idCompra)
         {
-            var compra = await _context.Compras.FindAsync(idCompra);
+            var compra = await _context.Compras.FindAsync((short)idCompra);
             if (compra == null) return;
 
             compra.Estado = EstadoCompra.COMPLETADA;
-            compra.FechaRecepcion = DateTime.Now;
+            compra.FechaRecepcion = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
         }
         public async Task CancelarCompraAsync(int idCompra, string motivo)
         {
-            var compra = await _context.Compras.FindAsync(idCompra);
+            var compra = await _context.Compras.FindAsync((short)idCompra);
             if (compra == null) return;
 
             compra.Estado = EstadoCompra.CANCELADA;
@@ -114,7 +116,7 @@ namespace src.Repositories.Implementations
         }
         public async Task MarcarComoEnviadaAsync(int idCompra)
         {
-            var compra = await _context.Compras.FindAsync(idCompra);
+            var compra = await _context.Compras.FindAsync((short)idCompra);
             if (compra != null)
             {
                 compra.Estado = EstadoCompra.ENVIADA;

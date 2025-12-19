@@ -35,6 +35,28 @@ namespace src.Core.Services.Implementations
             Session.SetString(SESSION_KEY, json);
         }
 
+        public async Task ActualizarCantidadAsync(short idProducto, short idProveedor, int cantidad)
+        {
+            var carrito = await ObtenerCarritoCompletoAsync();
+
+            var item = carrito.FirstOrDefault(x =>
+                x.IdProducto == idProducto &&
+                x.IdProveedor == idProveedor);
+
+            if (item == null)
+            {
+                // Opción 1: no hacer nada (silencioso)
+                return;
+
+                // Opción 2 (más estricta):
+                // throw new InvalidOperationException("El item no existe en el carrito");
+            }
+
+            item.Cantidad = cantidad;
+
+            GuardarCarritoEnSesion(carrito);
+        }
+
         public async Task AgregarItemAsync(CarritoItemViewModel nuevoItem)
         {
             var carrito = await ObtenerCarritoCompletoAsync();

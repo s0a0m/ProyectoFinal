@@ -61,10 +61,31 @@ namespace src.Presentation.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Eliminar(short idProducto, short idProveedor)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Actualizar(short idProducto, short idProveedor, int cantidad)
+    {
+        if (cantidad < 0) return BadRequest("Cantidad inválida");
+        if (cantidad == 0)
         {
+            // si ponen 0, lo eliminamos
             await _cartService.RemoverItemAsync(idProducto, idProveedor);
             return RedirectToAction(nameof(Index));
         }
+
+        // validar existencia del producto/proveedor opcional:
+        var dto = await _prodProvRepo.GetByIdAsync(idProducto, idProveedor);
+        if (dto == null) return NotFound("Producto no disponible con este proveedor");
+
+        await _cartService.ActualizarCantidadAsync(idProducto, idProveedor, cantidad);
+        return RedirectToAction(nameof(Index));
+    }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Eliminar(short idProducto, short idProveedor)
+    {
+        await _cartService.RemoverItemAsync(idProducto, idProveedor);
+        return RedirectToAction(nameof(Index));
+    }
     }
 }

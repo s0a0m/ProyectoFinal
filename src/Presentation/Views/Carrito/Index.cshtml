@@ -64,11 +64,24 @@
                                                 <span class="text-muted small fst-italic">Sin códigos externos</span>
                                             }
                                         </td>
-                                        <td class="text-center fw-bold">@item.Cantidad</td>
+
+                                        <td class="text-center fw-bold">
+                                            <form asp-action="Actualizar" method="post" class="d-inline-flex align-items-center">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="idProducto" value="@item.IdProducto" />
+                                                <input type="hidden" name="idProveedor" value="@item.IdProveedor" />
+                                                <input name="cantidad" type="number" class="form-control form-control-sm text-center" value="@item.Cantidad" min="0" style="width:80px;" />
+                                                <button type="submit" class="btn btn-sm btn-outline-primary ms-2" title="Actualizar cantidad">
+                                                    <i class="bi bi-arrow-repeat"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+
                                         <td class="text-end text-muted">$@item.PrecioUnitario.ToString("N2")</td>
                                         <td class="text-end fw-bold">$@item.Subtotal.ToString("N2")</td>
                                         <td class="text-end">
                                             <form asp-action="Eliminar" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
                                                 <input type="hidden" name="idProducto" value="@item.IdProducto" />
                                                 <input type="hidden" name="idProveedor" value="@item.IdProveedor" />
                                                 <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Quitar">
