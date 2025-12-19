@@ -18,6 +18,8 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
+        ViewBag.NombreUsuario = HttpContext.Session.GetString("Nombre") ?? "Usuario";
+        ViewBag.CorreoUsuario = HttpContext.Session.GetString("Correo") ?? "correo@ejemplo.com";
         return View();
     }
 
