@@ -9,7 +9,7 @@ namespace src.Presentation.ViewModels.ImportacionVM
     // 1. ViewModel para el Formulario de Carga (INPUT)
     public class ConfigurarCargaViewModel
     {
-        [Required]
+        [Required(ErrorMessage = "Debe seleccionar un proveedor.")]
         public short IdProveedor { get; set; }
         public IEnumerable<SelectListItem>? ProveedoresDisponibles { get; set; }
         [Required(ErrorMessage = "Debe seleccionar un archivo Excel.")]
@@ -24,10 +24,10 @@ namespace src.Presentation.ViewModels.ImportacionVM
         // Aquí asumo que la vista enviará el índice numérico (A=0, B=1).
 
         [Display(Name = "Columna Código de Barras")]
-        public int ColumnaCodigoBarra { get; set; } 
+        public int ColumnaCodigoBarra { get; set; }
 
         [Display(Name = "Columna Nombre/Descripción")]
-        public int ColumnaNombre { get; set; }=-1;
+        public int ColumnaNombre { get; set; } = -1;
 
         [Display(Name = "Columna Precio")]
         public int ColumnaPrecio { get; set; } = -1;

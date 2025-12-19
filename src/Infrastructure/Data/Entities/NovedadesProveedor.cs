@@ -37,9 +37,17 @@ public class NovedadesProveedor
     [Column("precio_sugerido", TypeName = "numeric(10,2)")]
     public decimal PrecioSugerido { get; set; }
 
+    [Column("stock_sugerido")]
+    public int StockSugerido { get; set; }
+
     [Column("estado")]
     public EstadoNovedad Estado { get; set; } = EstadoNovedad.PENDIENTE;
 
     [Column("fecha_importacion")]
     public DateTime FechaImportacion { get; set; }
+    [Column("observaciones")]
+    public string? Observaciones { get; set; }
+
+    [Column("fecha_modificacion")]
+    public DateTime? FechaModificacion { get; set; }
 }
