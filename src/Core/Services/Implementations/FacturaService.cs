@@ -14,10 +14,12 @@ namespace src.Core.Services.Implementations
     public class FacturaService : IFacturaService
     {
         private readonly IFacturaRepository _facturaRepository;
+        private readonly ICondicionPagoRepository _condicionPagoRepository;
 
-        public FacturaService(IFacturaRepository facturaRepo)
+        public FacturaService(IFacturaRepository facturaRepo, ICondicionPagoRepository condicionPagoRepository)
         {
             _facturaRepository = facturaRepo;
+            _condicionPagoRepository = condicionPagoRepository;
         }
 
         public Task<bool> ActualizarEstadoPagoAsync(int id, bool pagada)
@@ -25,18 +27,59 @@ namespace src.Core.Services.Implementations
             throw new NotImplementedException();
         }
 
-        public Task<int> CrearFacturaAsync(CrearFacturaViewModel modelo)
+        public async Task<int> CrearFacturaAsync(CrearFacturaViewModel modelo)
         {
-            throw new NotImplementedException();
+            var nuevaFactura = new Dom.Factura
+            {
+                Compra = new Compra { IdCompra = modelo.IdCompra },
+                Proveedor = new Proveedor { IdProveedor = modelo.IdProveedor },
+                NumeroFactura = modelo.NumeroFactura,
+                FechaEmision = modelo.FechaEmision,
+                CondicionPago = await _condicionPagoRepository.GetByIdAsync(modelo.IdCondicionPago),
+                Pagada = false,
+                Detalles = new List<Dom.DetalleFactura>()
+            };
+
+            decimal acumuladorTotal = 0;
+
+            foreach (var item in modelo.Detalles)
+            {
+                var detalle = new Dom.DetalleFactura
+                {
+                    Producto = new Producto { IdProducto = item.IdProducto },
+                    Cantidad = item.Cantidad,
+                    PrecioUnitario = item.PrecioUnitario
+                };
+
+                acumuladorTotal += (item.Cantidad * item.PrecioUnitario);
+                nuevaFactura.Detalles.Add(detalle);
+            }
+
+            nuevaFactura.TotalFacturado = acumuladorTotal;
+
+            var facturaCreada = await _facturaRepository.AddAsync(nuevaFactura);
+
+            return facturaCreada.IdFactura;
         }
-        public Task<bool> ExisteNumeroFacturaAsync(short idProveedor, string numero)
+        public async Task<bool> ExisteNumeroFacturaAsync(short idProveedor, string numero)
         {
-            throw new NotImplementedException();
+            return await _facturaRepository.ExisteNumeroFacturaAsync(idProveedor, numero);
         }
 
-        public Task<IEnumerable<ListarFacturaViewModel>> ObtenerPendientesPagoAsync()
+        public async Task<IEnumerable<ListarFacturaViewModel>> ObtenerPendientesPagoAsync()
         {
-            throw new NotImplementedException();
+            var facturas = await _facturaRepository.GetPendientesPagoAsync();
+
+            return facturas.Select(f => new ListarFacturaViewModel
+            {
+                IdFactura = f.IdFactura,
+                NumeroComprobante = f.NumeroFactura,
+                Proveedor = f.Proveedor?.RazonSocial ?? "Desconocido",
+                Fecha = f.FechaEmision,
+                Total = f.TotalFacturado,
+                EstadoPago = "Pendiente",
+                CantidadItems = f.Detalles?.Count ?? 0
+            }).ToList();
         }
         public async Task<ListarDetalleFacturaViewModel?> ObtenerPorIdAsync(int id)
         {

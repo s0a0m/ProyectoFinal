@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using src.Core.Services.Interfaces;
+using src.Presentation.ViewModels.FacturaVM;
 
 namespace src.Presentation.Controllers
 {
@@ -12,6 +13,66 @@ namespace src.Presentation.Controllers
         public FacturaApiController(IFacturaService facturaService)
         {
             _facturaService = facturaService;
+        }
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CrearFacturaViewModel modelo)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var existe = await _facturaService.ExisteNumeroFacturaAsync(modelo.IdProveedor, modelo.NumeroFactura);
+                if (existe)
+                {
+                    return BadRequest(new { mensaje = "El número de factura ya se encuentra registrado para este proveedor." });
+                }
+
+                var idGenerado = await _facturaService.CrearFacturaAsync(modelo);
+
+                return CreatedAtAction(
+                    nameof(GetById),
+                    new { id = idGenerado },
+                    new { id = idGenerado, mensaje = "Factura creada exitosamente" }
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    mensaje = "Ocurrió un error al procesar la factura",
+                    error = ex.Message
+                });
+            }
+        }
+        [HttpGet("pendientes")]
+        public async Task<IActionResult> GetPendientes()
+        {
+            try
+            {
+                var facturas = await _facturaService.ObtenerPendientesPagoAsync();
+                return Ok(facturas);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensaje = "Error al obtener facturas pendientes", error = ex.Message });
+            }
+        }
+
+        [HttpGet("existe/{idProveedor}/{numero}")]
+        public async Task<IActionResult> ExisteNumero(short idProveedor, string numero)
+        {
+            try
+            {
+                var existe = await _facturaService.ExisteNumeroFacturaAsync(idProveedor, numero);
+                return Ok(new { existe });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensaje = "Error al validar número de factura", error = ex.Message });
+            }
         }
 
         [HttpGet("{id}")]

@@ -18,6 +18,10 @@ public static partial class DominioMapper
     [MapperIgnoreTarget(nameof(Dom.Factura.CondicionPago))]
     public static partial Dom.Factura Map(EF.Factura source);
     public static partial IEnumerable<Dom.Factura> Map(IEnumerable<EF.Factura> source);
+    [MapperIgnoreTarget(nameof(EF.Factura.IdCompra))]
+    [MapperIgnoreTarget(nameof(EF.Factura.IdProveedor))]
+    [MapperIgnoreTarget(nameof(EF.Factura.IdCondicionPagoUsada))]
+    [MapperIgnoreTarget(nameof(EF.Factura.IdCompra))]
     public static partial EF.Factura Map(Dom.Factura source);
     public static partial IEnumerable<EF.Factura> Map(IEnumerable<Dom.Factura> source);
 }

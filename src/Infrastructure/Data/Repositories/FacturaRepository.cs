@@ -35,9 +35,21 @@ namespace src.Repositories.Implementations
                 .ThenInclude(d => d.Producto);
         }
 
-        public Task<Factura> AddAsync(Factura factura)
+        public async Task<Dom.Factura> AddAsync(Dom.Factura factura)
         {
-            throw new NotImplementedException();
+            var entity = DominioMapper.Map(factura);
+            await _context.Facturas.AddAsync(entity);
+
+            await _context.SaveChangesAsync();
+            var facturaCreada = await GetByIdAsync(entity.IdFactura);
+
+            if (facturaCreada == null)
+            {
+                factura.IdFactura = entity.IdFactura;
+                return factura;
+            }
+
+            return facturaCreada;
         }
 
         public async Task<bool> ExisteNumeroFacturaAsync(short idProveedor, string numeroFactura)
