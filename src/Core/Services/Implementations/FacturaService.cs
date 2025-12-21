@@ -95,11 +95,9 @@ namespace src.Core.Services.Implementations
                 Total = factura.TotalFacturado,
                 EstadoPago = factura.Pagada ? "Pagada" : "Pendiente",
 
-                // Datos del Proveedor (vienen del Include en el Repo)
                 ProveedorNombre = factura.Proveedor?.RazonSocial ?? "Desconocido",
                 CuitProveedor = factura.Proveedor?.Cuit ?? "N/A",
 
-                // Datos de Condición de Pago
                 CondicionPagoDesc = factura.CondicionPago switch
                 {
                     Dom.Cuota c => $"{c.Cuotas} cuotas (Interés: {c.InteresPorcentual}%) - Vence a los {c.DiasPago} días",
@@ -109,7 +107,6 @@ namespace src.Core.Services.Implementations
                             : "No especificada"
                 },
 
-                // Mapeo de la lista de ítems (Detalles)
                 Items = factura.Detalles.Select(d => new ItemFacturaViewModel
                 {
                     ProductoNombre = d.Producto?.Nombre ?? "Producto no identificado",
@@ -138,5 +135,27 @@ namespace src.Core.Services.Implementations
             }).ToList();
         }
 
+        public async Task<bool> UpdateAsync(int id, ActualizarFacturaViewModel model)
+        {
+            throw new NotImplementedException();
+            // var factura = await _facturaRepository.GetByIdAsync(id);
+            // if (factura == null) return false;
+
+            // if (factura.NumeroFactura != model.NumeroFactura)
+            // {
+            //     var existe = await _facturaRepository.ExisteNumeroFacturaAsync((short)factura.Proveedor.IdProveedor, model.NumeroFactura);
+            //     if (existe) throw new Exception("El nuevo número de factura ya existe para este proveedor.");
+            // }
+
+            // // 3. Actualizar campos permitidos
+            // factura.NumeroFactura = model.NumeroFactura;
+            // factura.FechaEmision = model.FechaEmision;
+            // factura.IdCondicionPagoUsada = model.IdCondicionPago;
+            // factura.Pagada = model.Pagada;
+
+            // // 4. Persistir
+            // await _facturaRepository.UpdateAsync(factura);
+            // return true;
+        }
     }
 }

@@ -97,7 +97,19 @@ namespace src.Repositories.Implementations
 
         public async Task UpdateAsync(Factura factura)
         {
-            var entity = DominioMapper.Map(factura);
+            var entity = await _context.Facturas
+                .Include(f => f.Detalles)
+                .FirstOrDefaultAsync(f => f.IdFactura == factura.IdFactura);
+
+            if (entity == null) throw new Exception("Factura no encontrada para actualizar");
+
+            entity.NumeroFactura = factura.NumeroFactura;
+            entity.FechaEmision = factura.FechaEmision;
+            entity.Pagada = factura.Pagada;
+            entity.TotalFacturado = factura.TotalFacturado;
+            if (factura.CondicionPago is not null)
+                entity.IdCondicionPagoUsada = factura.CondicionPago.IdCondicionPago;
+
             _context.Facturas.Update(entity);
             await _context.SaveChangesAsync();
         }
