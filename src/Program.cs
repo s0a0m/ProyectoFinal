@@ -53,6 +53,7 @@ builder.Services.AddScoped<IFacturaRepository, FacturaRepository>();
 builder.Services.AddScoped<INovedadesService, NovedadesService>();
 builder.Services.AddScoped<IProductoProveedorService, ProductoProveedorService>();
 builder.Services.AddScoped<ICompraRepository, CompraRepository>();
+builder.Services.AddScoped<ICondicionPagoRepository, CondicionPagoRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 // builder.Services.AddScoped<ICompraRepository, CompraRepository>();
 // Servicios

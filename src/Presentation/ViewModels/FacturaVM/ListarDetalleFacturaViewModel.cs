@@ -8,7 +8,6 @@ public class ListarDetalleFacturaViewModel
     public DateTime Fecha { get; set; }
     public decimal Total { get; set; }
     public string EstadoPago { get; set; } = string.Empty;
-
     public string ProveedorNombre { get; set; } = string.Empty;
     public string CuitProveedor { get; set; } = string.Empty;
     public string CondicionPagoDesc { get; set; } = string.Empty;
