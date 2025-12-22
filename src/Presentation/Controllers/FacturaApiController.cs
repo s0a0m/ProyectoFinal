@@ -14,6 +14,40 @@ namespace src.Presentation.Controllers
         {
             _facturaService = facturaService;
         }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] ActualizarFacturaViewModel modelo)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var resultado = await _facturaService.UpdateAsync(id, modelo);
+
+                if (!resultado)
+                {
+                    return NotFound(new { mensaje = $"No se pudo actualizar: La factura con ID {id} no existe." });
+                }
+
+                return Ok(new { mensaje = "Factura actualizada exitosamente" });
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("ya existe"))
+                {
+                    return BadRequest(new { mensaje = ex.Message });
+                }
+
+                return StatusCode(500, new
+                {
+                    mensaje = "Error interno al intentar actualizar la factura",
+                    error = ex.Message
+                });
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CrearFacturaViewModel modelo)
         {
