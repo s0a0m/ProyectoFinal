@@ -4,6 +4,7 @@ public class Factura
 {
     public int IdFactura { get; set; }
     public string NumeroFactura { get; set; } = string.Empty;
+    public short IdCondicionPagoUsada { get; set; }
     public DateTime FechaEmision { get; set; }
     public decimal TotalFacturado { get; set; }
     public bool Pagada { get; set; }

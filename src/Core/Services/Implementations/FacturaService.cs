@@ -137,25 +137,27 @@ namespace src.Core.Services.Implementations
 
         public async Task<bool> UpdateAsync(int id, ActualizarFacturaViewModel model)
         {
-            throw new NotImplementedException();
-            // var factura = await _facturaRepository.GetByIdAsync(id);
-            // if (factura == null) return false;
+            // throw new NotImplementedException();
+            var factura = await _facturaRepository.GetByIdAsync(id);
+            if (factura == null) return false;
+            if (factura.Proveedor == null)
+            {
+                throw new InvalidOperationException("No se puede validar el número de factura porque los datos del proveedor no están cargados.");
+            }
 
-            // if (factura.NumeroFactura != model.NumeroFactura)
-            // {
-            //     var existe = await _facturaRepository.ExisteNumeroFacturaAsync((short)factura.Proveedor.IdProveedor, model.NumeroFactura);
-            //     if (existe) throw new Exception("El nuevo número de factura ya existe para este proveedor.");
-            // }
+            if (factura.NumeroFactura != model.NumeroFactura)
+            {
+                var existe = await _facturaRepository.ExisteNumeroFacturaAsync((short)factura.Proveedor.IdProveedor, model.NumeroFactura);
+                if (existe) throw new Exception("El nuevo número de factura ya existe para este proveedor.");
+            }
 
-            // // 3. Actualizar campos permitidos
-            // factura.NumeroFactura = model.NumeroFactura;
-            // factura.FechaEmision = model.FechaEmision;
-            // factura.IdCondicionPagoUsada = model.IdCondicionPago;
-            // factura.Pagada = model.Pagada;
+            factura.NumeroFactura = model.NumeroFactura;
+            factura.FechaEmision = model.FechaEmision;
+            factura.IdCondicionPagoUsada = model.IdCondicionPago;
+            factura.Pagada = model.Pagada;
 
-            // // 4. Persistir
-            // await _facturaRepository.UpdateAsync(factura);
-            // return true;
+            await _facturaRepository.UpdateAsync(factura);
+            return true;
         }
     }
 }
