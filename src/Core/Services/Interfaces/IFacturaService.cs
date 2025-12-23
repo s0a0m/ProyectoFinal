@@ -13,5 +13,7 @@ namespace src.Core.Services.Interfaces
         Task<bool> ActualizarEstadoPagoAsync(int id, bool pagada);
         Task<bool> ExisteNumeroFacturaAsync(short idProveedor, string numero);
         Task<bool> UpdateAsync(int id, ActualizarFacturaViewModel model);
+        // IFacturaService.cs
+        Task<CrearFacturaViewModel> PrepararFacturaDesdeCompraAsync(int idCompra);
     }
 }

@@ -13,20 +13,17 @@
 
     <ul class="nav nav-pills mb-4 gap-2" id="pills-tab" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="tab-pendientes" data-bs-toggle="pill" type="button" 
-                    onclick="filtrarTabla('PENDIENTE')">
+            <button class="nav-link active" id="tab-pendientes" data-filter="PENDIENTE" type="button">
                 <i class="bi bi-hourglass-split me-1"></i>Pendientes
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-enviadas" data-bs-toggle="pill" type="button" 
-                    onclick="filtrarTabla('ENVIADA')">
+            <button class="nav-link" id="tab-enviadas" data-filter="ENVIADA" type="button">
                 <i class="bi bi-truck me-1"></i>Enviadas
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-completadas" data-bs-toggle="pill" type="button" 
-                    onclick="filtrarTabla('COMPLETADA')">
+            <button class="nav-link" id="tab-completadas" data-filter="HISTORIAL" type="button">
                 <i class="bi bi-check-all me-1"></i>Historial
             </button>
         </li>
@@ -36,12 +33,23 @@
     @if (TempData["Error"] != null) { <div class="alert alert-danger alert-dismissible fade show"><i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div> }
 
     <div class="card shadow border-0">
-        <div class="card-body p-0">
+        <div class="card-body py-3">
+            <div class="row g-2 align-items-center mb-3">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                        <input id="globalSearch" type="text" class="form-control border-start-0 ps-0" placeholder="Buscar por proveedor, usuario, fecha..." />
+                    </div>
+                </div>
+                <div class="col-md-7 text-end">
+                    <small class="text-muted">Mostrando: <span id="countVisible">0</span> registros</small>
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0" id="tablaCompras">
                     <thead class="bg-light">
                         <tr>
-                
                             <th>Fecha</th>
                             <th>Proveedor</th>
                             <th>Usuario</th>
@@ -53,10 +61,10 @@
                     <tbody>
                         @foreach (var item in Model)
                         {
-                            // Atributo CLAVE para el filtrado JS
-                            <tr class="fila-compra" data-estado="@item.Estado">
+                            // Data attribute para el filtro de estado
+                            <tr data-estado="@item.Estado">
+                                <td data-order="@item.Fecha.ToString("yyyyMMddHHmm")">@item.Fecha.ToString("dd/MM/yyyy")</td>
                                 
-                                <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
                                 <td>@item.ProveedorRazonSocial</td>
                                 <td class="small">@item.UsuarioNombre @item.UsuarioApellido</td>
                                 <td class="text-end fw-bold">$@item.Total.ToString("N2")</td>
@@ -64,6 +72,7 @@
                                     @if(item.Estado == "PENDIENTE") { <span class="badge bg-warning text-dark">Pendiente</span> }
                                     else if(item.Estado == "ENVIADA") { <span class="badge bg-primary">Enviada</span> }
                                     else if(item.Estado == "COMPLETADA") { <span class="badge bg-success">Completada</span> }
+                                    else if(item.Estado == "CANCELADA") { <span class="badge bg-danger">Cancelada</span> }
                                     else { <span class="badge bg-secondary">@item.Estado</span> }
                                 </td>
                                 <td class="text-center">
@@ -96,7 +105,7 @@
                     </tbody>
                 </table>
                 <div id="emptyMessage" class="text-center py-5 text-muted" style="display:none;">
-                    No hay compras en esta sección.
+                    No se encontraron compras con los filtros actuales.
                 </div>
             </div>
         </div>
@@ -129,7 +138,7 @@
                 <form id="formCancel" asp-action="Cancelar" method="post">
                     <input type="hidden" name="idCompra" id="hiddenIdCancel" />
                     <label class="form-label small">Motivo</label>
-                    <input type="text" name="motivo" class="form-control" placeholder="Ej: Error de carga..." />
+                    <input type="text" name="motivo" class="form-control" placeholder="Ej: Error de carga..." required />
                     <div class="mt-3 text-end">
                         <button type="submit" class="btn btn-danger">Cancelar Definitivamente</button>
                     </div>
@@ -140,44 +149,81 @@
 </div>
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
     <script>
-        // Filtrado Inicial
-        document.addEventListener("DOMContentLoaded", function() {
-            filtrarTabla('PENDIENTE'); // Estado por defecto al cargar
-        });
+        $(document).ready(function() {
+            var currentStatusFilter = 'PENDIENTE'; // Valor inicial
 
-        function filtrarTabla(estado) {
-            var filas = document.querySelectorAll('.fila-compra');
-            var contadorVisibles = 0;
+            // 1. Extension de busqueda personalizada para DataTable
+            $.fn.dataTable.ext.search.push(
+                function(settings, data, dataIndex) {
+                    var row = settings.aoData[dataIndex].nTr;
+                    var estadoRow = $(row).attr('data-estado') || '';
 
-            filas.forEach(function(fila) {
-                // Si el filtro es COMPLETADA, mostramos tanto COMPLETADA como CANCELADA (Historial)
-                if (estado === 'COMPLETADA') {
-                    if (fila.dataset.estado === 'COMPLETADA' || fila.dataset.estado === 'CANCELADA') {
-                        fila.style.display = '';
-                        contadorVisibles++;
+                    if (currentStatusFilter === 'HISTORIAL') {
+                        // Historial muestra Completadas y Canceladas
+                        return estadoRow === 'COMPLETADA' || estadoRow === 'CANCELADA';
                     } else {
-                        fila.style.display = 'none';
+                        // Filtro exacto (PENDIENTE o ENVIADA)
+                        return estadoRow === currentStatusFilter;
                     }
-                } 
-                else {
-                    // Filtrado exacto para PENDIENTE o ENVIADA
-                    if (fila.dataset.estado === estado) {
-                        fila.style.display = '';
-                        contadorVisibles++;
+                }
+            );
+
+            // 2. Inicializar DataTable
+            var table = $('#tablaCompras').DataTable({
+                "ordering": true,
+                "paging": true,
+                "info": false, // Ocultamos info default para usar la nuestra custom
+                "searching": true,
+                "lengthChange": false,
+                "pageLength": 10,
+                "order": [[0, 'desc']], // Ordenar por fecha descendente
+                "language": { url: "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json" },
+                "dom": 'rt<"d-flex justify-content-center mt-3"p>', // Tabla + Paginación centrada
+                "columnDefs": [
+                    { "orderable": false, "targets": [5] } // No ordenar acciones
+                ],
+                "drawCallback": function(settings) {
+                    // Actualizar contador
+                    var api = this.api();
+                    $('#countVisible').text(api.rows({ filter: 'applied' }).count());
+                    
+                    // Toggle mensaje vacío
+                    if (api.rows({ filter: 'applied' }).count() === 0) {
+                        $('#emptyMessage').show();
+                        $(api.table().node()).hide();
                     } else {
-                        fila.style.display = 'none';
+                        $('#emptyMessage').hide();
+                        $(api.table().node()).show();
                     }
                 }
             });
 
-            // Mostrar mensaje vacío si no hay filas
-            var msg = document.getElementById('emptyMessage');
-            if (contadorVisibles === 0) msg.style.display = 'block';
-            else msg.style.display = 'none';
-        }
+            // 3. Conectar Input Buscador Global
+            $('#globalSearch').on('keyup', function() {
+                table.search(this.value).draw();
+            });
 
-        // Funciones de Modales (Sin cambios)
+            // 4. Conectar Tabs de Filtro
+            $('.nav-link').on('click', function() {
+                // Gestion de clases active
+                $('.nav-link').removeClass('active');
+                $(this).addClass('active');
+
+                // Actualizar filtro y redibujar
+                currentStatusFilter = $(this).data('filter');
+                table.draw();
+            });
+
+            // Dibujar inicial
+            table.draw();
+        });
+
+        // Funciones Globales para Modales (fuera del document.ready)
         function confirmarEnvio(id, prov) {
             document.getElementById('lblIdEnvio').innerText = id;
             document.getElementById('lblProvEnvio').innerText = prov;

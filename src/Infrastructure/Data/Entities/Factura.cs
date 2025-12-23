@@ -27,6 +27,9 @@ public class Factura
     [Column("fecha_emision")]
     public DateTime FechaEmision { get; set; }
 
+    [Column("fecha_pago")]
+    public DateTime? FechaPago { get; set; } = null;
+
     [Required]
     [Column("total_facturado", TypeName = "decimal(18,2)")]
     public decimal TotalFacturado { get; set; }

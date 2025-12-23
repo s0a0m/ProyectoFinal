@@ -6,10 +6,12 @@
     "IdCondicionPagoUsada": 1,
     "NumeroFactura": "FAC-0001-000001",
     "FechaEmision": "2025-12-17T15:30:00",
+    "FechaPago": null,
     "TotalFacturado": 10500.0,
     "Pagada": false,
     "Detalles": [
       {
+        "IdDetalleFactura": 1,
         "IdFactura": 1,
         "IdProducto": 1,
         "Cantidad": 10,
@@ -18,6 +20,7 @@
         "PrecioNeto": 450.0
       },
       {
+        "IdDetalleFactura": 2,
         "IdFactura": 1,
         "IdProducto": 2,
         "Cantidad": 5,
@@ -34,10 +37,12 @@
     "IdCondicionPagoUsada": 1,
     "NumeroFactura": "FAC-0002-000089",
     "FechaEmision": "2025-12-17T16:00:00",
+    "FechaPago": "2025-12-17T16:05:00",
     "TotalFacturado": 4500.0,
     "Pagada": true,
     "Detalles": [
       {
+        "IdDetalleFactura": 3,
         "IdFactura": 2,
         "IdProducto": 3,
         "Cantidad": 10,

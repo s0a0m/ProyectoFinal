@@ -33,9 +33,9 @@
                 </a>
                 @if (Model.Estado == "ENVIADA")
                 {
-                    <button class="btn btn-primary" title="Próximamente" disabled>
-                        <i class="bi bi-receipt me-2"></i>Cargar Factura
-                    </button>
+                    <a asp-controller="Factura" asp-action="CargarFactura" class="btn btn-primary btn-sm shadow-sm">
+                        <i class="bi bi-plus-lg text-white-50 me-1"></i>Cargar Factura
+                    </a>
                 }
             </div>
         </div>

@@ -29,7 +29,7 @@ namespace src.ViewModels
 
         [Required(ErrorMessage = "El nombre de la Persona responsable es obligatorio.")]
         [StringLength(80)]
-        [RegularExpression(@"^[\p{L}\p{N}\s]+$", ErrorMessage = "La razón social no puede contener caracteres especiales")]
+        [RegularExpression(@"^[\p{L}\p{N}\s]+$", ErrorMessage = "La Persona Responsable no puede contener caracteres especiales")]
         public string PersonaResponsable { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El Saldo es obligatorio.")]

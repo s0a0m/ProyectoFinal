@@ -203,6 +203,10 @@ public static class DbInitializer
         foreach (var factura in facturas)
         {
             factura.FechaEmision = DateTime.SpecifyKind(factura.FechaEmision, DateTimeKind.Utc);
+            if (factura.FechaPago.HasValue)
+            {
+                factura.FechaPago = DateTime.SpecifyKind(factura.FechaPago.Value, DateTimeKind.Utc);
+            }
         }
 
         context.Facturas.AddRange(facturas);
