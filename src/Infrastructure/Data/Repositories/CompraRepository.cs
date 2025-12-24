@@ -123,5 +123,19 @@ namespace src.Repositories.Implementations
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task CompletarCompraAsync(int idCompra)
+        {
+            var compra = await _context.Compras.FindAsync((short)idCompra);
+            if (compra == null) 
+                throw new KeyNotFoundException($"No se encontró la compra con ID {idCompra}");
+
+            compra.Estado = EstadoCompra.COMPLETADA;
+            compra.FechaRecepcion = DateTime.UtcNow; // Opcional: si quieres registrar la fecha de recepción
+
+            await _context.SaveChangesAsync();
+        }
+
+
     }
 }

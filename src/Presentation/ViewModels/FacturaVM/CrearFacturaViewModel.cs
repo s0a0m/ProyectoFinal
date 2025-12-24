@@ -13,21 +13,21 @@ namespace src.Presentation.ViewModels.FacturaVM
         public string RazonSocial { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El número de factura es requerido")]
-        [StringLength(50)]
+        [StringLength(50, ErrorMessage = "El número no puede exceder los 50 caracteres.")]
         [Display(Name = "Número de Factura")]
         public string NumeroFactura { get; set; } = null!;
 
         [Required]
         [DataType(DataType.Date)]
         [Display(Name = "Fecha de Emisión")]
-        public DateTime FechaEmision { get; set; } = DateTime.Now;
+        public DateTime FechaEmision { get; set; } = DateTime.UtcNow;
 
         // --- Lógica de Condición de Pago ---
-        
+        [Required(ErrorMessage = "La forma de pago es requerida")]
         [Display(Name = "Tipo de Pago")]
-        public string TipoCondicion { get; set; } = "Contado"; // "Contado" o "Cuota"
+        public string TipoCondicion { get; set; }  
 
-        [Required]
+        [Required(ErrorMessage = "La Dias de pago son requeridos")]
         [Range(0, 365, ErrorMessage = "Días de pago inválidos")]
         [Display(Name = "Días para el pago")]
         public short DiasPago { get; set; }
@@ -48,8 +48,9 @@ namespace src.Presentation.ViewModels.FacturaVM
 
     public class CrearFacturaDetalleViewModel
     {
+        [Required(ErrorMessage = "El producto es requerido")]
         public int IdProducto { get; set; }
-        public string NombreProducto { get; set; } = string.Empty;
+        public string NombreProducto { get; set; }
         public int Cantidad { get; set; }
         public decimal PrecioBruto { get; set; }
         [Range(0, 100, ErrorMessage = "Porcentaje inválido")]
