@@ -1,0 +1,46 @@
+{
+  "NotasCredito": [
+    {
+      "IdProveedor": 1,
+      "IdCondicionPagoUsada": 1,
+      "IdMotivo": 1,
+      "Numero": "NC-A-0001-00000001",
+      "Total": 1500.5,
+      "FechaEmision": "2025-12-17T16:00:00",
+      "Comentario": "Devolución por producto dañado en el envío",
+      "IdFacturaReferencia": 1
+    },
+    {
+      "IdProveedor": 2,
+      "IdCondicionPagoUsada": 1,
+      "IdMotivo": 2,
+      "Numero": "NC-A-0002-00000045",
+      "Total": 5000.0,
+      "FechaEmision": "2025-12-17T16:00:00",
+      "Comentario": "Bonificación por volumen de compra mensual",
+      "IdFacturaReferencia": 2
+    }
+  ],
+  "NotasDebito": [
+    {
+      "IdProveedor": 1,
+      "IdCondicionPagoUsada": 1,
+      "IdMotivo": 5,
+      "Numero": "ND-A-0001-00000001",
+      "Total": 350.0,
+      "FechaEmision": "2025-12-17T16:00:00",
+      "Comentario": "Intereses por pago fuera de término (3 días)",
+      "IdFacturaReferencia": 1
+    },
+    {
+      "IdProveedor": 3,
+      "IdCondicionPagoUsada": 1,
+      "IdMotivo": 6,
+      "Numero": "ND-B-0003-00000012",
+      "Total": 1200.0,
+      "FechaEmision": "2025-12-17T16:00:00",
+      "Comentario": "Diferencia de flete no cobrada en factura original",
+      "IdFacturaReferencia": 2
+    }
+  ]
+}

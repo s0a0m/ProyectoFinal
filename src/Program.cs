@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using src.Core.Services.Implementations;
 using src.Core.Services.Interfaces;
 using src.External;
+using src.Infrastructure.Repositories;
 using src.Interfaces;
 using src.Models.CodeFirst;
 using src.Repositories.Implementations;
@@ -54,6 +55,8 @@ builder.Services.AddScoped<INovedadesService, NovedadesService>();
 builder.Services.AddScoped<IProductoProveedorService, ProductoProveedorService>();
 builder.Services.AddScoped<ICompraRepository, CompraRepository>();
 builder.Services.AddScoped<ICondicionPagoRepository, CondicionPagoRepository>();
+builder.Services.AddScoped<IComprobanteRepository, ComprobanteRepository>();
+builder.Services.AddScoped<IOrdenPagoRepository, OrdenPagoRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 // builder.Services.AddScoped<ICompraRepository, CompraRepository>();
 // Servicios

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using src.Models.CodeFirst;
@@ -11,9 +12,11 @@ using src.Models.CodeFirst;
 namespace src.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251224010541_AddModuloComprobantesYPagos")]
+    partial class AddModuloComprobantesYPagos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -575,11 +578,7 @@ namespace src.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdOrdenPago"));
 
-                    b.Property<bool>("Enviada")
-                        .HasColumnType("boolean")
-                        .HasColumnName("enviada");
-
-                    b.Property<DateTime?>("FechaPago")
+                    b.Property<DateTime>("FechaPago")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_pago");
 

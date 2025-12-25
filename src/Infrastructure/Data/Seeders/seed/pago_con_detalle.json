@@ -1,0 +1,46 @@
+[
+  {
+    "IdProveedor": 1,
+    "MontoTotal": 50000.0,
+    "FechaPago": "2024-11-05T10:00:00",
+    "Enviada": true,
+    "Detalles": [
+      {
+        "IdFactura": 1,
+        "MontoAplicado": 20000.0
+      },
+      {
+        "IdFactura": 2,
+        "MontoAplicado": 30000.0
+      }
+    ]
+  },
+  {
+    "IdProveedor": 2,
+    "MontoTotal": 12500.5,
+    "FechaPago": "2024-11-06T15:45:00",
+    "Enviada": true,
+    "Detalles": [
+      {
+        "IdFactura": 1,
+        "MontoAplicado": 12500.5
+      }
+    ]
+  },
+  {
+    "IdProveedor": 3,
+    "MontoTotal": 8000.0,
+    "FechaPago": "2024-11-07T09:30:00",
+    "Enviada": true,
+    "Detalles": [
+      {
+        "IdFactura": 2,
+        "MontoAplicado": 4000.0
+      },
+      {
+        "IdFactura": 1,
+        "MontoAplicado": 4000.0
+      }
+    ]
+  }
+]

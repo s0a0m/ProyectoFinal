@@ -1,0 +1,47 @@
+[
+  {
+    "IdMotivoComprobante": 1,
+    "Descripcion": "Devolución de mercadería",
+    "ClaseComprobante": "NC"
+  },
+  {
+    "IdMotivoComprobante": 2,
+    "Descripcion": "Bonificación o Descuento comercial",
+    "ClaseComprobante": "NC"
+  },
+  {
+    "IdMotivoComprobante": 3,
+    "Descripcion": "Error en facturación (Precio de más)",
+    "ClaseComprobante": "NC"
+  },
+  {
+    "IdMotivoComprobante": 4,
+    "Descripcion": "Anulación de comprobante original",
+    "ClaseComprobante": "NC"
+  },
+  {
+    "IdMotivoComprobante": 5,
+    "Descripcion": "Intereses por pago fuera de término",
+    "ClaseComprobante": "ND"
+  },
+  {
+    "IdMotivoComprobante": 6,
+    "Descripcion": "Gastos de flete y logística",
+    "ClaseComprobante": "ND"
+  },
+  {
+    "IdMotivoComprobante": 7,
+    "Descripcion": "Diferencia de precio (Facturado de menos)",
+    "ClaseComprobante": "ND"
+  },
+  {
+    "IdMotivoComprobante": 8,
+    "Descripcion": "Gasto administrativo por cheque rechazado",
+    "ClaseComprobante": "ND"
+  },
+  {
+    "IdMotivoComprobante": 9,
+    "Descripcion": "Ajuste manual / Otros (requiere observación)",
+    "ClaseComprobante": "TODOS"
+  }
+]

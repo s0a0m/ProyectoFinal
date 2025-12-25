@@ -39,16 +39,16 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<GrupoPermisos> GruposPermisos { get; set; }
     public virtual DbSet<GrupoPermisoPermiso> GruposPermisosPermisos { get; set; }
     public virtual DbSet<UsuarioGrupoPermisos> UsuariosGruposPermisos { get; set; }
-    public DbSet<CompraAuditoria> AuditoriaCompras { get; set; }
+    public virtual DbSet<CompraAuditoria> AuditoriaCompras { get; set; }
 
-    public DbSet<Producto> Productos { get; set; }
-    public DbSet<ProductoProveedor> ProductosProveedores { get; set; }
+    public virtual DbSet<Producto> Productos { get; set; }
+    public virtual DbSet<ProductoProveedor> ProductosProveedores { get; set; }
     // public DbSet<Grupo> Grupos { get; set; }
     // public virtual DbSet<ProductoGrupo> ProductosGrupos { get; set; }
-    public DbSet<Categoria> Categorias { get; set; }
-    public DbSet<CodigoBarra> CodigoBarras { get; set; }
-    public DbSet<NovedadesProveedor> NovedadesProveedores { get; set; }
-    public DbSet<ProductoCodigoExterno> ProductoCodigosExternos { get; set; }
+    public virtual DbSet<Categoria> Categorias { get; set; }
+    public virtual DbSet<CodigoBarra> CodigoBarras { get; set; }
+    public virtual DbSet<NovedadesProveedor> NovedadesProveedores { get; set; }
+    public virtual DbSet<ProductoCodigoExterno> ProductoCodigosExternos { get; set; }
     public virtual DbSet<ProductoCategoria> ProductoCategorias { get; set; }
     public virtual DbSet<ProductoCodigoBarra> ProductoCodigosBarras { get; set; }
     public virtual DbSet<Familia> Familias { get; set; }
@@ -57,8 +57,62 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<DetalleCompra> DetallesCompra { get; set; }
     public virtual DbSet<Factura> Facturas { get; set; }
     public virtual DbSet<DetalleFactura> DetallesFactura { get; set; }
+    public virtual DbSet<Comprobante> Comprobantes { get; set; }
+    public virtual DbSet<NotaCredito> NotasCredito { get; set; }
+    public virtual DbSet<NotaDebito> NotasDebito { get; set; }
+    public virtual DbSet<MotivoComprobante> MotivosComprobante { get; set; }
+    public virtual DbSet<OrdenPago> OrdenesPago { get; set; }
+    public virtual DbSet<PagoDetalle> PagosDetalles { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
+        modelBuilder.Entity<Comprobante>().UseTptMappingStrategy();
+
+        modelBuilder.Entity<Comprobante>(entity =>
+        {
+            // entity.HasKey(e => e.IdComprobante).HasName("comprobante_pkey");
+            entity.ToTable("comprobante");
+            entity.Property(e => e.IdComprobante)
+                  .UseIdentityByDefaultColumn();
+        });
+
+        modelBuilder.Entity<NotaCredito>(entity =>
+        {
+            entity.ToTable("nota_credito");
+            // entity.HasKey(e => e.IdComprobante).HasName("pk_nota_credito");
+        });
+
+        modelBuilder.Entity<NotaDebito>(entity =>
+        {
+            entity.ToTable("nota_debito");
+            // entity.HasKey(e => e.IdComprobante).HasName("pk_nota_debito");
+        });
+
+        modelBuilder.Entity<OrdenPago>(entity =>
+        {
+            entity.ToTable("orden_pago");
+            entity.HasKey(e => e.IdOrdenPago).HasName("orden_pago_pkey");
+            entity.Property(e => e.IdOrdenPago).UseIdentityByDefaultColumn();
+            entity.HasOne(e => e.Proveedor)
+                .WithMany()
+                .HasForeignKey(e => e.IdProveedor)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<PagoDetalle>(entity =>
+        {
+            entity.ToTable("pago_detalle");
+            entity.HasKey(e => e.IdPagoDetalle).HasName("pago_detalle_pkey");
+            entity.Property(e => e.IdPagoDetalle).UseIdentityByDefaultColumn();
+            entity.HasOne(d => d.OrdenPago)
+                .WithMany(p => p.Detalles)
+                .HasForeignKey(d => d.IdOrdenPago)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(d => d.Factura)
+                .WithMany()
+                .HasForeignKey(d => d.IdFactura)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
 
         modelBuilder.Entity<Compra>(entity =>
         {

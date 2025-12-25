@@ -9,6 +9,11 @@ public static class DbInitializer
         public List<Cuota> Cuotas { get; set; } = new();
         public List<Contado> Contados { get; set; } = new();
     }
+    public class ComprobantesFile
+    {
+        public List<NotaCredito> NotasCredito { get; set; } = new();
+        public List<NotaDebito> NotasDebito { get; set; } = new();
+    }
 
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -23,6 +28,7 @@ public static class DbInitializer
         try
         {
             SeedProvincias(context);
+            SeedMotivosComprobante(context);
             SeedCondicionesPago(context);
             SeedPermisos(context);
             SeedUsuarios(context);
@@ -42,8 +48,12 @@ public static class DbInitializer
             SeedFacturas(context);
             SeedProductoCodigosExternos(context);
             context.SaveChanges();
+            SeedComprobantes(context);
+            SeedPago(context);
+            context.SaveChanges();
 
             ResetSequence(context, "provincia", "id_provincia");
+            ResetSequence(context, "motivo_comprobante", "id_motivo_comprobante");
             ResetSequence(context, "condicion_pago", "id_condicion_pago");
             ResetSequence(context, "domicilio", "id_domicilio");
             ResetSequence(context, "proveedor", "id_proveedor");
@@ -56,6 +66,8 @@ public static class DbInitializer
             ResetSequence(context, "factura", "id_factura");
             ResetSequence(context, "detalle_factura", "id_detalle_factura");
             ResetSequence(context, "novedades_proveedor", "id_novedad");
+            ResetSequence(context, "comprobante", "id_comprobante");
+            ResetSequence(context, "orden_pago", "id_orden_pago");
 
             transaction.Commit();
             Console.WriteLine(">>> Seeding de base de datos completado exitosamente.");
@@ -234,6 +246,48 @@ public static class DbInitializer
         context.SaveChanges();
 
         Console.WriteLine($"- Seeding {items.Count} códigos externos de proveedores...");
+    }
+
+    private static void SeedMotivosComprobante(AppDbContext context)
+    {
+        if (context.MotivosComprobante.Any()) return;
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/motivos_comprobante.json");
+        var motivos = JsonSerializer.Deserialize<List<MotivoComprobante>>(json, _jsonOptions)!;
+        context.MotivosComprobante.AddRange(motivos);
+        Console.WriteLine($"- Seeding {motivos.Count} motivos...");
+    }
+    private static void SeedPago(AppDbContext context)
+    {
+        if (context.OrdenesPago.Any()) return;
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/pago_con_detalle.json");
+        var ordenesPago = JsonSerializer.Deserialize<List<OrdenPago>>(json, _jsonOptions)!;
+        foreach (var orden in ordenesPago)
+        {
+            if (orden.FechaPago.HasValue)
+            {
+                orden.FechaPago = DateTime.SpecifyKind(orden.FechaPago.Value, DateTimeKind.Utc);
+            }
+        }
+        context.OrdenesPago.AddRange(ordenesPago);
+        Console.WriteLine($"- Seeding {ordenesPago.Count} órdenes de pago con sus detalles...");
+    }
+    private static void SeedComprobantes(AppDbContext context)
+    {
+        if (context.Comprobantes.Any()) return;
+
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/comprobante.json");
+        var data = JsonSerializer.Deserialize<ComprobantesFile>(json, _jsonOptions)!;
+        foreach (var n in data.NotasCredito)
+        {
+            n.FechaEmision = DateTime.SpecifyKind(n.FechaEmision, DateTimeKind.Utc);
+        }
+        foreach (var n in data.NotasDebito)
+        {
+            n.FechaEmision = DateTime.SpecifyKind(n.FechaEmision, DateTimeKind.Utc);
+        }
+        context.Comprobantes.AddRange(data.NotasCredito);
+        context.Comprobantes.AddRange(data.NotasDebito);
+        Console.WriteLine($"- Seeding {data.NotasCredito.Count} notas de crédito y {data.NotasDebito.Count} notas de débito...");
     }
 }
 
