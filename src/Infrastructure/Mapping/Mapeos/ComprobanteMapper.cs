@@ -8,11 +8,14 @@ public static partial class DominioMapper
 {
     [MapDerivedType(typeof(EF.NotaCredito), typeof(Dom.NotaCredito))]
     [MapDerivedType(typeof(EF.NotaDebito), typeof(Dom.NotaDebito))]
-    [MapperIgnoreSource(nameof(EF.NotaCredito.IdFacturaReferencia))]
-    [MapperIgnoreSource(nameof(EF.NotaDebito.IdFacturaReferencia))]
+
+    // [MapperIgnoreSource(nameof(EF.NotaCredito.IdFacturaReferencia))]
+    // [MapperIgnoreSource(nameof(EF.NotaDebito.IdFacturaReferencia))]
     [MapperIgnoreSource(nameof(EF.Comprobante.IdProveedor))]
     [MapperIgnoreSource(nameof(EF.Comprobante.Proveedor))]
     [MapperIgnoreTarget(nameof(Dom.Comprobante.Proveedor))]
+    [MapperIgnoreSource(nameof(EF.Comprobante.FacturaOriginal))]
+    [MapperIgnoreTarget(nameof(Dom.Comprobante.FacturaOriginal))]
     // [MapProperty(nameof(EF.Comprobante.IdProveedor), nameof(Dom.Comprobante.Proveedor.IdProveedor))]
     [MapperIgnoreSource(nameof(EF.Comprobante.IdMotivo))]
     [MapperIgnoreSource(nameof(EF.Comprobante.IdCondicionPagoUsada))]
@@ -21,11 +24,12 @@ public static partial class DominioMapper
 
     [MapDerivedType(typeof(Dom.NotaCredito), typeof(EF.NotaCredito))]
     [MapDerivedType(typeof(Dom.NotaDebito), typeof(EF.NotaDebito))]
-    [MapperIgnoreTarget(nameof(EF.NotaCredito.IdFacturaReferencia))]
-    [MapperIgnoreTarget(nameof(EF.NotaDebito.IdFacturaReferencia))]
+    // [MapperIgnoreTarget(nameof(EF.NotaCredito.IdFacturaReferencia))]
+    // [MapperIgnoreTarget(nameof(EF.NotaDebito.IdFacturaReferencia))]
     [MapperIgnoreTarget(nameof(EF.Comprobante.IdProveedor))]
     [MapperIgnoreTarget(nameof(EF.Comprobante.IdMotivo))]
     [MapperIgnoreTarget(nameof(EF.Comprobante.IdCondicionPagoUsada))]
+    [MapperIgnoreTarget(nameof(EF.Comprobante.IdFacturaReferencia))]
     public static partial EF.Comprobante Map(Dom.Comprobante source);
     public static partial IEnumerable<EF.Comprobante> Map(IEnumerable<Dom.Comprobante> source);
 
