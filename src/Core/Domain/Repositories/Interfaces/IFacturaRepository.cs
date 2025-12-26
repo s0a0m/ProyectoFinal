@@ -15,5 +15,7 @@ namespace src.Repositories.Interfaces
         Task UpdateAsync(Dom.Factura factura);
         Task<bool> ExisteNumeroFacturaAsync(short idProveedor, string numeroFactura);
         Task<bool> ExisteNumeroFacturaAsync(short idProveedor, string numero, int? idExcluir = null);
+
+        Task ActualizarSaldoYEstadoAsync(int idFactura, decimal nuevoSaldo, bool pagada,DateTime FechaPago);
     }
 }

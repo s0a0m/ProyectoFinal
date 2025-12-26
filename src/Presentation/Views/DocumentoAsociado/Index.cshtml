@@ -1,0 +1,143 @@
+@using src.Presentation.ViewModels.CuentaCorrienteVM
+@model ModuloOrdenesPagoVM
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-primary mb-0">Gestión de Pagos</h2>
+            <p class="text-muted mb-0">Proveedor: <strong>@Model.RazonSocialProveedor</strong></p>
+        </div>
+        <div>
+            <a asp-action="Crear" asp-route-idProveedor="@Model.IdProveedor" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-2"></i>Nueva Orden de Pago
+            </a>
+            <a asp-controller="Proveedor" asp-action="CuentaCorriente" asp-route-id="@Model.IdProveedor" class="btn btn-outline-secondary ms-2">
+                <i class="bi bi-arrow-return-left me-2"></i>Volver a Cta. Cte.
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body p-2 d-flex gap-2">
+            <button class="btn btn-sm btn-outline-secondary active filter-btn" data-filter="">Todas</button>
+            <button class="btn btn-sm btn-outline-success filter-btn" data-filter="Enviada">Enviadas</button>
+            <button class="btn btn-sm btn-outline-warning filter-btn" data-filter="Pendiente">Pendientes</button>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <table id="tablaOrdenes" class="table table-hover align-middle w-100">
+                <thead class="table-light">
+                    <tr>
+                        <th>Fecha Pago</th>
+                        <th>N° Orden</th>
+                        <th class="text-center">Facturas</th>
+                        <th class="text-end">Monto Total</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Ordenes)
+                    {
+                        <tr>
+                            <td data-sort="@(item.FechaPago == DateTime.MinValue ? "0" : item.FechaPago.ToString("yyyyMMdd"))">
+                                @if (item.FechaPago == DateTime.MinValue)
+                                {
+                                    <span class="text-muted small fst-italic">Sin fecha</span>
+                                }
+                                else
+                                {
+                                    @item.FechaPago.ToString("dd/MM/yyyy")
+                                }
+                            </td>
+                            <td class="fw-bold">@item.Numero</td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark border">@item.CantidadFacturasAfectadas</span>
+                            </td>
+                            <td class="text-end fw-bold text-dark">
+                                $@item.MontoTotal.ToString("N2")
+                            </td>
+                            <td class="text-center">
+                                @if (item.Enviada)
+                                {
+                                    <span class="badge bg-success bg-opacity-10 text-success px-3 rounded-pill">Enviada</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning bg-opacity-10 text-warning px-3 rounded-pill">Pendiente</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="verDetalleOrden(@item.IdOrdenPago)" title="Ver Detalle">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+
+                                    @if (!item.Enviada)
+                                    {
+                                        <span class="btn btn-outline-secondary disabled" title="Proximamente">
+                                             <i class="bi bi-pencil"></i>
+                                        </span>
+
+                                        <form asp-action="Confirmar" method="post" class="d-inline" onsubmit="return confirm('¿Confirmar orden? Esto actualizará los saldos de las facturas.');">
+                                            <input type="hidden" name="id" value="@item.IdOrdenPago" />
+                                            <input type="hidden" name="idProveedor" value="@Model.IdProveedor" />
+                                            <button type="submit" class="btn btn-outline-success" title="Confirmar y Enviar">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                        </form>
+
+                                        <span class="btn btn-outline-secondary disabled" title="Proximamente">
+                                            <i class="bi bi-trash"></i>
+                                        </span>
+
+                                        
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDetalleOrden" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="contenidoModalOrden">
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var table = $('#tablaOrdenes').DataTable({
+                "language": { "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json" },
+                "order": [[ 0, "desc" ]]
+            });
+
+            // Filtro personalizado por botones
+            $('.filter-btn').on('click', function() {
+                $('.filter-btn').removeClass('active btn-secondary').addClass('btn-outline-secondary');
+                $(this).removeClass('btn-outline-secondary').addClass('active btn-secondary');
+                
+                var status = $(this).data('filter');
+                table.column(4).search(status).draw(); // Columna 4 es "Estado"
+            });
+        });
+
+        function verDetalleOrden(idOrden) {
+            var myModal = new bootstrap.Modal(document.getElementById('modalDetalleOrden'));
+            myModal.show();
+            $.get('/DocumentoAsociado/ObtenerDetalleModal/' + idOrden)
+                .done(function (data) { $('#contenidoModalOrden').html(data); });
+        }
+    </script>
+}

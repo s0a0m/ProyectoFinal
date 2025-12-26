@@ -197,7 +197,8 @@ public class ProveedorService : IProveedorService
         }
 
         // 3. Traer Órdenes de Pago
-        var ordenes = await _ordenPagoRepository.GetByProveedorAsync(idProveedor);
+        var ord = await _ordenPagoRepository.GetByProveedorAsync(idProveedor);
+        var ordenes = ord.Where(f=>f.Enviada == true);
         foreach (var o in ordenes)
         {
             movimientos.Add(new MovimientoCuentaCorrienteItemVM

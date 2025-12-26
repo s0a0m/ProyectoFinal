@@ -269,6 +269,7 @@ public class FacturaService : IFacturaService
                 facturaDom.Detalles.Add(det);
             }
             facturaDom.TotalFacturado = total;
+            facturaDom.Saldo = total;
 
             // 3. Llamar al repo
             await _facturaRepository.UpdateAsync(facturaDom);

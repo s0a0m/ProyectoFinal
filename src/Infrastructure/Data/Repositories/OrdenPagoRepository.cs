@@ -118,9 +118,39 @@ public class OrdenPagoRepository : IOrdenPagoRepository
         {
             var OrdenEF = await GetQueryOrdenPago()
                 .AsNoTracking()
-                .Where(f => f.IdProveedor == idProveedor && f.Enviada == true)
+                .Where(f => f.IdProveedor == idProveedor )
                 .ToListAsync();
             return DominioMapper.Map(OrdenEF);
         }
+
+    public async Task DeleteAsync(int id)
+    {
+        var entity = await _context.OrdenesPago
+            .Include(o => o.Detalles) // Incluir detalles para asegurar borrado en cascada si es requerido explícitamente
+            .FirstOrDefaultAsync(o => o.IdOrdenPago == id);
+
+        if (entity != null)
+        {
+            _context.OrdenesPago.Remove(entity);
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task UpdateEstadoEnviadaAsync(int idOrden, bool enviada,DateTime fecha)
+    {
+        var orden = new OrdenPago
+        {
+            IdOrdenPago = idOrden,
+            Enviada = enviada,
+            FechaPago = fecha
+        };
+
+        _context.OrdenesPago.Attach(orden);
+
+        _context.Entry(orden).Property(o => o.Enviada).IsModified = true;
+        _context.Entry(orden).Property(o => o.FechaPago).IsModified = true;
+
+        await _context.SaveChangesAsync();
+    }
 
 }

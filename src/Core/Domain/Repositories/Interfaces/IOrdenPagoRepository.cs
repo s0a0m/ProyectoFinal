@@ -10,4 +10,6 @@ public interface IOrdenPagoRepository
     Task CreateAsync(Dom.OrdenPago orden);
     Task UpdateAsync(Dom.OrdenPago orden);
     Task<IEnumerable<Dom.OrdenPago>> GetByProveedorAsync(short idProveedor);
+    Task DeleteAsync(int id);
+    Task UpdateEstadoEnviadaAsync(int idOrden, bool enviada,DateTime Fecha);
 }

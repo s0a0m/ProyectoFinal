@@ -12,7 +12,8 @@
                 Factura: <strong>@Model.NumeroFactura</strong> | Proveedor: <strong>@Model.Proveedor</strong>
             </div>
         </div>
-        <a asp-action="Index" class="btn btn-outline-secondary">
+        <a href="@(Context.Request.Headers["Referer"].ToString() ?? Url.Action("Index"))"
+   class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left me-1"></i>Volver
         </a>
     </div>
@@ -126,9 +127,13 @@
                                             </td>
 
                                             <td class="text-end">
-                                                <a href="#" class="btn btn-sm btn-outline-primary" title="Ver Detalle de Orden">
+                                                <button type="button" 
+                                                class="btn btn-outline-secondary" 
+                                                title="Ver Detalle"
+                                                onclick="verDetalleOrden(@op.IdOrdenPago)">
                                                     <i class="bi bi-box-arrow-up-right"></i>
-                                                </a>
+                                                </button>
+                                                    
                                             </td>
                                         </tr>
                                     }
@@ -147,3 +152,43 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="modalDetalleOrden" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="contenidoModalOrden">
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+<script>
+    function verDetalleOrden(idOrden) {
+
+            var myModal = new bootstrap.Modal(document.getElementById('modalDetalleOrden'));
+            myModal.show();
+
+         
+            $.get('/DocumentoAsociado/ObtenerDetalleModal/' + idOrden)
+                .done(function (data) {
+                    // Reemplazar el contenido del modal con la vista parcial
+                    $('#contenidoModalOrden').html(data);
+                })
+                .fail(function () {
+                    $('#contenidoModalOrden').html(
+                        '<div class="modal-header"><h5 class="modal-title">Error</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>' +
+                        '<div class="modal-body text-danger">No se pudo cargar el detalle de la orden.</div>'
+                    );
+                });
+            
+            document.getElementById('modalDetalleOrden').addEventListener('hidden.bs.modal', function () {
+                $('#contenidoModalOrden').html('<div class="modal-body text-center py-5"><div class="spinner-border text-primary"></div></div>');
+            });
+        }
+</script>
+}
