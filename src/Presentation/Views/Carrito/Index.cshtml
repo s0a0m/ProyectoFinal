@@ -7,7 +7,11 @@
 
 <div class="container py-5">
     <h2 class="mb-4"><i class="bi bi-cart3 me-2"></i>Carrito de Compras</h2>
-
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger alert-dismissible fade show shadow-sm"
+        role="alert">
+        <strong><i class="bi bi-exclamation-triangle-fill me-2"></i>Atención:</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
     @if (!Model.Any())
     {
         <div class="alert alert-info text-center py-5">
@@ -52,7 +56,7 @@
                                                 <div class="d-flex flex-wrap gap-1">
                                                     @foreach (var codigo in item.CodigosExternos)
                                                     {
-                                                        <span class="badge bg-light text-dark border font-monospace text-wrap" 
+                                                        <span class="badge bg-light text-dark border font-monospace text-wrap"
                                                             style="font-size: 0.75rem;">
                                                             @codigo
                                                         </span>
@@ -70,8 +74,11 @@
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="idProducto" value="@item.IdProducto" />
                                                 <input type="hidden" name="idProveedor" value="@item.IdProveedor" />
-                                                <input name="cantidad" type="number" class="form-control form-control-sm text-center" value="@item.Cantidad" min="0" style="width:80px;" />
-                                                <button type="submit" class="btn btn-sm btn-outline-primary ms-2" title="Actualizar cantidad">
+                                                <input name="cantidad" type="number"
+                                                    class="form-control form-control-sm text-center" value="@item.Cantidad" min="0"
+                                                    style="width:80px;" />
+                                                <button type="submit" class="btn btn-sm btn-outline-primary ms-2"
+                                                    title="Actualizar cantidad">
                                                     <i class="bi bi-arrow-repeat"></i>
                                                 </button>
                                             </form>
@@ -94,7 +101,8 @@
                             </tbody>
                             <tfoot class="bg-white">
                                 <tr>
-                                    <td colspan="4" class="text-end fw-bold text-uppercase text-muted small pt-3">Total @grupo.Key</td>
+                                    <td colspan="4" class="text-end fw-bold text-uppercase text-muted small pt-3">Total
+                                        @grupo.Key</td>
                                     <td class="text-end fs-5 fw-bold text-dark pt-3">$@totalProveedor.ToString("N2")</td>
                                     <td></td>
                                 </tr>
@@ -103,8 +111,8 @@
                     </div>
                 </div>
                 <div class="card-footer bg-white border-top-0 py-3 text-end">
-                    <a asp-controller="Compra" asp-action="Previsualizar" asp-route-idProveedor="@idProveedor" 
-                       class="btn btn-success px-4">
+                    <a asp-controller="Compra" asp-action="Previsualizar" asp-route-idProveedor="@idProveedor"
+                        class="btn btn-success px-4">
                         Continuar Compra <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 </div>
@@ -112,3 +120,40 @@
         }
     }
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const errorMsg = '@TempData["ServiceErrorMessage"]';
+            const successMsg = '@TempData["ServiceSuccessMessage"]';
+
+            if (errorMsg) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'No se pudo actualizar',
+                    text: errorMsg,
+                    confirmButtonColor: '#d33'
+                });
+            }
+
+            if (successMsg) {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+
+                Toast.fire({
+                    icon: 'success',
+                    title: successMsg
+                });
+            }
+        });
+    </script>
+}

@@ -1,3 +1,4 @@
+using Core.Common;
 using src.Presentation.ViewModels.CarritoVM;
 
 namespace src.Core.Services.Interfaces
@@ -8,11 +9,13 @@ namespace src.Core.Services.Interfaces
         Task AgregarItemAsync(CarritoItemViewModel item);
         Task RemoverItemAsync(short idProducto, short idProveedor); // Clave compuesta por si un producto lo venden 2 proveedores
         Task<List<CarritoItemViewModel>> ObtenerCarritoCompletoAsync();
-        
+
         // Operaciones de Negocio
         Task<int> GetCantidadTotalItemsAsync();
         Task<List<CarritoItemViewModel>> ObtenerItemsPorProveedorAsync(short idProveedor);
         Task LimpiarCarritoPorProveedorAsync(short idProveedor); // Se usa al confirmar compra
         Task ActualizarCantidadAsync(short idProducto, short idProveedor, int cantidad);
+        Task<ServiceResult> ValidarYAgregarItemAsync(short idProducto, short idProveedor, int cantidad);
+        Task<ServiceResult> ValidarYActualizarCantidadAsync(short idProducto, short idProveedor, int cantidad);
     }
 }

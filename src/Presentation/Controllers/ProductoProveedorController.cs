@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 namespace src.Presentation.Controllers
 {
-    public class ProductoProveedorController : Controller
+    public class ProductoProveedorController : BaseController
     {
         private readonly IProductoProveedorService _service;
         private readonly IProveedorRepository _proveedorRepository;
@@ -55,33 +55,47 @@ namespace src.Presentation.Controllers
                 return View(vm);
             }
 
-            try
-            {
-                await _service.CreateAsync(vm);
-                TempData["Success"] = "Relación creada correctamente.";
-                return RedirectToAction(nameof(Index));
-            }
-            catch (InvalidOperationException ex)
-            {
-                // Error de negocio (ej. relación ya existente)
-                ModelState.AddModelError("", ex.Message);
-                await _service.RepoblarViewModelAsync(vm);
-                return View(vm);
-            }
-            catch (ArgumentException ex)
-            {
-                ModelState.AddModelError("", ex.Message);
-                await _service.RepoblarViewModelAsync(vm);
-                return View(vm);
-            }
-            catch (Exception ex)
-            {
-                var mensajeError = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+            // Recibimos el objeto ServiceResult
+            var result = await _service.CreateAsync(vm);
 
-                ModelState.AddModelError("", $"ERROR TÉCNICO: {mensajeError}");
+            if (!result.Success)
+            {
+                // El BaseController se encarga de repartir los errores en los labels rojos
+                MapServiceErrors(result);
                 await _service.RepoblarViewModelAsync(vm);
                 return View(vm);
             }
+
+            SetSuccessMessage(result.Message);
+            return RedirectToAction(nameof(Index));
+
+            // try
+            // {
+            //     await _service.CreateAsync(vm);
+            //     TempData["Success"] = "Relación creada correctamente.";
+            //     return RedirectToAction(nameof(Index));
+            // }
+            // catch (InvalidOperationException ex)
+            // {
+            //     // Error de negocio (ej. relación ya existente)
+            //     ModelState.AddModelError("", ex.Message);
+            //     await _service.RepoblarViewModelAsync(vm);
+            //     return View(vm);
+            // }
+            // catch (ArgumentException ex)
+            // {
+            //     ModelState.AddModelError("", ex.Message);
+            //     await _service.RepoblarViewModelAsync(vm);
+            //     return View(vm);
+            // }
+            // catch (Exception ex)
+            // {
+            //     var mensajeError = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+
+            //     ModelState.AddModelError("", $"ERROR TÉCNICO: {mensajeError}");
+            //     await _service.RepoblarViewModelAsync(vm);
+            //     return View(vm);
+            // }
         }
 
 

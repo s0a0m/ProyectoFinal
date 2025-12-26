@@ -5,7 +5,7 @@ using src.Repositories.Interfaces;
 
 namespace src.Presentation.Controllers
 {
-    public class CarritoController : Controller
+    public class CarritoController : BaseController
     {
         private readonly ICartService _cartService;
         private readonly IProductoProveedorRepository _prodProvRepo; // Para validar datos reales al agregar
@@ -21,7 +21,7 @@ namespace src.Presentation.Controllers
         {
             // Obtenemos todo el carrito plano
             var items = await _cartService.ObtenerCarritoCompletoAsync();
-            
+
             // La vista se encargará de agrupar visualmente por proveedor
             return View(items);
         }
@@ -29,63 +29,49 @@ namespace src.Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> Agregar(short idProducto, short idProveedor, int cantidad)
         {
-            if (cantidad <= 0) return BadRequest("Cantidad inválida");
+            var result = await _cartService.ValidarYAgregarItemAsync(idProducto, idProveedor, cantidad);
 
-            // 1. Validar que el producto y precio existan realmente en BD (Seguridad)
-            var dto = await _prodProvRepo.GetByIdAsync(idProducto, idProveedor);
-            
-            if (dto == null) return NotFound("Producto no disponible con este proveedor");
-            var relacion = dto.ProductoProveedor;
-
-            // 2. Crear Item para sesión
-            var item = new CarritoItemViewModel
+            if (!result.Success)
             {
-                IdProducto = idProducto,
-                NombreProducto = relacion.Producto?.Nombre ?? "Producto Desconocido",
-                
-                // CAMBIO: Asignamos la lista directa (o vacía si es nula)
-                CodigosExternos = dto.CodigosBarrasExternos ?? new List<string>(),
+                return BadRequest(new { mensaje = result.Message, errores = result.Errors });
+            }
 
-                IdProveedor = idProveedor,
-                NombreProveedor = relacion.Proveedor?.RazonSocial ?? "Proveedor Desconocido",
-                PrecioUnitario = relacion.Precio,
-                Cantidad = cantidad
-            };
-
-            // 3. Guardar
-            await _cartService.AgregarItemAsync(item);
-
-            // Retornamos JSON para que el frontend actualice el icono sin recargar página (AJAX)
-            // O redirigimos si prefieres flujo clásico.
-            return Ok(new { mensaje = "Agregado", totalItems = await _cartService.GetCantidadTotalItemsAsync() });
+            return Ok(new
+            {
+                mensaje = result.Message,
+                totalItems = await _cartService.GetCantidadTotalItemsAsync()
+            });
         }
 
         [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Actualizar(short idProducto, short idProveedor, int cantidad)
-    {
-        if (cantidad < 0) return BadRequest("Cantidad inválida");
-        if (cantidad == 0)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Actualizar(short idProducto, short idProveedor, int cantidad)
         {
-            // si ponen 0, lo eliminamos
-            await _cartService.RemoverItemAsync(idProducto, idProveedor);
+            // if (cantidad == 0)
+            // {
+            //     await _cartService.RemoverItemAsync(idProducto, idProveedor);
+            //     SetSuccessMessage("Producto eliminado del carrito.");
+            //     return RedirectToAction(nameof(Index));
+            // }
+
+            var result = await _cartService.ValidarYActualizarCantidadAsync(idProducto, idProveedor, cantidad);
+
+            if (!result.Success)
+            {
+                MapServiceErrors(result);
+                return RedirectToAction(nameof(Index));
+            }
+
+            SetSuccessMessage(result.Message);
             return RedirectToAction(nameof(Index));
         }
 
-        // validar existencia del producto/proveedor opcional:
-        var dto = await _prodProvRepo.GetByIdAsync(idProducto, idProveedor);
-        if (dto == null) return NotFound("Producto no disponible con este proveedor");
-
-        await _cartService.ActualizarCantidadAsync(idProducto, idProveedor, cantidad);
-        return RedirectToAction(nameof(Index));
-    }
-    
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Eliminar(short idProducto, short idProveedor)
-    {
-        await _cartService.RemoverItemAsync(idProducto, idProveedor);
-        return RedirectToAction(nameof(Index));
-    }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Eliminar(short idProducto, short idProveedor)
+        {
+            await _cartService.RemoverItemAsync(idProducto, idProveedor);
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

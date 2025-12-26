@@ -18,7 +18,7 @@ public class CrearProductoProveedorViewModel
     public decimal Precio { get; set; }
 
     [Required(ErrorMessage = "Debe ingresar el stock")]
-    [Range(0, int.MaxValue, ErrorMessage = "El stock no puede ser negativo")]
+    [Range(0, int.MaxValue, ErrorMessage = "El stock debe de estar entre 0 y 1,000,000,000")]
     [Display(Name = "Stock Asignado")]
     public int StockAsignado { get; set; }
 

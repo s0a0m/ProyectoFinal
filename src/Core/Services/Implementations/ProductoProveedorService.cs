@@ -8,6 +8,7 @@ using Dom = src.Models.Domain;
 using src.Presentation.ViewModels.ProductoVM;
 using ZXing.Maxicode;
 using Microsoft.EntityFrameworkCore;
+using Core.Common;
 
 namespace src.Core.Services.Implementations;
 
@@ -80,43 +81,100 @@ public class ProductoProveedorService : IProductoProveedorService
         return vm;
     }
 
-    public async Task CreateAsync(CrearProductoProveedorViewModel vm)
+    public async Task<ServiceResult> CreateAsync(CrearProductoProveedorViewModel vm)
     {
+        // // 1. Validar que no exista ya la relación
+        // if (await _productoProveedorRepository.ExistsAsync(vm.IdProducto, vm.IdProveedor))
+        // {
+        //     throw new InvalidOperationException("Este producto ya está asignado a este proveedor.");
+        // }
+        // var codigosLimpios = new List<string>();
+        // if (vm.CodigosBarraExternos != null && vm.CodigosBarraExternos.Any())
+        // {
+        //     // Filtramos nulos, vacíos y hacemos Trim
+        //     codigosLimpios = vm.CodigosBarraExternos
+        //         .Where(c => !string.IsNullOrWhiteSpace(c))
+        //         .Select(c => c.Trim())
+        //         .Distinct() // Evitamos duplicados en la misma carga
+        //         .ToList();
+
+        //     // 3. Validar unicidad global en la base de datos
+        //     foreach (var codigo in codigosLimpios)
+        //     {
+        //         if (await _productoCodigoExternoRepository.ExistsAsync(codigo, (short)vm.IdProveedor))
+        //         {
+        //             throw new ArgumentException($"El código de barras '{codigo}' ya está asignado a otro producto en el sistema.");
+        //         }
+        //     }
+        // }
+        // // 2. Mapear al Dominio
+        // var dominio = new Dom.ProductoProveedor
+        // {
+        //     // Usamos objetos dummy solo con el ID para que EF sepa las FKs
+        //     Producto = new Dom.Producto { IdProducto = vm.IdProducto },
+        //     Proveedor = new Dom.Proveedor { IdProveedor = vm.IdProveedor },
+        //     Precio = vm.Precio,
+        //     StockAsignado = vm.StockAsignado
+        // };
+
+        // await _productoProveedorRepository.AddAsync(dominio, codigosLimpios);
+        var result = new ServiceResult();
+
         // 1. Validar que no exista ya la relación
         if (await _productoProveedorRepository.ExistsAsync(vm.IdProducto, vm.IdProveedor))
         {
-            throw new InvalidOperationException("Este producto ya está asignado a este proveedor.");
+            // Agregamos el error a los dos campos implicados para que se marquen en rojo
+            result.AddError(nameof(vm.IdProducto), "Este producto ya está asignado a este proveedor.");
+            result.AddError(nameof(vm.IdProveedor), "El proveedor ya tiene asignado este producto.");
         }
+
+        // 2. Limpieza de códigos de barra
         var codigosLimpios = new List<string>();
         if (vm.CodigosBarraExternos != null && vm.CodigosBarraExternos.Any())
         {
-            // Filtramos nulos, vacíos y hacemos Trim
             codigosLimpios = vm.CodigosBarraExternos
                 .Where(c => !string.IsNullOrWhiteSpace(c))
                 .Select(c => c.Trim())
-                .Distinct() // Evitamos duplicados en la misma carga
+                .Distinct()
                 .ToList();
 
-            // 3. Validar unicidad global en la base de datos
+            // 3. Validar unicidad global (Podemos capturar TODOS los códigos duplicados de una sola vez)
             foreach (var codigo in codigosLimpios)
             {
                 if (await _productoCodigoExternoRepository.ExistsAsync(codigo, (short)vm.IdProveedor))
                 {
-                    throw new ArgumentException($"El código de barras '{codigo}' ya está asignado a otro producto en el sistema.");
+                    // Agregamos un error específico por cada código fallido
+                    result.AddError(nameof(vm.CodigosBarraExternos), $"El código '{codigo}' ya está asignado a otro producto.");
                 }
             }
         }
-        // 2. Mapear al Dominio
-        var dominio = new Dom.ProductoProveedor
-        {
-            // Usamos objetos dummy solo con el ID para que EF sepa las FKs
-            Producto = new Dom.Producto { IdProducto = vm.IdProducto },
-            Proveedor = new Dom.Proveedor { IdProveedor = vm.IdProveedor },
-            Precio = vm.Precio,
-            StockAsignado = vm.StockAsignado
-        };
 
-        await _productoProveedorRepository.AddAsync(dominio, codigosLimpios);
+        // SI HAY ERRORES, cortamos aquí y devolvemos la "bolsa de errores"
+        if (!result.Success)
+        {
+            return result;
+        }
+
+        try
+        {
+            // 4. Mapear al Dominio
+            var dominio = new Dom.ProductoProveedor
+            {
+                Producto = new Dom.Producto { IdProducto = vm.IdProducto },
+                Proveedor = new Dom.Proveedor { IdProveedor = vm.IdProveedor },
+                Precio = vm.Precio,
+                StockAsignado = vm.StockAsignado
+            };
+
+            await _productoProveedorRepository.AddAsync(dominio, codigosLimpios);
+
+            return ServiceResult.Ok("Relación creada correctamente.");
+        }
+        catch (Exception ex)
+        {
+            // Solo usamos Fail para errores técnicos inesperados (Base de datos caída, etc.)
+            return ServiceResult.Fail($"Error interno al guardar: {ex.Message}");
+        }
     }
 
     public async Task UpdateAsync(ActualizarProductoProveedorViewModel vm)
