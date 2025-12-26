@@ -15,5 +15,6 @@ namespace src.Core.Services.Interfaces
         Task<bool> UpdateAsync(int id, ActualizarFacturaViewModel model);
         // IFacturaService.cs
         Task<CrearFacturaViewModel> PrepararFacturaDesdeCompraAsync(int idCompra);
+        Task<DocumentosRelacionadosViewModel> ObtenerDocumentosAsociadosAsync(int idFactura);
     }
 }

@@ -18,17 +18,22 @@ public class FacturaService : IFacturaService
 {
     private readonly IFacturaRepository _facturaRepository;
     private readonly ICondicionPagoRepository _condicionPagoRepository;
-    private readonly ICompraRepository _compraRepository; // <--- NUEVO
+    private readonly ICompraRepository _compraRepository;
+    private readonly IComprobanteRepository _comprobanteRepository;
+    private readonly IOrdenPagoRepository _ordenPagoRepository;
     
     // Actualiza el constructor
     public FacturaService(
         IFacturaRepository facturaRepo, 
         ICondicionPagoRepository condicionPagoRepository,
-        ICompraRepository compraRepository) // <--- Inyectar
+        ICompraRepository compraRepository,IComprobanteRepository comprobanteRepository,
+        IOrdenPagoRepository ordenPagoRepository) 
     {
         _facturaRepository = facturaRepo;
         _condicionPagoRepository = condicionPagoRepository;
         _compraRepository = compraRepository;
+        _comprobanteRepository = comprobanteRepository;
+        _ordenPagoRepository = ordenPagoRepository;
     }
 
     public Task<bool> ActualizarEstadoPagoAsync(int id, bool pagada)
@@ -192,5 +197,55 @@ public class FacturaService : IFacturaService
             await _facturaRepository.UpdateAsync(factura);
             return true;
         }
+
+
+
+        public async Task<DocumentosRelacionadosViewModel> ObtenerDocumentosAsociadosAsync(int idFactura)
+        {
+            var factura = await _facturaRepository.GetByIdAsync(idFactura);
+            if (factura == null) throw new KeyNotFoundException($"No se encontró la factura #{idFactura}");
+
+            var comprobantesDom = await _comprobanteRepository.GetByFacturaIdAsync(idFactura);
+            var ordenesDom = await _ordenPagoRepository.GetPagosPorFacturaIdAsync(idFactura);
+
+            var vm = new DocumentosRelacionadosViewModel
+            {
+                IdFactura = factura.IdFactura,
+                NumeroFactura = factura.NumeroFactura,
+                Proveedor = factura.Proveedor?.RazonSocial ?? "Desconocido",
+                
+                Comprobantes = comprobantesDom.Select(c => new ResumenComprobanteViewModel
+                {
+                    IdComprobante = c.IdComprobante,
+                    Numero = c.Numero,
+                    FechaEmision = c.FechaEmision,
+                    Total = c.Total,
+                    Comentario = c.Comentario,
+                    Motivo = c.Motivo?.Descripcion ?? "Sin motivo",
+                    Tipo = c is Dom.NotaCredito ? "Nota de Crédito" : c is Dom.NotaDebito ? "Nota de Débito" : "Comprobante"
+                }).ToList(),
+
+                // --- MAPEO ACTUALIZADO CON TUS NUEVOS ATRIBUTOS ---
+                OrdenesPago = ordenesDom.Select(op => new ResumenOrdenPagoViewModel
+                {
+                    IdOrdenPago = op.IdOrdenPago,
+                    FechaPago = op.FechaPago,
+                    TotalOrden = op.MontoTotal,
+                    Enviada = op.Enviada,
+                    
+                    // Calculamos cuánto de esta OP corresponde a ESTA factura
+                    MontoAplicado = op.Detalles
+                        .Where(d => d.IdFactura == idFactura)
+                        .Sum(d => d.MontoAplicado) 
+                }).ToList()
+            };
+
+            return vm;
+        }
+
+
+
+
+
     }
 }
