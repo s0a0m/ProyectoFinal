@@ -413,7 +413,7 @@
     "Nombre": "Adhesivo de Contacto Poxirran",
     "StockMinimo": 20,
     "StockTotal": 150,
-    "Activo": true,
+    "Activo": false,
     "ProductosCategorias": [{ "IdProducto": 43, "IdCategoria": 10 }],
     "ProductoCodigoBarras": [{ "IdProducto": 43, "IdCodigoBarra": 54 }]
   },
