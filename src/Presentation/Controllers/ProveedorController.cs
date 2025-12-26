@@ -91,7 +91,7 @@ public class ProveedorController : Controller
         }
         catch (KeyNotFoundException)
         {
-            TempData["error"] = $"Error: El Proveedor con ID {idProv} no fue encontrado.";
+            TempData["error"] = $"Error: El Proveedor no fue encontrado.";
         }
         catch (Exception ex)
         {
@@ -99,6 +99,28 @@ public class ProveedorController : Controller
         }
 
         return RedirectToAction("ListarProveedores");
+    }
+
+
+    [HttpGet]
+    [AuthorizePermiso("P09_GESTOR_CC")]
+    public async Task<IActionResult> CuentaCorriente(short id)
+    {
+        try
+        {
+            var vm = await _provService.ObtenerCuentaCorrienteAsync(id);
+            if (vm == null)
+            {
+                TempData["Error"] = "Proveedor no encontrado.";
+                return RedirectToAction("Index");
+            }
+            return View(vm);
+        }
+         catch (Exception ex)
+        {
+            TempData["error"] = $"Ocurrió un error inesperado: {ex.Message}";
+            return RedirectToAction("Index");
+        }
     }
 
     // NUEVO MÉTODO: Reactivar

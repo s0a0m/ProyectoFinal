@@ -1,6 +1,7 @@
 using src.Contracts;
 using src.Core.Services.Interfaces;
 using src.Models.Domain;
+using src.Presentation.ViewModels.CuentaCorrienteVM;
 using src.Repositories.Interfaces;
 using src.ViewModels;
 using Dom = src.Models.Domain;
@@ -13,13 +14,19 @@ public class ProveedorService : IProveedorService
     private readonly ICommonDataService _commonDataService;
     private readonly IExcelDataReader _excelReader;
     IProductoProveedorService _prodService;
+    IFacturaRepository _facturaRepo;
+    IOrdenPagoRepository  _ordenPagoRepository;
+    IComprobanteRepository _comprobanteRepository;
 
-    public ProveedorService(IExcelDataReader reader, IProveedorRepository proveedorRepository, ICommonDataService _commonDataService, IProductoProveedorService proProvSv)
+    public ProveedorService(IExcelDataReader reader, IProveedorRepository proveedorRepository, ICommonDataService _commonDataService, IProductoProveedorService proProvSv,IFacturaRepository facturaRepo,IOrdenPagoRepository  ordenPagoRepository,IComprobanteRepository comprobanteRepository)
     {
         _proveedorRepository = proveedorRepository;
         this._commonDataService = _commonDataService;
         this._excelReader = reader;
         _prodService = proProvSv;
+        _facturaRepo = facturaRepo;
+        _ordenPagoRepository = ordenPagoRepository;
+        _comprobanteRepository = comprobanteRepository;
     }
 
     public async Task<Dom.Proveedor> CreateProveedorAsync(CrearProveedorViewModel proveedorVM)
@@ -150,5 +157,84 @@ public class ProveedorService : IProveedorService
         }
 
         await _proveedorRepository.UpdateAsync(proveedorExistente);
+    }
+
+
+    public async Task<CuentaCorrienteVM> ObtenerCuentaCorrienteAsync(short idProveedor)
+    {
+        // 1. Obtener el proveedor para la cabecera
+        var proveedor = await _proveedorRepository.GetProveedorById(idProveedor);
+        if (proveedor == null) throw new KeyNotFoundException("Proveedor no encontrado");
+
+        var vm = new CuentaCorrienteVM
+        {
+            IdProveedor = proveedor.IdProveedor,
+            RazonSocial = proveedor.RazonSocial,
+            PersonaResponsable = proveedor.PersonaResponsable,
+            Cuit = proveedor.Cuit,
+            SaldoTotal = proveedor.Saldo
+        };
+
+        var movimientos = new List<MovimientoCuentaCorrienteItemVM>();
+
+        // 2. Traer Facturas
+        var facturas = await _facturaRepo.GetByProveedorAsync(idProveedor);
+        foreach (var f in facturas)
+        {
+            movimientos.Add(new MovimientoCuentaCorrienteItemVM
+            {
+                IdReferencia = f.IdFactura,
+                TipoMovimiento = "Factura",
+                Fecha = f.FechaEmision,
+                NumeroComprobante = f.NumeroFactura,
+                MontoTotal = f.TotalFacturado,
+                SaldoPendiente = f.Saldo,
+                EsFactura = true,
+                // Regla: Editar solo si TotalFacturado == Saldo (no se ha pagado nada aun)
+                PuedeEditar = f.TotalFacturado == f.Saldo, 
+                PuedeVerRelaciones = true
+            });
+        }
+
+        // 3. Traer Órdenes de Pago
+        var ordenes = await _ordenPagoRepository.GetByProveedorAsync(idProveedor);
+        foreach (var o in ordenes)
+        {
+            movimientos.Add(new MovimientoCuentaCorrienteItemVM
+            {
+                IdReferencia = o.IdOrdenPago,
+                TipoMovimiento = "Orden de Pago",
+                Fecha = o.FechaPago ?? DateTime.MinValue, // O fecha de creación
+                NumeroComprobante = o.Numero,
+                MontoTotal = o.MontoTotal,
+                EsOrdenPago = true,
+                // Regla: Editar/Eliminar solo si NO fue enviada
+                PuedeEditar = !o.Enviada,
+                PuedeEliminar = !o.Enviada
+            });
+        }
+
+        // 4. Traer Comprobantes (Notas Debito/Credito)
+        // Asumo que tu modelo Comprobante tiene un discriminador o Tipo para saber si es NC o ND
+        var comprobantes = await _comprobanteRepository.GetByProveedorAsync(idProveedor);
+        foreach (var c in comprobantes)
+        {
+            movimientos.Add(new MovimientoCuentaCorrienteItemVM
+            {
+                IdReferencia = c.IdComprobante, 
+                TipoMovimiento = c is Dom.NotaCredito ? "Nota de Crédito" : c is Dom.NotaDebito ? "Nota de Débito" : "Comprobante", 
+                Fecha = c.FechaEmision,
+                NumeroComprobante = c.Numero,
+                MontoTotal = c.Total,
+                EsComprobante = true,
+                PuedeEditar = false, // Generalmente las notas fiscales no se editan, se anulan con otra nota
+                PuedeEliminar = false
+            });
+        }
+
+        // 5. Ordenar todo por fecha descendente (lo más nuevo arriba)
+        vm.Movimientos = movimientos.OrderByDescending(x => x.Fecha).ToList();
+
+        return vm;
     }
 }

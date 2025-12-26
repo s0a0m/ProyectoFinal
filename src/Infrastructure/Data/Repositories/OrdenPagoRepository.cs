@@ -113,4 +113,14 @@ public class OrdenPagoRepository : IOrdenPagoRepository
 
         return DominioMapper.Map(pagosEf);
     }
+
+    public async Task<IEnumerable<Dom.OrdenPago>> GetByProveedorAsync(short idProveedor)
+        {
+            var OrdenEF = await GetQueryOrdenPago()
+                .AsNoTracking()
+                .Where(f => f.IdProveedor == idProveedor && f.Enviada == true)
+                .ToListAsync();
+            return DominioMapper.Map(OrdenEF);
+        }
+
 }
