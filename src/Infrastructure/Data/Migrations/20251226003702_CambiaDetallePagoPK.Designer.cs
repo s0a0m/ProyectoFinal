@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using src.Models.CodeFirst;
@@ -11,9 +12,11 @@ using src.Models.CodeFirst;
 namespace src.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251226003702_CambiaDetallePagoPK")]
+    partial class CambiaDetallePagoPK
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -177,10 +180,6 @@ namespace src.Migrations
                         .HasColumnType("smallint")
                         .HasColumnName("id_condicion_pago_usada");
 
-                    b.Property<int>("IdFacturaReferencia")
-                        .HasColumnType("integer")
-                        .HasColumnName("id_factura_referencia");
-
                     b.Property<short>("IdMotivo")
                         .HasColumnType("smallint")
                         .HasColumnName("id_motivo");
@@ -202,8 +201,6 @@ namespace src.Migrations
                     b.HasKey("IdComprobante");
 
                     b.HasIndex("IdCondicionPagoUsada");
-
-                    b.HasIndex("IdFacturaReferencia");
 
                     b.HasIndex("IdMotivo");
 
@@ -965,12 +962,24 @@ namespace src.Migrations
                 {
                     b.HasBaseType("src.Models.CodeFirst.Comprobante");
 
+                    b.Property<int>("IdFacturaReferencia")
+                        .HasColumnType("integer")
+                        .HasColumnName("id_factura_referencia");
+
+                    b.HasIndex("IdFacturaReferencia");
+
                     b.ToTable("nota_credito", (string)null);
                 });
 
             modelBuilder.Entity("src.Models.CodeFirst.NotaDebito", b =>
                 {
                     b.HasBaseType("src.Models.CodeFirst.Comprobante");
+
+                    b.Property<int>("IdFacturaReferencia")
+                        .HasColumnType("integer")
+                        .HasColumnName("id_factura_referencia");
+
+                    b.HasIndex("IdFacturaReferencia");
 
                     b.ToTable("nota_debito", (string)null);
                 });
@@ -1035,12 +1044,6 @@ namespace src.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("src.Models.CodeFirst.Factura", "FacturaOriginal")
-                        .WithMany()
-                        .HasForeignKey("IdFacturaReferencia")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("src.Models.CodeFirst.MotivoComprobante", "Motivo")
                         .WithMany()
                         .HasForeignKey("IdMotivo")
@@ -1054,8 +1057,6 @@ namespace src.Migrations
                         .IsRequired();
 
                     b.Navigation("CondicionPago");
-
-                    b.Navigation("FacturaOriginal");
 
                     b.Navigation("Motivo");
 
@@ -1350,6 +1351,14 @@ namespace src.Migrations
                         .HasForeignKey("src.Models.CodeFirst.NotaCredito", "IdComprobante")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("src.Models.CodeFirst.Factura", "FacturaOriginal")
+                        .WithMany()
+                        .HasForeignKey("IdFacturaReferencia")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FacturaOriginal");
                 });
 
             modelBuilder.Entity("src.Models.CodeFirst.NotaDebito", b =>
@@ -1359,6 +1368,14 @@ namespace src.Migrations
                         .HasForeignKey("src.Models.CodeFirst.NotaDebito", "IdComprobante")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("src.Models.CodeFirst.Factura", "FacturaOriginal")
+                        .WithMany()
+                        .HasForeignKey("IdFacturaReferencia")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FacturaOriginal");
                 });
 
             modelBuilder.Entity("src.Models.CodeFirst.Contado", b =>

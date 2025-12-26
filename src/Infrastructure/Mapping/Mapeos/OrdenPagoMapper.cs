@@ -17,12 +17,12 @@ public static partial class DominioMapper
     public static partial IEnumerable<EF.OrdenPago> Map(IEnumerable<Dom.OrdenPago> source);
 
     // pago detalle 
-    [MapperIgnoreSource(nameof(EF.PagoDetalle.IdFactura))]
+    // [MapperIgnoreSource(nameof(EF.PagoDetalle.IdFactura))]
     [MapperIgnoreSource(nameof(EF.PagoDetalle.IdOrdenPago))]
     [MapperIgnoreSource(nameof(EF.PagoDetalle.OrdenPago))]
     public static partial Dom.PagoDetalle Map(EF.PagoDetalle source);
     public static partial IEnumerable<Dom.PagoDetalle> Map(IEnumerable<EF.PagoDetalle> source);
-    [MapperIgnoreTarget(nameof(EF.PagoDetalle.IdFactura))]
+    // [MapperIgnoreTarget(nameof(EF.PagoDetalle.IdFactura))]
     [MapperIgnoreTarget(nameof(EF.PagoDetalle.IdOrdenPago))]
     [MapperIgnoreTarget(nameof(EF.PagoDetalle.OrdenPago))]
     // [MapperIgnoreTarget(nameof(EF.PagoDetalle.OrdenPago))]

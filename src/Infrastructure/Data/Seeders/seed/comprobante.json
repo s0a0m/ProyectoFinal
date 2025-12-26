@@ -33,7 +33,7 @@
       "IdFacturaReferencia": 1
     },
     {
-      "IdProveedor": 3,
+      "IdProveedor": 2,
       "IdCondicionPagoUsada": 1,
       "IdMotivo": 6,
       "Numero": "ND-B-0003-00000012",

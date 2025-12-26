@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using src.Infrastructure.Repositories;
 using src.Interfaces;
 using src.Repositories.Interfaces;
 using Dom = src.Models.Domain;
@@ -189,10 +190,7 @@ public class PruebaRepoApiController : ControllerBase
             var nuevaOrden = new Dom.OrdenPago
             {
                 // IdProveedor = dto.IdProveedor,
-                Proveedor = new Dom.Proveedor
-                {
-                    IdProveedor = dto.IdProveedor
-                },
+                IdProveedor = dto.IdProveedor,
                 Enviada = false,      // Nace como borrador
                 FechaPago = null,     // Aún no se paga
 
@@ -203,10 +201,7 @@ public class PruebaRepoApiController : ControllerBase
                 Detalles = dto.Detalles.Select(d => new Dom.PagoDetalle
                 {
                     // IdFactura = d.IdFactura,
-                    Factura = new Dom.Factura
-                    {
-                        IdFactura = d.IdFactura
-                    },
+                    IdFactura = d.IdFactura,
                     MontoAplicado = d.MontoPagar
                 }).ToList()
             };
@@ -225,6 +220,102 @@ public class PruebaRepoApiController : ControllerBase
             return StatusCode(500, new { error = ex.Message });
         }
     }
+    // GET: api/orden-pago/por-factura/5
+    [HttpGet("pagos-por-factura/{idFactura}")]
+    public async Task<IActionResult> GetPagosDeFactura(int idFactura)
+    {
+        if (idFactura <= 0) return BadRequest("El ID de la factura debe ser mayor a 0.");
+
+        try
+        {
+            // Llamamos al método del repositorio
+            var pagos = await _pagoRepo.GetPagosPorFacturaIdAsync(idFactura);
+
+            return Ok(pagos);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = ex.Message });
+        }
+    }
+    [HttpGet("comprobantes-por-factura/{idFactura}")]
+    public async Task<IActionResult> GetComprobantesPorFactura(int idFactura)
+    {
+        // Validar que el ID sea lógico
+        if (idFactura <= 0) return BadRequest("El ID de factura no es válido.");
+
+        var comprobantes = await _comprobanteRepo.GetByFacturaIdAsync(idFactura);
+
+        // Opcional: Si no hay nada, puedes devolver 200 con lista vacía (recomendado) 
+        // o 404 Not Found.
+        return Ok(comprobantes);
+    }
+    // [HttpPut("actualizar-orden")]
+    // public async Task<IActionResult> UpdateOrdenPago([FromBody] UpdateOrdenPagoDto dto)
+    // {
+    //     if (!ModelState.IsValid) return BadRequest(ModelState);
+
+    //     // PASO 1: Obtener la orden actual para validar reglas
+    //     // Usamos AsNoTracking() porque solo queremos leer datos para validar, 
+    //     // la actualización real la hará el repositorio después.
+    //     var ordenOriginal = await _context.OrdenesPago
+    //         .AsNoTracking()
+    //         .FirstOrDefaultAsync(o => o.IdOrdenPago == dto.IdOrdenPago);
+
+    //     if (ordenOriginal == null) return NotFound("La orden de pago no existe.");
+
+    //     // REGLA: No editar si ya fue enviada (o pagada)
+    //     if (ordenOriginal.Enviada)
+    //     {
+    //         return BadRequest("No se puede modificar una orden que ya fue procesada/enviada.");
+    //     }
+
+    //     // PASO 2: Validar que las nuevas facturas sean del mismo proveedor
+    //     var idsFacturas = dto.Detalles.Select(d => d.IdFactura).ToList();
+
+    //     var facturasInvalidas = await _context.Facturas
+    //         .Where(f => idsFacturas.Contains(f.IdFactura) && f.IdProveedor != ordenOriginal.IdProveedor)
+    //         .Select(f => f.NumeroFactura)
+    //         .ToListAsync();
+
+    //     if (facturasInvalidas.Any())
+    //     {
+    //         return BadRequest(new
+    //         {
+    //             mensaje = "Error de consistencia",
+    //             error = $"Las siguientes facturas no pertenecen al proveedor de esta orden: {string.Join(", ", facturasInvalidas)}"
+    //         });
+    //     }
+
+    //     // PASO 3: Preparar el objeto de Dominio para enviar al Repo
+    //     // Nota: Mantenemos el IdProveedor original.
+    //     var ordenParaActualizar = new Dom.OrdenPago
+    //     {
+    //         IdOrdenPago = dto.IdOrdenPago,
+    //         IdProveedor = ordenOriginal.IdProveedor,
+    //         Comentario = dto.Comentario,
+
+    //         // Recalculamos el total nosotros (Seguridad)
+    //         MontoTotal = dto.Detalles.Sum(d => d.MontoPagar),
+
+    //         // Mapeamos los detalles (SOLO IDs, sin objetos complejos)
+    //         Detalles = dto.Detalles.Select(d => new Dom.PagoDetalle
+    //         {
+    //             IdFactura = d.IdFactura,
+    //             MontoAplicado = d.MontoPagar
+    //         }).ToList()
+    //     };
+
+    //     try
+    //     {
+    //         await _comprobanteRepo.UpdateOrdenPagoAsync(ordenParaActualizar);
+    //         return Ok(new { mensaje = "Orden actualizada correctamente", id = dto.IdOrdenPago });
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         return StatusCode(500, new { error = ex.Message });
+    //     }
+    // }
     public record CreateNotaDto
     {
         // Validaciones básicas
@@ -267,6 +358,29 @@ public class PruebaRepoApiController : ControllerBase
 
         [Required]
         [Range(0.01, 999999999, ErrorMessage = "El monto debe ser mayor a 0.")]
+        public decimal MontoPagar { get; set; }
+    }
+    public record UpdateOrdenPagoDto
+    {
+        [Required]
+        public int IdOrdenPago { get; set; }
+
+        public string? Comentario { get; set; }
+
+        // La lista COMPLETA de cómo debe quedar la orden.
+        // Lo que falte aquí respecto a la BD, se borrará.
+        [Required]
+        [MinLength(1, ErrorMessage = "La orden debe tener al menos una factura.")]
+        public List<UpdatePagoDetalleDto> Detalles { get; set; } = new();
+    }
+
+    public record UpdatePagoDetalleDto
+    {
+        [Required]
+        public int IdFactura { get; set; }
+
+        [Required]
+        [Range(0.01, 999999999)]
         public decimal MontoPagar { get; set; }
     }
 }

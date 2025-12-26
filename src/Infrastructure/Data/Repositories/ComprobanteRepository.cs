@@ -138,7 +138,6 @@ namespace src.Repositories.Implementations
 
             return comprobanteDom;
         }
-
         public Task UpdateAsync(Comprobante comprobante)
         {
             throw new NotImplementedException();
@@ -147,6 +146,16 @@ namespace src.Repositories.Implementations
         public Task<bool> DeleteAsync(int id)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<Comprobante>> GetByFacturaIdAsync(int idFactura)
+        {
+            var comprobantesEf = await GetQueryComprobante()
+                .Where(c => c.IdFacturaReferencia == idFactura)
+                .OrderByDescending(c => c.FechaEmision)
+                .ToListAsync();
+
+            return DominioMapper.Map(comprobantesEf);
         }
     }
 }

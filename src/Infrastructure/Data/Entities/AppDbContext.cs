@@ -65,6 +65,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<PagoDetalle> PagosDetalles { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<PagoDetalle>()
+            .HasKey(pd => new { pd.IdOrdenPago, pd.IdFactura });
 
         modelBuilder.Entity<Comprobante>().UseTptMappingStrategy();
 
@@ -102,8 +104,8 @@ public partial class AppDbContext : DbContext
         modelBuilder.Entity<PagoDetalle>(entity =>
         {
             entity.ToTable("pago_detalle");
-            entity.HasKey(e => e.IdPagoDetalle).HasName("pago_detalle_pkey");
-            entity.Property(e => e.IdPagoDetalle).UseIdentityByDefaultColumn();
+            // entity.HasKey(e => e.IdPagoDetalle).HasName("pago_detalle_pkey");
+            // entity.Property(e => e.IdPagoDetalle).UseIdentityByDefaultColumn();
             entity.HasOne(d => d.OrdenPago)
                 .WithMany(p => p.Detalles)
                 .HasForeignKey(d => d.IdOrdenPago)

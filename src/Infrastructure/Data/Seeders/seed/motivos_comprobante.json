@@ -43,5 +43,10 @@
     "IdMotivoComprobante": 9,
     "Descripcion": "Ajuste manual / Otros (requiere observación)",
     "ClaseComprobante": "TODOS"
+  },
+  {
+    "IdMotivoComprobante": 10,
+    "Descripcion": "Otro",
+    "ClaseComprobante": "TODOS"
   }
 ]

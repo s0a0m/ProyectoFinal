@@ -79,4 +79,13 @@ public class OrdenPagoRepository : IOrdenPagoRepository
 
         await _context.SaveChangesAsync();
     }
+
+    public async Task<IEnumerable<Dom.OrdenPago>> GetPagosPorFacturaIdAsync(int idFactura)
+    {
+        var pagosEf = await GetQueryOrdenPago()
+            .Where(op => op.Detalles.Any(d => d.IdFactura == idFactura))
+            .ToListAsync();
+
+        return DominioMapper.Map(pagosEf);
+    }
 }

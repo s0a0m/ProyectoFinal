@@ -35,6 +35,9 @@ public abstract class Comprobante
     [StringLength(500)]
     public string? Comentario { get; set; }
 
+    [Column("id_factura_referencia")]
+    public int IdFacturaReferencia { get; set; }
+
     [ForeignKey("IdMotivo")]
     public virtual MotivoComprobante Motivo { get; set; } = null!;
 
@@ -43,4 +46,7 @@ public abstract class Comprobante
 
     [ForeignKey("IdCondicionPagoUsada")]
     public virtual CondicionDePago CondicionPago { get; set; } = null!;
+
+    [ForeignKey("IdFacturaReferencia")]
+    public virtual Factura FacturaOriginal { get; set; } = null!;
 }

@@ -6,10 +6,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 [Table("pago_detalle")]
 public class PagoDetalle
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    [Column("id_pago_detalle")]
-    public int IdPagoDetalle { get; set; }
+    // [Key]
+    // [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    // [Column("id_pago_detalle")]
+    // public int IdPagoDetalle { get; set; }
 
     [Column("id_orden_pago")]
     public int IdOrdenPago { get; set; }
