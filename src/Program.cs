@@ -67,6 +67,7 @@ builder.Services.AddTransient<src.Presentation.Services.LayoutService>();
 builder.Services.AddScoped<ICompraService, CompraService>();
 builder.Services.AddScoped<IImportacionService, ImportacionService>();
 builder.Services.AddScoped<IFacturaService, FacturaService>();
+builder.Services.AddScoped<IDocumentoAsociadoService, DocumentosAsociadoService>();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {

@@ -1,0 +1,192 @@
+@using src.Presentation.ViewModels.CuentaCorrienteVM
+@model OrdenPagoFormVM
+
+<div class="container py-4">
+    <form asp-action="Crear" method="post" id="formOrdenPago">
+        @Html.HiddenFor(m => m.IdProveedor)
+        @Html.HiddenFor(m => m.RazonSocialProveedor)
+
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">Nueva Orden de Pago</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Proveedor</label>
+                            <input type="text" class="form-control bg-light" value="@Model.RazonSocialProveedor" readonly />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="NumeroOrden" class="form-label fw-bold"></label>
+                            <input asp-for="NumeroOrden" class="form-control" placeholder="Ej: OP-001-2025" />
+                            <span asp-validation-for="NumeroOrden" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="FechaPago" class="form-label fw-bold"></label>
+                            <input asp-for="FechaPago" class="form-control" />
+                            <span asp-validation-for="FechaPago" class="text-danger small"></span>
+                        </div>
+                        
+                        <hr />
+                        <div class="text-center">
+                            <small class="text-uppercase text-muted fw-bold">Total a Pagar</small>
+                            <h2 class="text-primary fw-bold" id="displayTotal">$0.00</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0 text-secondary">Facturas Pendientes</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th class="text-center" style="width: 50px;">
+                                            <i class="bi bi-check-square"></i>
+                                        </th>
+                                        <th>Factura</th>
+                                        <th>Fecha</th>
+                                        <th class="text-end">Saldo Pendiente</th>
+                                        <th class="text-end" style="width: 160px;">A Pagar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.FacturasDisponibles.Count; i++)
+                                    {
+                                        // Hidden fields para mantener los datos al hacer Post
+                                        @Html.HiddenFor(m => m.FacturasDisponibles[i].IdFactura)
+                                        @Html.HiddenFor(m => m.FacturasDisponibles[i].NumeroFactura)
+                                        @Html.HiddenFor(m => m.FacturasDisponibles[i].FechaEmision)
+                                        @Html.HiddenFor(m => m.FacturasDisponibles[i].TotalFacturado)
+                                        @Html.HiddenFor(m => m.FacturasDisponibles[i].SaldoPendiente)
+
+                                        <tr class="fila-factura">
+                                            <td class="text-center">
+                                                <input asp-for="FacturasDisponibles[i].EstaSeleccionada" 
+                                                       class="form-check-input chk-seleccion" 
+                                                       type="checkbox" 
+                                                       data-index="@i" />
+                                            </td>
+                                            <td>
+                                                <span class="fw-bold">@Model.FacturasDisponibles[i].NumeroFactura</span>
+                                            </td>
+                                            <td>@Model.FacturasDisponibles[i].FechaEmision.ToString("dd/MM/yyyy")</td>
+                                            <td class="text-end text-danger fw-bold">
+                                                $@Model.FacturasDisponibles[i].SaldoPendiente.ToString("N2")
+                                            </td>
+                                            <td>
+                                                <div class="input-group input-group-sm">
+                                                    <span class="input-group-text">$</span>
+                                                    <input asp-for="FacturasDisponibles[i].MontoAPagar" 
+                                                           class="form-control text-end input-monto"
+                                                           type="number" step="0.01" min="0"
+                                                           data-saldo="@Model.FacturasDisponibles[i].SaldoPendiente"
+                                                           disabled /> </div>
+                                                <div class="invalid-feedback text-end" style="font-size: 0.7rem;">
+                                                    Supera el saldo
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger m-3 rounded-0">
+                                <ul class="mb-0 small">
+                                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                    {
+                                        <li>@error.ErrorMessage</li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+            <a asp-controller="DocumentoAsociado" asp-action="Index" asp-route-idProveedor="@Model.IdProveedor" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-success px-4" id="btnGuardar">
+                <i class="bi bi-save me-2"></i>Guardar Orden
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            
+            // 1. Manejo del Checkbox
+            $('.chk-seleccion').change(function() {
+                var isChecked = $(this).is(':checked');
+                var $row = $(this).closest('tr');
+                var $input = $row.find('.input-monto');
+
+                if (isChecked) {
+                    $input.prop('disabled', false);
+                    $row.addClass('table-active'); // Resaltar fila
+                    // Si el input está en 0 o vacío, sugerir el saldo completo
+                    if ($input.val() == 0 || $input.val() == '') {
+                        var saldo = parseFloat($input.data('saldo'));
+                        $input.val(saldo.toFixed(2)); // Poner .toFixed(2) para formato correcto
+                    }
+                } else {
+                    $input.prop('disabled', true);
+                    $input.val(0);
+                    $input.removeClass('is-invalid'); // Limpiar errores visuales
+                    $row.removeClass('table-active');
+                }
+                calcularTotal();
+            });
+
+            // 2. Validación en tiempo real del Input Monto
+            $('.input-monto').on('input', function() {
+                var valor = parseFloat($(this).val()) || 0;
+                var saldo = parseFloat($(this).data('saldo'));
+                var $btnGuardar = $('#btnGuardar');
+
+                if (valor > saldo) {
+                    $(this).addClass('is-invalid'); // Borde rojo Bootstrap
+                    // Opcional: Mostrar alerta flotante o toast si se desea ser muy agresivo
+                } else {
+                    $(this).removeClass('is-invalid');
+                }
+                
+                validarFormularioCompleto();
+                calcularTotal();
+            });
+
+            // 3. Función para calcular el total global
+            function calcularTotal() {
+                var total = 0;
+                $('.chk-seleccion:checked').each(function() {
+                    var $row = $(this).closest('tr');
+                    var valor = parseFloat($row.find('.input-monto').val()) || 0;
+                    total += valor;
+                });
+                $('#displayTotal').text('$' + total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+            }
+
+            // 4. Validación Global para el botón guardar
+            function validarFormularioCompleto() {
+                var hayErrores = $('.input-monto.is-invalid').length > 0;
+                $('#btnGuardar').prop('disabled', hayErrores);
+            }
+
+            // Inicialización (por si falla el post y vuelve a cargar la vista con datos)
+            $('.chk-seleccion:checked').trigger('change');
+        });
+    </script>
+}

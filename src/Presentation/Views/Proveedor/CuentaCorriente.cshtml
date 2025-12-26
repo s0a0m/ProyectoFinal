@@ -20,11 +20,11 @@
                         </div>
                         
                         <div class="btn-group">
-                            <a asp-controller="OrdenesPago" asp-action="Crear" asp-route-idProveedor="@Model.IdProveedor" class="btn btn-primary">
-                                <i class="bi bi-cash-coin me-2"></i>Cargar Orden Pago
+                            <a asp-controller="DocumentoAsociado" asp-action="Index" asp-route-idProveedor="@Model.IdProveedor" class="btn btn-primary">
+                                <i class="bi bi-cash-coin me-2"></i>Gestion Pagos
                             </a>
                             <button class="btn btn-secondary" disabled title="Próximamente">
-                                <i class="bi bi-receipt me-2"></i>Cargar Comprobante
+                                <i class="bi bi-receipt me-2"></i>Gestion notas C/D
                             </button>
                         </div>
                     </div>
@@ -82,10 +82,15 @@
                                     
                                     @if (item.EsFactura)
                                     {
-                                        <a asp-controller="Facturas" asp-action="Detalles" asp-route-id="@item.IdReferencia" 
+                                        <a asp-controller="Factura" asp-action="Details" asp-route-id="@item.IdReferencia" 
                                            class="btn btn-outline-secondary" title="Ver Detalle">
                                             <i class="bi bi-eye"></i>
                                         </a>
+
+                                        <a asp-controller="Factura" asp-action="DocumentosAsociados" asp-route-id="@item.IdReferencia" class="btn btn-sm btn-outline-info" title="Ver Pagos y Notas">
+                                            <i class="bi bi-folder2-open"></i>
+                                        </a>
+
 
                                         @if (item.PuedeEditar)
                                         {
@@ -95,18 +100,15 @@
                                             </a>
                                         }
 
-                                        <button type="button" class="btn btn-outline-info" 
-                                                onclick="verTrazabilidad(@item.IdReferencia)" 
-                                                title="Ver Trazabilidad">
-                                            <i class="bi bi-diagram-3"></i>
-                                        </button>
                                     }
                                     else if (item.EsOrdenPago)
                                     {
-                                        <a asp-controller="OrdenesPago" asp-action="Detalles" asp-route-id="@item.IdReferencia" 
-                                           class="btn btn-outline-secondary" title="Ver Detalle">
+                                        <button type="button" 
+                                                class="btn btn-outline-secondary" 
+                                                title="Ver Detalle"
+                                                onclick="verDetalleOrden(@item.IdReferencia)">
                                             <i class="bi bi-eye"></i>
-                                        </a>
+                                        </button>
 
                                         @if (item.PuedeEditar)
                                         {
@@ -122,10 +124,9 @@
                                     }
                                     else if (item.EsComprobante)
                                     {
-                                         <a asp-controller="Comprobantes" asp-action="Detalles" asp-route-id="@item.IdReferencia" 
-                                           class="btn btn-outline-secondary" title="Ver Detalle">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
+                                        <span class="btn btn-outline-secondary disabled" title="Proximamente">
+                                             <i class="bi bi-eye"></i>
+                                        </span>
                                     }
                                 </div>
                             </td>
@@ -146,6 +147,18 @@
             </div>
             <div class="modal-body" id="contenidoTrazabilidad">
                 <div class="text-center"><div class="spinner-border text-primary"></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDetalleOrden" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="contenidoModalOrden">
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
             </div>
         </div>
     </div>
@@ -179,6 +192,31 @@
             */
             // Si el método devuelve JSON (el DTO que hicimos la otra vez), tendrías que iterar y construir la tabla aquí en JS.
         }
+        
+        function verDetalleOrden(idOrden) {
+            // 1. Mostrar el modal (mostrará el spinner por defecto)
+            var myModal = new bootstrap.Modal(document.getElementById('modalDetalleOrden'));
+            myModal.show();
+
+            // 2. Cargar contenido vía AJAX
+            $.get('/DocumentoAsociado/ObtenerDetalleModal/' + idOrden)
+                .done(function (data) {
+                    // Reemplazar el contenido del modal con la vista parcial
+                    $('#contenidoModalOrden').html(data);
+                })
+                .fail(function () {
+                    $('#contenidoModalOrden').html(
+                        '<div class="modal-header"><h5 class="modal-title">Error</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>' +
+                        '<div class="modal-body text-danger">No se pudo cargar el detalle de la orden.</div>'
+                    );
+                });
+            
+            // Limpiar el contenido al cerrar para que la próxima vez se vea el spinner de nuevo
+            document.getElementById('modalDetalleOrden').addEventListener('hidden.bs.modal', function () {
+                $('#contenidoModalOrden').html('<div class="modal-body text-center py-5"><div class="spinner-border text-primary"></div></div>');
+            });
+        }
+
 
         function eliminarOrden(id) {
             if(confirm('¿Está seguro de eliminar esta Orden de Pago?')) {

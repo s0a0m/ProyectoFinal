@@ -189,6 +189,22 @@ public class ProveedorRepository : IProveedorRepository
         await _context.SaveChangesAsync();
         return true;
     }
+
+
+    public async Task ActualizarSaldoAsync(int idProveedor, decimal nuevoSaldo)
+    {
+        var proveedor = await _context.Proveedores
+            .FirstOrDefaultAsync(p => p.IdProveedor == idProveedor);
+
+        if (proveedor == null)
+            throw new Exception("Proveedor no encontrado");
+
+        proveedor.Saldo = nuevoSaldo;
+
+        await _context.SaveChangesAsync();
+    }
+
+
 }
 
 

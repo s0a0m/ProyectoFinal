@@ -150,5 +150,22 @@ namespace src.Repositories.Implementations
 
             return await query.AnyAsync();
         }
+
+
+        public async Task ActualizarSaldoYEstadoAsync(int idFactura, decimal nuevoSaldo, bool pagada,DateTime FechaP)
+        {
+            var factura = await _context.Facturas
+                .FirstOrDefaultAsync(f => f.IdFactura == idFactura);
+                
+            if (factura == null) throw new Exception("Factura no encontrada");
+            
+            factura.Saldo = nuevoSaldo;
+            factura.Pagada = pagada;
+            factura.FechaPago = FechaP;
+            
+            await _context.SaveChangesAsync();
+        }
+
+
     }
 }
