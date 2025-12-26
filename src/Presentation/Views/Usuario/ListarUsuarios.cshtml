@@ -5,7 +5,7 @@
     ViewData["Title"] = "Gestión de Usuarios";
     var hayUsuarios = Model.Any();
     // Permiso para crear, editar y borrar
-    bool tienePermisoABM = LayoutService.TienePermiso("P10_ABM_USUARIOS"); 
+    bool tienePermisoABM = LayoutService.TienePermiso("P10_ABM_USUARIOS");
 }
 
 @if (TempData["realizado"] != null)
@@ -24,16 +24,18 @@
 }
 
 <div class="container py-4">
-    
+
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5 gap-3">
         <h2 class="fw-bold text-primary m-0"><i class="bi bi-people-fill me-2"></i>@ViewData["Title"]</h2>
-        
+
         <div class="d-flex align-items-center gap-3">
             <div class="btn-group" role="group" aria-label="Filtro de estado">
-                <input type="radio" class="btn-check" name="btnradio" id="btnActivos" autocomplete="off" checked onchange="filtrarUsuarios('activo')">
+                <input type="radio" class="btn-check" name="btnradio" id="btnActivos" autocomplete="off" checked
+                    onchange="filtrarUsuarios('activo')">
                 <label class="btn btn-outline-primary" for="btnActivos">Activos</label>
 
-                <input type="radio" class="btn-check" name="btnradio" id="btnInactivos" autocomplete="off" onchange="filtrarUsuarios('inactivo')">
+                <input type="radio" class="btn-check" name="btnradio" id="btnInactivos" autocomplete="off"
+                    onchange="filtrarUsuarios('inactivo')">
                 <label class="btn btn-outline-secondary" for="btnInactivos">Inactivos</label>
             </div>
 
@@ -58,11 +60,12 @@
         <div class="row g-4" id="contenedorTarjetas">
             @foreach (var usuario in Model)
             {
-                <div class="col-12 col-md-6 col-lg-4 col-xl-3 tarjeta-usuario" data-estado="@(usuario.Activo ? "activo" : "inactivo")">
-                    
+                <div class="col-12 col-md-6 col-lg-4 col-xl-3 tarjeta-usuario"
+                    data-estado="@(usuario.Activo ? "activo" : "inactivo")">
+
                     <div class="card h-100 border-0 shadow-sm hover-effect @(usuario.Activo ? "" : "bg-light opacity-75")">
                         <div class="card-header bg-transparent border-0 d-flex justify-content-between pt-3">
-                            @if(usuario.Activo)
+                            @if (usuario.Activo)
                             {
                                 <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Activo</span>
                             }
@@ -74,22 +77,23 @@
 
                         <div class="card-body text-center pt-0">
                             <div class="mb-3">
-                                <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle" style="width: 64px; height: 64px;">
+                                <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle"
+                                    style="width: 64px; height: 64px;">
                                     <i class="bi bi-person-circle fs-2"></i>
                                 </div>
                             </div>
-                            
+
                             <h5 class="card-title fw-bold text-truncate" title="@usuario.Nombre @usuario.Apellido">
                                 @usuario.Nombre @usuario.Apellido
                             </h5>
-                            
+
                             <p class="text-muted small mb-1">
                                 <i class="bi bi-postcard me-1"></i>@usuario.Identificacion
                             </p>
                             <p class="text-muted small mb-3 text-truncate" title="@usuario.Correo">
                                 <i class="bi bi-envelope me-1"></i>@usuario.Correo
                             </p>
-                            
+
                             <div class="bg-light rounded p-2 mb-2">
                                 <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Teléfono</small>
                                 <div class="fw-bold text-dark">
@@ -101,8 +105,8 @@
                         <div class="card-footer bg-transparent border-0 pb-3 px-3">
                             <div class="d-grid gap-2">
                                 @* 1. BOTÓN VER DETALLE (Visible para todos) *@
-                                <a asp-controller="Usuario" asp-action="VerUsuario" asp-route-idUser="@usuario.IdUsuario" 
-                                   class="btn btn-info btn-sm text-white">
+                                <a asp-controller="Usuario" asp-action="VerUsuario" asp-route-idUser="@usuario.IdUsuario"
+                                    class="btn btn-info btn-sm text-white">
                                     <i class="bi bi-eye me-1"></i>Ver Detalle
                                 </a>
 
@@ -111,19 +115,20 @@
                                 {
                                     @if (usuario.Activo)
                                     {
-                                        <a asp-controller="Usuario" asp-action="ActualizarUsuario" asp-route-idUsuario="@usuario.IdUsuario" 
-                                           class="btn btn-outline-primary btn-sm">
+                                        <a asp-controller="Usuario" asp-action="ActualizarUsuario"
+                                            asp-route-idUsuario="@usuario.IdUsuario" class="btn btn-outline-primary btn-sm">
                                             <i class="bi bi-pencil me-1"></i>Editar
                                         </a>
-                                        
-                                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalEliminar-@usuario.IdUsuario">
+
+                                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+                                            data-bs-target="#modalEliminar-@usuario.IdUsuario">
                                             <i class="bi bi-trash me-1"></i>Desactivar
                                         </button>
                                     }
                                     else
                                     {
-                                        <form asp-controller="Usuario" asp-action="ReactivarUsuario" method="post" 
-                                              onsubmit="return confirm('¿Desea reactivar este usuario?');">
+                                        <form asp-controller="Usuario" asp-action="ReactivarUsuario" method="post"
+                                            onsubmit="return confirm('¿Desea reactivar este usuario?');">
                                             <input type="hidden" name="idUsuario" value="@usuario.IdUsuario" />
                                             <button type="submit" class="btn btn-success btn-sm w-100 text-white">
                                                 <i class="bi bi-arrow-counterclockwise me-1"></i>Reactivar
@@ -141,11 +146,13 @@
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
                                     <div class="modal-header border-0">
-                                        <h5 class="modal-title text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Desactivar Usuario</h5>
+                                        <h5 class="modal-title text-danger"><i
+                                                class="bi bi-exclamation-triangle-fill me-2"></i>Desactivar Usuario</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body text-center">
-                                        <p class="text-muted mb-1">¿Está seguro que desea desactivar a <strong>@usuario.Nombre @usuario.Apellido</strong>?</p>
+                                        <p class="text-muted mb-1">¿Está seguro que desea desactivar a <strong>@usuario.Nombre
+                                                @usuario.Apellido</strong>?</p>
                                         <p class="small text-danger fw-bold bg-danger bg-opacity-10 p-2 rounded">
                                             <i class="bi bi-info-circle me-1"></i>
                                             El usuario perderá el acceso al sistema inmediatamente.
@@ -165,7 +172,7 @@
                 </div>
             }
         </div>
-        
+
         <div id="mensajeVacioFiltro" class="alert alert-info text-center mt-4" style="display: none;">
             No hay usuarios en este estado.
         </div>
@@ -173,6 +180,7 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function filtrarUsuarios(estado) {
             const tarjetas = document.querySelectorAll('.tarjeta-usuario');
@@ -180,31 +188,61 @@
 
             tarjetas.forEach(card => {
                 if (card.getAttribute('data-estado') === estado) {
-                    card.classList.remove('d-none'); 
-                    card.classList.add('animate__animated', 'animate__fadeIn'); 
+                    card.classList.remove('d-none');
+                    card.classList.add('animate__animated', 'animate__fadeIn');
                     visibles++;
                 } else {
-                    card.classList.add('d-none'); 
+                    card.classList.add('d-none');
                 }
             });
 
             const msg = document.getElementById('mensajeVacioFiltro');
             if (msg) {
                 msg.style.display = visibles === 0 ? 'block' : 'none';
-                if(visibles === 0) {
+                if (visibles === 0) {
                     msg.textContent = estado === 'activo' ? "No tienes usuarios activos." : "No hay usuarios inactivos.";
                 }
             }
         }
 
         // Inicializar filtro al cargar
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             filtrarUsuarios('activo');
+            const successMsg = '@TempData["ServiceSuccessMessage"]';
+            const errorMsg = '@TempData["ServiceErrorMessage"]';
+            if (successMsg) {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+                Toast.fire({
+                    icon: 'success',
+                    title: successMsg
+                });
+            }
+
+            if (errorMsg) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Atención',
+                    text: errorMsg,
+                    confirmButtonColor: '#d33'
+                });
+            }
         });
     </script>
 
     <style>
-        .hover-effect { transition: transform 0.2s ease-in-out, box-shadow 0.2s; }
-        .hover-effect:hover { transform: translateY(-5px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; }
+        .hover-effect {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s;
+        }
+
+        .hover-effect:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
+        }
     </style>
 }

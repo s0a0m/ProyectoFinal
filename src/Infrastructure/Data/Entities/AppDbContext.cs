@@ -280,6 +280,8 @@ public partial class AppDbContext : DbContext
         {
             entity.Property(u => u.Activo)
                 .HasDefaultValue(true);
+            entity.HasIndex(e => e.Correo).IsUnique().HasDatabaseName("unq_correo");
+            entity.HasIndex(e => e.Identificacion).IsUnique().HasDatabaseName("unq_identificacion");
         });
 
         modelBuilder.Entity<CondicionDePago>().UseTptMappingStrategy();

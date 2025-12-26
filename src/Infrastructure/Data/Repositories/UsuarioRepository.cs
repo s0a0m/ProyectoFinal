@@ -13,7 +13,7 @@ public class UsuarioRepository : IUsuarioRepository
     private readonly IPermisoRepository _repoPermiso;
     private readonly IGrupoPermisosRepository _repoGrupoPermiso;
 
-    public UsuarioRepository(EF.AppDbContext context, IPermisoRepository repoPermiso,IGrupoPermisosRepository repoGrupo)
+    public UsuarioRepository(EF.AppDbContext context, IPermisoRepository repoPermiso, IGrupoPermisosRepository repoGrupo)
     {
         _context = context;
         _repoPermiso = repoPermiso;
@@ -27,7 +27,7 @@ public class UsuarioRepository : IUsuarioRepository
                 .ThenInclude(up => up.Permiso)
             .Include(u => u.UsuariosGruposPermisos)
                 .ThenInclude(ugp => ugp.GrupoPermiso)
-                    .ThenInclude(gp => gp.GruposPermisosPermisos) 
+                    .ThenInclude(gp => gp.GruposPermisosPermisos)
                         .ThenInclude(gpp => gpp.Permiso);
     }
 
@@ -41,7 +41,7 @@ public class UsuarioRepository : IUsuarioRepository
     public async Task<Dom.Usuario?> GetByIdAsync(int idUsuario)
     {
         EF.Usuario? usuarioEF = await GetQueryUsuario()
-            .AsNoTracking() 
+            .AsNoTracking()
             .Where(u => u.IdUsuario == idUsuario)
             .FirstOrDefaultAsync();
         if (usuarioEF is null) return null;
@@ -56,7 +56,7 @@ public class UsuarioRepository : IUsuarioRepository
         usuarioEF.IdUsuario = 0;
         // Limpiamos las navegaciones para evitar duplicados si EF intenta insertar hijos
         // Las relaciones se manejan manualmente abajo.
-        usuarioEF.UsuariosPermisos.Clear(); 
+        usuarioEF.UsuariosPermisos.Clear();
         usuarioEF.UsuariosGruposPermisos.Clear();
 
         await _context.Usuarios.AddAsync(usuarioEF);
@@ -70,7 +70,7 @@ public class UsuarioRepository : IUsuarioRepository
                 entity.PermisosUsuario.Select(p => p.IdPermiso)
             );
         }
-       
+
         if (entity.GrupoPermisos != null && entity.GrupoPermisos.Any())
         {
             await ReemplazarGruposUsuarioAsync(
@@ -119,13 +119,23 @@ public class UsuarioRepository : IUsuarioRepository
     {
         EF.Usuario? usuarioEF = await GetQueryUsuario()
             .AsNoTracking()
-            .Where(u => u.Correo == correo && u.Activo) 
+            .Where(u => u.Correo == correo)
             .FirstOrDefaultAsync();
 
         if (usuarioEF is null) return null;
         return DominioMapper.Map(usuarioEF);
     }
 
+    public async Task<Dom.Usuario?> GetByIdentificationAsync(string identification)
+    {
+        EF.Usuario? usuarioEF = await GetQueryUsuario()
+            .AsNoTracking()
+            .Where(u => u.Identificacion == identification)
+            .FirstOrDefaultAsync();
+
+        if (usuarioEF is null) return null;
+        return DominioMapper.Map(usuarioEF);
+    }
 
 
     private async Task ReemplazarGruposUsuarioAsync(int idUsuario, IEnumerable<short> nuevosIdsGrupos)

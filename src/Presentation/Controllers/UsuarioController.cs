@@ -5,11 +5,12 @@ using Dom = src.Models.Domain;
 using src.Presentation.ViewModels.UsuarioVM;
 using Microsoft.AspNetCore.Session;
 using Microsoft.AspNetCore.Http;
+using src.Presentation.Controllers;
 
 namespace src.Controllers
 {
 
-    public class UsuarioController : Controller
+    public class UsuarioController : BaseController
     {
         private readonly IUserService _usuarioService;
 
@@ -52,32 +53,34 @@ namespace src.Controllers
 
 
         [HttpPost]
-        [AuthorizePermiso("P10_ABM_USUARIOSR")]
-        public async Task<IActionResult> CrearUsuario([FromForm] CrearUsuarioViewModel usuarioVM)
+        [ValidateAntiForgeryToken]
+        [AuthorizePermiso("P10_ABM_USUARIOS")]
+        public async Task<IActionResult> CrearUsuario([FromForm] CrearUsuarioViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                await _usuarioService.RepoblarViewModelParaErrorAsync(usuarioVM);
-                return View("CrearUsuario", usuarioVM);
+                await _usuarioService.RepoblarViewModelParaErrorAsync(model);
+                return View(model);
             }
 
-            try
+            var result = await _usuarioService.CreateUserAsync(model);
+
+            if (!result.Success)
             {
-                Dom.Usuario nuevoUsuario = await _usuarioService.CreateUserAsync(usuarioVM);
-            }
-            catch (ArgumentException ex)
-            {
-                ModelState.AddModelError(ex.ParamName ?? string.Empty, ex.Message);
-                await _usuarioService.RepoblarViewModelParaErrorAsync(usuarioVM);
-                return View("CrearUsuario", usuarioVM);
+                MapServiceErrors(result);
+
+                await _usuarioService.RepoblarViewModelParaErrorAsync(model);
+
+                return View(model);
             }
 
-            TempData["realizado"] = "El Usuario fue creado con éxito.";
+            SetSuccessMessage(result.Message);
+
             return RedirectToAction("ListarUsuarios");
         }
 
         [HttpGet]
-         [AuthorizePermiso("P10_ABM_USUARIOS")]
+        [AuthorizePermiso("P10_ABM_USUARIOS")]
         public async Task<IActionResult> ActualizarUsuario(int idUsuario)
         {
             Dom.Usuario usuario;
@@ -105,58 +108,50 @@ namespace src.Controllers
                 return View("ActualizarUsuario", usuarioVM);
             }
 
-            try
+            var result = await _usuarioService.UpdateUserAsync(usuarioVM);
+
+            if (!result.Success)
             {
-                await _usuarioService.UpdateUserAsync(usuarioVM);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
-            catch (ArgumentException ex) // Para validaciones de negocio futuras (ej. email duplicado)
-            {
-                ModelState.AddModelError(ex.ParamName ?? string.Empty, ex.Message);
+                MapServiceErrors(result);
                 await _usuarioService.RepoblarViewModelParaErrorAsync(usuarioVM);
-                return View("ActualizarUsuario", usuarioVM);
+                return RedirectToAction("ActualizarUsuario", usuarioVM);
             }
 
-            TempData["realizado"] = "El Usuario fue actualizado con éxito.";
+            SetSuccessMessage(result.Message);
             return RedirectToAction("ListarUsuarios");
         }
 
         [HttpPost]
         [AuthorizePermiso("P10_ABM_USUARIOS")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarUsuario(int idUsuario)
         {
-            try
+            var result = await _usuarioService.DisableUserAsync(idUsuario);
+
+            if (!result.Success)
             {
-                await _usuarioService.DisableUserAsync(idUsuario);
-                TempData["realizado"] = "El Usuario fue desactivado con éxito.";
+                MapServiceErrors(result);
                 return RedirectToAction("ListarUsuarios");
             }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            SetSuccessMessage(result.Message);
+
+            return RedirectToAction("ListarUsuarios");
         }
 
         [HttpPost]
         [AuthorizePermiso("P10_ABM_USUARIOS")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ReactivarUsuario(int idUsuario)
         {
-            try
+            var result = await _usuarioService.ReactivarUsuarioAsync(idUsuario);
+
+            if (!result.Success)
             {
-                await _usuarioService.ReactivarUsuarioAsync(idUsuario); 
-                TempData["realizado"] = "El usuario ha sido reactivado y sus permisos restaurados.";
+                MapServiceErrors(result);
+                return RedirectToAction("ListarUsuarios");
             }
-            catch (KeyNotFoundException)
-            {
-                TempData["error"] = "El usuario que intentas reactivar no existe.";
-            }
-            catch (Exception ex)
-            {
-                TempData["error"] = "Ocurrió un error al reactivar: " + ex.Message;
-            }
+
+            SetSuccessMessage(result.Message);
 
             return RedirectToAction("ListarUsuarios");
         }

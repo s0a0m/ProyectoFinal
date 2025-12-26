@@ -26,81 +26,88 @@
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li> 
-                       
-                      @if (LayoutService.EstaLogueado())
+                        </li>
+
+                        @if (LayoutService.EstaLogueado())
                         {
                             @if (LayoutService.TienePermiso("P02_VER_LISTA_USUARIOS"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="Usuario" asp-action="ListarUsuarios">Usuarios</a>
+                                    <a class="nav-link text-dark" asp-controller="Usuario"
+                                        asp-action="ListarUsuarios">Usuarios</a>
                                 </li>
                             }
 
                             @if (LayoutService.TienePermiso("P11_ABM_GRUPO_PERMISOS"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="GrupoPermisos" asp-action="ListarGrupos">Grupo de Permisos</a>
+                                    <a class="nav-link text-dark" asp-controller="GrupoPermisos" asp-action="ListarGrupos">Grupo
+                                        de Permisos</a>
                                 </li>
                             }
 
                             @if (LayoutService.TienePermiso("P04_VER_LISTA_PRODUCTOS"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="Producto" asp-action="ListarProductos">Productos</a>
+                                    <a class="nav-link text-dark" asp-controller="Producto"
+                                        asp-action="ListarProductos">Productos</a>
                                 </li>
                             }
-                            
+
                             @if (LayoutService.TienePermiso("P12_ABM_CLASIFICACION_PRODUCTOS"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="Clasificacion" asp-action="IndexClasificacion">Categorías</a>
+                                    <a class="nav-link text-dark" asp-controller="Clasificacion"
+                                        asp-action="IndexClasificacion">Categorías</a>
                                 </li>
                             }
 
                             @if (LayoutService.TienePermiso("P06_VER_LISTA_PROVEEDORES"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="Proveedor" asp-action="ListarProveedores">Proveedores</a>
+                                    <a class="nav-link text-dark" asp-controller="Proveedor"
+                                        asp-action="ListarProveedores">Proveedores</a>
                                 </li>
                             }
 
                             @if (LayoutService.TienePermiso("P07_GESTION_COMPRAS"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="ProductoProveedor" asp-action="Index">Catálogo Proveedores</a>
+                                    <a class="nav-link text-dark" asp-controller="ProductoProveedor" asp-action="Index">Catálogo
+                                        Proveedores</a>
                                 </li>
                             }
 
-                                @if (LayoutService.TienePermiso("P07_GESTION_COMPRAS")) // O el código de permiso que definas
-                                {
-                                    <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-controller="Compra" asp-action="Index">
-                                            <i class="bi bi-bag-check me-1"></i>Gestionar Compras
-                                        </a>
-                                    </li>
-                                }
-                                @if (LayoutService.TienePermiso("P09_GESTOR_CC"))
-                                {
-                                    <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-controller="Factura" asp-action="Index">
-                                            <i class="bi bi-bag-check me-1"></i>Gestionar Facturas
-                                        </a>
-                                    </li>
-                                }
-                                
+                            @if (LayoutService.TienePermiso("P07_GESTION_COMPRAS")) // O el código de permiso que definas
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Compra" asp-action="Index">
+                                        <i class="bi bi-bag-check me-1"></i>Gestionar Compras
+                                    </a>
+                                </li>
+                            }
+                            @if (LayoutService.TienePermiso("P09_GESTOR_CC"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Factura" asp-action="Index">
+                                        <i class="bi bi-bag-check me-1"></i>Gestionar Facturas
+                                    </a>
+                                </li>
+                            }
+
                         }
                     </ul>
-                
+
                     <ul class="navbar-nav">
                         @if (LayoutService.EstaLogueado() && LayoutService.TienePermiso("P07_GESTION_COMPRAS"))
                         {
                             @await Component.InvokeAsync("Carrito")
                         }
-                         @if (LayoutService.EstaLogueado())
-                         {
-                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">
+                        @if (LayoutService.EstaLogueado())
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button"
+                                    data-bs-toggle="dropdown">
                                     Hola, @LayoutService.ObtenerNombreUsuario()
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
@@ -110,14 +117,15 @@
                                         </a>
                                     </li>
                                 </ul>
-                             </li>
-                         }
-                         else
-                         {
-                             <li class="nav-item">
-                                <a class="nav-link text-primary fw-bold" asp-controller="Acceso" asp-action="Login">Iniciar Sesión</a>
-                             </li>
-                         }
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-primary fw-bold" asp-controller="Acceso" asp-action="Login">Iniciar
+                                    Sesión</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -147,8 +155,8 @@
                     // 1. Actualizar el numerito rojo
                     var badge = $("#cart-badge");
                     badge.text(response.totalItems);
-                    
-                    if(response.totalItems > 0) {
+
+                    if (response.totalItems > 0) {
                         badge.show();
                     }
 

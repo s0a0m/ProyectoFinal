@@ -47,12 +47,6 @@ namespace src.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Actualizar(short idProducto, short idProveedor, int cantidad)
         {
-            // if (cantidad == 0)
-            // {
-            //     await _cartService.RemoverItemAsync(idProducto, idProveedor);
-            //     SetSuccessMessage("Producto eliminado del carrito.");
-            //     return RedirectToAction(nameof(Index));
-            // }
 
             var result = await _cartService.ValidarYActualizarCantidadAsync(idProducto, idProveedor, cantidad);
 
