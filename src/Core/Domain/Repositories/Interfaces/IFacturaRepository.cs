@@ -14,5 +14,6 @@ namespace src.Repositories.Interfaces
         Task<Dom.Factura> AddAsync(Dom.Factura factura);
         Task UpdateAsync(Dom.Factura factura);
         Task<bool> ExisteNumeroFacturaAsync(short idProveedor, string numeroFactura);
+        Task<bool> ExisteNumeroFacturaAsync(short idProveedor, string numero, int? idExcluir = null);
     }
 }

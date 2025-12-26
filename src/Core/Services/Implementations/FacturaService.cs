@@ -6,6 +6,7 @@ using src.Models.Domain;
 using src.Models.Mappers;
 using src.Presentation.ViewModels.CompraVM;
 using src.Presentation.ViewModels.FacturaVM;
+using src.Repositories.Implementations;
 using src.Repositories.Interfaces;
 using Dom = src.Models.Domain;
 
@@ -115,7 +116,7 @@ public class FacturaService : IFacturaService
         Compra = new Dom.Compra { IdCompra = modelo.IdCompra },
         Proveedor = new Dom.Proveedor { IdProveedor = (short)modelo.IdProveedor },
         NumeroFactura = modelo.NumeroFactura,
-        FechaEmision = modelo.FechaEmision,
+       FechaEmision = DateTime.SpecifyKind(modelo.FechaEmision, DateTimeKind.Utc),
         CondicionPago = condicionFinal,
         Pagada = false,
         Detalles = new List<Dom.DetalleFactura>()
@@ -144,6 +145,7 @@ public class FacturaService : IFacturaService
         nuevaFactura.TotalFacturado = acumuladorTotal;
 
         var facturaCreada = await _facturaRepository.AddAsync(nuevaFactura);
+        await _compraRepository.CompletarCompraAsync(modelo.IdCompra);
         return facturaCreada.IdFactura;
     }
 
@@ -173,29 +175,102 @@ public class FacturaService : IFacturaService
             return ListarFacturaViewModel.MapFacturaVM(facturas);
         }
 
-        public async Task<bool> UpdateAsync(int id, ActualizarFacturaViewModel model)
+        // En src/Core/Services/Implementations/FacturaService.cs
+
+        public async Task<ActualizarFacturaViewModel> PrepararEdicionFacturaAsync(int idFactura)
         {
-            // throw new NotImplementedException();
-            var factura = await _facturaRepository.GetByIdAsync(id);
-            if (factura == null) return false;
-            if (factura.Proveedor == null)
+            var factura = await _facturaRepository.GetByIdAsync(idFactura);
+            if (factura == null) throw new KeyNotFoundException("Factura no encontrada");
+
+            // Mapeo inverso de Dominio a ViewModel
+            var vm = new ActualizarFacturaViewModel
             {
-                throw new InvalidOperationException("No se puede validar el número de factura porque los datos del proveedor no están cargados.");
+                IdFactura = factura.IdFactura,
+                IdCompra = factura.Compra?.IdCompra ?? 0,
+                IdProveedor = factura.Proveedor?.IdProveedor ?? 0,
+                RazonSocial = factura.Proveedor?.RazonSocial ?? "Desconocido",
+                NumeroFactura = factura.NumeroFactura,
+                FechaEmision = factura.FechaEmision,
+                
+                // Mapeo de Condición de Pago
+                TipoCondicion = "Contado",
+                DiasPago = 0
+            };
+
+            if (factura.CondicionPago != null)
+            {
+                vm.DiasPago = factura.CondicionPago.DiasPago;
+                if (factura.CondicionPago is Dom.Cuota c)
+                {
+                    vm.TipoCondicion = "Cuota";
+                    vm.CantidadCuotas = c.Cuotas;
+                    vm.InteresPorcentual = c.InteresPorcentual;
+                }
             }
 
-            if (factura.NumeroFactura != model.NumeroFactura)
+            // Mapeo de Detalles
+            vm.Detalles = factura.Detalles.Select(d => new CrearFacturaDetalleViewModel
             {
-                var existe = await _facturaRepository.ExisteNumeroFacturaAsync((short)factura.Proveedor.IdProveedor, model.NumeroFactura);
-                if (existe) throw new Exception("El nuevo número de factura ya existe para este proveedor.");
+                IdProducto = d.Producto.IdProducto,
+                NombreProducto = d.Producto?.Nombre ?? "Producto",
+                Cantidad = d.Cantidad,
+                PrecioBruto = d.PrecioBruto,
+                PorcentajeDescuento = d.PorcentajeDescuento,
+                PrecioNeto = d.PrecioNeto,
+                // Subtotal es calculado
+            }).ToList();
+
+            return vm;
+        }
+
+        public async Task UpdateAsync(int id, ActualizarFacturaViewModel model)
+        {
+            // 1. Resolver Condición de Pago (Igual que en crear)
+            Dom.CondicionDePago condicionResolver;
+            if (model.TipoCondicion == "Cuota")
+            {
+                condicionResolver = new Dom.Cuota { 
+                    DiasPago = model.DiasPago, 
+                    Cuotas = model.CantidadCuotas ?? 1, 
+                    InteresPorcentual = model.InteresPorcentual ?? 0 
+                };
             }
+            else
+            {
+                condicionResolver = new Dom.Contado { DiasPago = model.DiasPago };
+            }
+            
+            var condicionFinal = await _condicionPagoRepository.BuscarOCrearAsync(condicionResolver);
 
-            factura.NumeroFactura = model.NumeroFactura;
-            factura.FechaEmision = model.FechaEmision;
-            factura.IdCondicionPagoUsada = model.IdCondicionPago;
-            factura.Pagada = model.Pagada;
+            // 2. Armar objeto Dominio
+            var facturaDom = new Dom.Factura
+            {
+                IdFactura = id,
+                NumeroFactura = model.NumeroFactura,
+                // FIX DE FECHA UTC IMPORTANTE
+                FechaEmision = DateTime.SpecifyKind(model.FechaEmision, DateTimeKind.Utc),
+                CondicionPago = condicionFinal,
+                Detalles = new List<Dom.DetalleFactura>()
+            };
 
-            await _facturaRepository.UpdateAsync(factura);
-            return true;
+            decimal total = 0;
+            foreach(var item in model.Detalles)
+            {
+                var det = new Dom.DetalleFactura
+                {
+                    Producto = new Dom.Producto { IdProducto = (short)item.IdProducto },
+                    Cantidad = item.Cantidad,
+                    PrecioBruto = item.PrecioBruto,
+                    PorcentajeDescuento = item.PorcentajeDescuento,
+                    PrecioNeto = item.PrecioNeto
+                };
+                total += item.Cantidad * item.PrecioNeto;
+                facturaDom.Detalles.Add(det);
+            }
+            facturaDom.TotalFacturado = total;
+
+            // 3. Llamar al repo
+            await _facturaRepository.UpdateAsync(facturaDom);
         }
 
 

@@ -69,13 +69,38 @@ public class OrdenPagoRepository : IOrdenPagoRepository
 
     public async Task UpdateAsync(Dom.OrdenPago ordenDom)
     {
-        var entityEf = await _context.OrdenesPago
+        var ordenEf = await _context.OrdenesPago
+            .Include(o => o.Detalles)
             .FirstOrDefaultAsync(o => o.IdOrdenPago == ordenDom.IdOrdenPago);
 
-        if (entityEf == null) return;
-        entityEf.Enviada = ordenDom.Enviada;
-        entityEf.FechaPago = ordenDom.FechaPago;
-        entityEf.MontoTotal = ordenDom.MontoTotal;
+        if (ordenEf == null) throw new KeyNotFoundException($"Orden {ordenDom.IdOrdenPago} no encontrada");
+
+        ordenEf.IdProveedor = ordenDom.IdProveedor;
+        ordenEf.FechaPago = ordenDom.FechaPago;
+        ordenEf.Enviada = ordenDom.Enviada;
+        ordenEf.MontoTotal = ordenDom.MontoTotal;
+
+        var idsNuevos = ordenDom.Detalles.Select(d => d.IdFactura).ToList();
+        var borrar = ordenEf.Detalles.Where(d => !idsNuevos.Contains(d.IdFactura)).ToList();
+        foreach (var item in borrar) _context.Remove(item);
+
+        foreach (var detalleDom in ordenDom.Detalles)
+        {
+            var existente = ordenEf.Detalles.FirstOrDefault(d => d.IdFactura == detalleDom.IdFactura);
+
+            if (existente != null)
+            {
+                existente.MontoAplicado = detalleDom.MontoAplicado;
+            }
+            else
+            {
+                ordenEf.Detalles.Add(new EF.PagoDetalle
+                {
+                    IdFactura = detalleDom.IdFactura,
+                    MontoAplicado = detalleDom.MontoAplicado
+                });
+            }
+        }
 
         await _context.SaveChangesAsync();
     }

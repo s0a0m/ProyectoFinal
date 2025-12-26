@@ -33,7 +33,7 @@
                 </a>
                 @if (Model.Estado == "ENVIADA")
                 {
-                    <a asp-controller="Factura" asp-action="CargarFactura" class="btn btn-primary btn-sm shadow-sm">
+                    <a asp-controller="Factura" asp-action="CreateFromCompra" asp-route-idCompra="@Model.IdCompra" class="btn btn-primary btn-sm shadow-sm">
                         <i class="bi bi-plus-lg text-white-50 me-1"></i>Cargar Factura
                     </a>
                 }

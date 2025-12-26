@@ -11,5 +11,6 @@ public interface ICompraRepository
     Task FinalizarCompraAsync(int idCompra);
     Task CancelarCompraAsync(int idCompra, string motivo);
     Task MarcarComoEnviadaAsync(int idCompra);
+    Task CompletarCompraAsync(int idCompra);
 
 }

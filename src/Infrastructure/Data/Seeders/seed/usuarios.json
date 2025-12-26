@@ -53,5 +53,16 @@
     "Nombre": "Admin",
     "Apellido": "Sistema",
     "FechaAlta": "2024-01-01"
+  },
+  {
+    "IdUsuario": 6,
+    "Activo": true,
+    "Correo": "a",
+    "Telefono": "+54115550001",
+    "Contrasenia": "a",
+    "Identificacion": "25001002",
+    "Nombre": "a",
+    "Apellido": "a",
+    "FechaAlta": "2024-01-01"
   }
 ]
