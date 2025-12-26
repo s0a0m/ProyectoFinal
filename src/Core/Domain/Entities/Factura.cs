@@ -8,6 +8,7 @@ public class Factura
     public DateTime FechaEmision { get; set; }
     public DateTime FechaPago { get; set; }
     public decimal TotalFacturado { get; set; }
+    public decimal Saldo { get; set; }
     public bool Pagada { get; set; }
     // public short IdCondicionPagoUsada { get; set; }
     public List<DetalleFactura> Detalles { get; set; } = new List<DetalleFactura>();

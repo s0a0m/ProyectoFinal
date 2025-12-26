@@ -11,6 +11,7 @@ public class ListarDetalleFacturaViewModel
     public DateTime Fecha { get; set; }
     public DateTime FechaPago{get;set;}
     public decimal Total { get; set; }
+    public decimal Saldo {get;set;}
     public string EstadoPago { get; set; } = string.Empty;
     public string ProveedorNombre { get; set; } = string.Empty;
     public string CuitProveedor { get; set; } = string.Empty;
@@ -28,6 +29,7 @@ public class ListarDetalleFacturaViewModel
                 Fecha = factura.FechaEmision,
                 FechaPago = factura.FechaPago,
                 Total = factura.TotalFacturado,
+                Saldo = factura.Saldo,
                 EstadoPago = factura.Pagada ? "Pagada" : "Pendiente",
 
                 ProveedorNombre = factura.Proveedor?.RazonSocial ?? "Desconocido",

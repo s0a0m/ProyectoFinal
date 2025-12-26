@@ -28,5 +28,6 @@ public class ResumenOrdenPagoViewModel
     public decimal TotalOrden { get; set; }  // MontoTotal de la OP
     public decimal MontoAplicado { get; set; } // Parte específica aplicada a ESTA factura
     public bool Enviada { get; set; }
+    public string Numero { get; set; } = string.Empty;
     public string EstadoDesc => Enviada ? "Enviada" : "Pendiente";
 }

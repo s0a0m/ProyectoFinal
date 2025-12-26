@@ -10,6 +10,8 @@ public class ListarFacturaViewModel
     public DateTime Fecha { get; set; }
     public DateTime FechaPago{get;set;}
     public decimal Total { get; set; }
+    public decimal Saldo { get; set; }
+
     public string EstadoPago { get; set; } = string.Empty;
     public int CantidadItems { get; set; }
 
@@ -23,6 +25,7 @@ public class ListarFacturaViewModel
                 Fecha = f.FechaEmision,
                 FechaPago = f.FechaPago,
                 Total = f.TotalFacturado,
+                Saldo = f.Saldo,
                 EstadoPago = f.Pagada ? "Pagada" : "Pendiente",
                 CantidadItems = f.Detalles?.Count ?? 0
             }).ToList();

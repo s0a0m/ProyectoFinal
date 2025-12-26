@@ -10,6 +10,12 @@ public class OrdenPago
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id_orden_pago")]
     public int IdOrdenPago { get; set; }
+
+    [Required]
+    [Column("numero_orden")]
+    [StringLength(50)]
+    public string Numero { get; set; }
+
     [Required]
 
     [Column("id_proveedor")]

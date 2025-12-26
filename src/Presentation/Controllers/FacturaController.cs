@@ -181,6 +181,26 @@ namespace src.Presentation.Controllers
 
 
 
+        [HttpGet]
+        public async Task<IActionResult> DocumentosAsociados(int id)
+        {
+            try
+            {
+                var vm = await _facturaService.ObtenerDocumentosAsociadosAsync(id);
+                return View(vm);
+            }
+            catch (KeyNotFoundException)
+            {
+                TempData["Error"] = "La factura solicitada no existe.";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error al recuperar documentos: " + ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
+
 
     }
 

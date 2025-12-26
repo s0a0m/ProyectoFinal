@@ -143,6 +143,7 @@ public class FacturaService : IFacturaService
     }
 
         nuevaFactura.TotalFacturado = acumuladorTotal;
+        nuevaFactura.Saldo = acumuladorTotal;
 
         var facturaCreada = await _facturaRepository.AddAsync(nuevaFactura);
         await _compraRepository.CompletarCompraAsync(modelo.IdCompra);
@@ -304,6 +305,7 @@ public class FacturaService : IFacturaService
                 OrdenesPago = ordenesDom.Select(op => new ResumenOrdenPagoViewModel
                 {
                     IdOrdenPago = op.IdOrdenPago,
+                    Numero = op.Numero,
                     FechaPago = op.FechaPago,
                     TotalOrden = op.MontoTotal,
                     Enviada = op.Enviada,

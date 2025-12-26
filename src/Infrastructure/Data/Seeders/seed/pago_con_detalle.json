@@ -1,5 +1,6 @@
 [
   {
+    "Numero": "ORD-0001-00000001",
     "IdProveedor": 1,
     "MontoTotal": 50000.0,
     "FechaPago": "2024-11-05T10:00:00",
@@ -16,6 +17,7 @@
     ]
   },
   {
+    "Numero": "ORD-0002-00000022",
     "IdProveedor": 2,
     "MontoTotal": 12500.5,
     "FechaPago": "2024-11-06T15:45:00",
@@ -28,6 +30,7 @@
     ]
   },
   {
+    "Numero": "ORD-0003-0000003",
     "IdProveedor": 3,
     "MontoTotal": 8000.0,
     "FechaPago": "2024-11-07T09:30:00",

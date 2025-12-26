@@ -35,6 +35,10 @@ public class Factura
     public decimal TotalFacturado { get; set; }
 
     [Required]
+    [Column("saldo", TypeName = "decimal(18,2)")]
+    public decimal Saldo { get; set; }
+
+    [Required]
     [Column("pagada")]
     public bool Pagada { get; set; } = false;
     [Required]
