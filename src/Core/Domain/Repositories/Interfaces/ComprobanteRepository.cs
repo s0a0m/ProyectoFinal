@@ -12,4 +12,5 @@ public interface IComprobanteRepository
     Task<Dom.Comprobante> AddAsync(Dom.Comprobante comprobante);
     Task UpdateAsync(Dom.Comprobante comprobante);
     Task<bool> DeleteAsync(int id);
+    Task<IEnumerable<Dom.Comprobante>> GetByProveedorAsync(short idProveedor);
 }

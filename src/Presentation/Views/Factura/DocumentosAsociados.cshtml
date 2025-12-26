@@ -89,7 +89,7 @@
                                 <thead class="table-light small text-muted text-uppercase">
                                     <tr>
                                         <th>Fecha Pago</th>
-                                        <th>ID Orden</th>
+                                        <th>Numero</th>
                                         <th class="text-center">Estado</th>
                                         <th class="text-end" title="Monto aplicado a esta factura">Aplicado</th>
                                         <th class="text-end" title="Monto total de la orden de pago">Total OP</th>
@@ -104,7 +104,7 @@
                                                 @(op.FechaPago.HasValue ? op.FechaPago.Value.ToString("dd/MM/yyyy") : "-")
                                             </td>
                                             
-                                            <td class="font-monospace fw-bold text-dark">#@op.IdOrdenPago</td>
+                                            <td class="font-monospace fw-bold text-dark">@op.Numero</td>
                                             
                                             <td class="text-center">
                                                 @if (op.Enviada)
