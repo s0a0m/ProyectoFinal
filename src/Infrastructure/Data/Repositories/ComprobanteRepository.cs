@@ -157,5 +157,16 @@ namespace src.Repositories.Implementations
 
             return DominioMapper.Map(comprobantesEf);
         }
+
+        public async Task<IEnumerable<Comprobante>> GetByProveedorAsync(short idProveedor)
+        {
+            var ComprobanteEF = await GetQueryComprobante()
+                .AsNoTracking()
+                .Where(f => f.IdProveedor == idProveedor)
+                .ToListAsync();
+            return DominioMapper.Map(ComprobanteEF);
+        }
+
+
     }
 }
