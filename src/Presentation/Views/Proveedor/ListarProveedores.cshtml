@@ -70,8 +70,23 @@
                             {
                                 <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3">Inactivo</span>
                             }
-                            
-                            @* Eliminé el dropdown de "3 puntos" porque moví la acción de Ver al footer *@
+
+                            <div class="dropdown">
+                            <button class="btn btn-link text-dark p-0 text-decoration-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-three-dots-vertical"></i> </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow">
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2" 
+                                    asp-controller="Proveedor" 
+                                    asp-action="CuentaCorriente" 
+                                    asp-route-id="@pr.IdProveedor">
+                                        <i class="bi bi-card-list"></i> Ver Cuenta Corriente
+                                    </a>
+                                </li>
+                                </ul>
+                        </div>
+
+                           
                         </div>
 
                         <div class="card-body text-center pt-0">
