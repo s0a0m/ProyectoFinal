@@ -5,239 +5,482 @@
     "StockMinimo": 5,
     "StockTotal": 40,
     "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 1, "IdCategoria": 8 }],
+    "ProductosCategorias": [{ "IdProducto": 1, "IdCategoria": 1 }],
     "ProductoCodigoBarras": [
       { "IdProducto": 1, "IdCodigoBarra": 1 },
-      { "IdProducto": 1, "IdCodigoBarra": 101 }
+      { "IdProducto": 1, "IdCodigoBarra": 2 }
     ]
   },
   {
     "IdProducto": 2,
-    "Nombre": "Destornillador Phillips N°2",
+    "Nombre": "Destornillador Phillips Kit x6",
     "StockMinimo": 10,
-    "StockTotal": 60,
+    "StockTotal": 150,
     "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 2, "IdCategoria": 8 }],
-    "ProductoCodigoBarras": [
-      { "IdProducto": 2, "IdCodigoBarra": 2 },
-      { "IdProducto": 2, "IdCodigoBarra": 102 }
-    ]
+    "ProductosCategorias": [{ "IdProducto": 2, "IdCategoria": 1 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 2, "IdCodigoBarra": 3 }]
   },
   {
     "IdProducto": 3,
-    "Nombre": "Llave Francesa Ajustable 10''",
-    "StockMinimo": 3,
-    "StockTotal": 25,
+    "Nombre": "Pinza Universal 8'' Aislada",
+    "StockMinimo": 5,
+    "StockTotal": 60,
     "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 3, "IdCategoria": 8 }],
+    "ProductosCategorias": [{ "IdProducto": 3, "IdCategoria": 1 }],
     "ProductoCodigoBarras": [
-      { "IdProducto": 3, "IdCodigoBarra": 3 },
-      { "IdProducto": 3, "IdCodigoBarra": 103 }
+      { "IdProducto": 3, "IdCodigoBarra": 4 },
+      { "IdProducto": 3, "IdCodigoBarra": 5 }
     ]
   },
   {
     "IdProducto": 4,
-    "Nombre": "Tornillos Parker 4x25mm",
-    "StockMinimo": 50,
-    "StockTotal": 500,
+    "Nombre": "Llave Francesa Cromada 10''",
+    "StockMinimo": 3,
+    "StockTotal": 25,
     "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 4, "IdCategoria": 9 }],
-    "ProductoCodigoBarras": [
-      { "IdProducto": 4, "IdCodigoBarra": 4 },
-      { "IdProducto": 4, "IdCodigoBarra": 104 },
-      { "IdProducto": 4, "IdCodigoBarra": 204 }
-    ]
+    "ProductosCategorias": [{ "IdProducto": 4, "IdCategoria": 1 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 4, "IdCodigoBarra": 6 }]
   },
   {
     "IdProducto": 5,
-    "Nombre": "Arandelas Planas 1/4''",
-    "StockMinimo": 30,
-    "StockTotal": 200,
+    "Nombre": "Sierra de Arco Profesional",
+    "StockMinimo": 5,
+    "StockTotal": 30,
     "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 5, "IdCategoria": 9 }],
-    "ProductoCodigoBarras": [
-      { "IdProducto": 5, "IdCodigoBarra": 5 },
-      { "IdProducto": 5, "IdCodigoBarra": 105 }
-    ]
+    "ProductosCategorias": [{ "IdProducto": 5, "IdCategoria": 1 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 5, "IdCodigoBarra": 7 }]
   },
   {
     "IdProducto": 6,
-    "Nombre": "Tuercas Hexagonales 5/16''",
-    "StockMinimo": 25,
-    "StockTotal": 150,
+    "Nombre": "Taladro Percutor Bosch 650W",
+    "StockMinimo": 2,
+    "StockTotal": 15,
     "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 6, "IdCategoria": 9 }],
+    "ProductosCategorias": [{ "IdProducto": 6, "IdCategoria": 2 }],
     "ProductoCodigoBarras": [
-      { "IdProducto": 6, "IdCodigoBarra": 6 },
-      { "IdProducto": 6, "IdCodigoBarra": 106 }
+      { "IdProducto": 6, "IdCodigoBarra": 8 },
+      { "IdProducto": 6, "IdCodigoBarra": 9 }
     ]
   },
   {
     "IdProducto": 7,
-    "Nombre": "Adhesivo de Contacto 250cc",
-    "StockMinimo": 10,
-    "StockTotal": 55,
+    "Nombre": "Amoladora Angular Black&Decker",
+    "StockMinimo": 2,
+    "StockTotal": 20,
     "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 7, "IdCategoria": 10 }],
-    "ProductoCodigoBarras": [
-      { "IdProducto": 7, "IdCodigoBarra": 7 },
-      { "IdProducto": 7, "IdCodigoBarra": 107 }
-    ]
+    "ProductosCategorias": [{ "IdProducto": 7, "IdCategoria": 2 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 7, "IdCodigoBarra": 10 }]
   },
   {
     "IdProducto": 8,
-    "Nombre": "Silicona Neutra Transparente",
-    "StockMinimo": 15,
-    "StockTotal": 70,
+    "Nombre": "Sierra Circular 185mm",
+    "StockMinimo": 1,
+    "StockTotal": 8,
     "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 8, "IdCategoria": 10 }],
-    "ProductoCodigoBarras": [
-      { "IdProducto": 8, "IdCodigoBarra": 8 },
-      { "IdProducto": 8, "IdCodigoBarra": 108 }
-    ]
+    "ProductosCategorias": [{ "IdProducto": 8, "IdCategoria": 2 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 8, "IdCodigoBarra": 11 }]
   },
   {
     "IdProducto": 9,
-    "Nombre": "Sellador Poliuretánico",
-    "StockMinimo": 10,
-    "StockTotal": 45,
+    "Nombre": "Atornillador Inalámbrico 12V",
+    "StockMinimo": 4,
+    "StockTotal": 12,
     "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 9, "IdCategoria": 10 }],
-    "ProductoCodigoBarras": [
-      { "IdProducto": 9, "IdCodigoBarra": 9 },
-      { "IdProducto": 9, "IdCodigoBarra": 109 }
-    ]
+    "ProductosCategorias": [{ "IdProducto": 9, "IdCategoria": 2 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 9, "IdCodigoBarra": 12 }]
   },
   {
     "IdProducto": 10,
-    "Nombre": "Bolsa de Cemento Portland 50kg",
-    "StockMinimo": 8,
-    "StockTotal": 100,
+    "Nombre": "Lijadora Orbital 220W",
+    "StockMinimo": 2,
+    "StockTotal": 10,
     "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 10, "IdCategoria": 11 }],
+    "ProductosCategorias": [{ "IdProducto": 10, "IdCategoria": 2 }],
     "ProductoCodigoBarras": [
-      { "IdProducto": 10, "IdCodigoBarra": 10 },
-      { "IdProducto": 10, "IdCodigoBarra": 110 }
+      { "IdProducto": 10, "IdCodigoBarra": 13 },
+      { "IdProducto": 10, "IdCodigoBarra": 14 }
     ]
   },
   {
     "IdProducto": 11,
-    "Nombre": "Cal Hidratada 25kg",
-    "StockMinimo": 6,
-    "StockTotal": 80,
+    "Nombre": "Lámpara LED Bulbo 9W Luz Día",
+    "StockMinimo": 50,
+    "StockTotal": 1000,
     "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 11, "IdCategoria": 11 }],
-    "ProductoCodigoBarras": [
-      { "IdProducto": 11, "IdCodigoBarra": 11 },
-      { "IdProducto": 11, "IdCodigoBarra": 111 }
-    ]
+    "ProductosCategorias": [{ "IdProducto": 11, "IdCategoria": 3 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 11, "IdCodigoBarra": 15 }]
   },
   {
     "IdProducto": 12,
-    "Nombre": "Mezcla Lista para Reparación 15kg",
-    "StockMinimo": 5,
-    "StockTotal": 50,
+    "Nombre": "Lámpara LED Bulbo 12W Cálida",
+    "StockMinimo": 50,
+    "StockTotal": 800,
     "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 12, "IdCategoria": 11 }],
-    "ProductoCodigoBarras": [
-      { "IdProducto": 12, "IdCodigoBarra": 12 },
-      { "IdProducto": 12, "IdCodigoBarra": 112 }
-    ]
+    "ProductosCategorias": [{ "IdProducto": 12, "IdCategoria": 3 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 12, "IdCodigoBarra": 16 }]
   },
   {
     "IdProducto": 13,
-    "Nombre": "Pintura Látex Interior Blanca 4L",
+    "Nombre": "Reflector LED Exterior 50W",
     "StockMinimo": 10,
-    "StockTotal": 40,
+    "StockTotal": 120,
     "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 13, "IdCategoria": 12 }],
+    "ProductosCategorias": [{ "IdProducto": 13, "IdCategoria": 3 }],
     "ProductoCodigoBarras": [
-      { "IdProducto": 13, "IdCodigoBarra": 13 },
-      { "IdProducto": 13, "IdCodigoBarra": 113 }
+      { "IdProducto": 13, "IdCodigoBarra": 17 },
+      { "IdProducto": 13, "IdCodigoBarra": 18 }
     ]
   },
   {
     "IdProducto": 14,
-    "Nombre": "Esmalte Sintético Negro 1L",
-    "StockMinimo": 8,
-    "StockTotal": 35,
-    "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 14, "IdCategoria": 12 }],
-    "ProductoCodigoBarras": [
-      { "IdProducto": 14, "IdCodigoBarra": 14 },
-      { "IdProducto": 14, "IdCodigoBarra": 114 }
-    ]
-  },
-  {
-    "IdProducto": 15,
-    "Nombre": "Rodillo de Pintura 22cm",
-    "StockMinimo": 15,
-    "StockTotal": 90,
-    "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 15, "IdCategoria": 12 }],
-    "ProductoCodigoBarras": [
-      { "IdProducto": 15, "IdCodigoBarra": 15 },
-      { "IdProducto": 15, "IdCodigoBarra": 115 }
-    ]
-  },
-  {
-    "IdProducto": 16,
-    "Nombre": "Caño PVC 1'' x 3 metros",
+    "Nombre": "Cable Unipolar 2.5mm Rojo (100m)",
     "StockMinimo": 20,
     "StockTotal": 150,
     "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 16, "IdCategoria": 13 }],
-    "ProductoCodigoBarras": [
-      { "IdProducto": 16, "IdCodigoBarra": 16 },
-      { "IdProducto": 16, "IdCodigoBarra": 116 }
-    ]
+    "ProductosCategorias": [{ "IdProducto": 14, "IdCategoria": 4 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 14, "IdCodigoBarra": 19 }]
+  },
+  {
+    "IdProducto": 15,
+    "Nombre": "Toma Doble Exterior Normalizado",
+    "StockMinimo": 15,
+    "StockTotal": 200,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 15, "IdCategoria": 4 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 15, "IdCodigoBarra": 20 }]
+  },
+  {
+    "IdProducto": 16,
+    "Nombre": "Cinta Aisladora PVC 20m",
+    "StockMinimo": 50,
+    "StockTotal": 500,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 16, "IdCategoria": 4 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 16, "IdCodigoBarra": 21 }]
   },
   {
     "IdProducto": 17,
-    "Nombre": "Codo PVC 90° 1''",
-    "StockMinimo": 30,
-    "StockTotal": 200,
+    "Nombre": "Disyuntor Diferencial 2x40A",
+    "StockMinimo": 5,
+    "StockTotal": 40,
     "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 17, "IdCategoria": 13 }],
-    "ProductoCodigoBarras": [
-      { "IdProducto": 17, "IdCodigoBarra": 17 },
-      { "IdProducto": 17, "IdCodigoBarra": 117 }
-    ]
+    "ProductosCategorias": [{ "IdProducto": 17, "IdCategoria": 4 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 17, "IdCodigoBarra": 22 }]
   },
   {
     "IdProducto": 18,
-    "Nombre": "Canilla de Bronce 1/2''",
-    "StockMinimo": 5,
-    "StockTotal": 30,
+    "Nombre": "Llave Termomagnética 2x20A",
+    "StockMinimo": 10,
+    "StockTotal": 80,
     "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 18, "IdCategoria": 13 }],
-    "ProductoCodigoBarras": [
-      { "IdProducto": 18, "IdCodigoBarra": 18 },
-      { "IdProducto": 18, "IdCodigoBarra": 118 }
-    ]
+    "ProductosCategorias": [{ "IdProducto": 18, "IdCategoria": 4 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 18, "IdCodigoBarra": 23 }]
   },
   {
     "IdProducto": 19,
-    "Nombre": "Aislante térmico rollo 10m",
-    "StockMinimo": 4,
-    "StockTotal": 25,
+    "Nombre": "Canilla Cocina Monocomando",
+    "StockMinimo": 5,
+    "StockTotal": 35,
     "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 19, "IdCategoria": 11 }],
+    "ProductosCategorias": [{ "IdProducto": 19, "IdCategoria": 5 }],
     "ProductoCodigoBarras": [
-      { "IdProducto": 19, "IdCodigoBarra": 19 },
-      { "IdProducto": 19, "IdCodigoBarra": 119 }
+      { "IdProducto": 19, "IdCodigoBarra": 24 },
+      { "IdProducto": 19, "IdCodigoBarra": 25 }
     ]
   },
   {
     "IdProducto": 20,
-    "Nombre": "Pala Ancha Acero con Cabo",
+    "Nombre": "Duchador de Mano con Soporte",
+    "StockMinimo": 5,
+    "StockTotal": 50,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 20, "IdCategoria": 5 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 20, "IdCodigoBarra": 26 }]
+  },
+  {
+    "IdProducto": 21,
+    "Nombre": "Flexible Acero Inoxidable 40cm",
+    "StockMinimo": 20,
+    "StockTotal": 300,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 21, "IdCategoria": 5 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 21, "IdCodigoBarra": 27 }]
+  },
+  {
+    "IdProducto": 22,
+    "Nombre": "Caño Fusión 20mm Agua (Tira)",
+    "StockMinimo": 50,
+    "StockTotal": 400,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 22, "IdCategoria": 6 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 22, "IdCodigoBarra": 28 }]
+  },
+  {
+    "IdProducto": 23,
+    "Nombre": "Codo Fusión 20mm a 90°",
+    "StockMinimo": 100,
+    "StockTotal": 1000,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 23, "IdCategoria": 6 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 23, "IdCodigoBarra": 29 }]
+  },
+  {
+    "IdProducto": 24,
+    "Nombre": "Cinta Teflón Alta Densidad 3/4",
+    "StockMinimo": 50,
+    "StockTotal": 600,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 24, "IdCategoria": 6 }],
+    "ProductoCodigoBarras": [
+      { "IdProducto": 24, "IdCodigoBarra": 30 },
+      { "IdProducto": 24, "IdCodigoBarra": 31 }
+    ]
+  },
+  {
+    "IdProducto": 25,
+    "Nombre": "Válvula Esférica PVC 1/2",
+    "StockMinimo": 10,
+    "StockTotal": 100,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 25, "IdCategoria": 6 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 25, "IdCodigoBarra": 32 }]
+  },
+  {
+    "IdProducto": 26,
+    "Nombre": "Látex Interior Blanco 20L",
+    "StockMinimo": 5,
+    "StockTotal": 60,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 26, "IdCategoria": 7 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 26, "IdCodigoBarra": 33 }]
+  },
+  {
+    "IdProducto": 27,
+    "Nombre": "Esmalte Sintético Negro 1L",
+    "StockMinimo": 10,
+    "StockTotal": 80,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 27, "IdCategoria": 7 }],
+    "ProductoCodigoBarras": [
+      { "IdProducto": 27, "IdCodigoBarra": 34 },
+      { "IdProducto": 27, "IdCodigoBarra": 35 },
+      { "IdProducto": 27, "IdCodigoBarra": 36 }
+    ]
+  },
+  {
+    "IdProducto": 28,
+    "Nombre": "Pincel Cerda China Nro 20",
+    "StockMinimo": 20,
+    "StockTotal": 200,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 28, "IdCategoria": 7 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 28, "IdCodigoBarra": 37 }]
+  },
+  {
+    "IdProducto": 29,
+    "Nombre": "Rodillo Lana Sintética 22cm",
+    "StockMinimo": 15,
+    "StockTotal": 150,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 29, "IdCategoria": 7 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 29, "IdCodigoBarra": 38 }]
+  },
+  {
+    "IdProducto": 30,
+    "Nombre": "Aguarrás Mineral 1L",
+    "StockMinimo": 20,
+    "StockTotal": 120,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 30, "IdCategoria": 7 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 30, "IdCodigoBarra": 39 }]
+  },
+  {
+    "IdProducto": 31,
+    "Nombre": "Cemento Rápido Bolsa 1kg",
+    "StockMinimo": 20,
+    "StockTotal": 300,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 31, "IdCategoria": 8 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 31, "IdCodigoBarra": 40 }]
+  },
+  {
+    "IdProducto": 32,
+    "Nombre": "Enduido Plástico Interior 4L",
+    "StockMinimo": 10,
+    "StockTotal": 50,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 32, "IdCategoria": 8 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 32, "IdCodigoBarra": 41 }]
+  },
+  {
+    "IdProducto": 33,
+    "Nombre": "Espátula Acero Flexible 10cm",
+    "StockMinimo": 10,
+    "StockTotal": 80,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 33, "IdCategoria": 8 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 33, "IdCodigoBarra": 42 }]
+  },
+  {
+    "IdProducto": 34,
+    "Nombre": "Balde Plástico Albañil Reforzado",
+    "StockMinimo": 20,
+    "StockTotal": 200,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 34, "IdCategoria": 8 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 34, "IdCodigoBarra": 43 }]
+  },
+  {
+    "IdProducto": 35,
+    "Nombre": "Tornillo Fix Madera 3.5x40 (Caja)",
+    "StockMinimo": 10,
+    "StockTotal": 100,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 35, "IdCategoria": 9 }],
+    "ProductoCodigoBarras": [
+      { "IdProducto": 35, "IdCodigoBarra": 44 },
+      { "IdProducto": 35, "IdCodigoBarra": 45 }
+    ]
+  },
+  {
+    "IdProducto": 36,
+    "Nombre": "Tarugo 6mm con tope (Bolsa x100)",
+    "StockMinimo": 20,
+    "StockTotal": 300,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 36, "IdCategoria": 9 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 36, "IdCodigoBarra": 46 }]
+  },
+  {
+    "IdProducto": 37,
+    "Nombre": "Tarugo 8mm con tope (Bolsa x100)",
+    "StockMinimo": 20,
+    "StockTotal": 300,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 37, "IdCategoria": 9 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 37, "IdCodigoBarra": 47 }]
+  },
+  {
+    "IdProducto": 38,
+    "Nombre": "Clavo Punta Paris 2'' (Kg)",
+    "StockMinimo": 10,
+    "StockTotal": 150,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 38, "IdCategoria": 9 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 38, "IdCodigoBarra": 48 }]
+  },
+  {
+    "IdProducto": 39,
+    "Nombre": "Bulón Hexagonal 1/4 x 2 (Caja)",
+    "StockMinimo": 5,
+    "StockTotal": 60,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 39, "IdCategoria": 9 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 39, "IdCodigoBarra": 49 }]
+  },
+  {
+    "IdProducto": 40,
+    "Nombre": "Arandela Plana Vuelo Ancho (Kg)",
     "StockMinimo": 5,
     "StockTotal": 40,
     "Activo": true,
-    "ProductosCategorias": [{ "IdProducto": 20, "IdCategoria": 8 }],
+    "ProductosCategorias": [{ "IdProducto": 40, "IdCategoria": 9 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 40, "IdCodigoBarra": 50 }]
+  },
+  {
+    "IdProducto": 41,
+    "Nombre": "Silicona Transparente Tubo 280ml",
+    "StockMinimo": 15,
+    "StockTotal": 120,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 41, "IdCategoria": 10 }],
     "ProductoCodigoBarras": [
-      { "IdProducto": 20, "IdCodigoBarra": 20 },
-      { "IdProducto": 20, "IdCodigoBarra": 120 }
+      { "IdProducto": 41, "IdCodigoBarra": 51 },
+      { "IdProducto": 41, "IdCodigoBarra": 52 }
     ]
+  },
+  {
+    "IdProducto": 42,
+    "Nombre": "Espuma Poliuretano Expandible",
+    "StockMinimo": 10,
+    "StockTotal": 80,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 42, "IdCategoria": 10 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 42, "IdCodigoBarra": 53 }]
+  },
+  {
+    "IdProducto": 43,
+    "Nombre": "Adhesivo de Contacto Poxirran",
+    "StockMinimo": 20,
+    "StockTotal": 150,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 43, "IdCategoria": 10 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 43, "IdCodigoBarra": 54 }]
+  },
+  {
+    "IdProducto": 44,
+    "Nombre": "Cinta de Empaque Marrón",
+    "StockMinimo": 30,
+    "StockTotal": 400,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 44, "IdCategoria": 10 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 44, "IdCodigoBarra": 55 }]
+  },
+  {
+    "IdProducto": 45,
+    "Nombre": "Candado Hierro 40mm Doble Traba",
+    "StockMinimo": 10,
+    "StockTotal": 90,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 45, "IdCategoria": 1 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 45, "IdCodigoBarra": 56 }]
+  },
+  {
+    "IdProducto": 46,
+    "Nombre": "Cadena Galvanizada Nro 40 (Metro)",
+    "StockMinimo": 50,
+    "StockTotal": 300,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 46, "IdCategoria": 9 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 46, "IdCodigoBarra": 57 }]
+  },
+  {
+    "IdProducto": 47,
+    "Nombre": "Soga Polipropileno 8mm (Rollo)",
+    "StockMinimo": 5,
+    "StockTotal": 30,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 47, "IdCategoria": 9 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 47, "IdCodigoBarra": 58 }]
+  },
+  {
+    "IdProducto": 48,
+    "Nombre": "WD-40 Lubricante Aerosol 300ml",
+    "StockMinimo": 25,
+    "StockTotal": 200,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 48, "IdCategoria": 10 }],
+    "ProductoCodigoBarras": [
+      { "IdProducto": 48, "IdCodigoBarra": 59 },
+      { "IdProducto": 48, "IdCodigoBarra": 60 }
+    ]
+  },
+  {
+    "IdProducto": 49,
+    "Nombre": "Disco de Corte 115mm Metal",
+    "StockMinimo": 100,
+    "StockTotal": 800,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 49, "IdCategoria": 2 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 49, "IdCodigoBarra": 61 }]
+  },
+  {
+    "IdProducto": 50,
+    "Nombre": "Mecha Acero Rápido 6mm",
+    "StockMinimo": 20,
+    "StockTotal": 150,
+    "Activo": true,
+    "ProductosCategorias": [{ "IdProducto": 50, "IdCategoria": 2 }],
+    "ProductoCodigoBarras": [{ "IdProducto": 50, "IdCodigoBarra": 62 }]
   }
 ]

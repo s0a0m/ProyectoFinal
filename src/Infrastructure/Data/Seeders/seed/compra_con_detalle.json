@@ -1,39 +1,44 @@
 [
   {
-    "IdCompra": 1,
-    "IdProveedor": 1,
-    "IdUsuario": 1,
-    "FechaCompra": "2025-12-01T09:00:00",
-    "Observaciones": "Pedido inicial de stock de limpieza",
+    "//": "ESCENARIO A: FV - Reposición",
+    "IdCompra": 4,
+    "IdProveedor": 13,
+    "IdUsuario": 2,
+    "FechaCompra": "2025-12-15T10:00:00",
+    "Observaciones": "Reposición mensual de grifería de cocina y baño",
     "Estado": 2,
-    "FechaRecepcion": null,
+    "FechaRecepcion": "2025-12-18T14:30:00",
     "Detalles": [
-      {
-        "IdProducto": 1,
-        "Cantidad": 50,
-        "PrecioPactado": 1500.5
-      },
-      {
-        "IdProducto": 2,
-        "Cantidad": 20,
-        "PrecioPactado": 2300.0
-      }
+      { "IdProducto": 19, "Cantidad": 50, "PrecioPactado": 120000.0 },
+      { "IdProducto": 20, "Cantidad": 30, "PrecioPactado": 52000.0 }
     ]
   },
   {
-    "IdCompra": 2,
-    "IdProveedor": 2,
-    "IdUsuario": 2,
-    "FechaCompra": "2025-12-10T14:30:00",
-    "Observaciones": "Compra de repuestos de oficina",
+    "//": "ESCENARIO B: SICA - Urgencia Verano",
+    "IdCompra": 5,
+    "IdProveedor": 4,
+    "IdUsuario": 1,
+    "FechaCompra": "2025-12-18T09:00:00",
+    "Observaciones": "URGENTE: Pedido por quiebre de stock de cables y tomas",
+    "Estado": 2,
+    "FechaRecepcion": "2025-12-19T08:00:00",
+    "Detalles": [
+      { "IdProducto": 14, "Cantidad": 200, "PrecioPactado": 48500.0 },
+      { "IdProducto": 15, "Cantidad": 500, "PrecioPactado": 4200.0 }
+    ]
+  },
+  {
+    "//": "ESCENARIO C: TIGRE - Acopio de Obra",
+    "IdCompra": 6,
+    "IdProveedor": 10,
+    "IdUsuario": 3,
+    "FechaCompra": "2025-12-20T11:00:00",
+    "Observaciones": "Acopio para obra 'Edificio Centenario'. Precio especial cerrado.",
     "Estado": 1,
     "FechaRecepcion": null,
     "Detalles": [
-      {
-        "IdProducto": 3,
-        "Cantidad": 100,
-        "PrecioPactado": 450.0
-      }
+      { "IdProducto": 22, "Cantidad": 400, "PrecioPactado": 14200.0 },
+      { "IdProducto": 23, "Cantidad": 1000, "PrecioPactado": 920.0 }
     ]
   }
 ]

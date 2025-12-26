@@ -201,6 +201,9 @@ public static class DbInitializer
         foreach (var compra in compras)
         {
             compra.FechaCompra = DateTime.SpecifyKind(compra.FechaCompra, DateTimeKind.Utc);
+            compra.FechaRecepcion = compra.FechaRecepcion.HasValue
+                ? DateTime.SpecifyKind(compra.FechaRecepcion.Value, DateTimeKind.Utc)
+                : null;
         }
         context.Compras.AddRange(compras);
         context.SaveChanges();

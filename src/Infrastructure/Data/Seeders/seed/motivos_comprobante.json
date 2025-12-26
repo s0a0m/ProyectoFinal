@@ -21,31 +21,51 @@
   },
   {
     "IdMotivoComprobante": 5,
+    "Descripcion": "Bonificación por Volumen de Compra (Rappel)",
+    "ClaseComprobante": "NC"
+  },
+  {
+    "IdMotivoComprobante": 6,
+    "Descripcion": "Reconocimiento por Falla de Calidad / Garantía",
+    "ClaseComprobante": "NC"
+  },
+  {
+    "IdMotivoComprobante": 7,
     "Descripcion": "Intereses por pago fuera de término",
     "ClaseComprobante": "ND"
   },
   {
-    "IdMotivoComprobante": 6,
+    "IdMotivoComprobante": 8,
     "Descripcion": "Gastos de flete y logística",
     "ClaseComprobante": "ND"
   },
   {
-    "IdMotivoComprobante": 7,
+    "IdMotivoComprobante": 9,
     "Descripcion": "Diferencia de precio (Facturado de menos)",
     "ClaseComprobante": "ND"
   },
   {
-    "IdMotivoComprobante": 8,
+    "IdMotivoComprobante": 10,
     "Descripcion": "Gasto administrativo por cheque rechazado",
     "ClaseComprobante": "ND"
   },
   {
-    "IdMotivoComprobante": 9,
+    "IdMotivoComprobante": 11,
+    "Descripcion": "Ajuste por Diferencia de Cambio",
+    "ClaseComprobante": "ND"
+  },
+  {
+    "IdMotivoComprobante": 12,
+    "Descripcion": "Recupero de Gastos Bancarios / Impositivos",
+    "ClaseComprobante": "ND"
+  },
+  {
+    "IdMotivoComprobante": 13,
     "Descripcion": "Ajuste manual / Otros (requiere observación)",
     "ClaseComprobante": "TODOS"
   },
   {
-    "IdMotivoComprobante": 10,
+    "IdMotivoComprobante": 14,
     "Descripcion": "Otro",
     "ClaseComprobante": "TODOS"
   }

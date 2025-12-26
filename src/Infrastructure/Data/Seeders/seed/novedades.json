@@ -1,38 +1,110 @@
 [
   {
     "IdNovedad": 1,
-    "IdProveedor": 1,
-    "CodigoBarraExterno": "7791234567890",
-    "NombreSugerido": "Jugo de Naranja 1L",
-    "PrecioSugerido": 450.5,
+    "IdProveedor": 7,
+    "CodigoBarraExterno": "BD-JIG-KS701",
+    "NombreSugerido": "Sierra Caladora 550W Black+Decker",
+    "PrecioSugerido": 68500.0,
     "Estado": 1,
-    "FechaImportacion": "2025-01-10T12:30:00"
+    "FechaImportacion": "2025-01-15T08:30:00"
   },
   {
     "IdNovedad": 2,
-    "IdProveedor": 1,
-    "CodigoBarraExterno": "7790987654321",
-    "NombreSugerido": "Galletitas de Chocolate",
-    "PrecioSugerido": 320.0,
-    "Estado": 2,
-    "FechaImportacion": "2025-01-11T09:00:00"
+    "IdProveedor": 7,
+    "CodigoBarraExterno": "BD-DRILL-12V-KIT",
+    "NombreSugerido": "Taladro Inalámbrico 12V + Maletín + 50 Accesorios",
+    "PrecioSugerido": 115000.0,
+    "Estado": 1,
+    "FechaImportacion": "2025-01-15T08:30:00"
   },
   {
     "IdNovedad": 3,
-    "IdProveedor": 2,
-    "CodigoBarraExterno": "7791111222233",
-    "NombreSugerido": "Arroz Premium 1Kg",
-    "PrecioSugerido": 780.75,
+    "IdProveedor": 7,
+    "CodigoBarraExterno": "BD-SAND-SHEET",
+    "NombreSugerido": "Pack Lijas para Orbital x10u",
+    "PrecioSugerido": 5200.5,
     "Estado": 1,
-    "FechaImportacion": "2025-01-12T15:45:00"
+    "FechaImportacion": "2025-01-15T08:30:00"
   },
   {
     "IdNovedad": 4,
-    "IdProveedor": 2,
-    "CodigoBarraExterno": "7794444555566",
-    "NombreSugerido": "Aceite de Girasol 900ml",
-    "PrecioSugerido": 980.0,
+    "IdProveedor": 7,
+    "CodigoBarraExterno": "BD-HEAT-GUN",
+    "NombreSugerido": "Pistola de Calor 1800W 2 Temp",
+    "PrecioSugerido": 42000.0,
+    "Estado": 2,
+    "FechaImportacion": "2025-01-15T08:35:00"
+  },
+  {
+    "IdNovedad": 5,
+    "IdProveedor": 22,
+    "CodigoBarraExterno": "ALBA-LAT-SAT-20",
+    "NombreSugerido": "Albalatex Satinado Blanco 20 Litros",
+    "PrecioSugerido": 125000.0,
     "Estado": 1,
-    "FechaImportacion": "2025-01-12T16:20:00"
+    "FechaImportacion": "2025-01-16T10:15:00"
+  },
+  {
+    "IdNovedad": 6,
+    "IdProveedor": 22,
+    "CodigoBarraExterno": "ALBA-BARNIZ-MAR",
+    "NombreSugerido": "Barniz Marino Doble Filtro UV 4L",
+    "PrecioSugerido": 58900.0,
+    "Estado": 1,
+    "FechaImportacion": "2025-01-16T10:15:00"
+  },
+  {
+    "IdNovedad": 7,
+    "IdProveedor": 22,
+    "CodigoBarraExterno": "ALBA-CIELOS-Z",
+    "NombreSugerido": "Cielorrasos Antihongo 10L",
+    "PrecioSugerido": 45000.0,
+    "Estado": 1,
+    "FechaImportacion": "2025-01-16T10:15:00"
+  },
+  {
+    "IdNovedad": 8,
+    "IdProveedor": 29,
+    "CodigoBarraExterno": "BAR-PERF-SOL70",
+    "NombreSugerido": "Solera 70mm Galvanizada 2.60m",
+    "PrecioSugerido": 9800.0,
+    "Estado": 1,
+    "FechaImportacion": "2025-01-17T14:00:00"
+  },
+  {
+    "IdNovedad": 9,
+    "IdProveedor": 29,
+    "CodigoBarraExterno": "BAR-PERF-MONT69",
+    "NombreSugerido": "Montante 69mm Galvanizado 2.60m",
+    "PrecioSugerido": 11200.0,
+    "Estado": 1,
+    "FechaImportacion": "2025-01-17T14:00:00"
+  },
+  {
+    "IdNovedad": 10,
+    "IdProveedor": 29,
+    "CodigoBarraExterno": "BAR-T1-AGUJA",
+    "NombreSugerido": "Tornillo T1 Punta Aguja (Caja x1000)",
+    "PrecioSugerido": 15400.0,
+    "Estado": 1,
+    "FechaImportacion": "2025-01-17T14:00:00"
+  },
+  {
+    "IdNovedad": 11,
+    "IdProveedor": 29,
+    "CodigoBarraExterno": "BAR-CINTA-PAPEL",
+    "NombreSugerido": "Cinta de Papel para Juntas x150m",
+    "PrecioSugerido": 8500.0,
+    "Estado": 1,
+    "FechaImportacion": "2025-01-17T14:00:00"
+  },
+  {
+    "IdNovedad": 12,
+    "IdProveedor": 22,
+    "CodigoBarraExterno": "ALBA-MEMB-PASTA",
+    "NombreSugerido": "Membrana en Pasta Roja Impermeabilizante 20kg",
+    "PrecioSugerido": 92000.0,
+    "Estado": 2,
+    "FechaImportacion": "2025-01-18T09:45:00"
   }
 ]

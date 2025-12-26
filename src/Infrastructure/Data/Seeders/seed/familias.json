@@ -1,45 +1,86 @@
 [
   {
-    "IdFamilia": 4,
-    "Nombre": "Ferretería",
-    "Descripcion": "Productos y herramientas para reparaciones y construcción",
+    "IdFamilia": 1,
+    "Nombre": "Herramientas",
+    "Descripcion": "Equipamiento manual y eléctrico para trabajo profesional",
     "Categorias": [
       {
-        "IdCategoria": 8,
+        "IdCategoria": 1,
         "Nombre": "Herramientas Manuales",
-        "Descripcion": "Llaves, martillos, destornilladores y herramientas básicas"
+        "Descripcion": "Martillos, destornilladores, llaves y pinzas"
       },
       {
-        "IdCategoria": 9,
-        "Nombre": "Tornillería",
-        "Descripcion": "Tornillos, tuercas, arandelas y fijaciones varias"
+        "IdCategoria": 2,
+        "Nombre": "Herramientas Eléctricas",
+        "Descripcion": "Taladros, amoladoras y maquinaria portátil"
+      }
+    ]
+  },
+  {
+    "IdFamilia": 2,
+    "Nombre": "Electricidad e Iluminación",
+    "Descripcion": "Materiales para instalaciones eléctricas y luminarias",
+    "Categorias": [
+      {
+        "IdCategoria": 3,
+        "Nombre": "Iluminación LED",
+        "Descripcion": "Lámparas, reflectores y tubos"
       },
       {
-        "IdCategoria": 10,
-        "Nombre": "Adhesivos",
-        "Descripcion": "Pegamentos, selladores y siliconas"
+        "IdCategoria": 4,
+        "Nombre": "Instalación Eléctrica",
+        "Descripcion": "Cables, tomas, llaves y protecciones"
+      }
+    ]
+  },
+  {
+    "IdFamilia": 3,
+    "Nombre": "Plomería y Gas",
+    "Descripcion": "Cañerías, griferías y accesorios de conexión",
+    "Categorias": [
+      {
+        "IdCategoria": 5,
+        "Nombre": "Grifería y Baño",
+        "Descripcion": "Canillas, duchas y flexibles"
+      },
+      {
+        "IdCategoria": 6,
+        "Nombre": "Conexiones y Caños",
+        "Descripcion": "Termofusión, codos, cuplas y teflón"
+      }
+    ]
+  },
+  {
+    "IdFamilia": 4,
+    "Nombre": "Pinturería y Construcción",
+    "Descripcion": "Materiales para obra húmeda y acabados",
+    "Categorias": [
+      {
+        "IdCategoria": 7,
+        "Nombre": "Pinturas y Solventes",
+        "Descripcion": "Látex, esmaltes, aguarrás y pinceles"
+      },
+      {
+        "IdCategoria": 8,
+        "Nombre": "Albañilería",
+        "Descripcion": "Cemento, enduido, espátulas y baldes"
       }
     ]
   },
   {
     "IdFamilia": 5,
-    "Nombre": "Construcción",
-    "Descripcion": "Materiales y accesorios para obras y mantenimiento",
+    "Nombre": "Ferretería General",
+    "Descripcion": "Insumos varios y fijaciones",
     "Categorias": [
       {
-        "IdCategoria": 11,
-        "Nombre": "Cementos y Mezclas",
-        "Descripcion": "Cemento, cal, adhesivos y mezclas listas"
+        "IdCategoria": 9,
+        "Nombre": "Tornillería y Fijaciones",
+        "Descripcion": "Tornillos, clavos, tarugos y bulones"
       },
       {
-        "IdCategoria": 12,
-        "Nombre": "Pinturas",
-        "Descripcion": "Pinturas látex, sintéticas y materiales de revestimiento"
-      },
-      {
-        "IdCategoria": 13,
-        "Nombre": "Plomería",
-        "Descripcion": "Caños, conexiones y repuestos para instalaciones"
+        "IdCategoria": 10,
+        "Nombre": "Adhesivos y Selladores",
+        "Descripcion": "Siliconas, pegamentos y cintas"
       }
     ]
   }
