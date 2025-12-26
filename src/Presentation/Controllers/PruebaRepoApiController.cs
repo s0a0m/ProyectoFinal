@@ -13,13 +13,16 @@ public class PruebaRepoApiController : ControllerBase
 {
     private readonly IComprobanteRepository _comprobanteRepo;
     private readonly IOrdenPagoRepository _pagoRepo;
+    private readonly IFacturaRepository _facturaRepo;
 
     public PruebaRepoApiController(
         IComprobanteRepository comprobanteRepo,
-        IOrdenPagoRepository pagoRepo)
+        IOrdenPagoRepository pagoRepo,
+        IFacturaRepository facturaRepo)
     {
         _comprobanteRepo = comprobanteRepo;
         _pagoRepo = pagoRepo;
+        _facturaRepo = facturaRepo;
     }
 
     // ============================================================
@@ -250,72 +253,100 @@ public class PruebaRepoApiController : ControllerBase
         // o 404 Not Found.
         return Ok(comprobantes);
     }
-    // [HttpPut("actualizar-orden")]
-    // public async Task<IActionResult> UpdateOrdenPago([FromBody] UpdateOrdenPagoDto dto)
-    // {
-    //     if (!ModelState.IsValid) return BadRequest(ModelState);
+    [HttpPut("actualizar-orden")]
+    public async Task<IActionResult> UpdateOrdenPago([FromBody] UpdateOrdenPagoDto dto)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
 
-    //     // PASO 1: Obtener la orden actual para validar reglas
-    //     // Usamos AsNoTracking() porque solo queremos leer datos para validar, 
-    //     // la actualización real la hará el repositorio después.
-    //     var ordenOriginal = await _context.OrdenesPago
-    //         .AsNoTracking()
-    //         .FirstOrDefaultAsync(o => o.IdOrdenPago == dto.IdOrdenPago);
+        try
+        {
+            // PASO 1: Obtener la orden actual usando el REPO
+            // Asumimos que tu IOrdenPagoRepository tiene un GetByIdAsync
+            var ordenOriginal = await _pagoRepo.GetByIdWithDetallesAsync(dto.IdOrdenPago);
 
-    //     if (ordenOriginal == null) return NotFound("La orden de pago no existe.");
+            if (ordenOriginal == null)
+                return NotFound($"No se encontró la orden de pago con ID {dto.IdOrdenPago}");
 
-    //     // REGLA: No editar si ya fue enviada (o pagada)
-    //     if (ordenOriginal.Enviada)
-    //     {
-    //         return BadRequest("No se puede modificar una orden que ya fue procesada/enviada.");
-    //     }
+            // REGLA: No editar si ya fue enviada
+            if (ordenOriginal.Enviada)
+            {
+                return BadRequest(new { error = "No se puede modificar una orden que ya fue enviada o pagada." });
+            }
 
-    //     // PASO 2: Validar que las nuevas facturas sean del mismo proveedor
-    //     var idsFacturas = dto.Detalles.Select(d => d.IdFactura).ToList();
+            // PASO 2: Validar Facturas usando IFacturaRepository
+            // Como no podemos hacer un query complejo con LINQ al contexto, iteramos.
+            var facturasInvalidas = new List<string>();
 
-    //     var facturasInvalidas = await _context.Facturas
-    //         .Where(f => idsFacturas.Contains(f.IdFactura) && f.IdProveedor != ordenOriginal.IdProveedor)
-    //         .Select(f => f.NumeroFactura)
-    //         .ToListAsync();
+            foreach (var detalle in dto.Detalles)
+            {
+                // Usamos el método de tu interfaz
+                var factura = await _facturaRepo.GetByIdAsync(detalle.IdFactura);
 
-    //     if (facturasInvalidas.Any())
-    //     {
-    //         return BadRequest(new
-    //         {
-    //             mensaje = "Error de consistencia",
-    //             error = $"Las siguientes facturas no pertenecen al proveedor de esta orden: {string.Join(", ", facturasInvalidas)}"
-    //         });
-    //     }
+                // Validación A: ¿Existe la factura?
+                if (factura == null)
+                {
+                    facturasInvalidas.Add($"ID {detalle.IdFactura} (No existe)");
+                    continue;
+                }
+                if (factura.Proveedor == null)
+                {
+                    facturasInvalidas.Add($"ID {detalle.IdFactura} (No tiene Proveedor asignado)");
+                    continue;
+                }
 
-    //     // PASO 3: Preparar el objeto de Dominio para enviar al Repo
-    //     // Nota: Mantenemos el IdProveedor original.
-    //     var ordenParaActualizar = new Dom.OrdenPago
-    //     {
-    //         IdOrdenPago = dto.IdOrdenPago,
-    //         IdProveedor = ordenOriginal.IdProveedor,
-    //         Comentario = dto.Comentario,
+                // Validación B: ¿Es del mismo proveedor?
+                if (factura.Proveedor.IdProveedor != ordenOriginal.IdProveedor)
+                {
+                    facturasInvalidas.Add($"Factura {factura.NumeroFactura} (Pertenece al Proveedor {factura.Proveedor.IdProveedor}, no al {ordenOriginal.IdProveedor})");
+                }
+            }
 
-    //         // Recalculamos el total nosotros (Seguridad)
-    //         MontoTotal = dto.Detalles.Sum(d => d.MontoPagar),
+            // Si encontramos errores, devolvemos BadRequest
+            if (facturasInvalidas.Any())
+            {
+                return BadRequest(new
+                {
+                    mensaje = "Error de Validación de Facturas",
+                    errores = facturasInvalidas
+                });
+            }
 
-    //         // Mapeamos los detalles (SOLO IDs, sin objetos complejos)
-    //         Detalles = dto.Detalles.Select(d => new Dom.PagoDetalle
-    //         {
-    //             IdFactura = d.IdFactura,
-    //             MontoAplicado = d.MontoPagar
-    //         }).ToList()
-    //     };
+            // PASO 3: Construcción del Objeto de Dominio
+            var ordenParaActualizar = new Dom.OrdenPago
+            {
+                IdOrdenPago = dto.IdOrdenPago,
+                IdProveedor = ordenOriginal.IdProveedor,
+                MontoTotal = dto.Detalles.Sum(d => d.MontoPagar),
+                Enviada = ordenOriginal.Enviada,
+                FechaPago = ordenOriginal.FechaPago,
 
-    //     try
-    //     {
-    //         await _comprobanteRepo.UpdateOrdenPagoAsync(ordenParaActualizar);
-    //         return Ok(new { mensaje = "Orden actualizada correctamente", id = dto.IdOrdenPago });
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         return StatusCode(500, new { error = ex.Message });
-    //     }
-    // }
+                // Mapeamos Detalles (Solo IDs y Montos)
+                Detalles = dto.Detalles.Select(d => new Dom.PagoDetalle
+                {
+                    IdFactura = d.IdFactura,
+                    MontoAplicado = d.MontoPagar
+                    // Factura = null (No asignamos el objeto para evitar conflictos)
+                }).ToList()
+            };
+
+            // PASO 4: Llamada al Repo para actualizar
+            await _pagoRepo.UpdateAsync(ordenParaActualizar);
+
+            return Ok(new
+            {
+                mensaje = "Orden actualizada correctamente",
+                id = ordenParaActualizar.IdOrdenPago
+            });
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound("La orden no existe.");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = ex.Message });
+        }
+    }
     public record CreateNotaDto
     {
         // Validaciones básicas
@@ -365,10 +396,6 @@ public class PruebaRepoApiController : ControllerBase
         [Required]
         public int IdOrdenPago { get; set; }
 
-        public string? Comentario { get; set; }
-
-        // La lista COMPLETA de cómo debe quedar la orden.
-        // Lo que falte aquí respecto a la BD, se borrará.
         [Required]
         [MinLength(1, ErrorMessage = "La orden debe tener al menos una factura.")]
         public List<UpdatePagoDetalleDto> Detalles { get; set; } = new();

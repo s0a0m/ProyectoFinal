@@ -1,56 +1,100 @@
 [
   {
-    "IdFactura": 1,
-    "IdCompra": 1,
-    "IdProveedor": 1,
-    "IdCondicionPagoUsada": 1,
-    "NumeroFactura": "FAC-0001-000001",
-    "FechaEmision": "2025-12-17T15:30:00",
+    "//": "FACTURA ESCENARIO A (FV)",
+    "IdFactura": 3,
+    "IdCompra": 4,
+    "IdProveedor": 13,
+    "IdCondicionPagoUsada": 3,
+    "NumeroFactura": "FAC-0013-00022100",
+    "FechaEmision": "2025-12-18T16:00:00",
     "FechaPago": null,
-    "TotalFacturado": 1050000,
-    "Saldo": 1050000,
+    "TotalFacturado": 7400000.0,
+    "Saldo": 7400000.0,
     "Pagada": false,
     "Detalles": [
       {
-        "IdDetalleFactura": 1,
-        "IdFactura": 1,
-        "IdProducto": 1,
-        "Cantidad": 10,
-        "PrecioBruto": 1000000,
-        "PorcentajeDescuento": 20,
-        "PrecioNeto": 800000
+        "IdDetalleFactura": 4,
+        "IdFactura": 3,
+        "IdProducto": 19,
+        "Cantidad": 50,
+        "PrecioBruto": 6000000.0,
+        "PorcentajeDescuento": 5,
+        "PrecioNeto": 5700000.0
       },
       {
-        "IdDetalleFactura": 2,
-        "IdFactura": 1,
-        "IdProducto": 2,
-        "Cantidad": 5,
-        "PrecioBruto": 250000,
+        "IdDetalleFactura": 5,
+        "IdFactura": 3,
+        "IdProducto": 20,
+        "Cantidad": 30,
+        "PrecioBruto": 1560000.0,
         "PorcentajeDescuento": 0,
-        "PrecioNeto": 250000
+        "PrecioNeto": 1560000.0
       }
     ]
   },
   {
-    "IdFactura": 2,
-    "IdCompra": 2,
-    "IdProveedor": 2,
-    "IdCondicionPagoUsada": 1,
-    "NumeroFactura": "FAC-0002-000089",
-    "FechaEmision": "2025-12-17T16:00:00",
-    "FechaPago": "2025-12-17T16:05:00",
-    "TotalFacturado": 455000,
-    "Saldo": 0,
-    "Pagada": true,
+    "//": "FACTURA ESCENARIO B (SICA)",
+    "IdFactura": 4,
+    "IdCompra": 5,
+    "IdProveedor": 4,
+    "IdCondicionPagoUsada": 2,
+    "NumeroFactura": "FAC-0004-00998877",
+    "FechaEmision": "2025-12-19T10:00:00",
+    "FechaPago": null,
+    "TotalFacturado": 10830000.0,
+    "Saldo": 10830000.0,
+    "Pagada": false,
     "Detalles": [
       {
-        "IdDetalleFactura": 3,
-        "IdFactura": 2,
-        "IdProducto": 3,
-        "Cantidad": 10,
-        "PrecioBruto": 650000,
-        "PorcentajeDescuento": 30,
-        "PrecioNeto": 455000
+        "IdDetalleFactura": 6,
+        "IdFactura": 4,
+        "IdProducto": 14,
+        "Cantidad": 200,
+        "PrecioBruto": 9700000.0,
+        "PorcentajeDescuento": 10,
+        "PrecioNeto": 8730000.0
+      },
+      {
+        "IdDetalleFactura": 7,
+        "IdFactura": 4,
+        "IdProducto": 15,
+        "Cantidad": 500,
+        "PrecioBruto": 2100000.0,
+        "PorcentajeDescuento": 0,
+        "PrecioNeto": 2100000.0
+      }
+    ]
+  },
+  {
+    "//": "FACTURA ESCENARIO C (TIGRE)",
+    "IdFactura": 5,
+    "IdCompra": 6,
+    "IdProveedor": 10,
+    "IdCondicionPagoUsada": 4,
+    "NumeroFactura": "FAC-0010-00554433",
+    "FechaEmision": "2025-12-22T14:00:00",
+    "FechaPago": null,
+    "TotalFacturado": 6600000.0,
+    "Saldo": 6600000.0,
+    "Pagada": false,
+    "Detalles": [
+      {
+        "IdDetalleFactura": 8,
+        "IdFactura": 5,
+        "IdProducto": 22,
+        "Cantidad": 400,
+        "PrecioBruto": 5680000.0,
+        "PorcentajeDescuento": 0,
+        "PrecioNeto": 5680000.0
+      },
+      {
+        "IdDetalleFactura": 9,
+        "IdFactura": 5,
+        "IdProducto": 23,
+        "Cantidad": 1000,
+        "PrecioBruto": 920000.0,
+        "PorcentajeDescuento": 0,
+        "PrecioNeto": 920000.0
       }
     ]
   }
