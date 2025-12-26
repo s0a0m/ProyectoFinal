@@ -1,0 +1,325 @@
+@using System.Text.Json
+@model src.Presentation.ViewModels.FacturaVM.CrearFacturaViewModel
+
+@{
+    ViewData["Title"] = "Registrar Factura";
+}
+
+<div class="container py-4">
+    <form asp-action="Crear" method="post" id="formFactura">
+        <input type="hidden" asp-for="IdCompra" />
+        <input type="hidden" asp-for="IdProveedor" />
+        <input type="hidden" asp-for="RazonSocial" />
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="h3 text-primary"><i class="bi bi-file-earmark-plus me-2"></i>Nueva Factura</h2>
+                <div class="text-muted">
+                    Proveedor: <strong>@Model.RazonSocial</strong> | Vinculada a Compra #@Model.IdCompra
+                </div>
+            </div>
+            <a asp-controller="Compra"  asp-action="Gestionar" asp-route-id="@Model.IdCompra" class="btn btn-sm btn-outline-primary"> Cancelar</a>
+        </div>
+        
+
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All" class="alert alert-danger"></div>
+        }
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-light py-3">
+                <h6 class="m-0 fw-bold text-secondary">Datos del Comprobante</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label asp-for="NumeroFactura" class="form-label small text-muted fw-bold">NÚMERO DE FACTURA</label>
+                        <input asp-for="NumeroFactura" class="form-control" placeholder="Ej: A-0001-00001234" autofocus />
+                        <span asp-validation-for="NumeroFactura" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="FechaEmision" class="form-label small text-muted fw-bold">FECHA EMISIÓN</label>
+                        <input asp-for="FechaEmision" type="date" class="form-control" />
+                        <span asp-validation-for="FechaEmision" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-light py-3">
+                <h6 class="m-0 fw-bold text-secondary">Condición de Pago</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted fw-bold">TIPO</label>
+                        <select asp-for="TipoCondicion" class="form-select" id="selectTipoPago">
+                            <option value="Contado">Contado</option>
+                            <option value="Cuota">En Cuotas</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="DiasPago" class="form-label small text-muted fw-bold">DÍAS VENCIMIENTO</label>
+                        <div class="input-group">
+                            <input asp-for="DiasPago" type="number" class="form-control" min="0" />
+                            <span class="input-group-text small">días</span>
+                        </div>
+                        <span asp-validation-for="DiasPago" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-3 seccion-cuota" style="display:none;">
+                        <label asp-for="CantidadCuotas" class="form-label small text-muted fw-bold">CANT. CUOTAS</label>
+                        <input asp-for="CantidadCuotas" type="number" class="form-control" min="1" />
+                        <span asp-validation-for="CantidadCuotas" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-3 seccion-cuota" style="display:none;">
+                        <label asp-for="InteresPorcentual" class="form-label small text-muted fw-bold">INTERÉS</label>
+                        <div class="input-group">
+                            <input asp-for="InteresPorcentual" type="number" class="form-control" min="0" step="0.01" />
+                            <span class="input-group-text">%</span>
+                        </div>
+                        <span asp-validation-for="InteresPorcentual" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="form-text mt-2 ms-1">
+                    <i class="bi bi-info-circle me-1"></i>Si la condición de pago ingresada no existe, se creará automáticamente en el sistema.
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 fw-bold text-secondary">Items de la Factura</h6>
+                <small class="text-muted">Ajuste los precios finales si difieren de la orden de compra.</small>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle mb-0">
+                    <thead class="table-light small text-uppercase text-muted">
+                        <tr>
+                            <th>Producto</th>
+                            <th class="text-center" style="width: 100px;">Cant.</th>
+                            <th class="text-end" style="width: 140px;">Precio Base</th>
+                            <th class="text-end" style="width: 120px;">Desc. (%)</th>
+                            <th class="text-end" style="width: 160px;">Precio Neto</th>
+                            <th class="text-end" style="width: 160px;">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Detalles.Count; i++)
+                        {
+                            <tr class="fila-producto">
+                                <input type="hidden" asp-for="Detalles[i].IdProducto" />
+                                <input type="hidden" asp-for="Detalles[i].NombreProducto" />
+                                
+                                <td class="fw-bold text-dark">@Model.Detalles[i].NombreProducto</td>
+                                
+                                <td>
+                                    <input asp-for="Detalles[i].Cantidad" type="number" class="form-control text-center input-cant" readonly />
+                                </td>
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">$</span>
+                                        @* readonly en lugar de disabled para que se envie *@
+                                        <input asp-for="Detalles[i].PrecioBruto" type="text" class="form-control text-end input-bruto" readonly />
+                                    </div>
+                                    <span asp-validation-for="Detalles[i].PrecioBruto" class="text-danger small"></span>
+                                </td>
+
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <input asp-for="Detalles[i].PorcentajeDescuento" type="number" class="form-control text-end input-desc" step="0.01" min="0" max="100" />
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                    <span asp-validation-for="Detalles[i].PorcentajeDescuento" class="text-danger small"></span>
+                                </td>
+
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">$</span>
+                                        <input asp-for="Detalles[i].PrecioNeto" type="text" class="form-control text-end input-neto fw-bold bg-light" readonly />
+                                    </div>
+                                    <span asp-validation-for="Detalles[i].PrecioNeto" class="text-danger small"></span>
+                                </td>
+
+                                <td class="text-end fw-bold text-success span-subtotal">
+                                    $0.00
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="bg-white">
+                        <tr>
+                            <td colspan="5" class="text-end fw-bold pt-3 fs-5">TOTAL FACTURADO</td>
+                            <td class="text-end fw-bold fs-4 text-success pt-3" id="totalGeneral">$0.00</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
+            <button type="submit" class="btn btn-success btn-lg px-5 shadow">
+                <i class="bi bi-check-lg me-2"></i>Finalizar y Guardar
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        // ---- helpers ----
+        function qs(selector, root = document) { return root.querySelector(selector); }
+        function qsa(selector, root = document) { return Array.from(root.querySelectorAll(selector)); }
+
+        function normalizeNumberForSubmit(v) {
+            if (v === null || v === undefined) return '';
+            v = v.toString().trim();
+            v = v.replace(/\s/g,'').replace(/\$/g,'');
+            if (v.indexOf(',') !== -1) {
+                v = v.replace(/\./g, '');
+                v = v.replace(',', '.');
+            } else {
+                v = v.replace(/,/g, '');
+            }
+            v = v.replace(/[^0-9\.\-]/g, '');
+            return v;
+        }
+
+        // ---- Toggle campos de cuota ----
+        const selectTipo = qs('#selectTipoPago');
+        const sectionsCuota = qsa('.seccion-cuota');
+
+        function toggleCuotaFields() {
+            if (!selectTipo) return;
+            const esCuota = selectTipo.value === 'Cuota';
+            sectionsCuota.forEach(el => el.style.display = esCuota ? 'block' : 'none');
+        }
+        if (selectTipo) {
+            selectTipo.addEventListener('change', toggleCuotaFields);
+            toggleCuotaFields();
+        }
+
+        // ---- Cálculos de filas / totales ----
+        const filas = qsa('.fila-producto');
+        const totalGeneral = qs('#totalGeneral');
+
+        function calcularFila(row) {
+            // leer valores pasando por normalización (maneja miles y coma decimal)
+            const cantRaw = qs('.input-cant', row)?.value ?? '0';
+            const brutoRaw = qs('.input-bruto', row)?.value ?? '0';
+            const descRaw = qs('.input-desc', row)?.value ?? '0';
+
+            const cant = parseFloat(normalizeNumberForSubmit(cantRaw)) || 0;
+            const bruto = parseFloat(normalizeNumberForSubmit(brutoRaw)) || 0;
+            const desc = parseFloat(normalizeNumberForSubmit(descRaw)) || 0;
+
+            let neto = bruto - (bruto * (desc / 100));
+            if (!Number.isFinite(neto) || neto < 0) neto = 0;
+
+            const inputNeto = qs('.input-neto', row);
+            if (inputNeto) {
+                // guard: escribir con ponto decimal estandar (binder lo interpretará)
+                inputNeto.value = neto.toFixed(2);
+            }
+
+            const sub = neto * cant;
+            const spanSub = qs('.span-subtotal', row);
+            if (spanSub) spanSub.innerText = '$' + sub.toLocaleString('es-AR', { minimumFractionDigits: 2 });
+
+            return sub;
+        }
+
+        function recalcularTotal() {
+            if (!totalGeneral) return;
+            let total = 0;
+            filas.forEach(row => { total += calcularFila(row); });
+            totalGeneral.innerText = '$' + total.toLocaleString('es-AR', { minimumFractionDigits: 2 });
+        }
+
+        // attach listeners defensivamente
+        filas.forEach(row => {
+            qsa('input', row).forEach(inp => inp.addEventListener('input', recalcularTotal));
+        });
+
+        // init
+        recalcularTotal();
+
+        // ---- Validación de porcentajes ----
+        function validatePercents() {
+            let ok = true;
+            qsa('.input-desc').forEach(inp => {
+                const raw = inp.value?.toString().trim() || '';
+                const normalized = normalizeNumberForSubmit(raw);
+                const num = normalized === '' ? 0 : parseFloat(normalized);
+
+                // limpiar mensaje previo - suponiendo que usás asp-validation-for span con clase text-danger
+                const feedbackSpan = inp.closest('td')?.querySelector('.text-danger');
+                if (feedbackSpan && feedbackSpan.innerText === 'Porcentaje inválido (0-100)') {
+                    feedbackSpan.innerText = '';
+                }
+
+                if (!Number.isFinite(num) || num < 0 || num > 100) {
+                    if (feedbackSpan) {
+                        feedbackSpan.innerText = 'Porcentaje inválido (0-100)';
+                    } else {
+                        const s = document.createElement('div');
+                        s.className = 'text-danger small';
+                        s.innerText = 'Porcentaje inválido (0-100)';
+                        // insert after input group
+                        inp.parentNode.appendChild(s);
+                    }
+                    ok = false;
+                }
+            });
+            return ok;
+        }
+
+        // ---- Submit: normalizar valores antes de enviar ----
+        const form = qs('#formFactura');
+        if (form) {
+            form.addEventListener('submit', function(ev) {
+                // validar porcentajes
+                if (!validatePercents()) {
+                    ev.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return false;
+                }
+
+                // normalizar numéricos para binder
+                qsa('.input-bruto, .input-neto, .input-desc, .input-cant').forEach(function(inp) {
+                    const norm = normalizeNumberForSubmit(inp.value);
+                    // no dejar cadena vacía si era cantidad (poner 0)
+                    if (inp.classList.contains('input-cant') && (norm === '' || isNaN(Number(norm)))) {
+                        inp.value = '0';
+                    } else {
+                        inp.value = norm;
+                    }
+                });
+
+                // fecha: si el usuario puso dd/mm/yyyy convertimos a yyyy-mm-dd
+                const fechaInput = qs('input[name="FechaEmision"]');
+                if (fechaInput) {
+                    const val = fechaInput.value;
+                    if (/\d{2}\/\d{2}\/\d{4}/.test(val)) {
+                        const parts = val.split('/');
+                        fechaInput.value = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                    }
+                }
+                // permitir submit
+            });
+        } else {
+            // opcional: si el form no existe, log para debug (no rompo nada)
+            // console.warn('formFactura no encontrado en la vista.');
+        }
+
+    }); // DOMContentLoaded
+    </script>
+}
