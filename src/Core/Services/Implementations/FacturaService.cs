@@ -12,143 +12,143 @@ using Dom = src.Models.Domain;
 
 namespace src.Core.Services.Implementations
 {
-    
 
-        // FacturaService.cs
-public class FacturaService : IFacturaService
-{
-    private readonly IFacturaRepository _facturaRepository;
-    private readonly ICondicionPagoRepository _condicionPagoRepository;
-    private readonly ICompraRepository _compraRepository;
-    private readonly IComprobanteRepository _comprobanteRepository;
-    private readonly IOrdenPagoRepository _ordenPagoRepository;
-    
-    // Actualiza el constructor
-    public FacturaService(
-        IFacturaRepository facturaRepo, 
-        ICondicionPagoRepository condicionPagoRepository,
-        ICompraRepository compraRepository,IComprobanteRepository comprobanteRepository,
-        IOrdenPagoRepository ordenPagoRepository) 
+
+    // FacturaService.cs
+    public class FacturaService : IFacturaService
     {
-        _facturaRepository = facturaRepo;
-        _condicionPagoRepository = condicionPagoRepository;
-        _compraRepository = compraRepository;
-        _comprobanteRepository = comprobanteRepository;
-        _ordenPagoRepository = ordenPagoRepository;
-    }
+        private readonly IFacturaRepository _facturaRepository;
+        private readonly ICondicionPagoRepository _condicionPagoRepository;
+        private readonly ICompraRepository _compraRepository;
+        private readonly IComprobanteRepository _comprobanteRepository;
+        private readonly IOrdenPagoRepository _ordenPagoRepository;
 
-    public Task<bool> ActualizarEstadoPagoAsync(int id, bool pagada)
+        // Actualiza el constructor
+        public FacturaService(
+            IFacturaRepository facturaRepo,
+            ICondicionPagoRepository condicionPagoRepository,
+            ICompraRepository compraRepository, IComprobanteRepository comprobanteRepository,
+            IOrdenPagoRepository ordenPagoRepository)
+        {
+            _facturaRepository = facturaRepo;
+            _condicionPagoRepository = condicionPagoRepository;
+            _compraRepository = compraRepository;
+            _comprobanteRepository = comprobanteRepository;
+            _ordenPagoRepository = ordenPagoRepository;
+        }
+
+        public Task<bool> ActualizarEstadoPagoAsync(int id, bool pagada)
         {
             throw new NotImplementedException();
         }
 
-    public async Task<CrearFacturaViewModel> PrepararFacturaDesdeCompraAsync(int idCompra)
-    {
-        var compra = await _compraRepository.GetByIdAsync(idCompra);
-        
-        if (compra == null) throw new KeyNotFoundException($"No se encontró la compra");
-        if (compra.Estado.ToString() != "ENVIADA") throw new InvalidOperationException("Solo se pueden facturar compras ENVIADA.");
-            
-        var vm = new CrearFacturaViewModel
+        public async Task<CrearFacturaViewModel> PrepararFacturaDesdeCompraAsync(int idCompra)
         {
-            IdCompra = compra.IdCompra,
-            IdProveedor = compra.Proveedor.IdProveedor,
-            RazonSocial = compra.Proveedor?.RazonSocial ?? "Desconocido",
-            FechaEmision = DateTime.Now,
-            TipoCondicion = "Contado",
-            DiasPago = 0
-        };
+            var compra = await _compraRepository.GetByIdAsync(idCompra);
 
-        if (compra.Proveedor?.Condicion != null)
-        {
-            vm.DiasPago = compra.Proveedor.Condicion.DiasPago;
-            
-            if (compra.Proveedor.Condicion is Dom.Cuota c)
+            if (compra == null) throw new KeyNotFoundException($"No se encontró la compra");
+            if (compra.Estado.ToString() != "ENVIADA") throw new InvalidOperationException("Solo se pueden facturar compras ENVIADA.");
+
+            var vm = new CrearFacturaViewModel
             {
-                vm.TipoCondicion = "Cuota";
-                vm.CantidadCuotas = c.Cuotas;
-                vm.InteresPorcentual = c.InteresPorcentual;
+                IdCompra = compra.IdCompra,
+                IdProveedor = compra.Proveedor.IdProveedor,
+                RazonSocial = compra.Proveedor?.RazonSocial ?? "Desconocido",
+                FechaEmision = DateTime.Now,
+                TipoCondicion = "Contado",
+                DiasPago = 0
+            };
+
+            if (compra.Proveedor?.Condicion != null)
+            {
+                vm.DiasPago = compra.Proveedor.Condicion.DiasPago;
+
+                if (compra.Proveedor.Condicion is Dom.Cuota c)
+                {
+                    vm.TipoCondicion = "Cuota";
+                    vm.CantidadCuotas = c.Cuotas;
+                    vm.InteresPorcentual = c.InteresPorcentual;
+                }
+                else
+                {
+                    vm.TipoCondicion = "Contado";
+                }
+            }
+
+            vm.Detalles = compra.Detalles.Select(d => new CrearFacturaDetalleViewModel
+            {
+                IdProducto = d.Producto.IdProducto,
+                NombreProducto = d.Producto?.Nombre ?? "Producto",
+                Cantidad = d.Cantidad,
+                PrecioBruto = d.PrecioPactado,
+                PorcentajeDescuento = 0,
+                PrecioNeto = d.PrecioPactado, // Inicialmente igual al pactado
+                                              // Subtotal se calcula en el getter o en la vista
+            }).ToList();
+            return vm;
+        }
+
+
+        public async Task<int> CrearFacturaAsync(CrearFacturaViewModel modelo)
+        {
+            Dom.CondicionDePago condicionResolver;
+
+            if (modelo.TipoCondicion == "Cuota")
+            {
+                condicionResolver = new Dom.Cuota
+                {
+                    DiasPago = modelo.DiasPago,
+                    Cuotas = modelo.CantidadCuotas ?? 1,
+                    InteresPorcentual = modelo.InteresPorcentual ?? 0
+                };
             }
             else
             {
-                vm.TipoCondicion = "Contado";
+                condicionResolver = new Dom.Contado
+                {
+                    DiasPago = modelo.DiasPago
+                };
             }
+
+            var condicionFinal = await _condicionPagoRepository.BuscarOCrearAsync(condicionResolver);
+            var nuevaFactura = new Dom.Factura
+            {
+                Compra = new Dom.Compra { IdCompra = modelo.IdCompra },
+                Proveedor = new Dom.Proveedor { IdProveedor = (short)modelo.IdProveedor },
+                NumeroFactura = modelo.NumeroFactura,
+                FechaEmision = DateTime.SpecifyKind(modelo.FechaEmision, DateTimeKind.Utc),
+                CondicionPago = condicionFinal,
+                Pagada = false,
+                Detalles = new List<Dom.DetalleFactura>()
+            };
+
+            decimal acumuladorTotal = 0;
+
+            foreach (var item in modelo.Detalles)
+            {
+                // Validar integridad básica (precios no negativos, etc)
+                var detalle = new Dom.DetalleFactura
+                {
+                    Producto = new Dom.Producto { IdProducto = (short)item.IdProducto },
+                    Cantidad = item.Cantidad,
+                    PrecioBruto = item.PrecioBruto,
+                    PorcentajeDescuento = item.PorcentajeDescuento,
+                    PrecioNeto = item.PrecioNeto
+                };
+                // Calcular subtotal real basado en precio neto final
+                decimal subtotalItem = item.Cantidad * item.PrecioNeto;
+                acumuladorTotal += subtotalItem;
+
+                nuevaFactura.Detalles.Add(detalle);
+            }
+
+            nuevaFactura.TotalFacturado = acumuladorTotal;
+            nuevaFactura.Saldo = acumuladorTotal;
+
+            var facturaCreada = await _facturaRepository.AddAsync(nuevaFactura);
+            await _compraRepository.CompletarCompraAsync(modelo.IdCompra);
+            return facturaCreada.IdFactura;
         }
-
-        vm.Detalles = compra.Detalles.Select(d => new CrearFacturaDetalleViewModel
-        {
-            IdProducto = d.Producto.IdProducto,
-            NombreProducto = d.Producto?.Nombre ?? "Producto",
-            Cantidad = d.Cantidad,
-            PrecioBruto = d.PrecioPactado,
-            PorcentajeDescuento = 0,
-            PrecioNeto = d.PrecioPactado, // Inicialmente igual al pactado
-            // Subtotal se calcula en el getter o en la vista
-        }).ToList();
-        return vm;
-    }
-
-    
-    public async Task<int> CrearFacturaAsync(CrearFacturaViewModel modelo)
-    {
-    Dom.CondicionDePago condicionResolver;
-
-    if (modelo.TipoCondicion == "Cuota")
-    {
-        condicionResolver = new Dom.Cuota
-        {
-            DiasPago = modelo.DiasPago,
-            Cuotas = modelo.CantidadCuotas ?? 1,
-            InteresPorcentual = modelo.InteresPorcentual ?? 0
-        };
-    }
-    else
-    {
-        condicionResolver = new Dom.Contado
-        {
-            DiasPago = modelo.DiasPago
-        };
-    }
-
-    var condicionFinal = await _condicionPagoRepository.BuscarOCrearAsync(condicionResolver);
-    var nuevaFactura = new Dom.Factura
-    {
-        Compra = new Dom.Compra { IdCompra = modelo.IdCompra },
-        Proveedor = new Dom.Proveedor { IdProveedor = (short)modelo.IdProveedor },
-        NumeroFactura = modelo.NumeroFactura,
-       FechaEmision = DateTime.SpecifyKind(modelo.FechaEmision, DateTimeKind.Utc),
-        CondicionPago = condicionFinal,
-        Pagada = false,
-        Detalles = new List<Dom.DetalleFactura>()
-    };
-
-    decimal acumuladorTotal = 0;
-
-    foreach (var item in modelo.Detalles)
-    {
-        // Validar integridad básica (precios no negativos, etc)
-        var detalle = new Dom.DetalleFactura
-        {
-            Producto = new Dom.Producto { IdProducto = (short)item.IdProducto },
-            Cantidad = item.Cantidad,
-            PrecioBruto = item.PrecioBruto,
-            PorcentajeDescuento = item.PorcentajeDescuento,
-            PrecioNeto = item.PrecioNeto 
-        };
-        // Calcular subtotal real basado en precio neto final
-        decimal subtotalItem = item.Cantidad * item.PrecioNeto;
-        acumuladorTotal += subtotalItem;
-        
-        nuevaFactura.Detalles.Add(detalle);
-    }
-
-        nuevaFactura.TotalFacturado = acumuladorTotal;
-        nuevaFactura.Saldo = acumuladorTotal;
-
-        var facturaCreada = await _facturaRepository.AddAsync(nuevaFactura);
-        await _compraRepository.CompletarCompraAsync(modelo.IdCompra);
-        return facturaCreada.IdFactura;
-    }
 
 
         public async Task<bool> ExisteNumeroFacturaAsync(short idProveedor, string numero)
@@ -192,7 +192,7 @@ public class FacturaService : IFacturaService
                 RazonSocial = factura.Proveedor?.RazonSocial ?? "Desconocido",
                 NumeroFactura = factura.NumeroFactura,
                 FechaEmision = factura.FechaEmision,
-                
+
                 // Mapeo de Condición de Pago
                 TipoCondicion = "Contado",
                 DiasPago = 0
@@ -230,20 +230,25 @@ public class FacturaService : IFacturaService
             Dom.CondicionDePago condicionResolver;
             if (model.TipoCondicion == "Cuota")
             {
-                condicionResolver = new Dom.Cuota { 
-                    DiasPago = model.DiasPago, 
-                    Cuotas = model.CantidadCuotas ?? 1, 
-                    InteresPorcentual = model.InteresPorcentual ?? 0 
+                condicionResolver = new Dom.Cuota
+                {
+                    DiasPago = model.DiasPago,
+                    Cuotas = model.CantidadCuotas ?? 1,
+                    InteresPorcentual = model.InteresPorcentual ?? 0
                 };
             }
             else
             {
                 condicionResolver = new Dom.Contado { DiasPago = model.DiasPago };
             }
-            
+
             var condicionFinal = await _condicionPagoRepository.BuscarOCrearAsync(condicionResolver);
 
+            var facturaVieja = await _facturaRepository.GetByIdAsync(id);
+            if (facturaVieja == null)
+                throw new KeyNotFoundException("Factura no encontrada para actualizar.");
             // 2. Armar objeto Dominio
+            decimal montoPagado = facturaVieja.TotalFacturado - facturaVieja.Saldo;
             var facturaDom = new Dom.Factura
             {
                 IdFactura = id,
@@ -255,7 +260,7 @@ public class FacturaService : IFacturaService
             };
 
             decimal total = 0;
-            foreach(var item in model.Detalles)
+            foreach (var item in model.Detalles)
             {
                 var det = new Dom.DetalleFactura
                 {
@@ -268,6 +273,17 @@ public class FacturaService : IFacturaService
                 total += item.Cantidad * item.PrecioNeto;
                 facturaDom.Detalles.Add(det);
             }
+            facturaDom.TotalFacturado = total;
+
+            // --- CÁLCULO DEL NUEVO SALDO ---
+            // El nuevo saldo es el Nuevo Total menos lo que ya habías pagado.
+            facturaDom.Saldo = total - montoPagado;
+
+            // Validación de seguridad: El saldo no debería ser negativo (salvo que sea nota de crédito implícita, pero asumamos 0)
+            if (facturaDom.Saldo < 0) facturaDom.Saldo = 0;
+
+            // Si el saldo es 0, marcamos como pagada, sino false
+            facturaDom.Pagada = facturaDom.Saldo == 0;
             facturaDom.TotalFacturado = total;
             facturaDom.Saldo = total;
 
@@ -290,7 +306,7 @@ public class FacturaService : IFacturaService
                 IdFactura = factura.IdFactura,
                 NumeroFactura = factura.NumeroFactura,
                 Proveedor = factura.Proveedor?.RazonSocial ?? "Desconocido",
-                
+
                 Comprobantes = comprobantesDom.Select(c => new ResumenComprobanteViewModel
                 {
                     IdComprobante = c.IdComprobante,
@@ -310,11 +326,11 @@ public class FacturaService : IFacturaService
                     FechaPago = op.FechaPago,
                     TotalOrden = op.MontoTotal,
                     Enviada = op.Enviada,
-                    
+
                     // Calculamos cuánto de esta OP corresponde a ESTA factura
                     MontoAplicado = op.Detalles
                         .Where(d => d.IdFactura == idFactura)
-                        .Sum(d => d.MontoAplicado) 
+                        .Sum(d => d.MontoAplicado)
                 }).ToList()
             };
 

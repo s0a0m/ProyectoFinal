@@ -95,12 +95,11 @@ namespace src.Repositories.Implementations
             return DominioMapper.Map(facturasEF);
         }
 
-       // En src/Repositories/Implementations/FacturaRepository.cs
-
+        // En src/Repositories/Implementations/FacturaRepository.cs
         public async Task UpdateAsync(Dom.Factura factura)
         {
             var entity = await _context.Facturas
-                .Include(f => f.Detalles) // Traemos los detalles viejos
+                .Include(f => f.Detalles)
                 .FirstOrDefaultAsync(f => f.IdFactura == factura.IdFactura);
 
             if (entity == null) throw new Exception("Factura no encontrada para actualizar");
@@ -108,20 +107,26 @@ namespace src.Repositories.Implementations
             // 1. Actualizar Cabecera
             entity.NumeroFactura = factura.NumeroFactura;
             entity.FechaEmision = factura.FechaEmision;
-            // entity.Pagada = factura.Pagada; // Generalmente no se edita el pago desde aquí, pero si quieres déjalo
+
+            // IMPORTANTE: Actualizar los montos calculados en el Service
             entity.TotalFacturado = factura.TotalFacturado;
+            entity.Saldo = factura.Saldo; // <--- TE FALTABA ESTA LÍNEA
+            entity.Pagada = factura.Pagada;
 
             if (factura.CondicionPago is not null)
                 entity.IdCondicionPagoUsada = factura.CondicionPago.IdCondicionPago;
 
-            // 2. Actualizar Detalles (Estrategia: Borrar y Reinsertar para evitar conflictos de tracking)
-            // Borramos los actuales de la BD
+            // 2. Actualizar Detalles
+            // Borramos los registros de la BD
             _context.DetallesFactura.RemoveRange(entity.Detalles);
-            
-            // Mapeamos los nuevos desde el dominio a entidades EF
+
+            // RECOMENDACIÓN: Limpiar la lista en memoria del objeto trackeado también
+            entity.Detalles.Clear();
+
+            // Mapeamos los nuevos
             var nuevosDetallesEF = factura.Detalles.Select(d => new EF.DetalleFactura
             {
-                IdFactura = entity.IdFactura, // Vinculamos al padre
+                IdFactura = entity.IdFactura,
                 IdProducto = (short)d.Producto.IdProducto,
                 Cantidad = d.Cantidad,
                 PrecioBruto = d.PrecioBruto,
@@ -129,8 +134,8 @@ namespace src.Repositories.Implementations
                 PrecioNeto = d.PrecioNeto
             }).ToList();
 
-            // Agregamos los nuevos a la colección de la entidad trackeada
-            foreach(var det in nuevosDetallesEF)
+            // Agregamos los nuevos
+            foreach (var det in nuevosDetallesEF)
             {
                 entity.Detalles.Add(det);
             }
@@ -142,7 +147,7 @@ namespace src.Repositories.Implementations
         public async Task<bool> ExisteNumeroFacturaAsync(short idProveedor, string numero, int? idExcluir = null)
         {
             var query = _context.Facturas.Where(f => f.IdProveedor == idProveedor && f.NumeroFactura == numero);
-            
+
             if (idExcluir.HasValue)
             {
                 query = query.Where(f => f.IdFactura != idExcluir.Value);
@@ -152,17 +157,17 @@ namespace src.Repositories.Implementations
         }
 
 
-        public async Task ActualizarSaldoYEstadoAsync(int idFactura, decimal nuevoSaldo, bool pagada,DateTime FechaP)
+        public async Task ActualizarSaldoYEstadoAsync(int idFactura, decimal nuevoSaldo, bool pagada, DateTime FechaP)
         {
             var factura = await _context.Facturas
                 .FirstOrDefaultAsync(f => f.IdFactura == idFactura);
-                
+
             if (factura == null) throw new Exception("Factura no encontrada");
-            
+
             factura.Saldo = nuevoSaldo;
             factura.Pagada = pagada;
             factura.FechaPago = FechaP;
-            
+
             await _context.SaveChangesAsync();
         }
 

@@ -2,7 +2,7 @@
 @model CuentaCorrienteVM
 
 <div class="container-fluid py-4">
-    
+
     <div class="card shadow-sm mb-4 border-0">
         <div class="card-body p-4">
             <div class="row align-items-center">
@@ -13,14 +13,16 @@
                 <div class="col-md-6 text-md-end mt-3 mt-md-0">
                     <div class="d-flex justify-content-md-end align-items-center gap-3">
                         <div class="text-end">
-                            <small class="text-uppercase text-muted fw-bold" style="font-size: 0.75rem;">Saldo Total</small>
+                            <small class="text-uppercase text-muted fw-bold" style="font-size: 0.75rem;">Saldo
+                                Total</small>
                             <h3 class="mb-0 fw-bold @(Model.SaldoTotal > 0 ? "text-danger" : "text-success")">
                                 $@Model.SaldoTotal.ToString("N2")
                             </h3>
                         </div>
-                        
+
                         <div class="btn-group">
-                            <a asp-controller="DocumentoAsociado" asp-action="Index" asp-route-idProveedor="@Model.IdProveedor" class="btn btn-primary">
+                            <a asp-controller="DocumentoAsociado" asp-action="Index"
+                                asp-route-idProveedor="@Model.IdProveedor" class="btn btn-primary">
                                 <i class="bi bi-cash-coin me-2"></i>Gestion Pagos
                             </a>
                             <button class="btn btn-secondary" disabled title="Próximamente">
@@ -51,19 +53,31 @@
                     {
                         // Si es Factura, fila gris sutil (table-active o custom style)
                         <tr class="@(item.EsFactura ? "table-active" : "")">
-                            
+
                             <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
-                            
+
                             <td>
-                                @if(item.EsFactura) { <span class="badge bg-primary bg-opacity-10 text-primary">Factura</span> }
-                                else if(item.EsOrdenPago) { <span class="badge bg-success bg-opacity-10 text-success">Orden Pago</span> }
-                                else { <span class="badge bg-secondary bg-opacity-10 text-secondary">@item.TipoMovimiento</span> }
+                                @if (item.EsFactura)
+                                {
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">Factura</span>
+                                }
+                                else if (item.EsOrdenPago)
+                                {
+
+                                    <span class="badge bg-success bg-opacity-10 text-success">Orden
+                                        Pago</span>
+                                }
+                                else
+                                {
+
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary">@item.TipoMovimiento</span>
+                                }
                             </td>
-                            
+
                             <td class="fw-bold">@item.NumeroComprobante</td>
-                            
+
                             <td class="text-end">$@item.MontoTotal.ToString("N2")</td>
-                            
+
                             <td class="text-end">
                                 @if (item.EsFactura)
                                 {
@@ -79,45 +93,44 @@
 
                             <td class="text-center">
                                 <div class="btn-group btn-group-sm">
-                                    
+
                                     @if (item.EsFactura)
                                     {
-                                        <a asp-controller="Factura" asp-action="Details" asp-route-id="@item.IdReferencia" 
-                                           class="btn btn-outline-secondary" title="Ver Detalle">
+                                        <a asp-controller="Factura" asp-action="Details" asp-route-id="@item.IdReferencia"
+                                            class="btn btn-outline-secondary" title="Ver Detalle">
                                             <i class="bi bi-eye"></i>
                                         </a>
 
-                                        <a asp-controller="Factura" asp-action="DocumentosAsociados" asp-route-id="@item.IdReferencia" class="btn btn-sm btn-outline-info" title="Ver Pagos y Notas">
+                                        <a asp-controller="Factura" asp-action="DocumentosAsociados"
+                                            asp-route-id="@item.IdReferencia" class="btn btn-sm btn-outline-info"
+                                            title="Ver Pagos y Notas">
                                             <i class="bi bi-folder2-open"></i>
                                         </a>
 
 
                                         @if (item.PuedeEditar)
                                         {
-                                            <a asp-controller="Facturas" asp-action="Editar" asp-route-id="@item.IdReferencia" 
-                                               class="btn btn-outline-primary" title="Editar">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
+                                            <span class="btn btn-outline-secondary disabled" title="Proximamente">
+                                                <i class="bi bi-check-lg"></i>
+                                            </span>
                                         }
 
                                     }
                                     else if (item.EsOrdenPago)
                                     {
-                                        <button type="button" 
-                                                class="btn btn-outline-secondary" 
-                                                title="Ver Detalle"
-                                                onclick="verDetalleOrden(@item.IdReferencia)">
+                                        <button type="button" class="btn btn-outline-secondary" title="Ver Detalle"
+                                            onclick="verDetalleOrden(@item.IdReferencia)">
                                             <i class="bi bi-eye"></i>
                                         </button>
 
                                         @if (item.PuedeEditar)
                                         {
-                                            <a asp-controller="OrdenesPago" asp-action="Editar" asp-route-id="@item.IdReferencia" 
-                                               class="btn btn-outline-primary" title="Editar">
+                                            <a asp-controller="OrdenesPago" asp-action="Editar" asp-route-id="@item.IdReferencia"
+                                                class="btn btn-outline-primary" title="Editar">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
-                                            <button type="button" class="btn btn-outline-danger" 
-                                                    onclick="eliminarOrden(@item.IdReferencia)" title="Eliminar">
+                                            <button type="button" class="btn btn-outline-danger"
+                                                onclick="eliminarOrden(@item.IdReferencia)" title="Eliminar">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         }
@@ -125,7 +138,7 @@
                                     else if (item.EsComprobante)
                                     {
                                         <span class="btn btn-outline-secondary disabled" title="Proximamente">
-                                             <i class="bi bi-eye"></i>
+                                            <i class="bi bi-eye"></i>
                                         </span>
                                     }
                                 </div>
@@ -146,7 +159,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="contenidoTrazabilidad">
-                <div class="text-center"><div class="spinner-border text-primary"></div></div>
+                <div class="text-center">
+                    <div class="spinner-border text-primary"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -172,7 +187,7 @@
                 "language": {
                     "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
                 },
-                "order": [[ 0, "desc" ]], // Asegurar orden visual por fecha
+                "order": [[0, "desc"]], // Asegurar orden visual por fecha
                 "pageLength": 25
             });
         });
@@ -183,7 +198,7 @@
             // Asumo que tienes una ruta /Facturas/GetDocumentosAsociados o similar que devuelve una PartialView
             // Si devuelve JSON, habría que dibujar el HTML aquí con JS.
             // Por simplicidad, asumiré que puedes crear una acción que devuelva PartialView.
-            
+
             // Ejemplo de llamada:
             /*
             $.get('/Facturas/GetTrazabilidadPartial/' + idFactura, function(data) {
@@ -192,7 +207,7 @@
             */
             // Si el método devuelve JSON (el DTO que hicimos la otra vez), tendrías que iterar y construir la tabla aquí en JS.
         }
-        
+
         function verDetalleOrden(idOrden) {
             // 1. Mostrar el modal (mostrará el spinner por defecto)
             var myModal = new bootstrap.Modal(document.getElementById('modalDetalleOrden'));
@@ -210,7 +225,7 @@
                         '<div class="modal-body text-danger">No se pudo cargar el detalle de la orden.</div>'
                     );
                 });
-            
+
             // Limpiar el contenido al cerrar para que la próxima vez se vea el spinner de nuevo
             document.getElementById('modalDetalleOrden').addEventListener('hidden.bs.modal', function () {
                 $('#contenidoModalOrden').html('<div class="modal-body text-center py-5"><div class="spinner-border text-primary"></div></div>');
@@ -219,9 +234,9 @@
 
 
         function eliminarOrden(id) {
-            if(confirm('¿Está seguro de eliminar esta Orden de Pago?')) {
+            if (confirm('¿Está seguro de eliminar esta Orden de Pago?')) {
                 // Llamada al form de eliminación o fetch API
-                 window.location.href = '/OrdenesPago/Eliminar/' + id;
+                window.location.href = '/OrdenesPago/Eliminar/' + id;
             }
         }
     </script>
