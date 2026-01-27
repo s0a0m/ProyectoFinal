@@ -4,10 +4,13 @@ using Dom = src.Models.Domain;
 
 namespace src.Models.Mappers;
 
-public static partial class DominioMapper
+[Mapper]
+public partial class CodigoBarraMapper
 {
     [MapperIgnoreSource(nameof(EF.CodigoBarra.ProductosCodigosBarras))]
-    public static partial Dom.CodigoBarra Map(EF.CodigoBarra source);
+    public partial Dom.CodigoBarra ToDomain(EF.CodigoBarra source);
+    public partial IEnumerable<Dom.CodigoBarra> ToDomain(IEnumerable<EF.CodigoBarra> source);
     [MapperIgnoreTarget(nameof(EF.CodigoBarra.ProductosCodigosBarras))]
-    public static partial EF.CodigoBarra Map(Dom.CodigoBarra source);
+    public partial EF.CodigoBarra ToEntity(Dom.CodigoBarra source);
+    public partial IEnumerable<EF.CodigoBarra> ToEntityList(IEnumerable<Dom.CodigoBarra> source);
 }

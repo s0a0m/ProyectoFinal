@@ -10,10 +10,12 @@ namespace src.Repositories.Implementations;
 public class ProductoCodigoExternoRepository : IProductoCodigoExternoRepository
 {
     private readonly EF.AppDbContext _context;
+    private readonly ProductoMapper _productoMapper;
 
-    public ProductoCodigoExternoRepository(EF.AppDbContext context)
+    public ProductoCodigoExternoRepository(EF.AppDbContext context, ProductoMapper productoMapper)
     {
         _context = context;
+        _productoMapper = productoMapper;
     }
 
     private IQueryable<EF.ProductoCodigoExterno> GetQueryProductoCodigosExternos()
@@ -29,7 +31,7 @@ public class ProductoCodigoExternoRepository : IProductoCodigoExternoRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(cancellationToken);
 
-        return cb is null ? null : DominioMapper.Map(cb.Producto);
+        return cb is null ? null : _productoMapper.ToDomain(cb.Producto);
     }
 
     public async Task<bool> ExistsAsync(string codigo, short id_proveedor)

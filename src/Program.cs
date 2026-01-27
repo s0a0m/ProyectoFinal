@@ -5,6 +5,7 @@ using src.External;
 using src.Infrastructure.Repositories;
 using src.Interfaces;
 using src.Models.CodeFirst;
+using src.Models.Mappers;
 using src.Repositories.Implementations;
 using src.Repositories.Interfaces;
 
@@ -30,7 +31,13 @@ builder.Environment.WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), 
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
-
+// mappers
+builder.Services.AddSingleton<ProvinciaMapper>();
+builder.Services.AddSingleton<DomicilioMapper>();
+builder.Services.AddSingleton<CodigoBarraMapper>();
+builder.Services.AddSingleton<FamiliaMapper>();
+builder.Services.AddSingleton<CategoriaMapper>();
+// repositorios
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProveedorRepository, ProveedorRepository>();

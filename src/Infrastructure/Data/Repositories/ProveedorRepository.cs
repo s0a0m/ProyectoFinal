@@ -9,10 +9,14 @@ namespace src.Repositories.Implementations;
 public class ProveedorRepository : IProveedorRepository
 {
     private readonly EF.AppDbContext _context;
+    private readonly ProvinciaMapper _provinciaMapper;
+    private readonly DomicilioMapper _domicilioMapper;
 
-    public ProveedorRepository(EF.AppDbContext context)
+    public ProveedorRepository(EF.AppDbContext context, ProvinciaMapper provinciaMapper, DomicilioMapper domicilioMapper)
     {
         _context = context;
+        _provinciaMapper = provinciaMapper;
+        _domicilioMapper = domicilioMapper;
     }
 
     private IQueryable<EF.Proveedor> GetQueryProveedor()
@@ -85,7 +89,7 @@ public class ProveedorRepository : IProveedorRepository
             // Map the updated Domain Direccion to a temporary EF Domicilio
             // Note: Make sure your mapper handles the Provincia FK correctly here!
             // It should map Dom.Direccion.Prov.IdProvincia -> EF.Domicilio.IdProvincia
-            EF.Domicilio domicilioTemporalEF = DominioMapper.Map(entity.Direccion);
+            EF.Domicilio domicilioTemporalEF = _domicilioMapper.ToEntity(entity.Direccion);
 
             // Apply changes to the TRACKED DomicilioNavigation
             _context.Entry(existingEntity.IdDomicilioNavigation).CurrentValues.SetValues(domicilioTemporalEF);
@@ -106,7 +110,7 @@ public class ProveedorRepository : IProveedorRepository
         {
             // Handle case: Existing provider had no address, but now one is added.
             // This is less likely if Direccion is required, but good practice.
-            EF.Domicilio nuevoDomicilioEF = DominioMapper.Map(entity.Direccion);
+            EF.Domicilio nuevoDomicilioEF = _domicilioMapper.ToEntity(entity.Direccion);
             nuevoDomicilioEF.IdDomicilio = 0; // Ensure EF knows it's new
             _context.Add(nuevoDomicilioEF);
             existingEntity.IdDomicilioNavigation = nuevoDomicilioEF; // Associate

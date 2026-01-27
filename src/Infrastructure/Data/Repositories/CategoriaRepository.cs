@@ -12,17 +12,18 @@ namespace src.Repositories.Implementations
     public class CategoriaRepository : ICategoriaRepository
     {
         private readonly EF.AppDbContext _context;
-
-        public CategoriaRepository(EF.AppDbContext context)
+        private readonly CategoriaMapper _categoriaMapper;
+        public CategoriaRepository(EF.AppDbContext context, CategoriaMapper categoriaMapper)
         {
             _context = context;
+            _categoriaMapper = categoriaMapper;
         }
 
         public async Task<IEnumerable<Dom.Categoria>> GetAllAsync()
         {
             // 1. Traemos los datos de EF con la Familia incluida
             var efCategorias = await _context.Categorias
-                .Include(c => c.Familia) 
+                .Include(c => c.Familia)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -33,9 +34,9 @@ namespace src.Repositories.Implementations
                 IdCategoria = efCat.IdCategoria,
                 Nombre = efCat.Nombre,
                 Descripcion = efCat.Descripcion,
-                
+
                 // Aquí construimos la Familia manualmente si existe
-                Familia = efCat.Familia == null ? null : new Dom.Familia 
+                Familia = efCat.Familia == null ? null : new Dom.Familia
                 {
                     IdFamilia = efCat.Familia.IdFamilia,
                     Nombre = efCat.Familia.Nombre,
@@ -54,7 +55,7 @@ namespace src.Repositories.Implementations
                 .Where(c => c.IdFamilia == idFamilia)
                 .AsNoTracking()
                 .ToListAsync();
-            return DominioMapper.Map(data);
+            return _categoriaMapper.ToDomain(data);
         }
 
         public async Task<Dom.Categoria?> GetByIdAsync(short id)
@@ -64,21 +65,21 @@ namespace src.Repositories.Implementations
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.IdCategoria == id);
 
-            return data == null ? null : DominioMapper.Map(data);
+            return data == null ? null : _categoriaMapper.ToDomain(data);
         }
 
         public async Task AddAsync(Dom.Categoria entity)
         {
-            var efEntity = DominioMapper.Map(entity);
+            var efEntity = _categoriaMapper.ToEntity(entity);
             efEntity.IdCategoria = 0;
 
             // Nota: Aseguramos que el IdFamilia esté seteado correctamente.
             // Tu mapper usa 'Dom.Categoria.Familia.IdFamilia' -> 'EF.Categoria.IdFamilia'.
             // El servicio deberá asegurarse de que entity.Familia no sea null y tenga el ID.
-            
+
             _context.Categorias.Add(efEntity);
             await _context.SaveChangesAsync();
-            
+
             // No podemos asignar de vuelta a una propiedad 'init', 
             // pero en C# 9+ con 'init' puedes hacerlo en la construcción. 
             // Si necesitas el ID de vuelta, tu Dom.Categoria debería tener set público o interno.
@@ -89,11 +90,11 @@ namespace src.Repositories.Implementations
             var existing = await _context.Categorias.FindAsync(entity.IdCategoria);
             if (existing == null) throw new KeyNotFoundException($"Categoría {entity.IdCategoria} no encontrada");
 
-            var efEntity = DominioMapper.Map(entity);
-            
+            var efEntity = _categoriaMapper.ToEntity(entity);
+
             // Actualizamos valores escalares y FKs
             _context.Entry(existing).CurrentValues.SetValues(efEntity);
-            
+
             await _context.SaveChangesAsync();
         }
 
@@ -113,12 +114,12 @@ namespace src.Repositories.Implementations
         }*/
         public async Task DeleteAsync(short id)
         {
-           
+
             var existing = await _context.Categorias.FindAsync(id);
-            
+
             if (existing != null)
             {
-                
+
                 var relaciones = _context.ProductoCategorias
                     .Where(pc => pc.IdCategoria == id);
                 _context.ProductoCategorias.RemoveRange(relaciones);

@@ -4,13 +4,14 @@ using Dom = src.Models.Domain;
 
 namespace src.Models.Mappers;
 
-public static partial class DominioMapper
+[Mapper]
+public partial class FamiliaMapper
 {
-    public static partial Dom.Familia Map(EF.Familia source);
-    public static partial IEnumerable<Dom.Familia> Map(IEnumerable<EF.Familia> source);
+    public partial Dom.Familia ToDomain(EF.Familia source);
+    public partial IEnumerable<Dom.Familia> ToDomain(IEnumerable<EF.Familia> source);
     [MapperIgnoreSource(nameof(EF.Familia.Categorias))]
     [MapperIgnoreTarget(nameof(EF.Familia.Categorias))]
-    public static partial EF.Familia Map(Dom.Familia source);
-    public static partial IEnumerable<EF.Familia> Map(IEnumerable<Dom.Familia> source);
+    public partial EF.Familia ToEntity(Dom.Familia source);
+    public partial IEnumerable<EF.Familia> ToEntity(IEnumerable<Dom.Familia> source);
 
 }

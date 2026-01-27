@@ -10,16 +10,18 @@ namespace src.Repositories.Implementations;
 public class ProvinciaRepository : IProvinciaRepository
 {
     private readonly AppDbContext _context;
+    private readonly ProvinciaMapper _provinciaMapper;
 
-    public ProvinciaRepository(AppDbContext context)
+    public ProvinciaRepository(AppDbContext context, ProvinciaMapper provinciaMapper)
     {
         _context = context;
+        _provinciaMapper = provinciaMapper;
     }
 
     public async Task<IEnumerable<Dom.Provincia>> GetAllAsync()
     {
         IEnumerable<EF.Provincia> provinciasEF = await _context.Set<EF.Provincia>().AsNoTracking().ToListAsync();
-        IEnumerable<Dom.Provincia> provinciasDom = DominioMapper.Map(provinciasEF);
+        IEnumerable<Dom.Provincia> provinciasDom = _provinciaMapper.ToDomain(provinciasEF);
 
         return provinciasDom;
     }
@@ -32,6 +34,6 @@ public class ProvinciaRepository : IProvinciaRepository
         {
             return null;
         }
-        return DominioMapper.Map(provinciaEF);
+        return _provinciaMapper.ToDomain(provinciaEF);
     }
 }
