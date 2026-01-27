@@ -37,6 +37,7 @@ builder.Services.AddSingleton<DomicilioMapper>();
 builder.Services.AddSingleton<CodigoBarraMapper>();
 builder.Services.AddSingleton<FamiliaMapper>();
 builder.Services.AddSingleton<CategoriaMapper>();
+builder.Services.AddSingleton<ProductoMapper>();
 // repositorios
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
