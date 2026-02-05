@@ -27,6 +27,7 @@ namespace src.Repositories.Implementations
                     .ThenInclude(pcb => pcb.CodigoBarra)
                 .Include(p => p.ProductosCategorias)
                     .ThenInclude(pc => pc.Categoria)
+                      .ThenInclude(c => c.Familia)
                 .AsNoTracking()
                 .ToListAsync();
 

@@ -36,13 +36,12 @@ public partial class ProductoMapper
 
     private Dom.CodigoBarra MapToCodigoBarra(EF.ProductoCodigoBarra source)
     {
-        if (source?.CodigoBarra == null) return new Dom.CodigoBarra();
-
+        if (source?.CodigoBarra == null) return null;
         return _codigoBarraMapper.ToDomain(source.CodigoBarra);
     }
     private Dom.Categoria MapToCategoria(EF.ProductoCategoria source)
     {
-        if (source?.Categoria == null) return new Dom.Categoria();
+        if (source?.Categoria == null) return null;
 
         return _categoriaMapper.ToDomain(source.Categoria);
     }
