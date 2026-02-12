@@ -11,7 +11,14 @@
     <InternalsVisibleTo Include="Tests.Integration" />
     <InternalsVisibleTo Include="Tests.Unit" />
   </ItemGroup>
+  <PropertyGroup>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
 
+<ItemGroup>
+  <Compile Remove="$(BaseIntermediateOutputPath)Generated/**/*.cs" />
+</ItemGroup>
   <ItemGroup>
     <PackageReference Include="ExcelDataReader" Version="3.8.0" />
     <PackageReference Include="ExcelDataReader.DataSet" Version="3.8.0" />
