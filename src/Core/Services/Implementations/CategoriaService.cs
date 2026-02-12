@@ -52,10 +52,10 @@ namespace src.Core.Services.Implementations
             {
                 Nombre = vm.Nombre.Trim(),
                 Descripcion = vm.Descripcion?.Trim() ?? string.Empty,
-                Familia = new Dom.Familia { IdFamilia = vm.IdFamilia } 
+                // Familia = new Dom.Familia { IdFamilia = vm.IdFamilia } 
             };
 
-            await _categoriaRepo.AddAsync(nuevaCategoria);
+            await _categoriaRepo.AddAsync(nuevaCategoria, vm.IdFamilia);
             return nuevaCategoria;
         }
 

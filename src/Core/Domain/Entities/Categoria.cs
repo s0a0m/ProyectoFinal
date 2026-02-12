@@ -6,5 +6,6 @@ public class Categoria
     public string Nombre { get; set; }
     public string Descripcion { get; set; }
     public Familia Familia { get; set; }
+    public short IdFamilia { get; set; }
     public Categoria() { }
 }

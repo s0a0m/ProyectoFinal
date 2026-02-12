@@ -12,7 +12,7 @@ namespace src.Repositories.Interfaces
         Task<IEnumerable<Dom.Categoria>> GetByFamiliaIdAsync(short idFamilia);
         
         Task<Dom.Categoria?> GetByIdAsync(short id);
-        Task AddAsync(Dom.Categoria entity);
+        Task AddAsync(Dom.Categoria entity, short idFamilia);
         Task UpdateAsync(Dom.Categoria entity);
         
         // Validación útil: no borrar si tiene productos

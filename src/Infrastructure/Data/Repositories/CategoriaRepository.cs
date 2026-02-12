@@ -68,11 +68,11 @@ namespace src.Repositories.Implementations
             return data == null ? null : _categoriaMapper.ToDomain(data);
         }
 
-        public async Task AddAsync(Dom.Categoria entity)
+        public async Task AddAsync(Dom.Categoria entity, short idFamilia)
         {
             var efEntity = _categoriaMapper.ToEntity(entity);
             efEntity.IdCategoria = 0;
-
+            efEntity.IdFamilia = idFamilia; 
             // Nota: Aseguramos que el IdFamilia esté seteado correctamente.
             // Tu mapper usa 'Dom.Categoria.Familia.IdFamilia' -> 'EF.Categoria.IdFamilia'.
             // El servicio deberá asegurarse de que entity.Familia no sea null y tenga el ID.
