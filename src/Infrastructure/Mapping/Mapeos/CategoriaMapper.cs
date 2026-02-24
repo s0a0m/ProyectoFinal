@@ -15,7 +15,7 @@ public partial class CategoriaMapper
     }
     [MapperIgnoreSource(nameof(EF.Categoria.ProductosCategorias))]
     // [MapperIgnoreSource(nameof(EF.Categoria.Familia))]
-    // [MapperIgnoreTarget(nameof(Dom.Categoria.Familia))]
+    [MapperIgnoreTarget(nameof(Dom.Categoria.Familia))]
     [MapperIgnoreSource(nameof(EF.Categoria.IdFamilia))]
     public partial Dom.Categoria ToDomain(EF.Categoria source);
     public partial IEnumerable<Dom.Categoria> ToDomain(IEnumerable<EF.Categoria> source);
