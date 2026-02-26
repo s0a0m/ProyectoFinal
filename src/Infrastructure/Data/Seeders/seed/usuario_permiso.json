@@ -1,0 +1,72 @@
+[
+  { "IdUsuario": 1, "IdPermiso": 1 },
+  { "IdUsuario": 6, "IdPermiso": 1 },
+
+  { "IdUsuario": 2, "IdPermiso": 2 },
+  { "IdUsuario": 2, "IdPermiso": 6 },
+  { "IdUsuario": 2, "IdPermiso": 8 },
+  { "IdUsuario": 2, "IdPermiso": 9 },
+
+  { "IdUsuario": 3, "IdPermiso": 3 },
+  { "IdUsuario": 3, "IdPermiso": 4 },
+  { "IdUsuario": 3, "IdPermiso": 5 },
+  { "IdUsuario": 3, "IdPermiso": 6 },
+  { "IdUsuario": 3, "IdPermiso": 7 },
+  { "IdUsuario": 3, "IdPermiso": 8 },
+  { "IdUsuario": 3, "IdPermiso": 12 },
+
+  { "IdUsuario": 4, "IdPermiso": 4 },
+
+  { "IdUsuario": 5, "IdPermiso": 1 },
+
+  { "IdUsuario": 6, "IdPermiso": 4 },
+
+  { "IdUsuario": 7, "IdPermiso": 3 },
+  { "IdUsuario": 7, "IdPermiso": 4 },
+  { "IdUsuario": 7, "IdPermiso": 12 },
+
+  { "IdUsuario": 8, "IdPermiso": 6 },
+  { "IdUsuario": 8, "IdPermiso": 8 },
+  { "IdUsuario": 8, "IdPermiso": 9 },
+
+  { "IdUsuario": 9, "IdPermiso": 4 },
+  { "IdUsuario": 9, "IdPermiso": 6 },
+  { "IdUsuario": 9, "IdPermiso": 7 },
+  { "IdUsuario": 9, "IdPermiso": 8 },
+
+  { "IdUsuario": 10, "IdPermiso": 4 },
+  { "IdUsuario": 10, "IdPermiso": 6 },
+
+  { "IdUsuario": 11, "IdPermiso": 2 },
+  { "IdUsuario": 11, "IdPermiso": 10 },
+  { "IdUsuario": 11, "IdPermiso": 11 },
+
+  { "IdUsuario": 12, "IdPermiso": 2 },
+  { "IdUsuario": 12, "IdPermiso": 4 },
+  { "IdUsuario": 12, "IdPermiso": 6 },
+  { "IdUsuario": 12, "IdPermiso": 8 },
+
+  { "IdUsuario": 13, "IdPermiso": 4 },
+  { "IdUsuario": 13, "IdPermiso": 8 },
+
+  { "IdUsuario": 14, "IdPermiso": 4 },
+
+  { "IdUsuario": 15, "IdPermiso": 3 },
+  { "IdUsuario": 15, "IdPermiso": 4 },
+
+  { "IdUsuario": 16, "IdPermiso": 4 },
+
+  { "IdUsuario": 18, "IdPermiso": 4 },
+
+  { "IdUsuario": 19, "IdPermiso": 4 },
+  { "IdUsuario": 19, "IdPermiso": 8 },
+
+  { "IdUsuario": 20, "IdPermiso": 2 },
+  { "IdUsuario": 20, "IdPermiso": 6 },
+
+  { "IdUsuario": 21, "IdPermiso": 4 },
+  { "IdUsuario": 22, "IdPermiso": 4 },
+  { "IdUsuario": 24, "IdPermiso": 4 },
+  { "IdUsuario": 25, "IdPermiso": 4 },
+  { "IdUsuario": 26, "IdPermiso": 4 }
+]

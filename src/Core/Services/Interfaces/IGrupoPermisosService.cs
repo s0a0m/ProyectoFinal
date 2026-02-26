@@ -1,0 +1,20 @@
+using Dom = src.Models.Domain;
+using src.Presentation.ViewModels.GrupoPermisoVM;
+namespace src.Core.Services.Interfaces;
+
+public interface IGrupoPermisosService
+{
+        Task<IEnumerable<Dom.GrupoPermisos>> GetAllAsync();
+        Task<Dom.GrupoPermisos> GetByIdAsync(short id);
+        
+        // Métodos que usan ViewModels (o DTOs)
+        Task<Dom.GrupoPermisos> CreateGrupoAsync(CrearGrupoViewModel vm);
+        Task UpdateGrupoAsync(ActualizarGrupoViewModel vm);
+        Task DeleteGrupoAsync(short id);
+        
+        // Métodos para preparar los ViewModels
+        Task<CrearGrupoViewModel> PrepararCrearViewModelAsync();
+        Task<ActualizarGrupoViewModel> PrepararActualizarViewModelAsync(short id);
+        Task RepoblarViewModelParaErrorAsync(CrearGrupoViewModel vm);
+        Task RepoblarViewModelParaErrorAsync(ActualizarGrupoViewModel vm);
+    }

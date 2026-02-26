@@ -1,0 +1,39 @@
+{
+  "NotasCredito": [
+    {
+      "//": "ESCENARIO A: FV - Rotura",
+      "IdProveedor": 13,
+      "IdCondicionPagoUsada": 3,
+      "IdMotivo": 1,
+      "Numero": "NC-0013-00000550",
+      "Total": 114000.0,
+      "FechaEmision": "2025-12-20T11:30:00",
+      "Comentario": "Rotura en transporte: 1 Canilla Cocina (Ref. FAC-22100)",
+      "IdFacturaReferencia": 3
+    },
+    {
+      "//": "ESCENARIO C: TIGRE - Bonificación Comercial",
+      "IdProveedor": 10,
+      "IdCondicionPagoUsada": 4,
+      "IdMotivo": 2,
+      "Numero": "NC-0010-00012300",
+      "Total": 330000.0,
+      "FechaEmision": "2025-12-26T09:00:00",
+      "Comentario": "Bonificación 5% por volumen de compra s/Factura 554433",
+      "IdFacturaReferencia": 5
+    }
+  ],
+  "NotasDebito": [
+    {
+      "//": "ESCENARIO B: SICA - Intereses",
+      "IdProveedor": 4,
+      "IdCondicionPagoUsada": 2,
+      "IdMotivo": 7,
+      "Numero": "ND-0004-00000990",
+      "Total": 541500.0,
+      "FechaEmision": "2025-12-28T10:00:00",
+      "Comentario": "Intereses por mora (5%) sobre FAC-998877 vencida el 26/12",
+      "IdFacturaReferencia": 4
+    }
+  ]
+}

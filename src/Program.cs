@@ -1,13 +1,94 @@
 using Microsoft.EntityFrameworkCore;
+using src.Core.Services.Implementations;
+using src.Core.Services.Interfaces;
+using src.External;
+using src.Infrastructure.Repositories;
+using src.Interfaces;
 using src.Models.CodeFirst;
+using src.Models.Mappers;
+using src.Repositories.Implementations;
+using src.Repositories.Interfaces;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    WebRootPath = "Presentation/wwwroot"
+});
+
+
 var connectionString = builder.Configuration.GetConnectionString("PostgresConnection");
-
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddRazorOptions(options =>
+    {
+        // options.ViewLocationFormats.Clear(); // Opcional: limpiar las rutas por defecto si quieres control total
+        options.ViewLocationFormats.Add("/Presentation/Views/{1}/{0}.cshtml");
+        options.ViewLocationFormats.Add("/Presentation/Views/Shared/{0}.cshtml");
+    });
+
+// builder.Environment.WebRootPath = Path.Combine(builder.Environment.ContentRootPath, "Presentation", "wwwroot");
+builder.Environment.WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), "Presentation", "wwwroot");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
+// mappers
+builder.Services.AddSingleton<ProvinciaMapper>();
+builder.Services.AddSingleton<DomicilioMapper>();
+builder.Services.AddSingleton<CodigoBarraMapper>();
+builder.Services.AddSingleton<FamiliaMapper>();
+builder.Services.AddSingleton<CategoriaMapper>();
+builder.Services.AddSingleton<ProductoMapper>();
+// repositorios
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IProveedorRepository, ProveedorRepository>();
+builder.Services.AddScoped<IProveedorService, ProveedorService>();
+builder.Services.AddScoped<ICommonDataService, CommonDataService>();
+builder.Services.AddScoped<IPermisoRepository, PermisoRepository>();
+builder.Services.AddScoped<IProvinciaRepository, ProvinciaRepository>();
+builder.Services.AddScoped<IGrupoPermisosRepository, GrupoPermisosRepository>();
+builder.Services.AddScoped<IFamiliaRepository, FamiliaRepository>();
+builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
+builder.Services.AddScoped<IProductoService, ProductoService>();
+builder.Services.AddScoped<IFamiliaService, FamiliaService>();
+builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<IBarcodeAdapter, ZxIngBarcodeAdapter>();
+builder.Services.AddScoped<IProductoCodigoExternoRepository, ProductoCodigoExternoRepository>();
+builder.Services.AddScoped<IProductoProveedorRepository, ProductoProveedorRepository>();
+builder.Services.AddScoped<IExcelDataReader, ExcelDataAdapter>();
+builder.Services.AddScoped<INovedadesRepository, NovedadesRepository>();
+builder.Services.AddScoped<IFacturaRepository, FacturaRepository>();
+builder.Services.AddScoped<INovedadesService, NovedadesService>();
+builder.Services.AddScoped<IProductoProveedorService, ProductoProveedorService>();
+builder.Services.AddScoped<ICompraRepository, CompraRepository>();
+builder.Services.AddScoped<ICondicionPagoRepository, CondicionPagoRepository>();
+builder.Services.AddScoped<IComprobanteRepository, ComprobanteRepository>();
+builder.Services.AddScoped<IOrdenPagoRepository, OrdenPagoRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+// builder.Services.AddScoped<ICompraRepository, CompraRepository>();
+// Servicios
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IGrupoPermisosService, GrupoPermisosService>();
+builder.Services.AddHttpContextAccessor(); // Ya lo tenías
+builder.Services.AddTransient<src.Presentation.Services.LayoutService>();
+builder.Services.AddScoped<ICompraService, CompraService>();
+builder.Services.AddScoped<IImportacionService, ImportacionService>();
+builder.Services.AddScoped<IFacturaService, FacturaService>();
+builder.Services.AddScoped<IDocumentoAsociadoService, DocumentosAsociadoService>();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(60);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.Name = ".MiSistema.Session";
+});
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICartService, CartService>();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -21,24 +102,37 @@ if (!app.Environment.IsDevelopment())
 }
 else
 {
+    // swagger
+    app.UseSwagger();
+    app.UseSwaggerUI();
     // seed prueba para proveedores
     using var scope = app.Services.CreateScope();
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    DbInitializer.SeedCondicionesPago(context);
-    DbInitializer.SeedProvincias(context);
-    DbInitializer.SeedDomicilios(context);
-    DbInitializer.SeedProveedores(context);
+    try
+    {
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        // context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+        DbInitializer.SeedAll(context);
+    }
+    catch (Exception ex)
+    {
+        // var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        // logger.LogError(ex, "Error al inicializar la base de datos con datos de prueba.");
+        System.Console.WriteLine("Error al inicializar la base de datos con datos de prueba: " + ex.Message);
+    }
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseSession();
 app.UseAuthorization();
+
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Acceso}/{action=Login}/{id?}");
 
 app.Run();
+public partial class Program { }

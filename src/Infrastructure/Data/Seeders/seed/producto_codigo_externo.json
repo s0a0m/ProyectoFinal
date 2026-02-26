@@ -1,0 +1,336 @@
+[
+  {
+    "IdProducto": 1,
+    "IdProveedor": 26,
+    "CodigoBarraProveedor": "BAHCO-429-16"
+  },
+  { "IdProducto": 1, "IdProveedor": 17, "CodigoBarraProveedor": "ST-51-271" },
+  { "IdProducto": 1, "IdProveedor": 7, "CodigoBarraProveedor": "BD-HAM-001" },
+
+  { "IdProducto": 2, "IdProveedor": 17, "CodigoBarraProveedor": "ST-60-100" },
+  { "IdProducto": 2, "IdProveedor": 8, "CodigoBarraProveedor": "2607019506" },
+  { "IdProducto": 2, "IdProveedor": 19, "CodigoBarraProveedor": "DT-SCREW-06" },
+
+  { "IdProducto": 3, "IdProveedor": 26, "CodigoBarraProveedor": "BAHCO-2628G" },
+  { "IdProducto": 3, "IdProveedor": 17, "CodigoBarraProveedor": "ST-84-001" },
+
+  { "IdProducto": 4, "IdProveedor": 26, "CodigoBarraProveedor": "BAHCO-8072" },
+  { "IdProducto": 4, "IdProveedor": 17, "CodigoBarraProveedor": "ST-87-433" },
+
+  { "IdProducto": 5, "IdProveedor": 26, "CodigoBarraProveedor": "BAHCO-319" },
+  { "IdProducto": 5, "IdProveedor": 7, "CodigoBarraProveedor": "BD-SAW-PRO" },
+
+  { "IdProducto": 6, "IdProveedor": 8, "CodigoBarraProveedor": "0601-228-1H0" },
+  { "IdProducto": 6, "IdProveedor": 18, "CodigoBarraProveedor": "HP1630K" },
+
+  { "IdProducto": 7, "IdProveedor": 7, "CodigoBarraProveedor": "G720-AR" },
+  { "IdProducto": 7, "IdProveedor": 17, "CodigoBarraProveedor": "STGS-7115" },
+
+  { "IdProducto": 8, "IdProveedor": 18, "CodigoBarraProveedor": "HS7010" },
+  { "IdProducto": 8, "IdProveedor": 19, "CodigoBarraProveedor": "DWE560-AR" },
+
+  { "IdProducto": 9, "IdProveedor": 19, "CodigoBarraProveedor": "DCD700C2" },
+  { "IdProducto": 9, "IdProveedor": 8, "CodigoBarraProveedor": "GSR-1000-SM" },
+
+  { "IdProducto": 10, "IdProveedor": 7, "CodigoBarraProveedor": "BS200-AR" },
+  { "IdProducto": 10, "IdProveedor": 18, "CodigoBarraProveedor": "BO3710" },
+
+  { "IdProducto": 11, "IdProveedor": 15, "CodigoBarraProveedor": "9290020011" },
+  {
+    "IdProducto": 11,
+    "IdProveedor": 16,
+    "CodigoBarraProveedor": "LEDV-ECO-9W"
+  },
+  { "IdProducto": 11, "IdProveedor": 4, "CodigoBarraProveedor": "SICA-911090" },
+
+  { "IdProducto": 12, "IdProveedor": 15, "CodigoBarraProveedor": "9290020012" },
+  {
+    "IdProducto": 12,
+    "IdProveedor": 16,
+    "CodigoBarraProveedor": "LEDV-ECO-12W"
+  },
+
+  {
+    "IdProducto": 13,
+    "IdProveedor": 16,
+    "CodigoBarraProveedor": "FLOOD-50W-865"
+  },
+  { "IdProducto": 13, "IdProveedor": 4, "CodigoBarraProveedor": "SICA-378050" },
+  {
+    "IdProducto": 13,
+    "IdProveedor": 15,
+    "CodigoBarraProveedor": "BVP150-LED50"
+  },
+
+  {
+    "IdProducto": 14,
+    "IdProveedor": 4,
+    "CodigoBarraProveedor": "SICA-CAB-25R"
+  },
+  { "IdProducto": 14, "IdProveedor": 15, "CodigoBarraProveedor": "7798144002" },
+
+  { "IdProducto": 15, "IdProveedor": 4, "CodigoBarraProveedor": "SICA-520202" },
+  { "IdProducto": 15, "IdProveedor": 15, "CodigoBarraProveedor": "MOD-EXT-2T" },
+
+  {
+    "IdProducto": 16,
+    "IdProveedor": 12,
+    "CodigoBarraProveedor": "TAC-FLEX-20"
+  },
+  { "IdProducto": 16, "IdProveedor": 4, "CodigoBarraProveedor": "SICA-ISO-20" },
+  { "IdProducto": 16, "IdProveedor": 15, "CodigoBarraProveedor": "3M-1700-N" },
+
+  { "IdProducto": 17, "IdProveedor": 4, "CodigoBarraProveedor": "SICA-785040" },
+  { "IdProducto": 17, "IdProveedor": 15, "CodigoBarraProveedor": "SCH-ID-240" },
+
+  { "IdProducto": 18, "IdProveedor": 4, "CodigoBarraProveedor": "SICA-782020" },
+  {
+    "IdProducto": 18,
+    "IdProveedor": 15,
+    "CodigoBarraProveedor": "SCH-IK60-220"
+  },
+
+  { "IdProducto": 19, "IdProveedor": 13, "CodigoBarraProveedor": "0411.04/90" },
+  { "IdProducto": 19, "IdProveedor": 14, "CodigoBarraProveedor": "PEI-20-112" },
+  {
+    "IdProducto": 19,
+    "IdProveedor": 3,
+    "CodigoBarraProveedor": "FER-KITCH-01"
+  },
+
+  { "IdProducto": 20, "IdProveedor": 14, "CodigoBarraProveedor": "PEI-80-005" },
+  { "IdProducto": 20, "IdProveedor": 13, "CodigoBarraProveedor": "0120.02/33" },
+
+  { "IdProducto": 21, "IdProveedor": 28, "CodigoBarraProveedor": "LAT-FLX-40" },
+  { "IdProducto": 21, "IdProveedor": 13, "CodigoBarraProveedor": "FV-ACC-040" },
+  { "IdProducto": 21, "IdProveedor": 14, "CodigoBarraProveedor": "PEI-FLX-AC" },
+
+  { "IdProducto": 22, "IdProveedor": 28, "CodigoBarraProveedor": "LAT-TF-20" },
+  {
+    "IdProducto": 22,
+    "IdProveedor": 10,
+    "CodigoBarraProveedor": "TIGRE-FUS-20"
+  },
+  { "IdProducto": 22, "IdProveedor": 9, "CodigoBarraProveedor": "ROTO-IPS-20" },
+
+  {
+    "IdProducto": 23,
+    "IdProveedor": 28,
+    "CodigoBarraProveedor": "LAT-COD-9020"
+  },
+  {
+    "IdProducto": 23,
+    "IdProveedor": 10,
+    "CodigoBarraProveedor": "TIGRE-20-90"
+  },
+  { "IdProducto": 23, "IdProveedor": 9, "CodigoBarraProveedor": "ROTO-90-20" },
+
+  { "IdProducto": 24, "IdProveedor": 28, "CodigoBarraProveedor": "LAT-TEF-34" },
+  {
+    "IdProducto": 24,
+    "IdProveedor": 10,
+    "CodigoBarraProveedor": "TIG-TEF-075"
+  },
+
+  {
+    "IdProducto": 25,
+    "IdProveedor": 10,
+    "CodigoBarraProveedor": "TIG-ESF-050"
+  },
+  {
+    "IdProducto": 25,
+    "IdProveedor": 28,
+    "CodigoBarraProveedor": "LAT-VAL-PVC"
+  },
+
+  {
+    "IdProducto": 26,
+    "IdProveedor": 22,
+    "CodigoBarraProveedor": "ALBA-CONST-20"
+  },
+  {
+    "IdProducto": 26,
+    "IdProveedor": 21,
+    "CodigoBarraProveedor": "SW-LOXON-20"
+  },
+  {
+    "IdProducto": 26,
+    "IdProveedor": 27,
+    "CodigoBarraProveedor": "SINT-RECO-20"
+  },
+  {
+    "IdProducto": 26,
+    "IdProveedor": 23,
+    "CodigoBarraProveedor": "PLAV-INT-20"
+  },
+
+  { "IdProducto": 27, "IdProveedor": 22, "CodigoBarraProveedor": "ALBA-SAT-N" },
+  { "IdProducto": 27, "IdProveedor": 27, "CodigoBarraProveedor": "SINT-ESM-N" },
+  { "IdProducto": 27, "IdProveedor": 21, "CodigoBarraProveedor": "SW-KM-NEG" },
+
+  {
+    "IdProducto": 28,
+    "IdProveedor": 22,
+    "CodigoBarraProveedor": "PIN-OBRA-20"
+  },
+  { "IdProducto": 28, "IdProveedor": 27, "CodigoBarraProveedor": "ACC-PIN-20" },
+
+  {
+    "IdProducto": 29,
+    "IdProveedor": 22,
+    "CodigoBarraProveedor": "ROD-LANA-22"
+  },
+  { "IdProducto": 29, "IdProveedor": 21, "CodigoBarraProveedor": "ACC-ROD-01" },
+
+  {
+    "IdProducto": 30,
+    "IdProveedor": 27,
+    "CodigoBarraProveedor": "DIL-AGUA-01"
+  },
+  { "IdProducto": 30, "IdProveedor": 22, "CodigoBarraProveedor": "ALBA-SV-01" },
+
+  { "IdProducto": 31, "IdProveedor": 5, "CodigoBarraProveedor": "LOMA-RAP-01" },
+  {
+    "IdProducto": 31,
+    "IdProveedor": 11,
+    "CodigoBarraProveedor": "WEBER-TEC-1"
+  },
+  {
+    "IdProducto": 31,
+    "IdProveedor": 12,
+    "CodigoBarraProveedor": "SIKA-MONO-1"
+  },
+
+  { "IdProducto": 32, "IdProveedor": 25, "CodigoBarraProveedor": "DUR-END-04" },
+  {
+    "IdProducto": 32,
+    "IdProveedor": 22,
+    "CodigoBarraProveedor": "ALBA-END-INT"
+  },
+  {
+    "IdProducto": 32,
+    "IdProveedor": 27,
+    "CodigoBarraProveedor": "SINT-MAS-04"
+  },
+
+  { "IdProducto": 33, "IdProveedor": 22, "CodigoBarraProveedor": "ESP-AC-10" },
+  {
+    "IdProducto": 33,
+    "IdProveedor": 25,
+    "CodigoBarraProveedor": "HERR-ESP-10"
+  },
+
+  {
+    "IdProducto": 34,
+    "IdProveedor": 9,
+    "CodigoBarraProveedor": "ROTO-BAL-NEG"
+  },
+  {
+    "IdProducto": 34,
+    "IdProveedor": 11,
+    "CodigoBarraProveedor": "WEB-BAL-REF"
+  },
+
+  {
+    "IdProducto": 35,
+    "IdProveedor": 24,
+    "CodigoBarraProveedor": "FIS-FIX-3540"
+  },
+  {
+    "IdProducto": 35,
+    "IdProveedor": 29,
+    "CodigoBarraProveedor": "BAR-TOR-MAD"
+  },
+  { "IdProducto": 35, "IdProveedor": 1, "CodigoBarraProveedor": "AC-FIX-3540" },
+
+  { "IdProducto": 36, "IdProveedor": 24, "CodigoBarraProveedor": "FIS-S6-100" },
+  { "IdProducto": 36, "IdProveedor": 12, "CodigoBarraProveedor": "SIKA-FIX-6" },
+
+  { "IdProducto": 37, "IdProveedor": 24, "CodigoBarraProveedor": "FIS-S8-100" },
+  { "IdProducto": 37, "IdProveedor": 12, "CodigoBarraProveedor": "SIKA-FIX-8" },
+
+  { "IdProducto": 38, "IdProveedor": 1, "CodigoBarraProveedor": "AC-PP-200" },
+  { "IdProducto": 38, "IdProveedor": 29, "CodigoBarraProveedor": "ADB-CLAV-2" },
+
+  { "IdProducto": 39, "IdProveedor": 1, "CodigoBarraProveedor": "AC-BUL-142" },
+  { "IdProducto": 39, "IdProveedor": 24, "CodigoBarraProveedor": "FIS-HEX-14" },
+
+  { "IdProducto": 40, "IdProveedor": 1, "CodigoBarraProveedor": "AC-ARAN-PLA" },
+  { "IdProducto": 40, "IdProveedor": 29, "CodigoBarraProveedor": "ADB-ARA-KG" },
+
+  {
+    "IdProducto": 41,
+    "IdProveedor": 12,
+    "CodigoBarraProveedor": "SIKASIL-C-TR"
+  },
+  { "IdProducto": 41, "IdProveedor": 11, "CodigoBarraProveedor": "WEB-SIL-U" },
+  {
+    "IdProducto": 41,
+    "IdProveedor": 27,
+    "CodigoBarraProveedor": "SINT-SELL-TR"
+  },
+
+  { "IdProducto": 42, "IdProveedor": 12, "CodigoBarraProveedor": "SIKABOOM-M" },
+  {
+    "IdProducto": 42,
+    "IdProveedor": 11,
+    "CodigoBarraProveedor": "WEB-ESP-EXP"
+  },
+
+  {
+    "IdProducto": 43,
+    "IdProveedor": 12,
+    "CodigoBarraProveedor": "SIKABOND-CN"
+  },
+  {
+    "IdProducto": 43,
+    "IdProveedor": 27,
+    "CodigoBarraProveedor": "POX-001-ORI"
+  },
+
+  {
+    "IdProducto": 44,
+    "IdProveedor": 12,
+    "CodigoBarraProveedor": "SIKATAPE-BR"
+  },
+  { "IdProducto": 44, "IdProveedor": 4, "CodigoBarraProveedor": "SICA-EMB-48" },
+
+  {
+    "IdProducto": 45,
+    "IdProveedor": 26,
+    "CodigoBarraProveedor": "BAHCO-LOCK-40"
+  },
+  { "IdProducto": 45, "IdProveedor": 17, "CodigoBarraProveedor": "ST-SEC-40" },
+  { "IdProducto": 45, "IdProveedor": 1, "CodigoBarraProveedor": "AC-CAND-40" },
+
+  {
+    "IdProducto": 46,
+    "IdProveedor": 1,
+    "CodigoBarraProveedor": "AC-CAD-GAL-40"
+  },
+  { "IdProducto": 46, "IdProveedor": 29, "CodigoBarraProveedor": "ADB-CAD-40" },
+
+  { "IdProducto": 47, "IdProveedor": 24, "CodigoBarraProveedor": "FIS-SOGA-8" },
+  {
+    "IdProducto": 47,
+    "IdProveedor": 4,
+    "CodigoBarraProveedor": "SICA-SOGA-PP"
+  },
+
+  {
+    "IdProducto": 48,
+    "IdProveedor": 24,
+    "CodigoBarraProveedor": "FIS-LUB-MULTI"
+  },
+  { "IdProducto": 48, "IdProveedor": 12, "CodigoBarraProveedor": "SIKALUBE-5" },
+  { "IdProducto": 48, "IdProveedor": 1, "CodigoBarraProveedor": "AC-LUB-300" },
+
+  { "IdProducto": 49, "IdProveedor": 8, "CodigoBarraProveedor": "2608600094" },
+  { "IdProducto": 49, "IdProveedor": 18, "CodigoBarraProveedor": "D-18770" },
+  { "IdProducto": 49, "IdProveedor": 19, "CodigoBarraProveedor": "DW8062" },
+  { "IdProducto": 49, "IdProveedor": 7, "CodigoBarraProveedor": "BD-DISC-115" },
+
+  { "IdProducto": 50, "IdProveedor": 8, "CodigoBarraProveedor": "2608585493" },
+  { "IdProducto": 50, "IdProveedor": 19, "CodigoBarraProveedor": "DT5925-QZ" },
+  { "IdProducto": 50, "IdProveedor": 17, "CodigoBarraProveedor": "ST-DRILL-06" }
+]

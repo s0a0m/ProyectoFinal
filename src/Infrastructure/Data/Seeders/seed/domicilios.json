@@ -1,0 +1,274 @@
+[
+  {
+    "IdDomicilio": 1,
+    "IdProvincia": 1,
+    "Calle": "Av. Rivadavia",
+    "Numero": 8450,
+    "Piso": null,
+    "Comentario": "Sucursal principal - CABA"
+  },
+  {
+    "IdDomicilio": 2,
+    "IdProvincia": 22,
+    "Calle": "Av. Juan B. Justo",
+    "Numero": 3250,
+    "Piso": 1,
+    "Comentario": "Depósito central - Buenos Aires"
+  },
+  {
+    "IdDomicilio": 3,
+    "IdProvincia": 21,
+    "Calle": "Av. Colón",
+    "Numero": 1125,
+    "Piso": null,
+    "Comentario": "Proveedor regional - Córdoba"
+  },
+  {
+    "IdDomicilio": 4,
+    "IdProvincia": 12,
+    "Calle": "San Martín",
+    "Numero": 554,
+    "Piso": 2,
+    "Comentario": "Oficina administrativa - Mendoza"
+  },
+  {
+    "IdDomicilio": 5,
+    "IdProvincia": 7,
+    "Calle": "24 de Septiembre",
+    "Numero": 456,
+    "Piso": null,
+    "Comentario": "Local Centro - Tucumán"
+  },
+  {
+    "IdDomicilio": 6,
+    "IdProvincia": 4,
+    "Calle": "Bv. Oroño",
+    "Numero": 1200,
+    "Piso": 3,
+    "Comentario": "Oficina Comercial - Rosario"
+  },
+  {
+    "IdDomicilio": 7,
+    "IdProvincia": 1,
+    "Calle": "Av. Corrientes",
+    "Numero": 1500,
+    "Piso": 5,
+    "Comentario": "Sucursal Teatros - CABA"
+  },
+  {
+    "IdDomicilio": 8,
+    "IdProvincia": 20,
+    "Calle": "Balcarce",
+    "Numero": 230,
+    "Piso": null,
+    "Comentario": "Sucursal Norte - Salta"
+  },
+  {
+    "IdDomicilio": 9,
+    "IdProvincia": 22,
+    "Calle": "Calle 7",
+    "Numero": 850,
+    "Piso": 1,
+    "Comentario": "Administración La Plata - Buenos Aires"
+  },
+  {
+    "IdDomicilio": 10,
+    "IdProvincia": 2,
+    "Calle": "Av. Argentina",
+    "Numero": 350,
+    "Piso": null,
+    "Comentario": "Local Neuquén Capital"
+  },
+  {
+    "IdDomicilio": 11,
+    "IdProvincia": 19,
+    "Calle": "Bolívar",
+    "Numero": 1850,
+    "Piso": null,
+    "Comentario": "Depósito Misiones - Posadas"
+  },
+  {
+    "IdDomicilio": 12,
+    "IdProvincia": 24,
+    "Calle": "San Martín",
+    "Numero": 650,
+    "Piso": null,
+    "Comentario": "Logística Fin del Mundo - Ushuaia"
+  },
+  {
+    "IdDomicilio": 13,
+    "IdProvincia": 17,
+    "Calle": "Av. Exequiel Bustillo",
+    "Numero": 2500,
+    "Piso": null,
+    "Comentario": "Sucursal Bariloche"
+  },
+  {
+    "IdDomicilio": 14,
+    "IdProvincia": 3,
+    "Calle": "Av. Illia",
+    "Numero": 120,
+    "Piso": 1,
+    "Comentario": "Oficina San Luis"
+  },
+  {
+    "IdDomicilio": 15,
+    "IdProvincia": 13,
+    "Calle": "Urquiza",
+    "Numero": 900,
+    "Piso": null,
+    "Comentario": "Distribuidora Paraná"
+  },
+  {
+    "IdDomicilio": 16,
+    "IdProvincia": 18,
+    "Calle": "Junín",
+    "Numero": 1050,
+    "Piso": null,
+    "Comentario": "Local Corrientes Capital"
+  },
+  {
+    "IdDomicilio": 17,
+    "IdProvincia": 8,
+    "Calle": "Av. Alberdi",
+    "Numero": 400,
+    "Piso": null,
+    "Comentario": "Depósito Resistencia"
+  },
+  {
+    "IdDomicilio": 18,
+    "IdProvincia": 14,
+    "Calle": "Av. Libertador Gral. San Martín",
+    "Numero": 1500,
+    "Piso": null,
+    "Comentario": "Sucursal San Juan Oeste"
+  },
+  {
+    "IdDomicilio": 19,
+    "IdProvincia": 15,
+    "Calle": "Belgrano",
+    "Numero": 560,
+    "Piso": null,
+    "Comentario": "Centro de Distribución Jujuy"
+  },
+  {
+    "IdDomicilio": 20,
+    "IdProvincia": 22,
+    "Calle": "Av. Luro",
+    "Numero": 3200,
+    "Piso": null,
+    "Comentario": "Sucursal Mar del Plata"
+  },
+  {
+    "IdDomicilio": 21,
+    "IdProvincia": 21,
+    "Calle": "Av. General Paz",
+    "Numero": 150,
+    "Piso": 4,
+    "Comentario": "Oficinas Legales - Córdoba"
+  },
+  {
+    "IdDomicilio": 22,
+    "IdProvincia": 16,
+    "Calle": "Libertad",
+    "Numero": 880,
+    "Piso": null,
+    "Comentario": "Sucursal Santiago del Estero"
+  },
+  {
+    "IdDomicilio": 23,
+    "IdProvincia": 5,
+    "Calle": "Rivadavia",
+    "Numero": 320,
+    "Piso": null,
+    "Comentario": "Local La Rioja"
+  },
+  {
+    "IdDomicilio": 24,
+    "IdProvincia": 6,
+    "Calle": "República",
+    "Numero": 550,
+    "Piso": null,
+    "Comentario": "Catamarca Centro"
+  },
+  {
+    "IdDomicilio": 25,
+    "IdProvincia": 9,
+    "Calle": "Av. 25 de Mayo",
+    "Numero": 780,
+    "Piso": null,
+    "Comentario": "Formosa Capital"
+  },
+  {
+    "IdDomicilio": 26,
+    "IdProvincia": 10,
+    "Calle": "Av. Kirchner",
+    "Numero": 950,
+    "Piso": null,
+    "Comentario": "Río Gallegos"
+  },
+  {
+    "IdDomicilio": 27,
+    "IdProvincia": 11,
+    "Calle": "Fontana",
+    "Numero": 230,
+    "Piso": null,
+    "Comentario": "Sucursal Trelew"
+  },
+  {
+    "IdDomicilio": 28,
+    "IdProvincia": 23,
+    "Calle": "Av. San Martín",
+    "Numero": 440,
+    "Piso": null,
+    "Comentario": "Santa Rosa - La Pampa"
+  },
+  {
+    "IdDomicilio": 29,
+    "IdProvincia": 7,
+    "Calle": "Av. Aconquija",
+    "Numero": 1200,
+    "Piso": null,
+    "Comentario": "Sucursal Yerba Buena - Tucumán"
+  },
+  {
+    "IdDomicilio": 30,
+    "IdProvincia": 4,
+    "Calle": "San Jerónimo",
+    "Numero": 2100,
+    "Piso": null,
+    "Comentario": "Santa Fe Capital"
+  },
+  {
+    "IdDomicilio": 31,
+    "IdProvincia": 1,
+    "Calle": "Av. Cabildo",
+    "Numero": 2250,
+    "Piso": null,
+    "Comentario": "Belgrano - CABA"
+  },
+  {
+    "IdDomicilio": 32,
+    "IdProvincia": 12,
+    "Calle": "Paso de los Andes",
+    "Numero": 600,
+    "Piso": null,
+    "Comentario": "Godoy Cruz - Mendoza"
+  },
+  {
+    "IdDomicilio": 33,
+    "IdProvincia": 21,
+    "Calle": "Av. Cárcano",
+    "Numero": 400,
+    "Piso": null,
+    "Comentario": "Villa Carlos Paz - Córdoba"
+  },
+  {
+    "IdDomicilio": 34,
+    "IdProvincia": 22,
+    "Calle": "Mitre",
+    "Numero": 1100,
+    "Piso": null,
+    "Comentario": "Sucursal Avellaneda"
+  }
+]

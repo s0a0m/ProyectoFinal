@@ -1,0 +1,39 @@
+@{
+    ViewData["Title"] = "Acceso Restringido";
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="card shadow-lg border-0 rounded-4" style="max-width: 500px; width: 100%;">
+        
+        <div class="card-header bg-danger text-white text-center py-3 rounded-top-4 border-0">
+            <i class="bi bi-shield-lock-fill" style="font-size: 3rem;"></i>
+        </div>
+
+        <div class="card-body text-center p-5">
+            <h2 class="card-title fw-bold text-danger mb-3">Acceso Denegado</h2>
+            
+            <p class="card-text text-muted mb-4 fs-5">
+                Lo sentimos, no tienes los permisos necesarios para visualizar esta sección o realizar esta acción.
+            </p>
+
+            <div class="alert alert-light border border-danger-subtle d-flex align-items-center justify-content-center gap-2 mb-4 text-danger small" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span>Si crees que esto es un error, contacta al administrador.</span>
+            </div>
+
+            <div class="d-grid gap-2">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-lg rounded-pill shadow-sm">
+                    <i class="bi bi-house-door-fill me-2"></i> Volver al Inicio
+                </a>
+                
+                <button onclick="history.back()" class="btn btn-outline-secondary rounded-pill">
+                    <i class="bi bi-arrow-left me-2"></i> Regresar a la página anterior
+                </button>
+            </div>
+        </div>
+
+        <div class="card-footer bg-transparent border-0 text-center pb-3 text-muted" style="font-size: 0.8rem;">
+            Sistema de Gestión de Ventas MyL &copy; @DateTime.Now.Year
+        </div>
+    </div>
+</div>

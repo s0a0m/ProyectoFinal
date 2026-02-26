@@ -1,0 +1,391 @@
+@using src.Presentation.ViewModels.ProductoVM
+@using src.Presentation.Services
+@model IEnumerable<ProductoProveedorListarViewModel>
+
+@{
+    ViewData["Title"] = "Relación Producto - Proveedor";
+
+    // 1. VARIABLE DE CONTROL DE PERMISOS (Centralizada)
+    bool tienePermisoCompra = LayoutService.TienePermiso("P07_GESTION_COMPRAS");
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-octagon-fill me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (ViewBag.TotalNovedades > 0)
+{
+    <div class="alert alert-warning border-start border-warning border-4 d-flex align-items-center justify-content-between shadow-sm"
+        role="alert">
+        <div>
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+            <strong>Atención:</strong> Tienes <span class="badge bg-dark">@ViewBag.TotalNovedades</span> productos
+            pendientes de revisión (Novedades de importación).
+        </div>
+        <a asp-controller="Novedades" asp-action="Index" class="btn btn-warning btn-sm fw-bold">
+            <i class="bi bi-eye me-1"></i>Ver Novedades
+        </a>
+    </div>
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white">
+        <h6 class="m-0 font-weight-bold text-primary">Listado de Precios y Stock por Proveedor</h6>
+        <div class="d-flex gap-2">
+            <a asp-controller="ProductoProveedor" asp-action="Configurar" class="btn btn-success btn-sm shadow-sm">
+                <i class="bi bi-file-earmark-spreadsheet me-1"></i>Importar Excel
+            </a>
+
+            <a asp-controller="ProductoProveedor" asp-action="Create" class="btn btn-primary btn-sm shadow-sm">
+                <i class="bi bi-plus-lg text-white-50 me-1"></i>Asignar Nuevo
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle" id="tablaRelaciones" width="100%"
+                cellspacing="0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Producto</th>
+                        <th>Proveedor</th>
+                        <th>Códigos Externos</th>
+                        <th class="text-end">Precio Costo</th>
+                        <th class="text-center">Stock Asig.</th>
+                        <th class="text-center" style="width: 100px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold text-dark">@item.NombreProducto</td>
+
+                            <td>
+                                <i class="bi bi-truck text-muted me-1"></i>@item.NombreProveedor
+                            </td>
+
+                            <td>
+                                @if (item.CodigosBarraExternos != null && item.CodigosBarraExternos.Any())
+                                {
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach (var codigo in item.CodigosBarraExternos)
+                                        {
+                                            <span class="font-monospace small badge bg-light text-dark border"
+                                                style="cursor: default;" title="Código Proveedor">
+                                                @codigo
+                                            </span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small fst-italic">Sin códigos</span>
+                                }
+                            </td>
+
+                            <td class="text-end fw-bold text-success">
+                                $@item.Precio.ToString("N2")
+                            </td>
+
+                            <td class="text-center">
+                                @if (item.StockAsignado > 0)
+                                {
+                                    <span class="badge bg-info text-dark rounded-pill">@item.StockAsignado</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary rounded-pill">0</span>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-info btn-sm text-white me-1" title="Ver Detalle"
+                                        data-bs-toggle="modal" data-bs-target="#modalDetalleRelacion"
+                                        data-producto="@item.NombreProducto" data-proveedor="@item.NombreProveedor"
+                                        data-precio="@item.Precio.ToString("N2")" data-stock="@item.StockAsignado"
+                                        data-codigos='@Json.Serialize(item.CodigosBarraExternos)'>
+                                        <i class="bi bi-eye-fill"></i>
+                                    </button>
+                                    @if (tienePermisoCompra)
+                                    {
+                                        <a asp-action="Edit" asp-route-idProducto="@item.IdProducto"
+                                            asp-route-idProveedor="@item.IdProveedor" class="btn btn-warning btn-sm text-white"
+                                            title="Editar Precio/Stock">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+
+
+                                        <button class="btn btn-outline-primary btn-sm ms-1" type="button"
+                                            data-idproducto="@item.IdProducto" data-idproveedor="@item.IdProveedor"
+                                            data-stock="@item.StockAsignado" data-nombre="@item.NombreProducto"
+                                            onclick="prepararYAbrirModal(this)" title="Agregar al Carrito" @(item.StockAsignado
+                                                                                                                                               <= 0 ? "disabled" : "")>
+                                            <i class="bi bi-cart-plus"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDetalleRelacion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-card-list me-2"></i>Detalle de la Relación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+
+                <div class="text-center mb-4 p-3 bg-light rounded border">
+                    <small class="text-muted text-uppercase fw-bold d-block mb-1">Producto</small>
+                    <h4 class="fw-bold text-dark mb-0" id="modalProducto">...</h4>
+                </div>
+
+                <div class="mb-4">
+                    <label class="fw-bold text-secondary small">PROVEEDOR ASIGNADO</label>
+                    <div class="d-flex align-items-center p-2 border-bottom">
+                        <i class="bi bi-shop fs-4 text-primary me-3"></i>
+                        <span class="fs-5" id="modalProveedor">...</span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <div class="p-3 border rounded bg-white h-100 text-center shadow-sm">
+                            <small class="text-muted text-uppercase fw-bold">Precio Costo</small>
+                            <div class="fs-3 fw-bold text-success" id="modalPrecio">...</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 border rounded bg-white h-100 text-center shadow-sm">
+                            <small class="text-muted text-uppercase fw-bold">Stock Asignado</small>
+                            <div class="fs-3 fw-bold text-dark" id="modalStock">...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="fw-bold text-secondary small mb-2">CÓDIGOS EXTERNOS (PROVEEDOR)</label>
+                    <div id="modalContenedorCodigos" class="d-flex flex-wrap gap-2 p-3 bg-light rounded border">
+                        <span class="text-muted fst-italic small">Cargando...</span>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCantidadCarrito" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h6 class="modal-title"><i class="bi bi-cart-plus me-2"></i>Agregar al Carrito</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="lblProductoCarrito" class="fw-bold mb-2 text-primary text-center">Producto</p>
+
+                <form id="formCantidadCarrito" onsubmit="return confirmarAgregarCarrito(event)">
+                    <input type="hidden" id="hiddenIdProducto" />
+                    <input type="hidden" id="hiddenIdProveedor" />
+                    <input type="hidden" id="hiddenMaxStock" />
+
+                    <div class="mb-3">
+                        <label class="form-label small">Cantidad (Max: <span id="lblMaxStock">0</span>)</label>
+                        <div class="input-group">
+                            <button type="button" class="btn btn-outline-secondary"
+                                onclick="ajustarCantidad(-1)">-</button>
+                            <input type="number" id="txtCantidadCarrito" class="form-control text-center" value="1"
+                                min="1" required />
+                            <button type="button" class="btn btn-outline-secondary"
+                                onclick="ajustarCantidad(1)">+</button>
+                        </div>
+                        <div id="errStock" class="text-danger small mt-1" style="display:none;">Stock insuficiente</div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">Agregar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // 1. Inicializar DataTables
+            $('#tablaRelaciones').DataTable({
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json" },
+                order: [[0, 'asc']],
+                pageLength: 10,
+                columnDefs: [
+                    { orderable: false, targets: [5] },
+                    { className: "text-end", targets: [3] },
+                    { className: "text-center", targets: [4, 5] }
+                ],
+                dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            });
+
+            // 2. Lógica del Modal de Detalle (Tu código existente)
+            var modalDetalle = document.getElementById('modalDetalleRelacion');
+            modalDetalle.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var producto = button.getAttribute('data-producto');
+                var proveedor = button.getAttribute('data-proveedor');
+                var precio = button.getAttribute('data-precio');
+                var stock = button.getAttribute('data-stock');
+
+                var codigosRaw = button.getAttribute('data-codigos');
+                var codigos = [];
+                try { codigos = JSON.parse(codigosRaw); } catch (e) { console.error("Error parseando códigos", e); }
+
+                modalDetalle.querySelector('#modalProducto').textContent = producto;
+                modalDetalle.querySelector('#modalProveedor').textContent = proveedor;
+                modalDetalle.querySelector('#modalPrecio').textContent = '$' + precio;
+                modalDetalle.querySelector('#modalStock').textContent = stock;
+
+                var contenedor = modalDetalle.querySelector('#modalContenedorCodigos');
+                contenedor.innerHTML = '';
+
+                if (codigos && codigos.length > 0) {
+                    codigos.forEach(function (cod) {
+                        var badge = document.createElement('span');
+                        badge.className = 'badge bg-white text-dark border font-monospace shadow-sm py-2 px-3';
+                        badge.innerHTML = '<i class="bi bi-upc-scan me-2 text-muted"></i>' + cod;
+                        contenedor.appendChild(badge);
+                    });
+                } else {
+                    contenedor.innerHTML = '<span class="text-muted fst-italic small">Este producto no tiene códigos externos asociados a este proveedor.</span>';
+                }
+            });
+        });
+
+        // --- 4. LÓGICA DEL NUEVO MODAL DE CARRITO ---
+        function prepararYAbrirModal(btn) {
+            // Leer los datos de los atributos data-* del botón
+            // Esto es seguro porque el navegador ya manejó las comillas
+            var idProd = btn.getAttribute('data-idproducto');
+            var idProv = btn.getAttribute('data-idproveedor');
+            var stock = btn.getAttribute('data-stock');
+            var nombre = btn.getAttribute('data-nombre');
+
+            // Llamar a la función original con los datos limpios
+            abrirModalCantidad(idProd, idProv, stock, nombre);
+        }
+        var modalCantidadBS = null; // Variable para la instancia Bootstrap
+
+        function abrirModalCantidad(idProd, idProv, stock, nombreProd) {
+            // 1. Asignar valores a los inputs ocultos y visibles
+            document.getElementById('hiddenIdProducto').value = idProd;
+            document.getElementById('hiddenIdProveedor').value = idProv;
+            document.getElementById('hiddenMaxStock').value = stock;
+
+            document.getElementById('lblProductoCarrito').innerText = nombreProd;
+            document.getElementById('lblMaxStock').innerText = stock;
+
+            var inputCant = document.getElementById('txtCantidadCarrito');
+            inputCant.value = 1;
+            inputCant.max = stock;
+
+            document.getElementById('errStock').style.display = 'none';
+
+            // 2. Manejo robusto de la instancia del Modal
+            var modalEl = document.getElementById('modalCantidadCarrito');
+
+            // Si ya existe instancia, úsala; si no, créala.
+            if (!modalCantidadBS) {
+                modalCantidadBS = new bootstrap.Modal(modalEl);
+            }
+
+            modalCantidadBS.show();
+        }
+
+        function ajustarCantidad(delta) {
+            var input = document.getElementById('txtCantidadCarrito');
+            var max = parseInt(document.getElementById('hiddenMaxStock').value);
+            var actual = parseInt(input.value) || 0;
+            var nuevo = actual + delta;
+
+            if (nuevo >= 1 && nuevo <= max) {
+                input.value = nuevo;
+                document.getElementById('errStock').style.display = 'none';
+            }
+        }
+
+        function confirmarAgregarCarrito(e) {
+            e.preventDefault();
+
+            var idProd = document.getElementById('hiddenIdProducto').value;
+            var idProv = document.getElementById('hiddenIdProveedor').value;
+            var cant = parseInt(document.getElementById('txtCantidadCarrito').value);
+            var max = parseInt(document.getElementById('hiddenMaxStock').value);
+
+            if (cant > max) {
+                document.getElementById('errStock').style.display = 'block';
+                return false;
+            }
+
+            // Llamada AJAX local para asegurar que NO MUESTRE ALERTAS
+            // (Si usas la global de layout y esa tiene alerts, aquí la puenteamos)
+            $.post('/Carrito/Agregar', { idProducto: idProd, idProveedor: idProv, cantidad: cant })
+                .done(function (response) {
+                    // Solo actualizamos el badge silenciosamente
+                    var badge = $("#cart-badge");
+                    if (badge.length) {
+                        badge.text(response.totalItems);
+                        if (response.totalItems > 0) badge.show();
+                    }
+                    // Cierre inmediato del modal sin feedback visual intrusivo
+                    if (modalCantidadBS) modalCantidadBS.hide();
+                })
+                .fail(function (xhr) {
+                    console.error("Error carrito: " + xhr.responseText);
+                    alert("Error al conectar con el servidor."); // Solo alertamos si falla la conexión
+                });
+
+            return false;
+        }
+    </script>
+    <style>
+        .zoom-hover {
+            transition: transform 0.2s;
+        }
+
+        .zoom-hover:hover {
+            transform: scale(1.03);
+            cursor: default;
+        }
+    </style>
+}

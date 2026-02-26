@@ -1,0 +1,159 @@
+@using src.Presentation.ViewModels.CarritoVM
+@model List<CarritoItemViewModel>
+
+@{
+    ViewData["Title"] = "Mi Carrito de Compras";
+}
+
+<div class="container py-5">
+    <h2 class="mb-4"><i class="bi bi-cart3 me-2"></i>Carrito de Compras</h2>
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger alert-dismissible fade show shadow-sm"
+        role="alert">
+        <strong><i class="bi bi-exclamation-triangle-fill me-2"></i>Atención:</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center py-5">
+            <i class="bi bi-basket display-1 d-block mb-3"></i>
+            <h4>Tu carrito está vacío</h4>
+            <a asp-controller="ProductoProveedor" asp-action="Index" class="btn btn-primary mt-3">Ir a comprar</a>
+        </div>
+    }
+    else
+    {
+        @foreach (var grupo in Model.GroupBy(x => x.NombreProveedor))
+        {
+            var idProveedor = grupo.First().IdProveedor;
+            var totalProveedor = grupo.Sum(x => x.Subtotal);
+
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-primary"><i class="bi bi-shop me-2"></i>@grupo.Key</h5>
+                    <span class="badge bg-secondary">@grupo.Sum(x => x.Cantidad) items</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Codigos</th>
+                                    <th class="text-center">Cant.</th>
+                                    <th class="text-end">Precio</th>
+                                    <th class="text-end">Subtotal</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in grupo)
+                                {
+                                    <tr>
+                                        <td>@item.NombreProducto</td>
+                                        <td>
+                                            @if (item.CodigosExternos != null && item.CodigosExternos.Any())
+                                            {
+                                                <div class="d-flex flex-wrap gap-1">
+                                                    @foreach (var codigo in item.CodigosExternos)
+                                                    {
+                                                        <span class="badge bg-light text-dark border font-monospace text-wrap"
+                                                            style="font-size: 0.75rem;">
+                                                            @codigo
+                                                        </span>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small fst-italic">Sin códigos externos</span>
+                                            }
+                                        </td>
+
+                                        <td class="text-center fw-bold">
+                                            <form asp-action="Actualizar" method="post" class="d-inline-flex align-items-center">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="idProducto" value="@item.IdProducto" />
+                                                <input type="hidden" name="idProveedor" value="@item.IdProveedor" />
+                                                <input name="cantidad" type="number"
+                                                    class="form-control form-control-sm text-center" value="@item.Cantidad" min="0"
+                                                    style="width:80px;" />
+                                                <button type="submit" class="btn btn-sm btn-outline-primary ms-2"
+                                                    title="Actualizar cantidad">
+                                                    <i class="bi bi-arrow-repeat"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+
+                                        <td class="text-end text-muted">$@item.PrecioUnitario.ToString("N2")</td>
+                                        <td class="text-end fw-bold">$@item.Subtotal.ToString("N2")</td>
+                                        <td class="text-end">
+                                            <form asp-action="Eliminar" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="idProducto" value="@item.IdProducto" />
+                                                <input type="hidden" name="idProveedor" value="@item.IdProveedor" />
+                                                <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Quitar">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot class="bg-white">
+                                <tr>
+                                    <td colspan="4" class="text-end fw-bold text-uppercase text-muted small pt-3">Total
+                                        @grupo.Key</td>
+                                    <td class="text-end fs-5 fw-bold text-dark pt-3">$@totalProveedor.ToString("N2")</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-top-0 py-3 text-end">
+                    <a asp-controller="Compra" asp-action="Previsualizar" asp-route-idProveedor="@idProveedor"
+                        class="btn btn-success px-4">
+                        Continuar Compra <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const errorMsg = '@TempData["ServiceErrorMessage"]';
+            const successMsg = '@TempData["ServiceSuccessMessage"]';
+
+            if (errorMsg) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'No se pudo actualizar',
+                    text: errorMsg,
+                    confirmButtonColor: '#d33'
+                });
+            }
+
+            if (successMsg) {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+
+                Toast.fire({
+                    icon: 'success',
+                    title: successMsg
+                });
+            }
+        });
+    </script>
+}

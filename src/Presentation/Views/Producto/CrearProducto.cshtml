@@ -1,0 +1,309 @@
+@using src.Presentation.ViewModels.ProductoVM
+@model CrearProductoViewModel
+
+@{
+    ViewData["Title"] = "Nuevo Producto";
+}
+
+<main class="form-signin w-100 m-auto">
+    
+    <form asp-controller="Producto" asp-action="CrearProducto" method="post" class="shadow-lg rounded bg-light p-4" id="formProducto">
+        
+        <h2 class="text-center mb-4"><i class="bi bi-box-seam me-2"></i>@ViewData["Title"]</h2>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        }
+
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Información General</legend>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Nombre" class="form-control" placeholder="Nombre del Producto">
+                <label asp-for="Nombre">Nombre del Producto</label>
+                <span asp-validation-for="Nombre" class="text-danger small"></span>
+            </div>
+
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input asp-for="StockTotal" class="form-control" type="number" placeholder="0">
+                        <label asp-for="StockTotal">Stock Inicial</label>
+                        <span asp-validation-for="StockTotal" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input asp-for="StockMinimo" class="form-control" type="number" placeholder="0">
+                        <label asp-for="StockMinimo">Stock Mínimo (Alerta)</label>
+                        <span asp-validation-for="StockMinimo" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Clasificación</legend>
+            <p class="text-muted small mb-2">Busque y seleccione las categorías.</p>
+            
+            <div class="input-group mb-2">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control border-start-0" id="buscadorArbol" placeholder="Buscar familia o categoría...">
+            </div>
+
+            <div class="border rounded p-2 bg-white" style="max-height: 300px; overflow-y: auto;" id="contenedorArbol">
+                @if (Model.ListaCategoriasDisponibles != null && Model.ListaCategoriasDisponibles.Any())
+                {
+                    // Agrupamos limpiamente gracias al nuevo DTO
+                    var gruposPorFamilia = Model.ListaCategoriasDisponibles.GroupBy(x => x.Familia);
+
+                    foreach (var grupo in gruposPorFamilia)
+                    {
+                        <div class="mb-1 familia-item">
+                            <button class="btn btn-sm btn-light w-100 text-start fw-bold d-flex justify-content-between align-items-center border-0 collapsed"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#collapse_fam_@grupo.Key.GetHashCode()"
+                                    aria-expanded="false">
+                                <span><i class="bi bi-folder2-open me-2 text-warning"></i><span class="texto-familia">@grupo.Key</span></span>
+                                <span class="badge bg-secondary rounded-pill" style="font-size: 0.7em;">@grupo.Count()</span>
+                            </button>
+
+                            <div class="collapse ms-3 mt-1 border-start ps-2" id="collapse_fam_@grupo.Key.GetHashCode()">
+                                @foreach (var item in grupo)
+                                {
+                                    <div class="form-check categoria-item">
+                                        <input class="form-check-input" 
+                                               type="checkbox" 
+                                               name="IdsCategoriasSeleccionadas" 
+                                               value="@item.Id" 
+                                               id="cat_@item.Id"
+                                               @(Model.IdsCategoriasSeleccionadas.Contains((short)item.Id) ? "checked" : "")>
+                                        <label class="form-check-label texto-categoria" for="cat_@item.Id">
+                                            @item.Nombre
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-center text-muted my-3">No hay categorías cargadas.</p>
+                }
+            </div>
+            <span asp-validation-for="IdsCategoriasSeleccionadas" class="text-danger small"></span>
+        </fieldset>
+
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Identificación</legend>
+            
+            <div class="alert alert-info d-flex align-items-center shadow-sm" role="alert">
+                <i class="bi bi-upc-scan me-3 fs-4"></i>
+                <div>
+                    <strong>El sistema generará un código de trazabilidad único (Code 128) para este producto al guardar.</strong> 
+                    
+                </div>
+            </div>
+
+            <div class="form-check mb-3 ps-0">
+                <input class="form-check-input ms-0 me-2" type="checkbox" asp-for="AgregarCodigosExtra" id="checkCodigosExtra">
+                <label class="form-check-label fw-bold" for="checkCodigosExtra" style="cursor: pointer;">
+                    Agregar Codigo de barras extra. (EAN, UPC)
+                </label>
+            </div>
+
+            <div id="panelCodigosExtra" style="display: none;" class="border rounded p-3 bg-light mt-2">
+                <div class="input-group mb-2">
+                    <span class="input-group-text bg-white"><i class="bi bi-plus-circle"></i></span>
+                    <input type="text" class="form-control" id="inputNuevoCodigo" placeholder="Escanear o escribir código adicional...">
+                    <button class="btn btn-secondary" type="button" id="btnAgregarCodigo">
+                        Agregar
+                    </button>
+                </div>
+                <span id="errorCodigo" class="text-danger small d-block mb-2"></span>
+
+                <div class="list-group" id="listaCodigosVisual">
+                    @foreach(var codigo in Model.CodigosBarra)
+                    {
+                        <div class="list-group-item d-flex justify-content-between align-items-center item-codigo">
+                            <span class="font-monospace">@codigo</span>
+                            <input type="hidden" name="CodigosBarra" value="@codigo">
+                            <button type="button" class="btn btn-sm btn-outline-danger btn-borrar-codigo"><i class="bi bi-x-lg"></i></button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="d-flex justify-content-between gap-3">
+            <button class="btn btn-success w-50 py-2" type="submit">Guardar Producto</button>
+            <a asp-action="ListarProductos" class="btn btn-outline-secondary w-50 py-2">Cancelar</a>
+        </div>
+    </form>
+</main>
+
+
+    @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Función auxiliar fuera del evento para que esté disponible globalmente si hace falta
+        const checkExtra = document.getElementById('checkCodigosExtra');
+        const panelExtra = document.getElementById('panelCodigosExtra');
+
+        function togglePanelExtra() {
+            panelExtra.style.display = checkExtra.checked ? 'block' : 'none';
+        }
+        checkExtra.addEventListener('change', togglePanelExtra);
+        togglePanelExtra(); // Inicializar
+
+        function esCodigoExtraValido(codigo) {
+        
+            return codigo && codigo.length > 0 && codigo.length <= 30;
+        }
+
+        // Un solo listener principal
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            // =================================================
+            // 1. LÓGICA DE CÓDIGOS DE BARRA
+            // =================================================
+            const inputCodigo = document.getElementById('inputNuevoCodigo');
+            const btnAgregar = document.getElementById('btnAgregarCodigo');
+            const listaVisual = document.getElementById('listaCodigosVisual');
+            const msgVacio = document.getElementById('mensajeSinCodigos');
+            const errorMsg = document.getElementById('errorCodigo');
+
+            function agregarCodigo() {
+                const codigo = inputCodigo.value.trim();
+                errorMsg.innerText = ""; 
+                inputCodigo.classList.remove('is-invalid'); // Limpiar estado visual
+
+                if (!codigo) {
+                    errorMsg.innerText = "El código no puede estar vacío.";
+                    inputCodigo.classList.add('is-invalid');
+                    return;
+                }
+
+                // Validación EAN-13
+                if (!esCodigoExtraValido(codigo)) {
+                    errorMsg.innerText = "El código debe tener entre 1 y 30 caracteres.";
+                    inputCodigo.classList.add('is-invalid');
+                    return;
+                }
+
+                // Validar duplicados
+                const inputsExistentes = document.querySelectorAll('input[name="CodigosBarra"]');
+                for (let input of inputsExistentes) {
+                    if (input.value === codigo) {
+                        errorMsg.innerText = "Este código ya está en la lista.";
+                        inputCodigo.classList.add('is-invalid');
+                        inputCodigo.value = "";
+                        return;
+                    }
+                }
+
+                if(msgVacio) msgVacio.style.display = 'none';
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'list-group-item d-flex justify-content-between align-items-center item-codigo animate__animated animate__fadeIn';
+                itemDiv.innerHTML = `
+                    <span class="font-monospace"><i class="bi bi-barcode me-2 text-muted"></i>${codigo}</span>
+                    <input type="hidden" name="CodigosBarra" value="${codigo}">
+                    <button type="button" class="btn btn-sm btn-outline-danger btn-borrar-codigo" title="Quitar">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                `;
+
+                listaVisual.appendChild(itemDiv);
+                inputCodigo.value = ""; 
+                inputCodigo.focus(); 
+            }
+
+            if(btnAgregar) btnAgregar.addEventListener('click', agregarCodigo);
+
+            if(inputCodigo) {
+                // Agregar con Enter
+                inputCodigo.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault(); 
+                        agregarCodigo();
+                    }
+                });
+                // Limpiar error al escribir
+                inputCodigo.addEventListener('input', function() {
+                     if(this.classList.contains('is-invalid')) {
+                         this.classList.remove('is-invalid');
+                         errorMsg.innerText = "";
+                     }
+                });
+            }
+
+            if(listaVisual) {
+                listaVisual.addEventListener('click', function(e) {
+                    const btn = e.target.closest('.btn-borrar-codigo');
+                    if (btn) {
+                        const item = btn.closest('.item-codigo');
+                        item.remove();
+                        if (listaVisual.children.length === 0 && msgVacio) {
+                            msgVacio.style.display = 'block';
+                        }
+                    }
+                });
+            }
+
+            // =================================================
+            // 2. LÓGICA DEL BUSCADOR DE ÁRBOL (CATEGORÍAS)
+            // =================================================
+            const inputBuscador = document.getElementById('buscadorArbol');
+            const familias = document.querySelectorAll('.familia-item');
+
+            if (inputBuscador) {
+                // Prevenir submit al dar enter en el buscador
+                inputBuscador.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') e.preventDefault();
+                });
+
+                inputBuscador.addEventListener('keyup', function(e) {
+                    const termino = e.target.value.toLowerCase();
+
+                    familias.forEach(function(familiaDiv) {
+                        const textoFamilia = familiaDiv.querySelector('.texto-familia').innerText.toLowerCase();
+                        const categorias = familiaDiv.querySelectorAll('.categoria-item');
+                        const collapseDiv = familiaDiv.querySelector('.collapse');
+                        
+                        let familiaCoincide = textoFamilia.includes(termino);
+                        let algunaCategoriaCoincide = false;
+
+                        categorias.forEach(function(catDiv) {
+                            const textoCat = catDiv.querySelector('.texto-categoria').innerText.toLowerCase();
+                            if (textoCat.includes(termino) || familiaCoincide) {
+                                catDiv.style.display = ''; // Mostrar
+                                algunaCategoriaCoincide = true;
+                            } else {
+                                catDiv.style.display = 'none'; // Ocultar
+                            }
+                        });
+
+                        if (familiaCoincide || algunaCategoriaCoincide) {
+                            familiaDiv.style.display = ''; 
+                            
+                            // Expandir si hay búsqueda
+                            if (termino !== '') {
+                                // Usamos getOrCreateInstance para evitar errores si ya está inicializado
+                                const bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseDiv, { toggle: false });
+                                bsCollapse.show();
+                            }
+                        } else {
+                            familiaDiv.style.display = 'none'; 
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+
+}

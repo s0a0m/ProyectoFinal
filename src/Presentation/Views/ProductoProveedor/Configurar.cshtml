@@ -1,0 +1,449 @@
+@model src.Presentation.ViewModels.ImportacionVM.ConfigurarCargaViewModel
+
+@{
+    ViewData["Title"] = "Importación Masiva Inteligente";
+}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<div class="container py-4">
+    <div class="card shadow border-0">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="bi bi-cloud-upload-fill me-2"></i>Carga Masiva de Precios</h4>
+        </div>
+        <div class="card-body p-4">
+
+            <form id="formCarga" enctype="multipart/form-data">
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="IdProveedor" class="form-label fw-bold">1. Proveedor</label>
+                        <select asp-for="IdProveedor" asp-items="Model.ProveedoresDisponibles"
+                            class="form-select form-select-lg" required>
+                            <option value="">-- Seleccione un proveedor --</option>
+                        </select>
+                        <span asp-validation-for="IdProveedor" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="ArchivoExcel" class="form-label fw-bold">2. Archivo Excel</label>
+                        <input asp-for="ArchivoExcel" type="file" class="form-control form-control-lg"
+                            accept=".xlsx, .xls" required id="inputExcel" />
+                        <span asp-validation-for="ArchivoExcel" class="text-danger"></span>
+                        <div class="form-text text-muted">Selecciona el archivo para desbloquear el mapeo de columnas.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-check form-switch mb-4 ms-1">
+                    <input asp-for="ContieneEncabezado" class="form-check-input" type="checkbox" role="switch"
+                        id="checkEncabezado" checked />
+                    <label asp-for="ContieneEncabezado" class="form-check-label fw-bold">La primera fila contiene
+                        títulos (Encabezados)</label>
+                </div>
+
+                <div id="panelMapeo" style="display:none;" class="border rounded p-3 bg-light mb-4">
+                    <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">
+                        <i class="bi bi-columns-gap me-1"></i>3. Mapeo de Columnas (Confirma los datos detectados)
+                    </h6>
+
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label asp-for="ColumnaCodigoBarra" class="form-label small fw-bold">Código de Barras <span
+                                    class="text-danger">*</span></label>
+                            <select asp-for="ColumnaCodigoBarra" class="form-select select-columna border-primary"
+                                required></select>
+                            <span asp-validation-for="ColumnaCodigoBarra" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="ColumnaNombre" class="form-label small fw-bold">Nombre / Descripción</label>
+                            <select asp-for="ColumnaNombre" class="form-select select-columna"></select>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="ColumnaPrecio" class="form-label small fw-bold">Precio <span
+                                    class="text-danger">*</span></label>
+                            <select asp-for="ColumnaPrecio" class="form-select select-columna border-primary"
+                                required></select>
+                            <span asp-validation-for="ColumnaPrecio" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="ColumnaStock" class="form-label small fw-bold">Stock (Opcional)</label>
+                            <select asp-for="ColumnaStock" class="form-select select-columna"></select>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-end">
+                        <small class="text-muted fst-italic">* El sistema puede intentar autoseleccionar las columnas.
+                            Verifícalas.</small>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <button type="submit" id="btnIniciar" class="btn btn-success px-4 py-2" disabled>
+                        <i class="bi bi-play-circle-fill me-2"></i>Iniciar Importación
+                    </button>
+                    <button type="button" id="btnCancelar" class="btn btn-outline-danger px-4" disabled>
+                        <i class="bi bi-stop-circle me-2"></i>Cancelar
+                    </button>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-link ms-auto text-decoration-none">Volver
+                        al inicio</a>
+                </div>
+            </form>
+
+            <div id="seccionResultados" class="mt-5" style="display:none;">
+                <hr />
+                <h5 class="d-flex justify-content-between align-items-center mb-3">
+                    <span><i class="bi bi-activity me-2"></i>Progreso en tiempo real</span>
+                    <span id="badgeEstado" class="badge bg-primary">Procesando...</span>
+                </h5>
+
+                <div class="progress mb-4" style="height: 20px;">
+                    <div id="barraProgreso" class="progress-bar progress-bar-striped progress-bar-animated"
+                        role="progressbar" style="width: 100%"></div>
+                </div>
+
+                <div class="row text-center mb-4">
+                    <div class="col-4 border-end">
+                        <h2 class="fw-bold text-success mb-0" id="countActualizados">0</h2>
+                        <small class="text-muted text-uppercase fw-bold">Actualizados</small>
+                    </div>
+                    <div class="col-4 border-end">
+                        <h2 class="fw-bold text-warning mb-0" id="countNovedades">0</h2>
+                        <small class="text-muted text-uppercase fw-bold">Novedades</small>
+                    </div>
+                    <div class="col-4">
+                        <h2 class="fw-bold text-secondary mb-0" id="countIgnorados">0</h2>
+                        <small class="text-muted text-uppercase fw-bold">Ignorados / Error</small>
+                    </div>
+                </div>
+
+                <div class="table-responsive border rounded shadow-sm" style="max-height: 500px; overflow-y: auto;">
+                    <table class="table table-sm table-hover mb-0" style="font-size: 0.9rem;">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th>Código</th>
+                                <th>Producto Detectado</th>
+                                <th>Acción Realizada</th>
+                                <th class="text-center">Formato</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaResultadosBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // ==========================================
+        // PARTE 1: LÓGICA DE EXCEL (SheetJS)
+        // ==========================================
+        document.getElementById('inputExcel').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) {
+                ocultarMapeo();
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 0, defval: "" });
+
+                    if (jsonSheet && jsonSheet.length > 0) {
+                        const primeraFila = jsonSheet[0];
+                        mostrarMapeo(primeraFila);
+                    } else {
+                        alert("El archivo parece estar vacío.");
+                        ocultarMapeo();
+                    }
+                } catch (error) {
+                    console.error("Error leyendo Excel:", error);
+                    alert("No se pudo leer el archivo. Verifique el formato.");
+                    ocultarMapeo();
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        document.getElementById('checkEncabezado').addEventListener('change', function () {
+            const input = document.getElementById('inputExcel');
+            if (input.files.length > 0) {
+                const event = new Event('change');
+                input.dispatchEvent(event);
+            }
+        });
+
+        function mostrarMapeo(filaDatos) {
+            const panel = document.getElementById('panelMapeo');
+            const btn = document.getElementById('btnIniciar');
+            const tieneEncabezado = document.getElementById('checkEncabezado').checked;
+            llenarSelects(filaDatos, tieneEncabezado);
+            panel.style.display = 'block';
+            panel.classList.add('animate__animated', 'animate__fadeIn');
+            btn.disabled = false;
+        }
+
+        function ocultarMapeo() {
+            document.getElementById('panelMapeo').style.display = 'none';
+            document.getElementById('btnIniciar').disabled = true;
+        }
+
+        function llenarSelects(columnas, esEncabezado) {
+            const selects = document.querySelectorAll('.select-columna');
+            selects.forEach(select => {
+                select.innerHTML = '';
+                const optDefault = document.createElement('option');
+                optDefault.value = "-1";
+                optDefault.text = "-- No Asignar / Ignorar --";
+                select.appendChild(optDefault);
+
+                columnas.forEach((valorCelda, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    const letra = getLetraColumna(index);
+                    const textoCelda = valorCelda ? String(valorCelda).substring(0, 30) : "(Vacío)";
+                    option.text = esEncabezado ? `Col ${letra}: ${textoCelda}` : `Col ${letra} (Ej: ${textoCelda})`;
+                    select.appendChild(option);
+                });
+                autoseleccionarColumna(select, columnas);
+            });
+        }
+
+        function getLetraColumna(index) {
+            let letter = '';
+            while (index >= 0) {
+                letter = String.fromCharCode((index % 26) + 65) + letter;
+                index = Math.floor(index / 26) - 1;
+            }
+            return letter;
+        }
+
+        function autoseleccionarColumna(select, columnas) {
+            const keywords = {
+                'ColumnaCodigoBarra': ['cod', 'ean', 'sku', 'barra', 'upc', 'clave'],
+                'ColumnaPrecio': ['precio', 'costo', 'valor', 'pvp', '$', 'importe'],
+                'ColumnaNombre': ['desc', 'nomb', 'prod', 'articulo', 'detalle'],
+                'ColumnaStock': ['stock', 'cant', 'exist', 'unida', 'dispo']
+            };
+            const idSelect = select.getAttribute('id');
+            const palabrasBusqueda = keywords[idSelect];
+            if (palabrasBusqueda) {
+                for (let i = 0; i < columnas.length; i++) {
+                    const textoColumna = String(columnas[i]).toLowerCase();
+                    if (palabrasBusqueda.some(k => textoColumna.includes(k))) {
+                        select.value = i;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // ==========================================
+        // PARTE 2: LÓGICA DE CARGA OPTIMIZADA (Batch Rendering)
+        // ==========================================
+        let abortController = null;
+
+        document.getElementById('formCarga').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            // 1. UI Reset
+            const seccionRes = document.getElementById('seccionResultados');
+            seccionRes.style.display = 'block';
+
+            // Limpiamos tabla y contadores
+            document.getElementById('tablaResultadosBody').innerHTML = '';
+            resetContadores();
+
+            const btnIniciar = document.getElementById('btnIniciar');
+            const btnCancelar = document.getElementById('btnCancelar');
+            const badge = document.getElementById('badgeEstado');
+            const progressBar = document.getElementById('barraProgreso');
+
+            btnIniciar.disabled = true;
+            btnCancelar.disabled = false;
+            badge.className = "badge bg-primary";
+            badge.innerText = "Procesando...";
+            progressBar.classList.add('progress-bar-animated');
+
+            const formData = new FormData(this);
+            abortController = new AbortController();
+
+            // VARIABLES DE OPTIMIZACIÓN (BUFFER)
+            let htmlBuffer = "";
+            let bufferCount = 0;
+            const TAMANO_LOTE = 50;   // Pintar cada 50 filas para no congelar
+
+            try {
+                const response = await fetch('@Url.Action("CargarListaPrecios", "Importacion")', {
+                    method: 'POST',
+                    body: formData,
+                    signal: abortController.signal
+                });
+
+                if (!response.ok) throw new Error(await response.text());
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let buffer = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    let lines = buffer.split('\n');
+                    buffer = lines.pop(); // Guardar remanente
+
+                    for (let line of lines) {
+                        if (!line.trim()) continue;
+
+                        // A. Procesamos a String (Rápido)
+                        const itemHtml = procesarLineaYObtenerHTML(line);
+
+                        if (itemHtml) {
+                            htmlBuffer += itemHtml;
+                            bufferCount++;
+                        }
+
+                        // B. Si el buffer se llena, pintamos en el DOM (Lento)
+                        if (bufferCount >= TAMANO_LOTE) {
+                            pintarBufferEnTabla(htmlBuffer);
+                            htmlBuffer = "";
+                            bufferCount = 0;
+
+                            // C. Pausa técnica para liberar la UI (Evita el congelamiento)
+                            await new Promise(r => setTimeout(r, 0));
+                        }
+                    }
+                }
+
+                // Pintar remanentes
+                if (buffer.trim()) {
+                    const itemHtml = procesarLineaYObtenerHTML(buffer);
+                    if (itemHtml) htmlBuffer += itemHtml;
+                }
+                if (htmlBuffer.length > 0) pintarBufferEnTabla(htmlBuffer);
+
+                badge.className = "badge bg-success";
+                badge.innerText = "Completado";
+
+            } catch (err) {
+                if (err.name === 'AbortError') {
+                    badge.className = "badge bg-warning text-dark";
+                    badge.innerText = "Cancelado";
+                } else {
+                    badge.className = "badge bg-danger";
+                    badge.innerText = "Error";
+                }
+            } finally {
+                btnIniciar.disabled = false;
+                btnCancelar.disabled = true;
+                progressBar.classList.remove('progress-bar-animated');
+                abortController = null;
+            }
+        });
+
+        document.getElementById('btnCancelar').addEventListener('click', function () {
+            if (abortController) abortController.abort();
+        });
+
+        // --- FUNCIONES AUXILIARES ---
+
+        function procesarLineaYObtenerHTML(jsonString) {
+            try {
+                const item = JSON.parse(jsonString);
+                const accion = (item.accion || "").toLowerCase();
+                let claseCSS = "";
+
+                // LÓGICA DE PRIORIDAD DE COLORES
+
+                // 1. Errores Graves -> ROJO
+                if (accion.includes("error")) {
+                    claseCSS = "table-danger";
+                    incrementarContador('countIgnorados');
+                }
+                // 2. Ignorados / Duplicados -> GRIS (Gana sobre "Novedad")
+                else if (accion.includes("ignorado") || accion.includes("duplicad") || accion.includes("sin cambios")) {
+                    claseCSS = "table-light text-muted";
+                    incrementarContador('countIgnorados');
+                }
+                // 3. Nuevos (Altas) -> VERDE / AMARILLO
+                else if (accion.includes("nuevo")) {
+                    if (accion.includes("incompleto") || accion.includes("falta")) {
+                        claseCSS = "table-warning";
+                    } else {
+                        claseCSS = "table-success";
+                    }
+                    incrementarContador('countNovedades');
+                }
+                // 4. Actualizaciones -> CYAN
+                else if (accion.includes("actualizado") || accion.includes("reactivado")) {
+                    claseCSS = "table-info";
+                    incrementarContador('countActualizados');
+                }
+                // 5. Novedades Pendientes -> AZUL
+                else if (accion.includes("pendiente") || accion.includes("novedad")) {
+                    claseCSS = "table-primary";
+                    incrementarContador('countNovedades');
+                }
+
+                // Generación de Icono
+                let icono = '<i class="bi bi-info-circle text-muted"></i>';
+                if (accion.includes("error")) icono = '<i class="bi bi-x-octagon-fill text-danger"></i>';
+                else if (accion.includes("ignorado")) icono = '<i class="bi bi-dash-circle text-secondary"></i>';
+                else if (accion.includes("duplicad")) icono = '<i class="bi bi-files text-secondary"></i>';
+                else if (accion.includes("nuevo")) icono = '<i class="bi bi-stars text-success"></i>';
+                else if (accion.includes("actualizado")) icono = '<i class="bi bi-arrow-repeat text-primary"></i>';
+                else if (accion.includes("incompleto")) icono = '<i class="bi bi-exclamation-triangle-fill text-warning"></i>';
+
+                return `
+                                        <tr class="${claseCSS} animate__animated animate__fadeIn">
+                                            <td class="font-monospace fw-bold">${item.codigoBarra || '-'}</td>
+                                            <td>${item.nombre || '<span class="fst-italic opacity-50">Sin nombre</span>'}</td>
+                                            <td>${icono} ${item.accion}</td>
+                                            <td class="text-center">
+                                                ${item.esGs1
+                        ? '<span class="badge bg-secondary bg-opacity-75 rounded-pill" style="font-size:0.7rem">GS1</span>'
+                        : '<span class="badge bg-light text-dark border rounded-pill" style="font-size:0.7rem">INT</span>'}
+                                            </td>
+                                        </tr>`;
+
+            } catch (e) {
+                console.warn("JSON Error:", e);
+                return null;
+            }
+        }
+
+        function pintarBufferEnTabla(htmlString) {
+            const tabla = document.getElementById('tablaResultadosBody');
+            tabla.insertAdjacentHTML('afterbegin', htmlString);
+
+            // Mantenemos solo las últimas 1500 filas para cuidar la memoria del navegador
+            while (tabla.children.length > 1500) {
+                tabla.lastElementChild.remove();
+            }
+        }
+
+        function incrementarContador(id) {
+            const el = document.getElementById(id);
+            el.innerText = (parseInt(el.innerText) || 0) + 1;
+        }
+
+        function resetContadores() {
+            document.getElementById('countActualizados').innerText = '0';
+            document.getElementById('countNovedades').innerText = '0';
+            document.getElementById('countIgnorados').innerText = '0';
+        }
+    </script>
+}
