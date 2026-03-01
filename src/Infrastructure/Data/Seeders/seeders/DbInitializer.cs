@@ -38,6 +38,12 @@ public static class DbInitializer
             SeedUsuarioPermisos(context);
             SeedDomicilios(context);
             SeedProductos(context);
+            SeedDepositos(context);   // Domicilios ya están guardados del SaveChanges anterior ✓
+            SeedEstantes(context);    // EF trackea Depositos en memoria ✓
+            SeedFilas(context);       // EF trackea Estantes en memoria ✓
+            context.SaveChanges();    // Guarda Productos + Depositos + Estantes + Filas juntos
+            SeedUbicacionProducto(context);  // Productos y Filas ya están en BD ✓
+            SeedMovimientoStock(context);    // Productos, Filas y Usuarios ya están en BD ✓
             context.SaveChanges();
             SeedProveedores(context);
             SeedGrupoPermiso(context);
@@ -69,6 +75,10 @@ public static class DbInitializer
             ResetSequence(context, "comprobante", "id_comprobante");
             ResetSequence(context, "orden_pago", "id_orden_pago");
             ResetSequence(context, "categoria", "id_categoria");
+            ResetSequence(context, "deposito", "id_deposito");
+            ResetSequence(context, "estante", "id_estante");
+            ResetSequence(context, "fila", "id_fila");
+            ResetSequence(context, "movimiento_stock", "id_movimiento_stock");
             transaction.Commit();
             Console.WriteLine(">>> Seeding de base de datos completado exitosamente.");
         }
@@ -291,6 +301,83 @@ public static class DbInitializer
         context.Comprobantes.AddRange(data.NotasCredito);
         context.Comprobantes.AddRange(data.NotasDebito);
         Console.WriteLine($"- Seeding {data.NotasCredito.Count} notas de crédito y {data.NotasDebito.Count} notas de débito...");
+    }
+
+    private static void SeedDepositos(AppDbContext context)
+    {
+        if (context.Depositos.Any()) return;
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/deposito.json");
+        var depositos = JsonSerializer.Deserialize<List<Deposito>>(json, _jsonOptions)!;
+        foreach (var deposito in depositos)
+            deposito.Direccion = null!;
+        context.Depositos.AddRange(depositos);
+        Console.WriteLine($"- Seeding {depositos.Count} depósitos...");
+    }
+
+    private static void SeedEstantes(AppDbContext context)
+    {
+        if (context.Estantes.Any()) return;
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/estante.json");
+        var estantes = JsonSerializer.Deserialize<List<Estante>>(json, _jsonOptions)!;
+        foreach (var estante in estantes)
+        {
+            estante.Deposito = null!;
+            estante.Filas = null!;
+        }
+
+        context.Estantes.AddRange(estantes);
+        Console.WriteLine($"- Seeding {estantes.Count} estantes...");
+    }
+
+    private static void SeedFilas(AppDbContext context)
+    {
+        if (context.Filas.Any()) return;
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/fila.json");
+        var filas = JsonSerializer.Deserialize<List<Fila>>(json, _jsonOptions)!;
+        foreach (var fila in filas)
+        {
+            fila.Estante = null!;
+            fila.UbicacionesProductos = null!;
+        }
+
+        context.Filas.AddRange(filas);
+        Console.WriteLine($"- Seeding {filas.Count} filas...");
+    }
+
+    private static void SeedUbicacionProducto(AppDbContext context)
+    {
+        if (context.UbicacionesProductos.Any()) return;
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/ubicacionProducto.json");
+        var ubicaciones = JsonSerializer.Deserialize<List<UbicacionProducto>>(json, _jsonOptions)!;
+        foreach (var ubicacion in ubicaciones)
+        {
+            ubicacion.Producto = null!;
+            ubicacion.Fila = null!;
+        }
+
+        context.ChangeTracker.AutoDetectChangesEnabled = false;
+        context.UbicacionesProductos.AddRange(ubicaciones);
+        context.ChangeTracker.AutoDetectChangesEnabled = true;
+        Console.WriteLine($"- Seeding {ubicaciones.Count} ubicaciones de productos...");
+    }
+
+    private static void SeedMovimientoStock(AppDbContext context)
+    {
+        if (context.MovimientosStock.Any()) return;
+        var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/movimientoStock.json");
+        var movimientos = JsonSerializer.Deserialize<List<MovimientoStock>>(json, _jsonOptions)!;
+        foreach (var movimiento in movimientos)
+        {
+            movimiento.Producto = null!;
+            movimiento.FilaOrigen = null!;
+            movimiento.FilaDestino = null!;
+            movimiento.Usuario = null!;
+        }
+
+        context.ChangeTracker.AutoDetectChangesEnabled = false;
+        context.MovimientosStock.AddRange(movimientos);
+        context.ChangeTracker.AutoDetectChangesEnabled = true;
+        Console.WriteLine($"- Seeding {movimientos.Count} movimientos de stock...");
     }
 }
 

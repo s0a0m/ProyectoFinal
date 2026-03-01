@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using src.Models.CodeFirst;
@@ -11,9 +12,11 @@ using src.Models.CodeFirst;
 namespace src.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260228193215_UbicacionMigrationN")]
+    partial class UbicacionMigrationN
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -669,10 +672,7 @@ namespace src.Migrations
 
                     b.HasIndex("ProductoIdProducto");
 
-                    b.ToTable("movimiento_stock", t =>
-                        {
-                            t.HasCheckConstraint("CK_MovimientosStock_Cantidad", "cantidad >= 0");
-                        });
+                    b.ToTable("movimiento_stock");
                 });
 
             modelBuilder.Entity("src.Models.CodeFirst.NovedadesProveedor", b =>
@@ -1057,10 +1057,7 @@ namespace src.Migrations
 
                     b.HasIndex("IdFila");
 
-                    b.ToTable("ubicacion_producto", t =>
-                        {
-                            t.HasCheckConstraint("CK_UbicacionProducto_Cantidad", "cantidad >= 0");
-                        });
+                    b.ToTable("ubicacion_producto");
                 });
 
             modelBuilder.Entity("src.Models.CodeFirst.Usuario", b =>

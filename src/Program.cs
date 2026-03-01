@@ -37,7 +37,12 @@ builder.Services.AddSingleton<DomicilioMapper>();
 builder.Services.AddSingleton<CodigoBarraMapper>();
 builder.Services.AddSingleton<FamiliaMapper>();
 builder.Services.AddSingleton<CategoriaMapper>();
+builder.Services.AddSingleton<DepositoMapper>();
+builder.Services.AddSingleton<EstanteMapper>();
+builder.Services.AddSingleton<FilaMapper>();
+builder.Services.AddSingleton<UbicacionProductoMapper>();
 builder.Services.AddSingleton<ProductoMapper>();
+builder.Services.AddSingleton<MovimientoStockMapper>();
 // repositorios
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
