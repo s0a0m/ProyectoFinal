@@ -23,6 +23,8 @@ namespace src.Repositories.Implementations
         {
             var efEstantes = await _context.Estantes
                 .Include(e => e.Deposito)
+                    .ThenInclude(de => de.Direccion)
+                        .ThenInclude(dom => dom.IdProvinciaNavigation)
                 .Include(e => e.Filas)
                 .AsNoTracking()
                 .ToListAsync();
@@ -35,6 +37,8 @@ namespace src.Repositories.Implementations
             var efEstantes = await _context.Estantes
                 .Where(e => e.IdDeposito == idDeposito)
                 .Include(e => e.Deposito)
+                    .ThenInclude(de => de.Direccion)
+                        .ThenInclude(dom => dom.IdProvinciaNavigation)
                 .Include(e => e.Filas)
                 .AsNoTracking()
                 .ToListAsync();
@@ -46,6 +50,8 @@ namespace src.Repositories.Implementations
         {
             var efEstante = await _context.Estantes
                 .Include(e => e.Deposito)
+                    .ThenInclude(de => de.Direccion)
+                        .ThenInclude(dom => dom.IdProvinciaNavigation)
                 .Include(e => e.Filas)
                     .ThenInclude(f => f.UbicacionesProductos)
                         .ThenInclude(up => up.Producto)
@@ -57,14 +63,23 @@ namespace src.Repositories.Implementations
 
         public async Task AddAsync(Dom.Estante entity)
         {
-            var efEstante = _estanteMapper.ToEntity(entity);
-            efEstante.IdEstante = 0;
+            // No usar el mapper: el entity que llega es un stub
+            // (Deposito solo tiene IdDeposito seteado — el mapper crashea al navegar Deposito.Direccion...)
+            var efEstante = new EF.Estante
+            {
+                IdEstante     = 0,
+                NumeroEstante = entity.NumeroEstante,
+                Activo        = entity.Activo,
+                TieneEspacio  = entity.TieneEspacio,
+                Observaciones = entity.Observaciones,
+                IdDeposito    = entity.Deposito.IdDeposito   // ← FK escalar, sin navegar
+            };
 
-            // Validar que el depósito padre existe
             bool depositoExiste = await _context.Depositos
                 .AnyAsync(d => d.IdDeposito == entity.Deposito.IdDeposito && d.Activo);
             if (!depositoExiste)
-                throw new InvalidOperationException($"El depósito {entity.Deposito.IdDeposito} no existe o está inactivo.");
+                throw new InvalidOperationException(
+                    $"El depósito {entity.Deposito.IdDeposito} no existe o está inactivo.");
 
             _context.Estantes.Add(efEstante);
             await _context.SaveChangesAsync();
@@ -120,5 +135,35 @@ namespace src.Repositories.Implementations
             estante.TieneEspacio = tieneEspacio;
             await _context.SaveChangesAsync();
         }
+
+        public async Task SincronizarEspacioAsync(int idEstante)
+        {
+            var estante = await _context.Estantes
+                .Include(e => e.Filas)
+                .FirstOrDefaultAsync(e => e.IdEstante == idEstante);
+
+            if (estante is null)
+                throw new KeyNotFoundException($"Estante {idEstante} no encontrado.");
+
+            var filasActivas = estante.Filas.Where(f => f.Activo).ToList();
+
+            // Si no hay filas activas → no cambiar el estado (no hay información suficiente)
+            if (!filasActivas.Any())
+                return;
+
+            // Tiene espacio si al menos una fila activa tiene espacio
+            bool tieneEspacio = filasActivas.Any(f => f.TieneEspacio);
+
+            if (estante.TieneEspacio != tieneEspacio)
+            {
+                estante.TieneEspacio = tieneEspacio;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        
+
+
+
     }
 }

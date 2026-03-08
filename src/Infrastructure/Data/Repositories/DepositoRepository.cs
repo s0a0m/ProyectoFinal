@@ -24,6 +24,8 @@ namespace src.Repositories.Implementations
         public async Task<IEnumerable<Dom.Deposito>> GetAllAsync()
         {
             var efDepositos = await _context.Depositos
+                .Include(d => d.Direccion)
+                    .ThenInclude(dom => dom.IdProvinciaNavigation)
                 .Include(d => d.Estantes)
                     .ThenInclude(e => e.Filas)
                 .AsNoTracking()
@@ -35,6 +37,8 @@ namespace src.Repositories.Implementations
         public async Task<Dom.Deposito?> GetByIdAsync(int id)
         {
             var efDeposito = await _context.Depositos
+                .Include(d => d.Direccion)
+                    .ThenInclude(dom => dom.IdProvinciaNavigation)
                 .Include(d => d.Estantes)
                     .ThenInclude(e => e.Filas)
                         .ThenInclude(f => f.UbicacionesProductos)
@@ -114,6 +118,23 @@ namespace src.Repositories.Implementations
 
             entity.Activo = true;
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<Dictionary<int, (int Estantes, int Filas)>> GetConteosAsync()
+        {
+            var datos = await _context.Depositos
+                .AsNoTracking()
+                .Select(d => new
+                {
+                    d.IdDeposito,
+                    TotalEstantes = d.Estantes.Count(),
+                    TotalFilas    = d.Estantes.Sum(e => e.Filas.Count())
+                })
+                .ToListAsync();
+
+            return datos.ToDictionary(
+                x => x.IdDeposito,
+                x => (x.TotalEstantes, x.TotalFilas));
         }
 
         /// <summary>

@@ -7,4 +7,7 @@ public interface IEstanteRepository
     Task AddAsync(Dom.Estante entity);
     Task UpdateAsync(Dom.Estante entity);
     Task MarcarEstanteLlenoAsync(int idEstante, bool tieneEspacio);
+    Task DeleteAsync(int id);
+    Task ReactivateAsync(int id);
+    Task SincronizarEspacioAsync(int idEstante);
 }

@@ -25,5 +25,5 @@ public partial class DomicilioMapper
     public partial EF.Domicilio ToEntity(Dom.Direccion source);
     public partial IEnumerable<EF.Domicilio> ToEntity(IEnumerable<Dom.Direccion> source);
     private Dom.Provincia MapToProvincia(EF.Provincia source)
-            => _provinciaMapper.ToDomain(source);
+            => source == null ? new Dom.Provincia() : _provinciaMapper.ToDomain(source);
 }

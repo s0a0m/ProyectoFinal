@@ -31,6 +31,8 @@ namespace src.Repositories.Implementations
                     .ThenInclude(up => up.Fila)
                         .ThenInclude(f => f.Estante)
                             .ThenInclude(e => e.Deposito)
+                                .ThenInclude(d => d.Direccion)                  
+                                    .ThenInclude(dom => dom.IdProvinciaNavigation)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -233,5 +235,64 @@ namespace src.Repositories.Implementations
 
             return _productoMapper.ToDomain(efProductos);
         }
+
+
+        public async Task<Dom.Producto?> BuscarPorNombreOCodigoAsync(string termino)
+        {
+            // Primero buscamos por código de barra exacto
+            var porCodigo = await _context.Productos
+                .Include(p => p.ProductoCodigoBarras)
+                .Include(p => p.ProductosCategorias)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p =>
+                    p.ProductoCodigoBarras.Any(c => c.CodigoBarra.Codigo == termino));
+
+            if (porCodigo is not null)
+                return _productoMapper.ToDomain(porCodigo);
+
+            // Si no encontramos por código, buscamos por nombre (primer match, case-insensitive)
+            var porNombre = await _context.Productos
+                .Include(p => p.ProductoCodigoBarras)
+                .Include(p => p.ProductosCategorias)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p =>
+                    Microsoft.EntityFrameworkCore.EF.Functions.Like(p.Nombre, $"%{termino}%"));
+
+            return porNombre is null ? null : _productoMapper.ToDomain(porNombre);
+        }
+
+
+
+        public async Task<IEnumerable<Dom.Producto>> BuscarListaPorNombreAsync(string termino)
+        {
+            var efProductos = await _context.Productos
+                .Include(p => p.ProductoCodigoBarras)
+                    .ThenInclude(pc => pc.CodigoBarra)   // ← faltaba
+                .Include(p => p.ProductosCategorias)
+                .Where(p => p.Activo &&
+                    Microsoft.EntityFrameworkCore.EF.Functions.ILike(p.Nombre, $"%{termino}%"))
+                .OrderBy(p => p.Nombre)
+                .AsNoTracking()                           // ← faltaba
+                .ToListAsync();
+
+            return efProductos.Count == 0
+                ? Enumerable.Empty<Dom.Producto>()
+                : _productoMapper.ToDomain(efProductos);
+        }
+
+        // Método nuevo: solo barras, sin fallback a nombre
+        public async Task<Dom.Producto?> BuscarPorCodigoExactoAsync(string codigo)
+        {
+            var ef = await _context.Productos
+                .Include(p => p.ProductoCodigoBarras)
+                    .ThenInclude(pc => pc.CodigoBarra)
+                .Include(p => p.ProductosCategorias)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p =>
+                    p.ProductoCodigoBarras.Any(c => c.CodigoBarra.Codigo == codigo));
+
+            return ef is null ? null : _productoMapper.ToDomain(ef);
+        }
+
     }
 }

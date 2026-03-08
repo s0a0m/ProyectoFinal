@@ -70,183 +70,202 @@ namespace src.Repositories.Implementations
         /// suma la cantidad. Si no existe, la crea.
         /// También actualiza el StockTotal del producto y el TieneEspacio de la fila.
         /// </summary>
-        public async Task AgregarStockEnFilaAsync(int idProducto, int idFila, decimal cantidad, int idUsuario)
+        public async Task AgregarStockEnFilaAsync(
+    int idProducto, int idFila, decimal cantidad, int idUsuario)
+    {
+        if (cantidad <= 0)
+            throw new ArgumentException("La cantidad debe ser mayor a cero.");
+
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+        try
         {
-            if (cantidad <= 0)
-                throw new ArgumentException("La cantidad debe ser mayor a cero.");
+            var ubicacion = await _context.UbicacionesProductos
+                .FirstOrDefaultAsync(up =>
+                    up.IdProducto == idProducto && up.IdFila == idFila);
 
-            await using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            if (ubicacion is null)
             {
-                // 1. Ubicación existente o nueva
-                var ubicacion = await _context.UbicacionesProductos
-                    .FirstOrDefaultAsync(up => up.IdProducto == idProducto && up.IdFila == idFila);
-
-                if (ubicacion == null)
-                {
-                    ubicacion = new EF.UbicacionProducto
-                    {
-                        IdProducto = (short)idProducto,
-                        IdFila = idFila,
-                        Cantidad = cantidad
-                    };
-                    _context.UbicacionesProductos.Add(ubicacion);
-                }
-                else
-                {
-                    ubicacion.Cantidad += cantidad;
-                }
-
-                // 2. Actualizar StockTotal del producto
-                var producto = await _context.Productos.FindAsync((short)idProducto)
-                    ?? throw new KeyNotFoundException($"Producto {idProducto} no encontrado.");
-                producto.StockTotal += (int)cantidad;
-
-                // 3. Registrar movimiento de stock (entrada: FilaOrigen = 0/null, destino = idFila)
-                _context.MovimientosStock.Add(new EF.MovimientoStock
+                _context.UbicacionesProductos.Add(new EF.UbicacionProducto
                 {
                     IdProducto = (short)idProducto,
-                    IdFilaDestino = idFila,
-                    Cantidad = cantidad,
-                    FechaMovimiento = DateTime.UtcNow,
-                    IdUsuario = (short)idUsuario
+                    IdFila     = idFila,
+                    Cantidad   = cantidad,
+                    Fila       = null!,    // ← fix
+                    Producto   = null!     // ← fix
                 });
-
-                // 4. Actualizar TieneEspacio de la fila (lógica simple; ajusta según tu modelo)
-                await ValidarEspacioFilaAsync(idFila);
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
             }
-            catch
+            else
             {
-                await transaction.RollbackAsync();
-                throw;
+                ubicacion.Cantidad += cantidad;
             }
-        }
 
+            var producto = await _context.Productos.FindAsync((short)idProducto)
+                ?? throw new KeyNotFoundException($"Producto {idProducto} no encontrado.");
+            producto.StockTotal += (int)cantidad;
+
+            _context.MovimientosStock.Add(new EF.MovimientoStock
+            {
+                IdProducto      = (short)idProducto,
+                IdFilaDestino   = idFila,
+                Cantidad        = cantidad,
+                FechaMovimiento = DateTime.UtcNow,
+                IdUsuario       = (short)idUsuario,
+                Producto        = null!,     // ← fix
+                FilaOrigen      = null!,     // ← fix
+                FilaDestino     = null!,     // ← fix
+                Usuario         = null!      // ← fix
+            });
+
+            await ValidarEspacioFilaAsync(idFila);
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
+    public async Task RetirarStockDeFilaAsync(
+        int idProducto, int idFila, decimal cantidad, int idUsuario)
+    {
+        if (cantidad <= 0)
+            throw new ArgumentException("La cantidad debe ser mayor a cero.");
+
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            var ubicacion = await _context.UbicacionesProductos
+                .FirstOrDefaultAsync(up =>
+                    up.IdProducto == idProducto && up.IdFila == idFila)
+                ?? throw new InvalidOperationException(
+                    $"El producto no tiene stock en la fila {idFila}.");
+
+            if (ubicacion.Cantidad < cantidad)
+                throw new InvalidOperationException(
+                    $"Stock insuficiente. Disponible: {ubicacion.Cantidad:N2}, " +
+                    $"solicitado: {cantidad:N2}.");
+
+            ubicacion.Cantidad -= cantidad;
+            if (ubicacion.Cantidad == 0)
+                _context.UbicacionesProductos.Remove(ubicacion);
+
+            var producto = await _context.Productos.FindAsync((short)idProducto)
+                ?? throw new KeyNotFoundException($"Producto {idProducto} no encontrado.");
+            producto.StockTotal -= (int)cantidad;
+
+            _context.MovimientosStock.Add(new EF.MovimientoStock
+            {
+                IdProducto      = (short)idProducto,
+                IdFilaOrigen    = idFila,
+                Cantidad        = cantidad,
+                FechaMovimiento = DateTime.UtcNow,
+                IdUsuario       = (short)idUsuario,
+                Producto        = null!,    // ← fix
+                FilaOrigen      = null!,    // ← fix
+                FilaDestino     = null!,    // ← fix
+                Usuario         = null!     // ← fix
+            });
+
+            await ValidarEspacioFilaAsync(idFila);
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+}
         /// <summary>
         /// Mueve una cantidad de producto de una fila origen a una fila destino.
         /// Valida que haya stock suficiente en origen.
         /// </summary>
-        public async Task MoverStockAsync(int idProducto, int idFilaOrigen, int idFilaDestino, decimal cantidad, int idUsuario)
+    public async Task MoverStockAsync(
+    int idProducto, int idFilaOrigen, int idFilaDestino,
+    decimal cantidad, int idUsuario)
+    {
+        if (cantidad <= 0)
+            throw new ArgumentException("La cantidad debe ser mayor a cero.");
+        if (idFilaOrigen == idFilaDestino)
+            throw new InvalidOperationException(
+                "La fila origen y destino no pueden ser la misma.");
+
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+        try
         {
-            if (cantidad <= 0)
-                throw new ArgumentException("La cantidad debe ser mayor a cero.");
+            // 1. Validar stock en origen
+            var ubicacionOrigen = await _context.UbicacionesProductos
+                .FirstOrDefaultAsync(up =>
+                    up.IdProducto == idProducto && up.IdFila == idFilaOrigen)
+                ?? throw new InvalidOperationException(
+                    $"El producto no tiene stock en la fila origen (ID {idFilaOrigen}).");
 
-            if (idFilaOrigen == idFilaDestino)
-                throw new InvalidOperationException("La fila origen y destino no pueden ser la misma.");
+            if (ubicacionOrigen.Cantidad < cantidad)
+                throw new InvalidOperationException(
+                    $"Stock insuficiente en fila origen. " +
+                    $"Disponible: {ubicacionOrigen.Cantidad:N2}, solicitado: {cantidad:N2}.");
 
-            await using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            // 2. Restar en origen
+            ubicacionOrigen.Cantidad -= cantidad;
+            if (ubicacionOrigen.Cantidad == 0)
+                _context.UbicacionesProductos.Remove(ubicacionOrigen);
+
+            // 3. Sumar en destino
+            var ubicacionDestino = await _context.UbicacionesProductos
+                .FirstOrDefaultAsync(up =>
+                    up.IdProducto == idProducto && up.IdFila == idFilaDestino);
+
+            if (ubicacionDestino is null)
             {
-                // 1. Validar stock en origen
-                var ubicacionOrigen = await _context.UbicacionesProductos
-                    .FirstOrDefaultAsync(up => up.IdProducto == idProducto && up.IdFila == idFilaOrigen)
-                    ?? throw new InvalidOperationException($"El producto {idProducto} no tiene stock en la fila {idFilaOrigen}.");
-
-                if (ubicacionOrigen.Cantidad < cantidad)
-                    throw new InvalidOperationException(
-                        $"Stock insuficiente en fila {idFilaOrigen}. Disponible: {ubicacionOrigen.Cantidad}, solicitado: {cantidad}.");
-
-                // 2. Restar en origen
-                ubicacionOrigen.Cantidad -= cantidad;
-                if (ubicacionOrigen.Cantidad == 0)
-                    _context.UbicacionesProductos.Remove(ubicacionOrigen);
-
-                // 3. Sumar en destino
-                var ubicacionDestino = await _context.UbicacionesProductos
-                    .FirstOrDefaultAsync(up => up.IdProducto == idProducto && up.IdFila == idFilaDestino);
-
-                if (ubicacionDestino == null)
-                {
-                    _context.UbicacionesProductos.Add(new EF.UbicacionProducto
-                    {
-                        IdProducto = (short)idProducto,
-                        IdFila = idFilaDestino,
-                        Cantidad = cantidad
-                    });
-                }
-                else
-                {
-                    ubicacionDestino.Cantidad += cantidad;
-                }
-
-                // 4. El StockTotal del producto NO cambia (solo cambia de lugar).
-
-                // 5. Registrar movimiento
-                _context.MovimientosStock.Add(new EF.MovimientoStock
+                _context.UbicacionesProductos.Add(new EF.UbicacionProducto
                 {
                     IdProducto = (short)idProducto,
-                    IdFilaOrigen = idFilaOrigen,
-                    IdFilaDestino = idFilaDestino,
-                    Cantidad = cantidad,
-                    FechaMovimiento = DateTime.UtcNow,
-                    IdUsuario = (short)idUsuario
+                    IdFila     = idFilaDestino,
+                    Cantidad   = cantidad,
+                    // ↓ CRÍTICO: nullear navegaciones para que EF no intente insertar
+                    //   entidades vacías (= new Fila(), = new Producto(), etc.)
+                    Fila       = null!,
+                    Producto   = null!
                 });
-
-                // 6. Actualizar TieneEspacio de ambas filas
-                await ValidarEspacioFilaAsync(idFilaDestino);
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
             }
-            catch
+            else
             {
-                await transaction.RollbackAsync();
-                throw;
+                ubicacionDestino.Cantidad += cantidad;
             }
-        }
 
-        /// <summary>
-        /// Retira (egresa) stock de una fila específica. Reduce el StockTotal del producto.
-        /// </summary>
-        public async Task RetirarStockDeFilaAsync(int idProducto, int idFila, decimal cantidad, int idUsuario)
+            // 4. Registrar movimiento — ídem: nullear navegaciones
+            _context.MovimientosStock.Add(new EF.MovimientoStock
+            {
+                IdProducto      = (short)idProducto,
+                IdFilaOrigen    = idFilaOrigen,
+                IdFilaDestino   = idFilaDestino,
+                Cantidad        = cantidad,
+                FechaMovimiento =  DateTime.Now,
+                IdUsuario       = (short)idUsuario,
+                // ↓ CRÍTICO: sin esto EF intenta insertar Fila/Producto/Usuario vacíos
+                Producto        = null!,
+                FilaOrigen      = null!,
+                FilaDestino     = null!,
+                Usuario         = null!
+            });
+
+            // 5. Validar espacio del destino
+            await ValidarEspacioFilaAsync(idFilaDestino);
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
         {
-            if (cantidad <= 0)
-                throw new ArgumentException("La cantidad debe ser mayor a cero.");
-
-            await using var transaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                var ubicacion = await _context.UbicacionesProductos
-                    .FirstOrDefaultAsync(up => up.IdProducto == idProducto && up.IdFila == idFila)
-                    ?? throw new InvalidOperationException($"El producto {idProducto} no tiene stock en la fila {idFila}.");
-
-                if (ubicacion.Cantidad < cantidad)
-                    throw new InvalidOperationException(
-                        $"Stock insuficiente. Disponible: {ubicacion.Cantidad}, solicitado: {cantidad}.");
-
-                ubicacion.Cantidad -= cantidad;
-                if (ubicacion.Cantidad == 0)
-                    _context.UbicacionesProductos.Remove(ubicacion);
-
-                // Reducir StockTotal
-                var producto = await _context.Productos.FindAsync((short)idProducto)
-                    ?? throw new KeyNotFoundException($"Producto {idProducto} no encontrado.");
-                producto.StockTotal -= (int)cantidad;
-
-                // Registrar movimiento (egreso: solo origen)
-                _context.MovimientosStock.Add(new EF.MovimientoStock
-                {
-                    IdProducto = (short)idProducto,
-                    IdFilaOrigen = idFila,
-                    Cantidad = cantidad,
-                    FechaMovimiento = DateTime.UtcNow,
-                    IdUsuario = (short)idUsuario
-                });
-
-                await ValidarEspacioFilaAsync(idFila);
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+            await transaction.RollbackAsync();
+            throw;
         }
+    }
+
 
         // ─────────────────────────────────────────────
         // HISTORIAL DE MOVIMIENTOS
@@ -255,28 +274,62 @@ namespace src.Repositories.Implementations
         /// <summary>
         /// Devuelve el historial de movimientos de stock de un producto.
         /// </summary>
-        public async Task<IEnumerable<Dom.MovimientoStock>> GetMovimientosByProductoAsync(int idProducto)
-        {
-            // Asumimos que tienes un MovimientoStockMapper; si no, mapea manualmente.
-            var movimientos = await _context.MovimientosStock
-                .Where(m => m.IdProducto == idProducto)
-                .Include(m => m.Producto)
-                .Include(m => m.FilaOrigen).ThenInclude(f => f.Estante).ThenInclude(e => e.Deposito)
-                .Include(m => m.FilaDestino).ThenInclude(f => f.Estante).ThenInclude(e => e.Deposito)
-                .Include(m => m.Usuario)
-                .OrderByDescending(m => m.FechaMovimiento)
-                .AsNoTracking()
-                .ToListAsync();
+        public async Task<IEnumerable<Dom.MovimientoStock>> GetMovimientosAsync(
+        int? idProducto = null, int? idDeposito = null)
+    {
+        var query = _context.MovimientosStock
+            .Include(m => m.Producto)
+            .Include(m => m.FilaOrigen)
+                .ThenInclude(f => f.Estante).ThenInclude(e => e.Deposito)
+            .Include(m => m.FilaDestino)
+                .ThenInclude(f => f.Estante).ThenInclude(e => e.Deposito)
+            .Include(m => m.Usuario)
+            .AsNoTracking()
+            .AsQueryable();
 
-            // Mapeo manual si no tienes mapper aún:
-            return movimientos.Select(m => new Dom.MovimientoStock
+        if (idProducto.HasValue)
+            query = query.Where(m => m.IdProducto == idProducto.Value);
+
+        if (idDeposito.HasValue)
+            query = query.Where(m =>
+                (m.FilaOrigen  != null && m.FilaOrigen.Estante.IdDeposito  == idDeposito.Value) ||
+                (m.FilaDestino != null && m.FilaDestino.Estante.IdDeposito == idDeposito.Value));
+
+        var lista = await query
+            .OrderByDescending(m => m.FechaMovimiento)
+            .ToListAsync();
+
+        return lista.Select(MapMovimiento);
+    }
+    private static Dom.MovimientoStock MapMovimiento(EF.MovimientoStock m) => new()
+    {
+        IdMovimientoStock = m.IdMovimientoStock,
+        Cantidad          = m.Cantidad,
+        FechaMovimiento   = m.FechaMovimiento,
+        Producto    = m.Producto is null ? new() : new Dom.Producto  { Nombre = m.Producto.Nombre },
+        FilaOrigen  = MapFila(m.FilaOrigen),
+        FilaDestino = MapFila(m.FilaDestino),
+        Usuario     = m.Usuario is null  ? new() : new Dom.Usuario   { Nombre = m.Usuario.Nombre }
+    };  
+
+    private static Dom.Fila MapFila(EF.Fila? fila)
+    {
+        if (fila is null)  return null; 
+        return new Dom.Fila
+        {
+            IdFila = fila.IdFila,
+            NFila  = fila.NFila,
+            Estante = fila.Estante is null ? new() : new Dom.Estante
             {
-                IdMovimientoStock = m.IdMovimientoStock,
-                Cantidad = m.Cantidad,
-                FechaMovimiento = m.FechaMovimiento,
-                // Mapea Producto, FilaOrigen, FilaDestino, Usuario según tus mappers
-            });
-        }
+                NumeroEstante = fila.Estante.NumeroEstante,
+                Deposito = fila.Estante.Deposito is null ? new() : new Dom.Deposito
+                {
+                    IdDeposito = fila.Estante.Deposito.IdDeposito,
+                    Nombre     = fila.Estante.Deposito.Nombre
+                }
+            }
+        };
+    }
 
         // ─────────────────────────────────────────────
         // HELPERS PRIVADOS

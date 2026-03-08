@@ -8,6 +8,7 @@ using src.Models.CodeFirst;
 using src.Models.Mappers;
 using src.Repositories.Implementations;
 using src.Repositories.Interfaces;
+using src.Services.Implementations;
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
@@ -71,6 +72,14 @@ builder.Services.AddScoped<ICondicionPagoRepository, CondicionPagoRepository>();
 builder.Services.AddScoped<IComprobanteRepository, ComprobanteRepository>();
 builder.Services.AddScoped<IOrdenPagoRepository, OrdenPagoRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IDepositoRepository,          DepositoRepository>();
+builder.Services.AddScoped<IEstanteRepository,           EstanteRepository>();
+builder.Services.AddScoped<IFilaRepository,              FilaRepository>();
+builder.Services.AddScoped<IUbicacionProductoRepository, UbicacionProductoRepository>();
+
+
+
+
 // builder.Services.AddScoped<ICompraRepository, CompraRepository>();
 // Servicios
 builder.Services.AddScoped<IUserService, UserService>();
@@ -81,6 +90,18 @@ builder.Services.AddScoped<ICompraService, CompraService>();
 builder.Services.AddScoped<IImportacionService, ImportacionService>();
 builder.Services.AddScoped<IFacturaService, FacturaService>();
 builder.Services.AddScoped<IDocumentoAsociadoService, DocumentosAsociadoService>();
+
+
+builder.Services.AddScoped<IDepositoService, DepositoService>();
+builder.Services.AddScoped<IEstanteService, EstanteService>();
+builder.Services.AddScoped<IFilaService, FilaService>();
+builder.Services.AddScoped<IStockService,    StockService>();
+
+// Repositorios (agregar si aún no están registrados)
+
+
+
+
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {

@@ -24,6 +24,9 @@ namespace src.Repositories.Implementations
             var efFilas = await _context.Filas
                 .Include(f => f.Estante)
                     .ThenInclude(e => e.Deposito)
+                        .ThenInclude(de => de.Direccion)
+                            .ThenInclude(dom => dom.IdProvinciaNavigation)
+                
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -36,6 +39,8 @@ namespace src.Repositories.Implementations
                 .Where(f => f.IdEstante == idEstante)
                 .Include(f => f.Estante)
                     .ThenInclude(e => e.Deposito)
+                        .ThenInclude(de => de.Direccion)
+                            .ThenInclude(dom => dom.IdProvinciaNavigation)
                 .Include(f => f.UbicacionesProductos)
                     .ThenInclude(up => up.Producto)
                 .AsNoTracking()
@@ -49,6 +54,8 @@ namespace src.Repositories.Implementations
             var efFila = await _context.Filas
                 .Include(f => f.Estante)
                     .ThenInclude(e => e.Deposito)
+                        .ThenInclude(de => de.Direccion)
+                            .ThenInclude(dom => dom.IdProvinciaNavigation)
                 .Include(f => f.UbicacionesProductos)
                     .ThenInclude(up => up.Producto)
                 .AsNoTracking()
@@ -59,13 +66,22 @@ namespace src.Repositories.Implementations
 
         public async Task AddAsync(Dom.Fila entity)
         {
-            var efFila = _filaMapper.ToEntity(entity);
-            efFila.IdFila = 0;
+            // Mismo motivo: Estante es un stub, el mapper navegaría Estante.Deposito.Direccion... y crashea
+            var efFila = new EF.Fila
+            {
+                IdFila        = 0,
+                NFila         = entity.NFila,
+                Activo        = entity.Activo,
+                TieneEspacio  = entity.TieneEspacio,
+                Observaciones = entity.Observaciones,
+                IdEstante     = entity.Estante.IdEstante     // ← FK escalar, sin navegar
+            };
 
             bool estanteExiste = await _context.Estantes
                 .AnyAsync(e => e.IdEstante == entity.Estante.IdEstante && e.Activo);
             if (!estanteExiste)
-                throw new InvalidOperationException($"El estante {entity.Estante.IdEstante} no existe o está inactivo.");
+                throw new InvalidOperationException(
+                    $"El estante {entity.Estante.IdEstante} no existe o está inactivo.");
 
             _context.Filas.Add(efFila);
             await _context.SaveChangesAsync();
@@ -110,7 +126,7 @@ namespace src.Repositories.Implementations
         }
 
         /// <summary>
-        /// Devuelve las filas con espacio disponible dentro de un depósito específico.
+        /// Devuelve las filas con espacio disponible y que esten activas dentro de un depósito específico.
         /// Útil al momento de asignar una nueva ubicación a un producto.
         /// </summary>
         public async Task<IEnumerable<Dom.Fila>> GetFilasConEspacioByDepositoAsync(int idDeposito)

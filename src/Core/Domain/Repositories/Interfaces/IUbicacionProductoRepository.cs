@@ -6,5 +6,6 @@ public interface IUbicacionProductoRepository
     Task AgregarStockEnFilaAsync(int idProducto, int idFila, decimal cantidad, int idUsuario);
     Task MoverStockAsync(int idProducto, int idFilaOrigen, int idFilaDestino, decimal cantidad, int idUsuario);
     Task RetirarStockDeFilaAsync(int idProducto, int idFila, decimal cantidad, int idUsuario);
-    Task<IEnumerable<Dom.MovimientoStock>> GetMovimientosByProductoAsync(int idProducto);
+ 
+    Task<IEnumerable<Dom.MovimientoStock>> GetMovimientosAsync(int? idProducto = null, int? idDeposito = null);
 }

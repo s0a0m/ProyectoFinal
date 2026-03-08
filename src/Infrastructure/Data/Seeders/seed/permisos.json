@@ -58,5 +58,15 @@
     "IdPermiso": 12,
     "Nombre": "P12_ABM_CLASIFICACION_PRODUCTOS",
     "Descripcion": "Permite gestionar las familias y categorias de los productos, incluye su listado,alta, edicion y desactivado"
+  },
+  {
+    "IdPermiso": 13,
+    "Nombre": "P13_ABM_Deposito",
+    "Descripcion": "Permite gestionar los depósitos, incluye su listado, alta, edición y desactivación"
+  },
+  {
+    "IdPermiso": 14,
+    "Nombre": "P14_Gestion_Stock",
+    "Descripcion": "Permite gestionar el stock de productos en los depósitos, incluye su listado, movimiento y ajustes"
   }
 ]
