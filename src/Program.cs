@@ -69,6 +69,8 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 // builder.Services.AddScoped<ICompraRepository, CompraRepository>();
 // Servicios
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IOrdenPagoService, OrdenPagoService>();
+builder.Services.AddScoped<IComprobanteService, ComprobanteService>();
 builder.Services.AddScoped<IGrupoPermisosService, GrupoPermisosService>();
 builder.Services.AddHttpContextAccessor(); // Ya lo tenías
 builder.Services.AddTransient<src.Presentation.Services.LayoutService>();
