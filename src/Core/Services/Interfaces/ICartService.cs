@@ -17,5 +17,6 @@ namespace src.Core.Services.Interfaces
         Task ActualizarCantidadAsync(short idProducto, short idProveedor, int cantidad);
         Task<ServiceResult> ValidarYAgregarItemAsync(short idProducto, short idProveedor, int cantidad);
         Task<ServiceResult> ValidarYActualizarCantidadAsync(short idProducto, short idProveedor, int cantidad);
+        Task<ServiceResult> ValidarStockParaPrevisualizarAsync(short idProveedor);
     }
 }

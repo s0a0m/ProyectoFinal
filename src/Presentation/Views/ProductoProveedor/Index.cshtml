@@ -5,12 +5,10 @@
 @{
     ViewData["Title"] = "Relación Producto - Proveedor";
 
-    // 1. VARIABLE DE CONTROL DE PERMISOS (Centralizada)
     bool tienePermisoCompra = LayoutService.TienePermiso("P07_GESTION_COMPRAS");
 }
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
 
 @if (TempData["Success"] != null)
 {
@@ -48,7 +46,6 @@
             <a asp-controller="ProductoProveedor" asp-action="Configurar" class="btn btn-success btn-sm shadow-sm">
                 <i class="bi bi-file-earmark-spreadsheet me-1"></i>Importar Excel
             </a>
-
             <a asp-controller="ProductoProveedor" asp-action="Create" class="btn btn-primary btn-sm shadow-sm">
                 <i class="bi bi-plus-lg text-white-50 me-1"></i>Asignar Nuevo
             </a>
@@ -56,8 +53,7 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle" id="tablaRelaciones" width="100%"
-                cellspacing="0">
+            <table class="table table-bordered table-hover align-middle" id="tablaRelaciones" width="100%" cellspacing="0">
                 <thead class="table-light">
                     <tr>
                         <th>Producto</th>
@@ -124,17 +120,20 @@
                                     @if (tienePermisoCompra)
                                     {
                                         <a asp-action="Edit" asp-route-idProducto="@item.IdProducto"
-                                            asp-route-idProveedor="@item.IdProveedor" class="btn btn-warning btn-sm text-white"
+                                            asp-route-idProveedor="@item.IdProveedor"
+                                            class="btn btn-warning btn-sm text-white"
                                             title="Editar Precio/Stock">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
 
-
                                         <button class="btn btn-outline-primary btn-sm ms-1" type="button"
-                                            data-idproducto="@item.IdProducto" data-idproveedor="@item.IdProveedor"
-                                            data-stock="@item.StockAsignado" data-nombre="@item.NombreProducto"
-                                            onclick="prepararYAbrirModal(this)" title="Agregar al Carrito" @(item.StockAsignado
-                                                                                                                                               <= 0 ? "disabled" : "")>
+                                            data-idproducto="@item.IdProducto"
+                                            data-idproveedor="@item.IdProveedor"
+                                            data-stock="@item.StockAsignado"
+                                            data-nombre="@item.NombreProducto"
+                                            onclick="prepararYAbrirModal(this)"
+                                            title="Agregar al Carrito"
+                                            @(item.StockAsignado <= 0 ? "disabled" : "")>
                                             <i class="bi bi-cart-plus"></i>
                                         </button>
                                     }
@@ -148,6 +147,7 @@
     </div>
 </div>
 
+<!-- ── Modal Detalle ── -->
 <div class="modal fade" id="modalDetalleRelacion" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
@@ -155,16 +155,13 @@
                 <h5 class="modal-title">
                     <i class="bi bi-card-list me-2"></i>Detalle de la Relación
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                    aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
-
                 <div class="text-center mb-4 p-3 bg-light rounded border">
                     <small class="text-muted text-uppercase fw-bold d-block mb-1">Producto</small>
                     <h4 class="fw-bold text-dark mb-0" id="modalProducto">...</h4>
                 </div>
-
                 <div class="mb-4">
                     <label class="fw-bold text-secondary small">PROVEEDOR ASIGNADO</label>
                     <div class="d-flex align-items-center p-2 border-bottom">
@@ -172,7 +169,6 @@
                         <span class="fs-5" id="modalProveedor">...</span>
                     </div>
                 </div>
-
                 <div class="row g-3 mb-4">
                     <div class="col-6">
                         <div class="p-3 border rounded bg-white h-100 text-center shadow-sm">
@@ -187,14 +183,12 @@
                         </div>
                     </div>
                 </div>
-
                 <div>
                     <label class="fw-bold text-secondary small mb-2">CÓDIGOS EXTERNOS (PROVEEDOR)</label>
                     <div id="modalContenedorCodigos" class="d-flex flex-wrap gap-2 p-3 bg-light rounded border">
                         <span class="text-muted fst-italic small">Cargando...</span>
                     </div>
                 </div>
-
             </div>
             <div class="modal-footer bg-light border-0">
                 <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cerrar</button>
@@ -203,6 +197,7 @@
     </div>
 </div>
 
+<!-- ── Modal Carrito ── -->
 <div class="modal fade" id="modalCantidadCarrito" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
@@ -213,26 +208,26 @@
             <div class="modal-body">
                 <p id="lblProductoCarrito" class="fw-bold mb-2 text-primary text-center">Producto</p>
 
+                <!-- Aviso de unidades ya reservadas en el carrito -->
+                <div id="avisoEnCarrito" class="alert alert-info py-2 small mb-3" style="display: none;"></div>
+
                 <form id="formCantidadCarrito" onsubmit="return confirmarAgregarCarrito(event)">
                     <input type="hidden" id="hiddenIdProducto" />
                     <input type="hidden" id="hiddenIdProveedor" />
                     <input type="hidden" id="hiddenMaxStock" />
 
                     <div class="mb-3">
-                        <label class="form-label small">Cantidad (Max: <span id="lblMaxStock">0</span>)</label>
+                        <label class="form-label small">Cantidad (disponible: <span id="lblMaxStock">0</span>)</label>
                         <div class="input-group">
-                            <button type="button" class="btn btn-outline-secondary"
-                                onclick="ajustarCantidad(-1)">-</button>
-                            <input type="number" id="txtCantidadCarrito" class="form-control text-center" value="1"
-                                min="1" required />
-                            <button type="button" class="btn btn-outline-secondary"
-                                onclick="ajustarCantidad(1)">+</button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="ajustarCantidad(-1)">-</button>
+                            <input type="number" id="txtCantidadCarrito" class="form-control text-center" value="1" min="1" required />
+                            <button type="button" class="btn btn-outline-secondary" onclick="ajustarCantidad(1)">+</button>
                         </div>
-                        <div id="errStock" class="text-danger small mt-1" style="display:none;">Stock insuficiente</div>
+                        <div id="errStock" class="text-danger small mt-1" style="display:none;">Cantidad supera el disponible</div>
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-success">Agregar</button>
+                        <button type="submit" class="btn btn-success" id="btnConfirmarCarrito">Agregar</button>
                     </div>
                 </form>
             </div>
@@ -242,39 +237,51 @@
 
 @section Scripts {
     <script>
+        // ── Registro local de lo ya agregado al carrito en esta sesión.
+        // Se reinicia si el usuario recarga la página (comportamiento esperado,
+        // ya que el carrito en servidor también arrancaría desde 0 en una sesión nueva).
+        // Clave: "idProducto-idProveedor"  |  Valor: cantidad acumulada confirmada por el servidor.
+        var _carritoLocal = {};
+
+        function _claveCarrito(idProd, idProv) {
+            return idProd + '-' + idProv;
+        }
+
+        function _cantEnCarrito(idProd, idProv) {
+            return _carritoLocal[_claveCarrito(idProd, idProv)] || 0;
+        }
+
+        function _registrarAgregado(idProd, idProv, cantidad) {
+            var clave = _claveCarrito(idProd, idProv);
+            _carritoLocal[clave] = (_carritoLocal[clave] || 0) + cantidad;
+        }
+
+        // ── DataTables + Modal Detalle ────────────────────────────────────
         $(document).ready(function () {
-            // 1. Inicializar DataTables
             $('#tablaRelaciones').DataTable({
                 language: { url: "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json" },
                 order: [[0, 'asc']],
                 pageLength: 10,
                 columnDefs: [
                     { orderable: false, targets: [5] },
-                    { className: "text-end", targets: [3] },
+                    { className: "text-end",    targets: [3] },
                     { className: "text-center", targets: [4, 5] }
                 ],
                 dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-                    "<'row'<'col-sm-12'tr>>" +
-                    "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                     "<'row'<'col-sm-12'tr>>" +
+                     "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             });
 
-            // 2. Lógica del Modal de Detalle (Tu código existente)
             var modalDetalle = document.getElementById('modalDetalleRelacion');
             modalDetalle.addEventListener('show.bs.modal', function (event) {
-                var button = event.relatedTarget;
-                var producto = button.getAttribute('data-producto');
-                var proveedor = button.getAttribute('data-proveedor');
-                var precio = button.getAttribute('data-precio');
-                var stock = button.getAttribute('data-stock');
+                var btn      = event.relatedTarget;
+                var codigos  = [];
+                try { codigos = JSON.parse(btn.getAttribute('data-codigos')); } catch (e) {}
 
-                var codigosRaw = button.getAttribute('data-codigos');
-                var codigos = [];
-                try { codigos = JSON.parse(codigosRaw); } catch (e) { console.error("Error parseando códigos", e); }
-
-                modalDetalle.querySelector('#modalProducto').textContent = producto;
-                modalDetalle.querySelector('#modalProveedor').textContent = proveedor;
-                modalDetalle.querySelector('#modalPrecio').textContent = '$' + precio;
-                modalDetalle.querySelector('#modalStock').textContent = stock;
+                modalDetalle.querySelector('#modalProducto').textContent = btn.getAttribute('data-producto');
+                modalDetalle.querySelector('#modalProveedor').textContent = btn.getAttribute('data-proveedor');
+                modalDetalle.querySelector('#modalPrecio').textContent   = '$' + btn.getAttribute('data-precio');
+                modalDetalle.querySelector('#modalStock').textContent    = btn.getAttribute('data-stock');
 
                 var contenedor = modalDetalle.querySelector('#modalContenedorCodigos');
                 contenedor.innerHTML = '';
@@ -292,52 +299,70 @@
             });
         });
 
-        // --- 4. LÓGICA DEL NUEVO MODAL DE CARRITO ---
+        // ── Modal Carrito ─────────────────────────────────────────────────
+
         function prepararYAbrirModal(btn) {
-            // Leer los datos de los atributos data-* del botón
-            // Esto es seguro porque el navegador ya manejó las comillas
-            var idProd = btn.getAttribute('data-idproducto');
-            var idProv = btn.getAttribute('data-idproveedor');
-            var stock = btn.getAttribute('data-stock');
-            var nombre = btn.getAttribute('data-nombre');
-
-            // Llamar a la función original con los datos limpios
-            abrirModalCantidad(idProd, idProv, stock, nombre);
+            abrirModalCantidad(
+                btn.getAttribute('data-idproducto'),
+                btn.getAttribute('data-idproveedor'),
+                parseInt(btn.getAttribute('data-stock')),
+                btn.getAttribute('data-nombre')
+            );
         }
-        var modalCantidadBS = null; // Variable para la instancia Bootstrap
 
-        function abrirModalCantidad(idProd, idProv, stock, nombreProd) {
-            // 1. Asignar valores a los inputs ocultos y visibles
-            document.getElementById('hiddenIdProducto').value = idProd;
+        var modalCantidadBS = null;
+
+        function abrirModalCantidad(idProd, idProv, stockTotal, nombreProd) {
+            // Cuánto ya fue reservado en el carrito durante esta sesión
+            var yaReservado = _cantEnCarrito(idProd, idProv);
+            // Cuánto queda realmente disponible para agregar
+            var disponible  = stockTotal - yaReservado;
+
+            // Poblar campos del modal
+            document.getElementById('hiddenIdProducto').value  = idProd;
             document.getElementById('hiddenIdProveedor').value = idProv;
-            document.getElementById('hiddenMaxStock').value = stock;
+            document.getElementById('hiddenMaxStock').value    = disponible;
 
             document.getElementById('lblProductoCarrito').innerText = nombreProd;
-            document.getElementById('lblMaxStock').innerText = stock;
+            document.getElementById('lblMaxStock').innerText         = disponible;
 
-            var inputCant = document.getElementById('txtCantidadCarrito');
+            var inputCant  = document.getElementById('txtCantidadCarrito');
             inputCant.value = 1;
-            inputCant.max = stock;
+            inputCant.max   = disponible;
+
+            // Bloquear controles si ya no hay disponible
+            var agotado = disponible <= 0;
+            inputCant.disabled = agotado;
+            document.getElementById('btnConfirmarCarrito').disabled = agotado;
+            document.querySelectorAll('#formCantidadCarrito .btn-outline-secondary')
+                .forEach(function (b) { b.disabled = agotado; });
+
+            // Mostrar / ocultar aviso de reserva previa
+            var avisoEl = document.getElementById('avisoEnCarrito');
+            if (yaReservado > 0) {
+                avisoEl.innerHTML = '<i class="bi bi-info-circle-fill me-1"></i>'
+                    + (agotado
+                        ? 'Ya agregaste todo el stock disponible al carrito.'
+                        : 'Ya tenés <strong>' + yaReservado + '</strong> unidad(es) en el carrito. '
+                          + 'Podés agregar hasta <strong>' + disponible + '</strong> más.');
+                avisoEl.style.display = 'block';
+            } else {
+                avisoEl.style.display = 'none';
+            }
 
             document.getElementById('errStock').style.display = 'none';
 
-            // 2. Manejo robusto de la instancia del Modal
             var modalEl = document.getElementById('modalCantidadCarrito');
-
-            // Si ya existe instancia, úsala; si no, créala.
             if (!modalCantidadBS) {
                 modalCantidadBS = new bootstrap.Modal(modalEl);
             }
-
             modalCantidadBS.show();
         }
 
         function ajustarCantidad(delta) {
-            var input = document.getElementById('txtCantidadCarrito');
-            var max = parseInt(document.getElementById('hiddenMaxStock').value);
-            var actual = parseInt(input.value) || 0;
-            var nuevo = actual + delta;
-
+            var input  = document.getElementById('txtCantidadCarrito');
+            var max    = parseInt(document.getElementById('hiddenMaxStock').value);
+            var nuevo  = (parseInt(input.value) || 0) + delta;
             if (nuevo >= 1 && nuevo <= max) {
                 input.value = nuevo;
                 document.getElementById('errStock').style.display = 'none';
@@ -349,30 +374,30 @@
 
             var idProd = document.getElementById('hiddenIdProducto').value;
             var idProv = document.getElementById('hiddenIdProveedor').value;
-            var cant = parseInt(document.getElementById('txtCantidadCarrito').value);
-            var max = parseInt(document.getElementById('hiddenMaxStock').value);
+            var cant   = parseInt(document.getElementById('txtCantidadCarrito').value);
+            var max    = parseInt(document.getElementById('hiddenMaxStock').value);
 
-            if (cant > max) {
+            if (isNaN(cant) || cant < 1 || cant > max) {
                 document.getElementById('errStock').style.display = 'block';
                 return false;
             }
 
-            // Llamada AJAX local para asegurar que NO MUESTRE ALERTAS
-            // (Si usas la global de layout y esa tiene alerts, aquí la puenteamos)
             $.post('/Carrito/Agregar', { idProducto: idProd, idProveedor: idProv, cantidad: cant })
                 .done(function (response) {
-                    // Solo actualizamos el badge silenciosamente
+                    // Solo registramos la reserva local DESPUÉS de que el servidor confirme
+                    _registrarAgregado(idProd, idProv, cant);
+
                     var badge = $("#cart-badge");
                     if (badge.length) {
                         badge.text(response.totalItems);
                         if (response.totalItems > 0) badge.show();
                     }
-                    // Cierre inmediato del modal sin feedback visual intrusivo
+
                     if (modalCantidadBS) modalCantidadBS.hide();
                 })
                 .fail(function (xhr) {
                     console.error("Error carrito: " + xhr.responseText);
-                    alert("Error al conectar con el servidor."); // Solo alertamos si falla la conexión
+                    alert("Error al conectar con el servidor.");
                 });
 
             return false;
