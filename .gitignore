@@ -8,6 +8,7 @@
 omnisharp.json
 .tool-versions
 .env
+.aiderignore
 # User-specific files
 *.suo
 *.user
@@ -570,3 +571,4 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/csharp,dotnetcore,aspnetcore,visualstudiocode,windows
+.aider*
