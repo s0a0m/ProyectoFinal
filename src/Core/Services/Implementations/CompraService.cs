@@ -1,10 +1,11 @@
 using System.Runtime.CompilerServices;
 using src.Core.Services.Interfaces;
-using src.Interfaces;
 using src.Models.Common;
 using src.Models.Domain;
 using src.Models.Mappers;
 using src.Presentation.ViewModels.CompraVM;
+using src.Repositories.Interfaces;
+using Dom = src.Models.Domain;
 
 namespace src.Core.Services.Implementations
 {
@@ -59,5 +60,11 @@ namespace src.Core.Services.Implementations
         {
             throw new NotImplementedException();
         }
+
+        public async Task<Dom.Compra?> ObtenerPorIdAsync(int id)
+        {
+            return await _compraRepository.GetByIdAsync(id);
+        }
     }
 }
+

@@ -4,7 +4,7 @@ using src.Presentation.ViewModels.CompraVM;
 using src.Models.Domain;
 using src.Models.Common;
 using src.Repositories.Interfaces;
-using src.Interfaces;
+using src.Repositories.Interfaces;
 using src.Presentation.Attributes;
 
 

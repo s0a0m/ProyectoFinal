@@ -13,7 +13,7 @@ public abstract class Comprobante
     // Navegación (Opcional en dominio puro, pero útil si usas el mismo modelo)
     public Proveedor? Proveedor { get; set; }
     public MotivoComprobante? Motivo { get; set; }
-    public CondicionDePago? CondicionPago { get; set; }
     public virtual Factura? FacturaOriginal { get; set; }
 
+    public abstract void Aplicar(Factura factura, Proveedor proveedor);
 }

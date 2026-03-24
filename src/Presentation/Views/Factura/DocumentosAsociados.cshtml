@@ -174,7 +174,7 @@
             myModal.show();
 
          
-            $.get('/DocumentoAsociado/ObtenerDetalleModal/' + idOrden)
+            $.get('/OrdenesPago/ObtenerDetalleModal/' + idOrden)
                 .done(function (data) {
                     // Reemplazar el contenido del modal con la vista parcial
                     $('#contenidoModalOrden').html(data);

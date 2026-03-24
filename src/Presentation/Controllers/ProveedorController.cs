@@ -1,16 +1,16 @@
 using System.Diagnostics;
-using src.Repositories.Interfaces;
-using EF = src.Models.CodeFirst;
-using Dom = src.Models.Domain;
-using Microsoft.AspNetCore.Mvc;
-using src.ViewModels;
-using src.Core.Services.Interfaces;
-using Microsoft.AspNetCore.Session;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Session;
+using src.Core.Services.Interfaces;
 using src.Presentation.Attributes;
+using src.Presentation.Mappers;
+using src.Repositories.Interfaces;
+using src.ViewModels;
+using Dom = src.Models.Domain;
+using EF = src.Models.CodeFirst;
 
 namespace src.Controllers;
-
 
 public class ProveedorController : Controller
 {
@@ -53,7 +53,6 @@ public class ProveedorController : Controller
         return View(await PrepareCrearProveedorViewModel(new CrearProveedorViewModel()));
     }
 
-
     [HttpPost]
     [AuthorizePermiso("P05_ABM_PROVEEDORES")]
     public async Task<IActionResult> CrearProveedor([FromForm] CrearProveedorViewModel proveedorVM)
@@ -87,7 +86,8 @@ public class ProveedorController : Controller
             // Llamamos al nuevo método estandarizado que incluye la lógica en cascada
             await _provService.DeleteAsync(idProv);
 
-            TempData["realizado"] = "El Proveedor fue desactivado con éxito (y sus productos asociados se ocultaron).";
+            TempData["realizado"] =
+                "El Proveedor fue desactivado con éxito (y sus productos asociados se ocultaron).";
         }
         catch (KeyNotFoundException)
         {
@@ -101,27 +101,40 @@ public class ProveedorController : Controller
         return RedirectToAction("ListarProveedores");
     }
 
-
     [HttpGet]
     [AuthorizePermiso("P09_GESTOR_CC")]
     public async Task<IActionResult> CuentaCorriente(short id)
     {
-        try
+        var data = await _provService.ObtenerCuentaCorrienteAsync(id);
+        if (data == null)
         {
-            var vm = await _provService.ObtenerCuentaCorrienteAsync(id);
-            if (vm == null)
-            {
-                TempData["Error"] = "Proveedor no encontrado.";
-                return RedirectToAction("Index");
-            }
-            return View(vm);
+            TempData["Error"] = "Proveedor no encontrado.";
+            return RedirectToAction("ListarProveedores");
         }
-         catch (Exception ex)
-        {
-            TempData["error"] = $"Ocurrió un error inesperado: {ex.Message}";
-            return RedirectToAction("Index");
-        }
+
+        return View(data.ToCuentaCorrienteVM());
     }
+
+    // [HttpGet]
+    // [AuthorizePermiso("P09_GESTOR_CC")]
+    // public async Task<IActionResult> CuentaCorriente(short id)
+    // {
+    //     try
+    //     {
+    //         var vm = await _provService.ObtenerCuentaCorrienteAsync(id);
+    //         if (vm == null)
+    //         {
+    //             TempData["Error"] = "Proveedor no encontrado.";
+    //             return RedirectToAction("Index");
+    //         }
+    //         return View(vm);
+    //     }
+    //      catch (Exception ex)
+    //     {
+    //         TempData["error"] = $"Ocurrió un error inesperado: {ex.Message}";
+    //         return RedirectToAction("Index");
+    //     }
+    // }
 
     // NUEVO MÉTODO: Reactivar
     [HttpPost]
@@ -149,7 +162,6 @@ public class ProveedorController : Controller
         return RedirectToAction("ListarProveedores");
     }
 
-
     [HttpGet]
     [AuthorizePermiso("P05_ABM_PROVEEDORES")]
     public async Task<IActionResult> ActualizarProveedor(int idProv)
@@ -173,11 +185,16 @@ public class ProveedorController : Controller
 
     [HttpPost]
     [AuthorizePermiso("P05_ABM_PROVEEDORES")]
-    public async Task<IActionResult> ActualizarProveedor([FromForm] ActualizarProveedorViewModel proveedorVM)
+    public async Task<IActionResult> ActualizarProveedor(
+        [FromForm] ActualizarProveedorViewModel proveedorVM
+    )
     {
         if (!ModelState.IsValid)
         {
-            return View("ActualizarProveedor", await PrepareActualizarProveedorViewModel(proveedorVM));
+            return View(
+                "ActualizarProveedor",
+                await PrepareActualizarProveedorViewModel(proveedorVM)
+            );
         }
         try
         {
@@ -194,18 +211,29 @@ public class ProveedorController : Controller
         {
             ModelState.AddModelError(ex.ParamName ?? string.Empty, ex.Message);
 
-            return View("ActualizarProveedor", await PrepareActualizarProveedorViewModel(proveedorVM));
+            return View(
+                "ActualizarProveedor",
+                await PrepareActualizarProveedorViewModel(proveedorVM)
+            );
         }
     }
-    private async Task<CrearProveedorViewModel> PrepareCrearProveedorViewModel(CrearProveedorViewModel model)
+
+    private async Task<CrearProveedorViewModel> PrepareCrearProveedorViewModel(
+        CrearProveedorViewModel model
+    )
     {
-        IEnumerable<Dom.Provincia> listaProvincias = await _commonDataService.GetAllProvinciasAsync();
+        IEnumerable<Dom.Provincia> listaProvincias =
+            await _commonDataService.GetAllProvinciasAsync();
         model.Direccion.ListaProvincias = listaProvincias.ToList();
         return model;
     }
-    private async Task<ActualizarProveedorViewModel> PrepareActualizarProveedorViewModel(ActualizarProveedorViewModel model)
+
+    private async Task<ActualizarProveedorViewModel> PrepareActualizarProveedorViewModel(
+        ActualizarProveedorViewModel model
+    )
     {
-        IEnumerable<Dom.Provincia> listaProvincias = await _commonDataService.GetAllProvinciasAsync();
+        IEnumerable<Dom.Provincia> listaProvincias =
+            await _commonDataService.GetAllProvinciasAsync();
         model.Direccion.ListaProvincias = listaProvincias.ToList();
         return model;
     }

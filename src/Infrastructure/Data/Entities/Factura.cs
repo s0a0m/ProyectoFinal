@@ -10,6 +10,7 @@ public class Factura
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id_factura")]
     public int IdFactura { get; set; }
+
     [Required]
     [Column("id_compra")]
     public short IdCompra { get; set; }
@@ -21,7 +22,7 @@ public class Factura
     [Required]
     [Column("numero_factura")]
     [StringLength(50)]
-    public string NumeroFactura { get; set; } = null!;
+    public string Numero { get; set; } = null!;
 
     [Required]
     [Column("fecha_emision")]
@@ -41,10 +42,10 @@ public class Factura
     [Required]
     [Column("pagada")]
     public bool Pagada { get; set; } = false;
+
     [Required]
     [Column("id_condicion_pago_usada")]
     public short IdCondicionPagoUsada { get; set; }
-
 
     [ForeignKey("IdCompra")]
     public virtual Compra Compra { get; set; } = null!;

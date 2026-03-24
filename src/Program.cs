@@ -3,22 +3,21 @@ using src.Core.Services.Implementations;
 using src.Core.Services.Interfaces;
 using src.External;
 using src.Infrastructure.Repositories;
-using src.Interfaces;
 using src.Models.CodeFirst;
 using src.Models.Mappers;
 using src.Repositories.Implementations;
 using src.Repositories.Interfaces;
+using src.Repositories.Interfaces;
 
-var builder = WebApplication.CreateBuilder(new WebApplicationOptions
-{
-    Args = args,
-    WebRootPath = "Presentation/wwwroot"
-});
-
+var builder = WebApplication.CreateBuilder(
+    new WebApplicationOptions { Args = args, WebRootPath = "Presentation/wwwroot" }
+);
 
 var connectionString = builder.Configuration.GetConnectionString("PostgresConnection");
+
 // Add services to the container.
-builder.Services.AddControllersWithViews()
+builder
+    .Services.AddControllersWithViews()
     .AddRazorOptions(options =>
     {
         // options.ViewLocationFormats.Clear(); // Opcional: limpiar las rutas por defecto si quieres control total
@@ -27,10 +26,14 @@ builder.Services.AddControllersWithViews()
     });
 
 // builder.Environment.WebRootPath = Path.Combine(builder.Environment.ContentRootPath, "Presentation", "wwwroot");
-builder.Environment.WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), "Presentation", "wwwroot");
+builder.Environment.WebRootPath = Path.Combine(
+    Directory.GetCurrentDirectory(),
+    "Presentation",
+    "wwwroot"
+);
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+
 // mappers
 builder.Services.AddSingleton<ProvinciaMapper>();
 builder.Services.AddSingleton<DomicilioMapper>();
@@ -38,6 +41,8 @@ builder.Services.AddSingleton<CodigoBarraMapper>();
 builder.Services.AddSingleton<FamiliaMapper>();
 builder.Services.AddSingleton<CategoriaMapper>();
 builder.Services.AddSingleton<ProductoMapper>();
+builder.Services.AddSingleton<ComprobanteMapper>();
+
 // repositorios
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -66,6 +71,7 @@ builder.Services.AddScoped<ICondicionPagoRepository, CondicionPagoRepository>();
 builder.Services.AddScoped<IComprobanteRepository, ComprobanteRepository>();
 builder.Services.AddScoped<IOrdenPagoRepository, OrdenPagoRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 // builder.Services.AddScoped<ICompraRepository, CompraRepository>();
 // Servicios
 builder.Services.AddScoped<IUserService, UserService>();
@@ -77,7 +83,10 @@ builder.Services.AddTransient<src.Presentation.Services.LayoutService>();
 builder.Services.AddScoped<ICompraService, CompraService>();
 builder.Services.AddScoped<IImportacionService, ImportacionService>();
 builder.Services.AddScoped<IFacturaService, FacturaService>();
-builder.Services.AddScoped<IDocumentoAsociadoService, DocumentosAsociadoService>();
+builder.Services.AddScoped<IOrdenPagoService, OrdenPagoService>();
+builder.Services.AddScoped<INumeracionRepository, NumeracionRepository>();
+builder.Services.AddScoped<INumeracionService, NumeracionService>();
+
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -93,7 +102,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -120,7 +128,9 @@ else
     {
         // var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
         // logger.LogError(ex, "Error al inicializar la base de datos con datos de prueba.");
-        System.Console.WriteLine("Error al inicializar la base de datos con datos de prueba: " + ex.Message);
+        System.Console.WriteLine(
+            "Error al inicializar la base de datos con datos de prueba: " + ex.Message
+        );
     }
 }
 
@@ -131,10 +141,8 @@ app.UseRouting();
 app.UseSession();
 app.UseAuthorization();
 
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Acceso}/{action=Login}/{id?}");
+app.MapControllerRoute(name: "default", pattern: "{controller=Acceso}/{action=Login}/{id?}");
 
 app.Run();
+
 public partial class Program { }

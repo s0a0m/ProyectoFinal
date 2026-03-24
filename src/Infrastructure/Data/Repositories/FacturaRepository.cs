@@ -2,13 +2,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using src.Models.Common;
+using src.Models.Domain;
+using src.Models.Mappers;
+using src.Repositories.Interfaces;
 using src.Repositories.Interfaces;
 using Dom = src.Models.Domain;
 using EF = src.Models.CodeFirst;
-using src.Models.Mappers;
-using src.Interfaces;
-using src.Models.Domain;
-using src.Models.Common;
 
 namespace src.Repositories.Implementations
 {
@@ -23,16 +23,16 @@ namespace src.Repositories.Implementations
 
         private IQueryable<EF.Factura> GetQueryFactura()
         {
-            return _context.Facturas
-                .Include(f => f.Compra)
+            return _context
+                .Facturas.Include(f => f.Compra)
                 .Include(f => f.CondicionPago)
                 .Include(f => f.Proveedor)
-                .ThenInclude(p => p.IdDomicilioNavigation)
-                .ThenInclude(d => d.IdProvinciaNavigation)
+                    .ThenInclude(p => p.IdDomicilioNavigation)
+                        .ThenInclude(d => d.IdProvinciaNavigation)
                 .Include(f => f.Proveedor)
-                .ThenInclude(p => p.IdCondicionPagoHabitualNavigation)
+                    .ThenInclude(p => p.IdCondicionPagoHabitualNavigation)
                 .Include(f => f.Detalles)
-                .ThenInclude(d => d.Producto);
+                    .ThenInclude(d => d.Producto);
         }
 
         public async Task<Dom.Factura> AddAsync(Dom.Factura factura)
@@ -54,13 +54,17 @@ namespace src.Repositories.Implementations
 
         public async Task<bool> ExisteNumeroFacturaAsync(short idProveedor, string numeroFactura)
         {
-            return await _context.Facturas
-                .AnyAsync(f => f.IdProveedor == idProveedor && f.NumeroFactura == numeroFactura);
+            return await _context.Facturas.AnyAsync(f =>
+                f.IdProveedor == idProveedor && f.Numero == numeroFactura
+            );
         }
 
         public async Task<IEnumerable<Factura>> GetAllAsync()
         {
-            var facturasEF = await GetQueryFactura().AsNoTracking().OrderByDescending(c => c.FechaEmision).ToListAsync();
+            var facturasEF = await GetQueryFactura()
+                .AsNoTracking()
+                .OrderByDescending(c => c.FechaEmision)
+                .ToListAsync();
             return DominioMapper.Map(facturasEF);
         }
 
@@ -98,14 +102,15 @@ namespace src.Repositories.Implementations
         // En src/Repositories/Implementations/FacturaRepository.cs
         public async Task UpdateAsync(Dom.Factura factura)
         {
-            var entity = await _context.Facturas
-                .Include(f => f.Detalles)
+            var entity = await _context
+                .Facturas.Include(f => f.Detalles)
                 .FirstOrDefaultAsync(f => f.IdFactura == factura.IdFactura);
 
-            if (entity == null) throw new Exception("Factura no encontrada para actualizar");
+            if (entity == null)
+                throw new Exception("Factura no encontrada para actualizar");
 
             // 1. Actualizar Cabecera
-            entity.NumeroFactura = factura.NumeroFactura;
+            entity.Numero = factura.Numero;
             entity.FechaEmision = factura.FechaEmision;
 
             // IMPORTANTE: Actualizar los montos calculados en el Service
@@ -124,15 +129,17 @@ namespace src.Repositories.Implementations
             entity.Detalles.Clear();
 
             // Mapeamos los nuevos
-            var nuevosDetallesEF = factura.Detalles.Select(d => new EF.DetalleFactura
-            {
-                IdFactura = entity.IdFactura,
-                IdProducto = (short)d.Producto.IdProducto,
-                Cantidad = d.Cantidad,
-                PrecioBruto = d.PrecioBruto,
-                PorcentajeDescuento = d.PorcentajeDescuento,
-                PrecioNeto = d.PrecioNeto
-            }).ToList();
+            var nuevosDetallesEF = factura
+                .Detalles.Select(d => new EF.DetalleFactura
+                {
+                    IdFactura = entity.IdFactura,
+                    IdProducto = (short)d.Producto.IdProducto,
+                    Cantidad = d.Cantidad,
+                    PrecioBruto = d.PrecioBruto,
+                    PorcentajeDescuento = d.PorcentajeDescuento,
+                    PrecioNeto = d.PrecioNeto,
+                })
+                .ToList();
 
             // Agregamos los nuevos
             foreach (var det in nuevosDetallesEF)
@@ -144,9 +151,15 @@ namespace src.Repositories.Implementations
         }
 
         // Agregar esta sobrecarga en la interfaz IFacturaRepository y aquí
-        public async Task<bool> ExisteNumeroFacturaAsync(short idProveedor, string numero, int? idExcluir = null)
+        public async Task<bool> ExisteNumeroFacturaAsync(
+            short idProveedor,
+            string numero,
+            int? idExcluir = null
+        )
         {
-            var query = _context.Facturas.Where(f => f.IdProveedor == idProveedor && f.NumeroFactura == numero);
+            var query = _context.Facturas.Where(f =>
+                f.IdProveedor == idProveedor && f.Numero == numero
+            );
 
             if (idExcluir.HasValue)
             {
@@ -156,13 +169,19 @@ namespace src.Repositories.Implementations
             return await query.AnyAsync();
         }
 
-
-        public async Task ActualizarSaldoYEstadoAsync(int idFactura, decimal nuevoSaldo, bool pagada, DateTime FechaP)
+        public async Task ActualizarSaldoYEstadoAsync(
+            int idFactura,
+            decimal nuevoSaldo,
+            bool pagada,
+            DateTime FechaP
+        )
         {
-            var factura = await _context.Facturas
-                .FirstOrDefaultAsync(f => f.IdFactura == idFactura);
+            var factura = await _context.Facturas.FirstOrDefaultAsync(f =>
+                f.IdFactura == idFactura
+            );
 
-            if (factura == null) throw new Exception("Factura no encontrada");
+            if (factura == null)
+                throw new Exception("Factura no encontrada");
 
             factura.Saldo = nuevoSaldo;
             factura.Pagada = pagada;
@@ -170,7 +189,5 @@ namespace src.Repositories.Implementations
 
             await _context.SaveChangesAsync();
         }
-
-
     }
 }

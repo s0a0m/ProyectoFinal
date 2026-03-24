@@ -1,167 +1,282 @@
 @using src.Presentation.ViewModels.CuentaCorrienteVM
 @model CuentaCorrienteVM
 
+@{
+    var facturasPendientes = Model.Facturas.Count(f => !f.Pagada);
+}
+
 <div class="container-fluid py-4">
 
-    <div class="card shadow-sm mb-4 border-0">
-        <div class="card-body p-4">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h2 class="mb-1 fw-bold text-primary">@Model.RazonSocial</h2>
-                    <p class="text-muted mb-0">Titular: @Model.PersonaResponsable | CUIT: @Model.Cuit</p>
-                </div>
-                <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                    <div class="d-flex justify-content-md-end align-items-center gap-3">
-                        <div class="text-end">
-                            <small class="text-uppercase text-muted fw-bold" style="font-size: 0.75rem;">Saldo
-                                Total</small>
-                            <h3 class="mb-0 fw-bold @(Model.SaldoTotal > 0 ? "text-danger" : "text-success")">
-                                $@Model.SaldoTotal.ToString("N2")
-                            </h3>
-                        </div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h3 fw-bold text-primary mb-1">@Model.RazonSocial</h2>
+            <p class="text-muted mb-0">Titular: @Model.PersonaResponsable · CUIT: @Model.Cuit</p>
+        </div>
+        <a asp-controller="Proveedor" asp-action="ListarProveedores" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Proveedores
+        </a>
+    </div>
 
-                        <div class="btn-group">
-                            <a asp-controller="DocumentoAsociado" asp-action="Index"
-                                asp-route-idProveedor="@Model.IdProveedor" class="btn btn-primary">
-                                <i class="bi bi-cash-coin me-2"></i>Gestion Pagos
-                            </a>
-                            <button class="btn btn-secondary" disabled title="Próximamente">
-                                <i class="bi bi-receipt me-2"></i>Gestion notas C/D
-                            </button>
-                        </div>
-                    </div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body py-3 px-3">
+                    <small class="text-uppercase text-muted fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Saldo adeudado</small>
+                    <p class="fs-4 fw-bold mb-0 mt-1 @(Model.SaldoTotal > 0 ? "text-danger" : "text-success")">$@Model.SaldoTotal.ToString("N2")</p>
+                    <small class="text-muted">@facturasPendientes factura(s) pendiente(s)</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 bg-light h-100">
+                <div class="card-body py-3 px-3">
+                    <small class="text-uppercase text-muted fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Total facturado</small>
+                    <p class="fs-5 fw-bold mb-0 mt-1">$@Model.TotalFacturado.ToString("N2")</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 bg-light h-100">
+                <div class="card-body py-3 px-3">
+                    <small class="text-uppercase text-muted fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Total pagado</small>
+                    <p class="fs-5 fw-bold mb-0 mt-1 text-success">$@Model.TotalPagado.ToString("N2")</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body">
-            <table id="tablaCuentaCorriente" class="table table-hover align-middle w-100">
-                <thead class="table-light">
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Tipo</th>
-                        <th>Número</th>
-                        <th class="text-end">Importe</th>
-                        <th class="text-end">Saldo (Fac)</th>
-                        <th class="text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.Movimientos)
-                    {
-                        // Si es Factura, fila gris sutil (table-active o custom style)
-                        <tr class="@(item.EsFactura ? "table-active" : "")">
-
-                            <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
-
-                            <td>
-                                @if (item.EsFactura)
-                                {
-                                    <span class="badge bg-primary bg-opacity-10 text-primary">Factura</span>
-                                }
-                                else if (item.EsOrdenPago)
-                                {
-
-                                    <span class="badge bg-success bg-opacity-10 text-success">Orden
-                                        Pago</span>
-                                }
-                                else
-                                {
-
-                                    <span class="badge bg-secondary bg-opacity-10 text-secondary">@item.TipoMovimiento</span>
-                                }
-                            </td>
-
-                            <td class="fw-bold">@item.NumeroComprobante</td>
-
-                            <td class="text-end">$@item.MontoTotal.ToString("N2")</td>
-
-                            <td class="text-end">
-                                @if (item.EsFactura)
-                                {
-                                    <span class="@(item.SaldoPendiente > 0 ? "text-danger fw-bold" : "text-success")">
-                                        $@item.SaldoPendiente?.ToString("N2")
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span>-</span>
-                                }
-                            </td>
-
-                            <td class="text-center">
-                                <div class="btn-group btn-group-sm">
-
-                                    @if (item.EsFactura)
-                                    {
-                                        <a asp-controller="Factura" asp-action="Details" asp-route-id="@item.IdReferencia"
-                                            class="btn btn-outline-secondary" title="Ver Detalle">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-
-                                        <a asp-controller="Factura" asp-action="DocumentosAsociados"
-                                            asp-route-id="@item.IdReferencia" class="btn btn-sm btn-outline-info"
-                                            title="Ver Pagos y Notas">
-                                            <i class="bi bi-folder2-open"></i>
-                                        </a>
-
-
-                                        @if (item.PuedeEditar)
-                                        {
-                                            <span class="btn btn-outline-secondary disabled" title="Proximamente">
-                                                <i class="bi bi-check-lg"></i>
-                                            </span>
-                                        }
-
-                                    }
-                                    else if (item.EsOrdenPago)
-                                    {
-                                        <button type="button" class="btn btn-outline-secondary" title="Ver Detalle"
-                                            onclick="verDetalleOrden(@item.IdReferencia)">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-
-                                        @if (item.PuedeEditar)
-                                        {
-                                            <a asp-controller="OrdenesPago" asp-action="Editar" asp-route-id="@item.IdReferencia"
-                                                class="btn btn-outline-primary" title="Editar">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-                                            <button type="button" class="btn btn-outline-danger"
-                                                onclick="eliminarOrden(@item.IdReferencia)" title="Eliminar">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        }
-                                    }
-                                    else if (item.EsComprobante)
-                                    {
-                                        <span class="btn btn-outline-secondary disabled" title="Proximamente">
-                                            <i class="bi bi-eye"></i>
-                                        </span>
-                                    }
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+    <div class="d-flex gap-2 mb-3">
+        <a asp-controller="OrdenPago" asp-action="Index" asp-route-idProveedor="@Model.IdProveedor"
+            class="btn btn-sm btn-primary">
+            <i class="bi bi-cash-coin me-1"></i> Gestionar pagos
+        </a>
     </div>
+
+    @if (!Model.Facturas.Any())
+    {
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-inbox text-muted" style="font-size: 2.5rem;"></i>
+                <p class="text-muted mt-3 mb-0">Este proveedor no tiene facturas registradas.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <div class="accordion accordion-flush" id="accordionCC">
+                    @foreach (var factura in Model.Facturas)
+                    {
+                        var collapseId = $"cc-{factura.IdFactura}";
+                        var tieneDocumentos = factura.Notas.Any() || factura.Pagos.Any();
+                        var estadoClass = factura.Estado switch
+                        {
+                            "Pagada" => "bg-success bg-opacity-10 text-success",
+                            "Parcial" => "bg-warning bg-opacity-10 text-warning",
+                            _ => "bg-danger bg-opacity-10 text-danger"
+                        };
+                        var saldoClass = factura.Pagada ? "text-success" : "text-danger";
+                        var puedeNC = !factura.Pagada && factura.Saldo > 0;
+
+                        <div class="accordion-item border-0 @(factura != Model.Facturas.Last() ? "border-bottom" : "")">
+                            <div class="accordion-header">
+                                <div class="d-flex align-items-center py-3 px-3">
+                                    @if (tieneDocumentos)
+                                    {
+                                        <button class="btn btn-sm btn-link text-muted p-0 me-2 collapsed"
+                                            type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#@collapseId"
+                                            style="width: 24px; text-decoration: none;">
+                                            <i class="bi bi-chevron-right toggle-icon"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="me-2" style="width: 24px;"></span>
+                                    }
+
+                                    <div class="row w-100 align-items-center gx-2">
+                                        <div class="col-md-3 col-lg-3">
+                                            <span class="fw-bold text-dark" style="font-size: 0.9rem;">@factura.NumeroFactura</span>
+                                            <br>
+                                            <small class="text-muted">@factura.FechaEmision.ToString("dd/MM/yyyy")</small>
+                                            @if (tieneDocumentos)
+                                            {
+                                                <small class="text-muted d-block" style="font-size: 0.65rem;">
+                                                    @factura.Notas.Count nota(s) · @factura.Pagos.Count pago(s)
+                                                </small>
+                                            }
+                                        </div>
+                                        <div class="col-md-2 text-end">
+                                            <small class="text-muted d-block" style="font-size: 0.7rem;">Total</small>
+                                            <span class="fw-bold" style="font-size: 0.9rem;">$@factura.TotalFacturado.ToString("N2")</span>
+                                        </div>
+                                        <div class="col-md-2 text-end">
+                                            <small class="text-muted d-block" style="font-size: 0.7rem;">Saldo</small>
+                                            <span class="fw-bold @saldoClass" style="font-size: 0.9rem;">$@factura.Saldo.ToString("N2")</span>
+                                        </div>
+                                        <div class="col-md-1 text-center">
+                                            <span class="badge @estadoClass rounded-pill" style="font-size: 0.7rem;">@factura.Estado</span>
+                                        </div>
+                                        <div class="col-md-4 col-lg-4 text-end">
+                                            <div class="btn-group btn-group-sm flex-wrap" style="gap: 2px;">
+                                                @if (puedeNC)
+                                                {
+                                                    <button type="button" class="btn btn-outline-info"
+                                                        style="font-size: 0.75rem; padding: 2px 8px;"
+                                                        onclick="abrirModalNota(@factura.IdFactura, 'NC', '@factura.NumeroFactura', @factura.Saldo.ToString(System.Globalization.CultureInfo.InvariantCulture))"
+                                                        title="Emitir nota de crédito">
+                                                        <i class="bi bi-plus-circle me-1"></i>NC
+                                                    </button>
+                                                }
+                                                <button type="button" class="btn btn-outline-warning"
+                                                    style="font-size: 0.75rem; padding: 2px 8px;"
+                                                    onclick="abrirModalNota(@factura.IdFactura, 'ND', '@factura.NumeroFactura', @factura.Saldo.ToString(System.Globalization.CultureInfo.InvariantCulture))"
+                                                    title="Emitir nota de débito">
+                                                    <i class="bi bi-plus-circle me-1"></i>ND
+                                                </button>
+                                                <a asp-controller="Factura" asp-action="Details"
+                                                    asp-route-id="@factura.IdFactura"
+                                                    class="btn btn-outline-secondary"
+                                                    style="font-size: 0.75rem; padding: 2px 8px;"
+                                                    title="Ver detalle">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                @if (factura.PuedeEditarse)
+                                                {
+                                                    <a asp-controller="Factura" asp-action="Edit"
+                                                        asp-route-id="@factura.IdFactura"
+                                                        class="btn btn-outline-primary"
+                                                        style="font-size: 0.75rem; padding: 2px 8px;"
+                                                        title="Editar factura">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (tieneDocumentos)
+                            {
+                                <div id="@collapseId" class="accordion-collapse collapse"
+                                    data-bs-parent="#accordionCC">
+                                    <div class="px-4 pb-3" style="padding-left: 56px !important;">
+
+                                        @if (factura.Notas.Any())
+                                        {
+                                            <div class="mb-3">
+                                                <small class="text-uppercase text-muted fw-bold d-block mb-2" style="font-size: 0.65rem; letter-spacing: 0.5px;">Notas asociadas</small>
+                                                @foreach (var nota in factura.Notas)
+                                                {
+                                                    var esCred = nota.Tipo == "NC";
+                                                    var badgeClass = esCred ? "bg-info bg-opacity-10 text-info" : "bg-warning bg-opacity-10 text-warning";
+                                                    var montoPrefix = esCred ? "-" : "+";
+                                                    var montoClass = esCred ? "text-info" : "text-warning";
+
+                                                    <div class="d-flex align-items-center py-2 border-bottom" style="font-size: 0.85rem;">
+                                                        <span class="badge @badgeClass me-3" style="min-width: 32px; font-size: 0.7rem;">@nota.Tipo</span>
+                                                        <span class="fw-bold me-3" style="min-width: 120px;">@nota.Numero</span>
+                                                        <span class="text-muted me-3 text-truncate" style="max-width: 180px;">@nota.Motivo</span>
+                                                        <span class="ms-auto fw-bold @montoClass">@montoPrefix$@nota.Total.ToString("N2")</span>
+                                                        <button type="button"
+                                                            class="btn btn-sm btn-link text-muted ms-2 p-0"
+                                                            onclick="verDetalleComprobante(@nota.IdComprobante)"
+                                                            title="Ver detalle">
+                                                            <i class="bi bi-eye" style="font-size: 0.85rem;"></i>
+                                                        </button>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+
+                                        @if (factura.Pagos.Any())
+                                        {
+                                            <div>
+                                                <small class="text-uppercase text-muted fw-bold d-block mb-2" style="font-size: 0.65rem; letter-spacing: 0.5px;">Pagos aplicados</small>
+                                                @foreach (var pago in factura.Pagos)
+                                                {
+                                                    <div class="d-flex align-items-center py-2 border-bottom" style="font-size: 0.85rem;">
+                                                        <span class="badge bg-success bg-opacity-10 text-success me-3" style="min-width: 32px; font-size: 0.7rem;">OP</span>
+                                                        <span class="fw-bold me-3" style="min-width: 120px;">@pago.Numero</span>
+                                                        <span class="text-muted me-3">@(pago.FechaPago?.ToString("dd/MM/yyyy") ?? "-")</span>
+                                                        <span class="ms-auto fw-bold text-success">-$@pago.MontoAplicado.ToString("N2")</span>
+                                                        <button type="button"
+                                                            class="btn btn-sm btn-link text-muted ms-2 p-0"
+                                                            onclick="verDetalleOrden(@pago.IdOrdenPago)"
+                                                            title="Ver detalle">
+                                                            <i class="bi bi-eye" style="font-size: 0.85rem;"></i>
+                                                        </button>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
 </div>
 
-<div class="modal fade" id="modalTrazabilidad" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+<div class="modal fade" id="modalCrearNota" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Documentos Asociados</h5>
+                <h5 class="modal-title" id="modalNotaTitulo">Emitir nota</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="contenidoTrazabilidad">
-                <div class="text-center">
-                    <div class="spinner-border text-primary"></div>
+            <div class="modal-body">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="badge rounded-pill" id="modalNotaBadge"></span>
+                    <span class="fw-bold" id="modalNotaFacturaRef"></span>
+                    <span class="ms-auto text-muted" style="font-size: 0.85rem;" id="modalNotaSaldoWrap">
+                        Saldo: <span class="fw-bold text-danger" id="modalNotaSaldo"></span>
+                    </span>
                 </div>
+
+                <input type="hidden" id="notaIdFactura">
+                <input type="hidden" id="notaTipo">
+
+                <div class="mb-3 p-2 bg-light rounded" style="font-size: 0.85rem;">
+                    <i class="bi bi-info-circle text-muted me-1"></i>
+                    <span class="text-muted">El número de comprobante se genera automáticamente.</span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small text-muted fw-bold">Total</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="notaTotal" step="0.01" min="0.01" required>
+                    </div>
+                    <small class="text-muted" id="notaTotalHelp"></small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small text-muted fw-bold">Motivo</label>
+                    <select class="form-select" id="notaMotivo" required>
+                        <option value="">Seleccionar motivo...</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small text-muted fw-bold">Comentario (opcional)</label>
+                    <textarea class="form-control" id="notaComentario" rows="2" maxlength="500" placeholder="Descripción adicional..."></textarea>
+                </div>
+
+                <div id="notaAlerta" class="alert d-none" role="alert"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn" id="btnEmitirNota" onclick="emitirNota()">
+                    <i class="bi bi-check-lg me-1"></i> Emitir
+                </button>
             </div>
         </div>
     </div>
@@ -179,65 +294,173 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalDetalleComprobante" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="contenidoModalComprobante">
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
-        $(document).ready(function () {
-            // Inicializar DataTables
-            $('#tablaCuentaCorriente').DataTable({
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
-                },
-                "order": [[0, "desc"]], // Asegurar orden visual por fecha
-                "pageLength": 25
-            });
+        var motivosNC = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MotivosNC, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+        var motivosND = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MotivosND, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+
+        document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(btn) {
+            var target = document.querySelector(btn.getAttribute('data-bs-target'));
+            if (target) {
+                target.addEventListener('show.bs.collapse', function() {
+                    btn.querySelector('.toggle-icon').classList.remove('bi-chevron-right');
+                    btn.querySelector('.toggle-icon').classList.add('bi-chevron-down');
+                });
+                target.addEventListener('hide.bs.collapse', function() {
+                    btn.querySelector('.toggle-icon').classList.remove('bi-chevron-down');
+                    btn.querySelector('.toggle-icon').classList.add('bi-chevron-right');
+                });
+            }
         });
 
-        // Función para llamar al GetByFacturaId (que hicimos antes) y mostrarlo en Modal
-        function verTrazabilidad(idFactura) {
-            $('#modalTrazabilidad').modal('show');
-            // Asumo que tienes una ruta /Facturas/GetDocumentosAsociados o similar que devuelve una PartialView
-            // Si devuelve JSON, habría que dibujar el HTML aquí con JS.
-            // Por simplicidad, asumiré que puedes crear una acción que devuelva PartialView.
+        function abrirModalNota(idFactura, tipo, numeroFactura, saldo) {
+            document.getElementById('notaTotal').value = '';
+            document.getElementById('notaComentario').value = '';
+            document.getElementById('notaAlerta').classList.add('d-none');
 
-            // Ejemplo de llamada:
-            /*
-            $.get('/Facturas/GetTrazabilidadPartial/' + idFactura, function(data) {
-                $('#contenidoTrazabilidad').html(data);
+            document.getElementById('notaIdFactura').value = idFactura;
+            document.getElementById('notaTipo').value = tipo;
+            document.getElementById('modalNotaFacturaRef').innerText = numeroFactura;
+
+            var badge = document.getElementById('modalNotaBadge');
+            var btn = document.getElementById('btnEmitirNota');
+            var select = document.getElementById('notaMotivo');
+
+            select.innerHTML = '<option value="">Seleccionar motivo...</option>';
+
+            if (tipo === 'NC') {
+                document.getElementById('modalNotaTitulo').innerText = 'Emitir nota de crédito';
+                badge.className = 'badge rounded-pill bg-info bg-opacity-10 text-info';
+                badge.innerText = 'Nota de crédito';
+                btn.className = 'btn btn-info';
+                btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Emitir NC';
+                document.getElementById('modalNotaSaldoWrap').style.display = '';
+                document.getElementById('modalNotaSaldo').innerText = '$' + saldo.toLocaleString('es-AR', {minimumFractionDigits: 2});
+                document.getElementById('notaTotalHelp').innerText = 'Máximo: $' + saldo.toLocaleString('es-AR', {minimumFractionDigits: 2});
+                document.getElementById('notaTotal').setAttribute('max', saldo);
+                motivosNC.forEach(function(m) {
+                    select.innerHTML += '<option value="' + m.idMotivo + '">' + m.descripcion + '</option>';
+                });
+            } else {
+                document.getElementById('modalNotaTitulo').innerText = 'Emitir nota de débito';
+                badge.className = 'badge rounded-pill bg-warning bg-opacity-10 text-warning';
+                badge.innerText = 'Nota de débito';
+                btn.className = 'btn btn-warning';
+                btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Emitir ND';
+                document.getElementById('modalNotaSaldoWrap').style.display = 'none';
+                document.getElementById('notaTotalHelp').innerText = '';
+                document.getElementById('notaTotal').removeAttribute('max');
+                motivosND.forEach(function(m) {
+                    select.innerHTML += '<option value="' + m.idMotivo + '">' + m.descripcion + '</option>';
+                });
+            }
+
+            var myModal = new bootstrap.Modal(document.getElementById('modalCrearNota'));
+            myModal.show();
+        }
+
+        function emitirNota() {
+            var total = parseFloat(document.getElementById('notaTotal').value);
+            var motivo = document.getElementById('notaMotivo').value;
+            var alerta = document.getElementById('notaAlerta');
+
+            if (!total || !motivo) {
+                alerta.className = 'alert alert-danger';
+                alerta.classList.remove('d-none');
+                alerta.innerText = 'Complete todos los campos obligatorios.';
+                return;
+            }
+
+            var btn = document.getElementById('btnEmitirNota');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Emitiendo...';
+
+            var payload = {
+                idFactura: parseInt(document.getElementById('notaIdFactura').value),
+                tipoComprobante: document.getElementById('notaTipo').value,
+                total: total,
+                idMotivo: parseInt(motivo),
+                comentario: document.getElementById('notaComentario').value || null
+            };
+
+            $.ajax({
+                url: '/Comprobantes/notas',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                success: function(data) {
+                    bootstrap.Modal.getInstance(document.getElementById('modalCrearNota')).hide();
+                    location.reload();
+                },
+                error: function(xhr) {
+                    var msg = xhr.responseJSON?.error || 'Error al emitir el comprobante.';
+                    alerta.className = 'alert alert-danger';
+                    alerta.classList.remove('d-none');
+                    alerta.innerText = msg;
+                    btn.disabled = false;
+                    var tipo = document.getElementById('notaTipo').value;
+                    btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Emitir ' + tipo;
+                }
             });
-            */
-            // Si el método devuelve JSON (el DTO que hicimos la otra vez), tendrías que iterar y construir la tabla aquí en JS.
         }
 
         function verDetalleOrden(idOrden) {
-            // 1. Mostrar el modal (mostrará el spinner por defecto)
             var myModal = new bootstrap.Modal(document.getElementById('modalDetalleOrden'));
             myModal.show();
-
-            // 2. Cargar contenido vía AJAX
-            $.get('/DocumentoAsociado/ObtenerDetalleModal/' + idOrden)
-                .done(function (data) {
-                    // Reemplazar el contenido del modal con la vista parcial
-                    $('#contenidoModalOrden').html(data);
-                })
-                .fail(function () {
+            $.get('/OrdenesPago/ObtenerDetalleModal/' + idOrden)
+                .done(function(data) { $('#contenidoModalOrden').html(data); })
+                .fail(function() {
                     $('#contenidoModalOrden').html(
                         '<div class="modal-header"><h5 class="modal-title">Error</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>' +
-                        '<div class="modal-body text-danger">No se pudo cargar el detalle de la orden.</div>'
+                        '<div class="modal-body text-danger">No se pudo cargar el detalle.</div>'
                     );
                 });
-
-            // Limpiar el contenido al cerrar para que la próxima vez se vea el spinner de nuevo
-            document.getElementById('modalDetalleOrden').addEventListener('hidden.bs.modal', function () {
+            document.getElementById('modalDetalleOrden').addEventListener('hidden.bs.modal', function() {
                 $('#contenidoModalOrden').html('<div class="modal-body text-center py-5"><div class="spinner-border text-primary"></div></div>');
-            });
+            }, { once: true });
         }
 
-
-        function eliminarOrden(id) {
-            if (confirm('¿Está seguro de eliminar esta Orden de Pago?')) {
-                // Llamada al form de eliminación o fetch API
-                window.location.href = '/OrdenesPago/Eliminar/' + id;
-            }
+        function verDetalleComprobante(idComprobante) {
+            var myModal = new bootstrap.Modal(document.getElementById('modalDetalleComprobante'));
+            myModal.show();
+            $.get('/Comprobantes/notas/detalle/' + idComprobante)
+                .done(function(data) {
+                    var badgeClass = data.tipo === 'Nota de Crédito' ? 'bg-info' : 'bg-warning';
+                    var html = '<div class="modal-header">' +
+                        '<h5 class="modal-title"><span class="badge ' + badgeClass + ' me-2">' + data.tipo + '</span>' + data.numero + '</h5>' +
+                        '<button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>' +
+                        '<div class="modal-body">' +
+                        '<div class="row mb-3"><div class="col-md-6"><small class="text-muted">Proveedor</small><p class="fw-bold mb-0">' + data.proveedorRazonSocial + '</p></div>' +
+                        '<div class="col-md-6 text-md-end"><small class="text-muted">Fecha</small><p class="fw-bold mb-0">' + new Date(data.fechaEmision).toLocaleDateString('es-AR') + '</p></div></div><hr>' +
+                        '<div class="row mb-3"><div class="col-md-6"><small class="text-muted">Motivo</small><p class="mb-0">' + data.motivo + '</p></div>' +
+                        '<div class="col-md-6 text-md-end"><small class="text-muted">Total</small><h4 class="fw-bold mb-0">$' + data.total.toLocaleString('es-AR', {minimumFractionDigits: 2}) + '</h4></div></div>' +
+                        (data.comentario ? '<div class="mb-3"><small class="text-muted">Comentario</small><p class="mb-0">' + data.comentario + '</p></div>' : '') +
+                        '<hr><div class="row"><div class="col-md-6"><small class="text-muted">Factura</small><p class="fw-bold mb-0">' + data.numeroFactura + '</p></div>' +
+                        '<div class="col-md-6 text-md-end"><small class="text-muted">Saldo factura</small><p class="fw-bold mb-0 ' + (data.facturaPagada ? 'text-success' : 'text-danger') + '">$' + data.facturaSaldoActual.toLocaleString('es-AR', {minimumFractionDigits: 2}) + '</p></div></div></div>';
+                    $('#contenidoModalComprobante').html(html);
+                })
+                .fail(function() {
+                    $('#contenidoModalComprobante').html(
+                        '<div class="modal-header"><h5 class="modal-title">Error</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>' +
+                        '<div class="modal-body text-danger">No se pudo cargar el detalle.</div>'
+                    );
+                });
+            document.getElementById('modalDetalleComprobante').addEventListener('hidden.bs.modal', function() {
+                $('#contenidoModalComprobante').html('<div class="modal-body text-center py-5"><div class="spinner-border text-primary"></div></div>');
+            }, { once: true });
         }
     </script>
 }
+
