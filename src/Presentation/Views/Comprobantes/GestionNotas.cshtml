@@ -1,0 +1,415 @@
+@using src.Presentation.ViewModels.Comprobantes
+@model GestionNotasViewModel
+
+<div class="container-fluid py-4">
+
+    <!-- Header del proveedor -->
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <a asp-controller="Proveedor" asp-action="CuentaCorriente"
+                        asp-route-id="@Model.IdProveedor" class="text-decoration-none text-muted">
+                        <i class="bi bi-arrow-left me-1"></i> Volver a Cuenta Corriente
+                    </a>
+                    <h2 class="mb-1 mt-2 fw-bold text-primary">Gestión de Notas C/D</h2>
+                    <p class="text-muted mb-0">@Model.RazonSocial | CUIT: @Model.Cuit</p>
+                </div>
+                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                    <small class="text-uppercase text-muted fw-bold" style="font-size: 0.75rem;">Saldo del Proveedor</small>
+                    <h3 class="mb-0 fw-bold @(Model.SaldoProveedor > 0 ? "text-danger" : "text-success")">
+                        $@Model.SaldoProveedor.ToString("N2")
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Listado de facturas con sus comprobantes -->
+    @if (!Model.Facturas.Any())
+    {
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-receipt-cutoff text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-3 mb-0">Este proveedor no tiene facturas registradas.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="accordion" id="accordionFacturas">
+            @foreach (var factura in Model.Facturas)
+            {
+                var collapseId = $"collapse-{factura.IdFactura}";
+                var headingId = $"heading-{factura.IdFactura}";
+                var saldoClass = factura.Pagada ? "text-success" : "text-danger";
+                var estadoBadge = factura.Pagada
+                    ? "<span class='badge bg-success'>Pagada</span>"
+                    : "<span class='badge bg-warning text-dark'>Pendiente</span>";
+
+                <div class="card shadow-sm border-0 mb-3">
+                    <!-- Cabecera de la factura -->
+                    <div class="card-header bg-white border-bottom-0 py-3" id="@headingId">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <button class="btn btn-link text-decoration-none p-0 fw-bold text-dark"
+                                    type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#@collapseId" aria-expanded="false">
+                                    <i class="bi bi-chevron-down me-2"></i>@factura.NumeroFactura
+                                </button>
+                            </div>
+                            <div class="col-md-2">
+                                <small class="text-muted">Emisión</small><br>
+                                <span>@factura.FechaEmision.ToString("dd/MM/yyyy")</span>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <small class="text-muted">Total</small><br>
+                                <span class="fw-bold">$@factura.TotalFacturado.ToString("N2")</span>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <small class="text-muted">Saldo</small><br>
+                                <span class="fw-bold @saldoClass">
+                                    $@factura.Saldo.ToString("N2")
+                                </span>
+                            </div>
+                            <div class="col-md-1 text-center">
+                                @Html.Raw(estadoBadge)
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <div class="btn-group btn-group-sm">
+                                    @if (!factura.Pagada)
+                                    {
+                                        <button type="button" class="btn btn-outline-info"
+                                            title="Emitir Nota de Crédito"
+                                            onclick="abrirModalCrear(@factura.IdFactura, 'NC', '@factura.NumeroFactura', @factura.Saldo.ToString(System.Globalization.CultureInfo.InvariantCulture))">
+                                            <i class="bi bi-plus-circle me-1"></i>NC
+                                        </button>
+                                    }
+                                    <button type="button" class="btn btn-outline-warning"
+                                        title="Emitir Nota de Débito"
+                                        onclick="abrirModalCrear(@factura.IdFactura, 'ND', '@factura.NumeroFactura', @factura.Saldo.ToString(System.Globalization.CultureInfo.InvariantCulture))">
+                                        <i class="bi bi-plus-circle me-1"></i>ND
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comprobantes de esta factura -->
+                    <div id="@collapseId" class="collapse" aria-labelledby="@headingId"
+                        data-bs-parent="#accordionFacturas">
+                        <div class="card-body pt-0">
+                            @if (!factura.Comprobantes.Any())
+                            {
+                                <p class="text-muted text-center py-3 mb-0">
+                                    <i class="bi bi-inbox me-1"></i> Sin notas emitidas para esta factura.
+                                </p>
+                            }
+                            else
+                            {
+                                <table class="table table-sm table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Tipo</th>
+                                            <th>Número</th>
+                                            <th>Fecha</th>
+                                            <th>Motivo</th>
+                                            <th class="text-end">Total</th>
+                                            <th>Comentario</th>
+                                            <th class="text-center">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var comp in factura.Comprobantes)
+                                        {
+                                            var tipoBadgeClass = comp.Tipo == "NC" ? "bg-info" : "bg-warning text-dark";
+                                            var tipoTexto = comp.Tipo == "NC" ? "Nota de Crédito" : "Nota de Débito";
+                                            <tr>
+                                                <td>
+                                                    <span class="badge @tipoBadgeClass">@tipoTexto</span>
+                                                </td>
+                                                <td class="fw-bold">@comp.Numero</td>
+                                                <td>@comp.Fecha.ToString("dd/MM/yyyy")</td>
+                                                <td>@comp.Motivo</td>
+                                                <td class="text-end fw-bold">$@comp.Total.ToString("N2")</td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(comp.Comentario))
+                                                    {
+                                                        <span class="text-muted" title="@comp.Comentario">
+                                                            @(comp.Comentario.Length > 40
+                                                                ? comp.Comentario.Substring(0, 40) + "..."
+                                                                : comp.Comentario)
+                                                        </span>
+                                                    }
+                                                </td>
+                                                <td class="text-center">
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                        title="Ver Detalle"
+                                                        onclick="verDetalleComprobante(@comp.IdComprobante)">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Modal Crear Comprobante -->
+<div class="modal fade" id="modalCrearComprobante" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCrearTitulo">Emitir Nota</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formCrearComprobante">
+                    <input type="hidden" id="crearIdFactura" name="idFactura">
+                    <input type="hidden" id="crearTipoComprobante" name="tipoComprobante">
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Factura</label>
+                        <p class="fw-bold mb-0" id="crearFacturaRef"></p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted" id="labelSaldoDisponible">Saldo disponible</label>
+                        <p class="fw-bold text-danger mb-0" id="crearSaldoDisponible"></p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="crearNumero" class="form-label">Número de Comprobante <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="crearNumero" name="numero"
+                            placeholder="Ej: NC-0001-00000001" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="crearTotal" class="form-label">Total <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="crearTotal" name="total"
+                                step="0.01" min="0.01" required>
+                        </div>
+                        <small class="text-muted" id="crearTotalHelp"></small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="crearMotivo" class="form-label">Motivo <span class="text-danger">*</span></label>
+                        <select class="form-select" id="crearMotivo" name="idMotivo" required>
+                            <option value="">Seleccionar motivo...</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="crearComentario" class="form-label">Comentario</label>
+                        <textarea class="form-control" id="crearComentario" name="comentario"
+                            rows="3" maxlength="500" placeholder="Opcional"></textarea>
+                    </div>
+                </form>
+
+                <div id="crearAlerta" class="alert d-none" role="alert"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnConfirmarCrear" onclick="confirmarCrear()">
+                    <i class="bi bi-check-lg me-1"></i> Emitir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detalle Comprobante -->
+<div class="modal fade" id="modalDetalleComprobante" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="contenidoModalComprobante">
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Motivos cargados desde el servidor
+        // var motivosNC = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MotivosNC));
+        // var motivosND = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MotivosND));
+        var motivosNC = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MotivosNC, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+        var motivosND = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MotivosND, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+
+        function abrirModalCrear(idFactura, tipo, numeroFactura, saldo) {
+            // Resetear formulario
+            document.getElementById('formCrearComprobante').reset();
+            $('#crearAlerta').addClass('d-none');
+
+            // Setear valores
+            $('#crearIdFactura').val(idFactura);
+            $('#crearTipoComprobante').val(tipo);
+            $('#crearFacturaRef').text(numeroFactura);
+            $('#crearSaldoDisponible').text('$' + saldo.toLocaleString('es-AR', { minimumFractionDigits: 2 }));
+
+            // Configurar según tipo
+            if (tipo === 'NC') {
+                $('#modalCrearTitulo').text('Emitir Nota de Crédito');
+                $('#modalCrearTitulo').removeClass('text-warning').addClass('text-info');
+                $('#crearTotalHelp').text('Máximo: $' + saldo.toLocaleString('es-AR', { minimumFractionDigits: 2 }));
+                $('#crearTotal').attr('max', saldo);
+                $('#labelSaldoDisponible').show();
+                $('#crearSaldoDisponible').show();
+                cargarMotivos(motivosNC);
+            } else {
+                $('#modalCrearTitulo').text('Emitir Nota de Débito');
+                $('#modalCrearTitulo').removeClass('text-info').addClass('text-warning');
+                $('#crearTotalHelp').text('');
+                $('#crearTotal').removeAttr('max');
+                $('#labelSaldoDisponible').hide();
+                $('#crearSaldoDisponible').hide();
+                cargarMotivos(motivosND);
+            }
+
+            var myModal = new bootstrap.Modal(document.getElementById('modalCrearComprobante'));
+            myModal.show();
+        }
+
+        function cargarMotivos(motivos) {
+            var select = $('#crearMotivo');
+            select.empty();
+            select.append('<option value="">Seleccionar motivo...</option>');
+            motivos.forEach(function (m) {
+                select.append(`<option value="${m.idMotivo}">${m.descripcion}</option>`);
+            });
+        }
+
+        function confirmarCrear() {
+            var form = document.getElementById('formCrearComprobante');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            var btn = $('#btnConfirmarCrear');
+            btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Emitiendo...');
+
+            var payload = {
+                idFactura: parseInt($('#crearIdFactura').val()),
+                tipoComprobante: $('#crearTipoComprobante').val(),
+                numero: $('#crearNumero').val(),
+                total: parseFloat($('#crearTotal').val()),
+                idMotivo: parseInt($('#crearMotivo').val()),
+                comentario: $('#crearComentario').val() || null
+            };
+
+            $.ajax({
+                url: '/Comprobantes/notas',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                success: function (data) {
+                    // Cerrar modal y recargar
+                    bootstrap.Modal.getInstance(document.getElementById('modalCrearComprobante')).hide();
+                    mostrarAlertaExito(data.message);
+                    setTimeout(function () { location.reload(); }, 1500);
+                },
+                error: function (xhr) {
+                    var msg = xhr.responseJSON?.error || 'Error al crear el comprobante.';
+                    $('#crearAlerta')
+                        .removeClass('d-none alert-success')
+                        .addClass('alert-danger')
+                        .text(msg);
+                    btn.prop('disabled', false).html('<i class="bi bi-check-lg me-1"></i> Emitir');
+                }
+            });
+        }
+
+        function mostrarAlertaExito(mensaje) {
+            var alertHtml = `
+                <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                    <i class="bi bi-check-circle me-2"></i>${mensaje}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>`;
+            $('.container-fluid').prepend(alertHtml);
+        }
+
+        function verDetalleComprobante(idComprobante) {
+            var myModal = new bootstrap.Modal(document.getElementById('modalDetalleComprobante'));
+            myModal.show();
+
+            $.get('/Comprobantes/notas/detalle/' + idComprobante)
+                .done(function (data) {
+                    var tipo = data.tipo;
+                    var badgeClass = tipo === 'Nota de Crédito' ? 'bg-info' : 'bg-warning';
+                    var html = `
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <span class="badge ${badgeClass} me-2">${data.tipo}</span>
+                                ${data.numero}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <small class="text-muted">Proveedor</small>
+                                    <p class="fw-bold mb-0">${data.proveedorRazonSocial}</p>
+                                    <small class="text-muted">CUIT: ${data.proveedorCuit}</small>
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <small class="text-muted">Fecha de Emisión</small>
+                                    <p class="fw-bold mb-0">${new Date(data.fechaEmision).toLocaleDateString('es-AR')}</p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <small class="text-muted">Motivo</small>
+                                    <p class="mb-0">${data.motivo}</p>
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <small class="text-muted">Total</small>
+                                    <h4 class="fw-bold mb-0">$${data.total.toLocaleString('es-AR', {minimumFractionDigits: 2})}</h4>
+                                </div>
+                            </div>
+                            ${data.comentario ? `<div class="mb-3"><small class="text-muted">Comentario</small><p class="mb-0">${data.comentario}</p></div>` : ''}
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <small class="text-muted">Factura Referenciada</small>
+                                    <p class="fw-bold mb-0">${data.numeroFactura}</p>
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <small class="text-muted">Saldo Actual Factura</small>
+                                    <p class="fw-bold mb-0 ${data.facturaPagada ? 'text-success' : 'text-danger'}">
+                                        $${data.facturaSaldoActual.toLocaleString('es-AR', {minimumFractionDigits: 2})}
+                                        ${data.facturaPagada ? '<span class="badge bg-success ms-2">Pagada</span>' : ''}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    $('#contenidoModalComprobante').html(html);
+                })
+                .fail(function () {
+                    $('#contenidoModalComprobante').html(
+                        '<div class="modal-header"><h5 class="modal-title">Error</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>' +
+                        '<div class="modal-body text-danger">No se pudo cargar el detalle del comprobante.</div>'
+                    );
+                });
+
+            document.getElementById('modalDetalleComprobante').addEventListener('hidden.bs.modal', function () {
+                $('#contenidoModalComprobante').html('<div class="modal-body text-center py-5"><div class="spinner-border text-primary"></div></div>');
+            }, { once: true });
+        }
+    </script>
+}
+

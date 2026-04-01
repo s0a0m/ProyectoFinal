@@ -1,0 +1,11 @@
+asd
+cat > /tmp/netcoredbg_wrapper << 'WRAPPER'
+#!/usr/bin/env bash
+export DOTNET_ROOT=/usr/share/dotnet
+export ASPNETCORE_ENVIRONMENT=Development
+export PATH=/usr/share/dotnet:$(echo $PATH | tr ':' '\n' | grep -v "asdf/installs/dotnet" | tr '\n' ':')
+exec "/home/s0a0m/.local/share/nvim/mason/packages/netcoredbg/libexec/netcoredbg/netcoredbg" "$@"
+WRAPPER
+cp /tmp/netcoredbg_wrapper ~/.local/share/nvim/mason/packages/netcoredbg/netcoredbg
+chmod +x ~/.local/share/nvim/mason/packages/netcoredbg/netcoredbg
+quit

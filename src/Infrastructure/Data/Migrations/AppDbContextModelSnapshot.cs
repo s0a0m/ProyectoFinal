@@ -173,10 +173,6 @@ namespace src.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_emision");
 
-                    b.Property<short>("IdCondicionPagoUsada")
-                        .HasColumnType("smallint")
-                        .HasColumnName("id_condicion_pago_usada");
-
                     b.Property<int>("IdFacturaReferencia")
                         .HasColumnType("integer")
                         .HasColumnName("id_factura_referencia");
@@ -200,8 +196,6 @@ namespace src.Migrations
                         .HasColumnName("total");
 
                     b.HasKey("IdComprobante");
-
-                    b.HasIndex("IdCondicionPagoUsada");
 
                     b.HasIndex("IdFacturaReferencia");
 
@@ -988,9 +982,8 @@ namespace src.Migrations
                         .HasColumnType("character varying(80)")
                         .HasColumnName("razon_social");
 
-                    b.Property<string>("Saldo")
-                        .IsRequired()
-                        .HasColumnType("character varying")
+                    b.Property<decimal>("Saldo")
+                        .HasColumnType("decimal(11,2)")
                         .HasColumnName("saldo");
 
                     b.Property<string>("Telefono")
@@ -1233,12 +1226,6 @@ namespace src.Migrations
 
             modelBuilder.Entity("src.Models.CodeFirst.Comprobante", b =>
                 {
-                    b.HasOne("src.Models.CodeFirst.CondicionDePago", "CondicionPago")
-                        .WithMany()
-                        .HasForeignKey("IdCondicionPagoUsada")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("src.Models.CodeFirst.Factura", "FacturaOriginal")
                         .WithMany()
                         .HasForeignKey("IdFacturaReferencia")
@@ -1256,8 +1243,6 @@ namespace src.Migrations
                         .HasForeignKey("IdProveedor")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("CondicionPago");
 
                     b.Navigation("FacturaOriginal");
 

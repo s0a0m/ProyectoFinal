@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using src.Infrastructure.Repositories;
-using src.Interfaces;
+using src.Repositories.Interfaces;
 using src.Repositories.Interfaces;
 using Dom = src.Models.Domain;
 
@@ -18,7 +18,8 @@ public class PruebaRepoApiController : ControllerBase
     public PruebaRepoApiController(
         IComprobanteRepository comprobanteRepo,
         IOrdenPagoRepository pagoRepo,
-        IFacturaRepository facturaRepo)
+        IFacturaRepository facturaRepo
+    )
     {
         _comprobanteRepo = comprobanteRepo;
         _pagoRepo = pagoRepo;
@@ -52,7 +53,8 @@ public class PruebaRepoApiController : ControllerBase
     public async Task<IActionResult> GetComprobanteById(int id)
     {
         var comp = await _comprobanteRepo.GetByIdAsync(id);
-        if (comp == null) return NotFound($"No se encontró comprobante con ID {id}");
+        if (comp == null)
+            return NotFound($"No se encontró comprobante con ID {id}");
 
         // Debería traer Proveedor, Motivo y CondicionPago llenos
         return Ok(comp);
@@ -91,7 +93,8 @@ public class PruebaRepoApiController : ControllerBase
         // Este es importante para ver si trae los DETALLES y las FACTURAS pagadas
         var pago = await _pagoRepo.GetByIdWithDetallesAsync(id);
 
-        if (pago == null) return NotFound();
+        if (pago == null)
+            return NotFound();
         return Ok(pago);
     }
 
@@ -101,7 +104,8 @@ public class PruebaRepoApiController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateNotaCredito([FromBody] CreateNotaDto dto)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
         try
         {
@@ -115,7 +119,7 @@ public class PruebaRepoApiController : ControllerBase
                 Numero = dto.Numero,
                 Total = dto.Total,
                 FechaEmision = DateTime.UtcNow, // Siempre UTC al guardar
-                Comentario = dto.Comentario
+                Comentario = dto.Comentario,
             };
 
             // 2. Llamada al Repo (Polimorfismo: AddAsync acepta Comprobante)
@@ -133,7 +137,10 @@ public class PruebaRepoApiController : ControllerBase
         {
             // Loguear error real en consola para debug
             Console.WriteLine(ex.ToString());
-            return StatusCode(500, new { mensaje = "Error al crear Nota de Crédito", error = ex.Message });
+            return StatusCode(
+                500,
+                new { mensaje = "Error al crear Nota de Crédito", error = ex.Message }
+            );
         }
     }
 
@@ -146,7 +153,8 @@ public class PruebaRepoApiController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateNotaDebito([FromBody] CreateNotaDto dto)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
         try
         {
@@ -160,7 +168,7 @@ public class PruebaRepoApiController : ControllerBase
                 Numero = dto.Numero,
                 Total = dto.Total,
                 FechaEmision = DateTime.UtcNow,
-                Comentario = dto.Comentario
+                Comentario = dto.Comentario,
             };
 
             // 2. Llamada al Repo
@@ -176,7 +184,10 @@ public class PruebaRepoApiController : ControllerBase
         catch (Exception ex)
         {
             Console.WriteLine(ex.ToString());
-            return StatusCode(500, new { mensaje = "Error al crear Nota de Débito", error = ex.Message });
+            return StatusCode(
+                500,
+                new { mensaje = "Error al crear Nota de Débito", error = ex.Message }
+            );
         }
     }
 
@@ -184,7 +195,8 @@ public class PruebaRepoApiController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<IActionResult> CrearOrdenPago([FromBody] CreateOrdenPagoDto dto)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
         try
         {
@@ -194,19 +206,21 @@ public class PruebaRepoApiController : ControllerBase
             {
                 // IdProveedor = dto.IdProveedor,
                 IdProveedor = dto.IdProveedor,
-                Enviada = false,      // Nace como borrador
-                FechaPago = null,     // Aún no se paga
+                Enviada = false, // Nace como borrador
+                FechaPago = null, // Aún no se paga
 
                 // 2. Lógica de Negocio: El total lo calcula el servidor, no el cliente.
                 MontoTotal = dto.Detalles.Sum(d => d.MontoPagar),
 
                 // 3. Mapeo de Detalles
-                Detalles = dto.Detalles.Select(d => new Dom.PagoDetalle
-                {
-                    // IdFactura = d.IdFactura,
-                    IdFactura = d.IdFactura,
-                    MontoAplicado = d.MontoPagar
-                }).ToList()
+                Detalles = dto
+                    .Detalles.Select(d => new Dom.PagoDetalle
+                    {
+                        // IdFactura = d.IdFactura,
+                        IdFactura = d.IdFactura,
+                        MontoAplicado = d.MontoPagar,
+                    })
+                    .ToList(),
             };
 
             // 4. Guardar
@@ -223,11 +237,13 @@ public class PruebaRepoApiController : ControllerBase
             return StatusCode(500, new { error = ex.Message });
         }
     }
+
     // GET: api/orden-pago/por-factura/5
     [HttpGet("pagos-por-factura/{idFactura}")]
     public async Task<IActionResult> GetPagosDeFactura(int idFactura)
     {
-        if (idFactura <= 0) return BadRequest("El ID de la factura debe ser mayor a 0.");
+        if (idFactura <= 0)
+            return BadRequest("El ID de la factura debe ser mayor a 0.");
 
         try
         {
@@ -241,22 +257,26 @@ public class PruebaRepoApiController : ControllerBase
             return StatusCode(500, new { error = ex.Message });
         }
     }
+
     [HttpGet("comprobantes-por-factura/{idFactura}")]
     public async Task<IActionResult> GetComprobantesPorFactura(int idFactura)
     {
         // Validar que el ID sea lógico
-        if (idFactura <= 0) return BadRequest("El ID de factura no es válido.");
+        if (idFactura <= 0)
+            return BadRequest("El ID de factura no es válido.");
 
         var comprobantes = await _comprobanteRepo.GetByFacturaIdAsync(idFactura);
 
-        // Opcional: Si no hay nada, puedes devolver 200 con lista vacía (recomendado) 
+        // Opcional: Si no hay nada, puedes devolver 200 con lista vacía (recomendado)
         // o 404 Not Found.
         return Ok(comprobantes);
     }
+
     [HttpPut("actualizar-orden")]
     public async Task<IActionResult> UpdateOrdenPago([FromBody] UpdateOrdenPagoDto dto)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
         try
         {
@@ -270,7 +290,9 @@ public class PruebaRepoApiController : ControllerBase
             // REGLA: No editar si ya fue enviada
             if (ordenOriginal.Enviada)
             {
-                return BadRequest(new { error = "No se puede modificar una orden que ya fue enviada o pagada." });
+                return BadRequest(
+                    new { error = "No se puede modificar una orden que ya fue enviada o pagada." }
+                );
             }
 
             // PASO 2: Validar Facturas usando IFacturaRepository
@@ -297,18 +319,18 @@ public class PruebaRepoApiController : ControllerBase
                 // Validación B: ¿Es del mismo proveedor?
                 if (factura.Proveedor.IdProveedor != ordenOriginal.IdProveedor)
                 {
-                    facturasInvalidas.Add($"Factura {factura.NumeroFactura} (Pertenece al Proveedor {factura.Proveedor.IdProveedor}, no al {ordenOriginal.IdProveedor})");
+                    facturasInvalidas.Add(
+                        $"Factura {factura.Numero} (Pertenece al Proveedor {factura.Proveedor.IdProveedor}, no al {ordenOriginal.IdProveedor})"
+                    );
                 }
             }
 
             // Si encontramos errores, devolvemos BadRequest
             if (facturasInvalidas.Any())
             {
-                return BadRequest(new
-                {
-                    mensaje = "Error de Validación de Facturas",
-                    errores = facturasInvalidas
-                });
+                return BadRequest(
+                    new { mensaje = "Error de Validación de Facturas", errores = facturasInvalidas }
+                );
             }
 
             // PASO 3: Construcción del Objeto de Dominio
@@ -321,22 +343,26 @@ public class PruebaRepoApiController : ControllerBase
                 FechaPago = ordenOriginal.FechaPago,
 
                 // Mapeamos Detalles (Solo IDs y Montos)
-                Detalles = dto.Detalles.Select(d => new Dom.PagoDetalle
-                {
-                    IdFactura = d.IdFactura,
-                    MontoAplicado = d.MontoPagar
-                    // Factura = null (No asignamos el objeto para evitar conflictos)
-                }).ToList()
+                Detalles = dto
+                    .Detalles.Select(d => new Dom.PagoDetalle
+                    {
+                        IdFactura = d.IdFactura,
+                        MontoAplicado = d.MontoPagar,
+                        // Factura = null (No asignamos el objeto para evitar conflictos)
+                    })
+                    .ToList(),
             };
 
             // PASO 4: Llamada al Repo para actualizar
             await _pagoRepo.UpdateAsync(ordenParaActualizar);
 
-            return Ok(new
-            {
-                mensaje = "Orden actualizada correctamente",
-                id = ordenParaActualizar.IdOrdenPago
-            });
+            return Ok(
+                new
+                {
+                    mensaje = "Orden actualizada correctamente",
+                    id = ordenParaActualizar.IdOrdenPago,
+                }
+            );
         }
         catch (KeyNotFoundException)
         {
@@ -347,6 +373,7 @@ public class PruebaRepoApiController : ControllerBase
             return StatusCode(500, new { error = ex.Message });
         }
     }
+
     public record CreateNotaDto
     {
         // Validaciones básicas
@@ -391,6 +418,7 @@ public class PruebaRepoApiController : ControllerBase
         [Range(0.01, 999999999, ErrorMessage = "El monto debe ser mayor a 0.")]
         public decimal MontoPagar { get; set; }
     }
+
     public record UpdateOrdenPagoDto
     {
         [Required]
@@ -411,3 +439,4 @@ public class PruebaRepoApiController : ControllerBase
         public decimal MontoPagar { get; set; }
     }
 }
+

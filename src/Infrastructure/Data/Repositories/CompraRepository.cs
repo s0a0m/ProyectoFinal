@@ -6,7 +6,7 @@ using src.Repositories.Interfaces;
 using Dom = src.Models.Domain;
 using EF = src.Models.CodeFirst;
 using src.Models.Mappers;
-using src.Interfaces;
+using src.Repositories.Interfaces;
 using src.Models.Domain;
 using src.Models.Common;
 

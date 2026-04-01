@@ -17,22 +17,21 @@ public class OrdenPago
     public string Numero { get; set; }
 
     [Required]
-
     [Column("id_proveedor")]
     public short IdProveedor { get; set; }
-    [Required]
 
+    [Required]
     [Column("monto_total")]
     public decimal MontoTotal { get; set; }
 
     [Column("fecha_pago")]
     public DateTime? FechaPago { get; set; } = null;
-    [Required]
 
+    [Required]
     [Column("enviada")]
     public bool Enviada { get; set; } = false;
-    [Required]
 
+    [Required]
     [ForeignKey("IdProveedor")]
     public virtual Proveedor Proveedor { get; set; } = null!;
 

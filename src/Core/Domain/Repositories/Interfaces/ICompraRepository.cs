@@ -1,6 +1,6 @@
 using src.Models.Domain;
 
-namespace src.Interfaces;
+namespace src.Repositories.Interfaces;
 
 public interface ICompraRepository
 {
@@ -12,5 +12,5 @@ public interface ICompraRepository
     Task CancelarCompraAsync(int idCompra, string motivo);
     Task MarcarComoEnviadaAsync(int idCompra);
     Task CompletarCompraAsync(int idCompra);
-
 }
+

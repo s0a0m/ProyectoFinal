@@ -1,6 +1,6 @@
 using Dom = src.Models.Domain;
 
-namespace src.Interfaces;
+namespace src.Repositories.Interfaces;
 
 public interface ICondicionPagoRepository
 {
@@ -8,3 +8,4 @@ public interface ICondicionPagoRepository
     Task<Dom.CondicionDePago?> GetByIdAsync(int id);
     Task<Dom.CondicionDePago> BuscarOCrearAsync(Dom.CondicionDePago condicion);
 }
+

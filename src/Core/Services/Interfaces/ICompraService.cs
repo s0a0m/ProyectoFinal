@@ -13,5 +13,7 @@ namespace src.Core.Services.Interfaces
         Task UpdateAsync(Dom.Compra compra);
         Task CancelarCompraAsync(short id);
         Task EsEditableAsync(short id);
+        Task<Dom.Compra?> ObtenerPorIdAsync(int id);
     }
 }
+

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using src.Interfaces;
+using src.Repositories.Interfaces;
 using src.Models.CodeFirst;
 using src.Models.Mappers;
 using src.Repositories.Interfaces;
