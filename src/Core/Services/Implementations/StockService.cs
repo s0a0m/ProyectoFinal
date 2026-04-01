@@ -205,7 +205,7 @@ public class StockService : IStockService
                 return (false, "La cantidad a retirar debe ser mayor a cero.");
 
             await _ubicacionRepo.RetirarStockDeFilaAsync(idProducto, idFila, cantidad, idUsuario);
-            return (true, $"Se retiraron {cantidad:N2} unidades del stock correctamente.");
+            return (true, $"Se retiro el stock correctamente.");
         }
         catch (InvalidOperationException ex) { return (false, ex.Message); }
         catch (KeyNotFoundException       ex) { return (false, ex.Message); }

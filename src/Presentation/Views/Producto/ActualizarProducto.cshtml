@@ -28,22 +28,12 @@
                 <span asp-validation-for="Nombre" class="text-danger small"></span>
             </div>
 
-            <div class="row g-2">
-                <div class="col-md-6">
-                    <div class="form-floating mb-3">
-                        <input asp-for="StockTotal" class="form-control" type="number" placeholder="0">
-                        <label asp-for="StockTotal">Stock Actual</label>
-                        <span asp-validation-for="StockTotal" class="text-danger small"></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-floating mb-3">
-                        <input asp-for="StockMinimo" class="form-control" type="number" placeholder="0">
-                        <label asp-for="StockMinimo">Stock Mínimo (Alerta)</label>
-                        <span asp-validation-for="StockMinimo" class="text-danger small"></span>
-                    </div>
-                </div>
+            <div class="form-floating mb-3">
+                <input asp-for="StockMinimo" class="form-control" type="number" placeholder="0">
+                <label asp-for="StockMinimo">Stock Mínimo (Alerta)</label>
+                <span asp-validation-for="StockMinimo" class="text-danger small"></span>
             </div>
+                
         </fieldset>
 
         <fieldset class="mb-4">

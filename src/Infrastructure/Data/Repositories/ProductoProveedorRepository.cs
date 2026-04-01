@@ -32,32 +32,30 @@ public class ProductoProveedorRepository : IProductoProveedorRepository
 
         foreach (var efItem in efEntities)
         {
-            // --- CAMBIO CRÍTICO: MAPEO MANUAL ---
-            // NO usamos DominioMapper.Map(efItem) porque intenta mapear Domicilios/Provincias
-            // que no trajimos de la BD, causando NullReferenceException.
+            
 
             var domItem = new Dom.ProductoProveedor
             {
                 Precio = efItem.Precio,
                 StockAsignado = efItem.StockAsignado,
                 Activo = efItem.Activo,
-                // Construimos el Producto manualmente (Solo lo necesario)
+                
                 Producto = efItem.Producto == null ? null : new Dom.Producto
                 {
                     IdProducto = efItem.Producto.IdProducto,
                     Nombre = efItem.Producto.Nombre
                 },
 
-                // Construimos el Proveedor manualmente (Solo lo necesario)
+               
                 Proveedor = efItem.Proveedor == null ? null : new Dom.Proveedor
                 {
                     IdProveedor = efItem.Proveedor.IdProveedor,
                     RazonSocial = efItem.Proveedor.RazonSocial
-                    // NO asignamos IdDomicilioNavigation para que el mapper no moleste
+              
                 }
             };
 
-            // Obtenemos lista de códigos
+            
             var listaCodigos = efItem.Producto.CodigosBarrasExternos
                 .Where(c => c.IdProveedor == efItem.IdProveedor)
                 .Select(c => c.CodigoBarraProveedor)
@@ -79,7 +77,7 @@ public class ProductoProveedorRepository : IProductoProveedorRepository
 
         if (efEntity == null) return null;
 
-        // --- CAMBIO CRÍTICO: MAPEO MANUAL TAMBIÉN AQUÍ ---
+
         var dom = new Dom.ProductoProveedor
         {
             Precio = efEntity.Precio,
@@ -172,24 +170,52 @@ public class ProductoProveedorRepository : IProductoProveedorRepository
 
 
 
-    public async Task UpdateAsync(Dom.ProductoProveedor entity, CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(Dom.ProductoProveedor entity,List<string> nuevosCodigosExternos, CancellationToken cancellationToken = default)
     {
         var idProducto = entity.Producto?.IdProducto ?? 0;
         var idProveedor = entity.Proveedor?.IdProveedor ?? 0;
 
-        var existingEfEntity = await _context.ProductosProveedores
-            .FirstOrDefaultAsync(x => x.IdProducto == idProducto && x.IdProveedor == idProveedor, cancellationToken);
+        using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
 
-        if (existingEfEntity == null)
+        try
         {
-            throw new KeyNotFoundException("Relación Producto-Proveedor no encontrada para actualización.");
+            var existingEfEntity = await _context.ProductosProveedores
+                .FirstOrDefaultAsync(x => x.IdProducto == idProducto && x.IdProveedor == idProveedor, cancellationToken);
+
+            if (existingEfEntity == null)
+                throw new KeyNotFoundException("Relación Producto-Proveedor no encontrada para actualización.");
+
+            existingEfEntity.Precio = entity.Precio;
+            existingEfEntity.StockAsignado = entity.StockAsignado;
+
+            _context.ProductosProveedores.Update(existingEfEntity);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            // Insertar solo los nuevos códigos (no toca los existentes)
+            if (nuevosCodigosExternos != null && nuevosCodigosExternos.Any())
+            {
+                foreach (var codigoStr in nuevosCodigosExternos)
+                {
+                    if (string.IsNullOrWhiteSpace(codigoStr)) continue;
+
+                    var nuevoCodigo = new ProductoCodigoExterno
+                    {
+                        IdProducto = existingEfEntity.IdProducto,
+                        IdProveedor = existingEfEntity.IdProveedor,
+                        CodigoBarraProveedor = codigoStr.Trim()
+                    };
+                    await _context.ProductoCodigosExternos.AddAsync(nuevoCodigo, cancellationToken);
+                }
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+
+            await transaction.CommitAsync(cancellationToken);
         }
-
-        existingEfEntity.Precio = entity.Precio;
-        existingEfEntity.StockAsignado = entity.StockAsignado;
-
-        _context.ProductosProveedores.Update(existingEfEntity);
-        await _context.SaveChangesAsync(cancellationToken);
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
 
     public async Task UpdateAsync2(Dom.ProductoProveedor entity)

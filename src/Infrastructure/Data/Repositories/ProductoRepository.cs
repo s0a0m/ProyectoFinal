@@ -121,7 +121,6 @@ namespace src.Repositories.Implementations
             // 1. Actualizar Escalares
             existing.Nombre = entity.Nombre;
             existing.StockMinimo = entity.StockMinimo;
-            existing.StockTotal = entity.StockTotal;
             existing.Activo = entity.Activo;
 
             // 2. Sincronizar Categorías (N-N) - (Tu lógica aquí estaba bien, la mantengo)

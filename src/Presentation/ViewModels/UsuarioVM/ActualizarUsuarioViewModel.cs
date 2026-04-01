@@ -9,10 +9,12 @@ namespace src.Presentation.ViewModels.UsuarioVM
         public short IdUsuario { get; set; }
 
         [Required(ErrorMessage = "El nombre es obligatorio.")]
+        [RegularExpression(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$", ErrorMessage = "El Nombre no puede contener caracteres especiales")]
         [StringLength(50, ErrorMessage = "El nombre no puede exceder los 100 caracteres.")]
         public string Nombre { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El apellido es obligatorio.")]
+        [RegularExpression(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$", ErrorMessage = "El Apellido no puede contener caracteres especiales")]
         [StringLength(50, ErrorMessage = "El apellido no puede exceder los 100 caracteres.")]
         public string Apellido { get; set; } = string.Empty;
 

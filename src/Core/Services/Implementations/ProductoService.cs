@@ -73,7 +73,6 @@ namespace src.Core.Services.Implementations
                 IdProducto = producto.IdProducto,
                 Nombre = producto.Nombre,
                 StockMinimo = producto.StockMinimo,
-                StockTotal = producto.StockTotal,
                 Activo = producto.Activo,
                 // Cargamos los IDs y Strings existentes
                 CodigosBarra = producto.CodigoBarra.Select(cb => cb.Codigo).ToList(),
@@ -119,7 +118,7 @@ namespace src.Core.Services.Implementations
             {
                 Nombre = vm.Nombre.Trim(),
                 StockMinimo = vm.StockMinimo,
-                StockTotal = vm.StockTotal,
+                StockTotal = 0,
                 Activo = true,
                 Categoria = vm.IdsCategoriasSeleccionadas
                               .Select(id => new Dom.Categoria { IdCategoria = id })
@@ -151,7 +150,7 @@ namespace src.Core.Services.Implementations
                 IdProducto = vm.IdProducto,
                 Nombre = vm.Nombre.Trim(),
                 StockMinimo = vm.StockMinimo,
-                StockTotal = vm.StockTotal,
+                StockTotal = 0,
                 Activo = vm.Activo,
                 Categoria = vm.IdsCategoriasSeleccionadas
                               .Select(id => new Dom.Categoria { IdCategoria = id })

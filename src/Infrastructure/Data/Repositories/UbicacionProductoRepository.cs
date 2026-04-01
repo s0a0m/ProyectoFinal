@@ -161,7 +161,7 @@ namespace src.Repositories.Implementations
                 IdProducto      = (short)idProducto,
                 IdFilaOrigen    = idFila,
                 Cantidad        = cantidad,
-                FechaMovimiento = DateTime.UtcNow,
+                FechaMovimiento = DateTime.Now,
                 IdUsuario       = (short)idUsuario,
                 Producto        = null!,    // ← fix
                 FilaOrigen      = null!,    // ← fix

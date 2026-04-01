@@ -164,6 +164,11 @@ public static class DbInitializer
 
         var json = File.ReadAllText("Infrastructure/Data/Seeders/seed/usuarios.json");
         var usuarios = JsonSerializer.Deserialize<List<Usuario>>(json, _jsonOptions)!;
+        foreach (var usuario in usuarios)
+        {
+            
+            usuario.Contrasenia= BCrypt.Net.BCrypt.HashPassword(usuario.Contrasenia);
+        }
         context.Usuarios.AddRange(usuarios);
         Console.WriteLine($"- Seeding {usuarios.Count} usuarios...");
     }

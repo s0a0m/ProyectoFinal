@@ -12,18 +12,13 @@ namespace src.Presentation.ViewModels.ProductoVM
     public class CrearProductoViewModel
     {
         [Required(ErrorMessage = "El nombre es obligatorio.")]
-        [StringLength(50)]
+        [StringLength(50, ErrorMessage = "El nombre debe tener máximo 50 caracteres.")]
         public string Nombre { get; set; } = string.Empty;
 
         [Required]
-        [Range(-10000, 10000)]
+        [Range(-100000000, 100000000,ErrorMessage = "El stock minimo debe de estar entre -100000000 y 100000000")]
         [Display(Name = "Stock Mínimo")]
         public int StockMinimo { get; set; }
-
-        [Required]
-        [Range(0, 10000)]
-        [Display(Name = "Stock Inicial")]
-        public int StockTotal { get; set; }
 
         [Display(Name = "Agregar Códigos Adicionales (EAN/UPC)")]
         public bool AgregarCodigosExtra { get; set; } = false;
@@ -36,5 +31,9 @@ namespace src.Presentation.ViewModels.ProductoVM
         // Para llenar los selectores en la vista (Dropdowns)
 
         public IEnumerable<CategoriaOpcionDto>? ListaCategoriasDisponibles { get; set; }
+    }
+
+    internal class ErrorMessageAttribute : Attribute
+    {
     }
 }
