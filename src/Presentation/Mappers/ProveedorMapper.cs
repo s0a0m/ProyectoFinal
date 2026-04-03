@@ -26,8 +26,8 @@ public static class ProveedorMapper
             vm.Direccion = new DireccionViewModel
             {
                 calle = proveedor.Direccion.Calle ?? string.Empty,
-                numero = proveedor.Direccion.Numero ?? string.Empty,
-                piso = proveedor.Direccion.Piso ?? string.Empty,
+                numero = proveedor.Direccion.Numero,
+                piso = proveedor.Direccion.Piso,
                 comentario = proveedor.Direccion.Comentario ?? string.Empty,
                 provincia = new ProvinciaViewModel
                 {
@@ -71,8 +71,8 @@ public static class ProveedorMapper
             vm.Direccion = new DireccionViewModel
             {
                 calle = proveedor.Direccion.Calle ?? string.Empty,
-                numero = proveedor.Direccion.Numero ?? string.Empty,
-                piso = proveedor.Direccion.Piso ?? string.Empty,
+                numero = proveedor.Direccion.Numero,
+                piso = proveedor.Direccion.Piso,
                 comentario = proveedor.Direccion.Comentario ?? string.Empty,
                 provincia = new ProvinciaViewModel
                 {
@@ -84,12 +84,13 @@ public static class ProveedorMapper
         // Mapear Condición de Pago
         if (proveedor.Condicion != null)
         {
+            var cuota = proveedor.Condicion as Dom.Cuota;
             vm.CondicionPago = new CondicionDePagoViewModel
             {
                 DiasPago = proveedor.Condicion.DiasPago,
                 Tipo = proveedor.Condicion is Dom.Cuota ? "Cuota" : "Contado",
-                NumeroCuotas = (proveedor.Condicion as Dom.Cuota)?.Cuotas ?? 0,
-                InteresPorcentual = (proveedor.Condicion as Dom.Cuota)?.InteresPorcentual ?? 0M
+                NumeroCuotas = cuota?.Cuotas ?? 0,
+                InteresPorcentual = cuota?.InteresPorcentual ?? 0M
             };
         }
 
