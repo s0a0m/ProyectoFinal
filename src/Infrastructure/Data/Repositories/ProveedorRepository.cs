@@ -9,13 +9,13 @@ namespace src.Repositories.Implementations;
 public class ProveedorRepository : IProveedorRepository
 {
     private readonly EF.AppDbContext _context;
-    private readonly ProvinciaMapper _provinciaMapper;
+    private readonly ProveedorMapper _proveedorMapper;
     private readonly DomicilioMapper _domicilioMapper;
 
-    public ProveedorRepository(EF.AppDbContext context, ProvinciaMapper provinciaMapper, DomicilioMapper domicilioMapper)
+    public ProveedorRepository(EF.AppDbContext context, ProveedorMapper proveedorMapper, DomicilioMapper domicilioMapper)
     {
         _context = context;
-        _provinciaMapper = provinciaMapper;
+        _proveedorMapper = proveedorMapper;
         _domicilioMapper = domicilioMapper;
     }
 
@@ -30,20 +30,20 @@ public class ProveedorRepository : IProveedorRepository
     public async Task<IEnumerable<Dom.Proveedor>> GetAllProveedorAsync()
     {
         IEnumerable<EF.Proveedor> provEF = await GetQueryProveedor().ToListAsync();
-        IEnumerable<Dom.Proveedor> proveedores = DominioMapper.Map(provEF);
+        IEnumerable<Dom.Proveedor> proveedores = _proveedorMapper.ToDomain(provEF);
         return proveedores;
     }
 
     public async Task<Dom.Proveedor?> GetProveedorById(int idProv)
     {
         EF.Proveedor? proveedorEF = await GetQueryProveedor().Where(p => p.IdProveedor == idProv).FirstOrDefaultAsync();
-        return proveedorEF is null ? null : DominioMapper.Map(proveedorEF);
+        return proveedorEF is null ? null : _proveedorMapper.ToDomain(proveedorEF);
     }
 
 
     public async Task AddAsync(Dom.Proveedor entity)
     {
-        EF.Proveedor proveedorEF = DominioMapper.Map(entity);
+        EF.Proveedor proveedorEF = _proveedorMapper.ToEntity(entity);
         proveedorEF.IdProveedor = 0;
         proveedorEF.IdDomicilio = 0;
         proveedorEF.IdCondicionPagoHabitual = 0;
@@ -78,7 +78,7 @@ public class ProveedorRepository : IProveedorRepository
         }
 
         // Map the incoming domain object to a temporary EF object
-        EF.Proveedor proveedorTemporalEF = DominioMapper.Map(entity);
+        EF.Proveedor proveedorTemporalEF = _proveedorMapper.ToEntity(entity);
 
         // --- Update Proveedor Scalar Values ---
         _context.Entry(existingEntity).CurrentValues.SetValues(proveedorTemporalEF);

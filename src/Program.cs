@@ -38,6 +38,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connect
 // mappers
 builder.Services.AddSingleton<ProvinciaMapper>();
 builder.Services.AddSingleton<DomicilioMapper>();
+builder.Services.AddSingleton<ProveedorMapper>();
 builder.Services.AddSingleton<CodigoBarraMapper>();
 builder.Services.AddSingleton<FamiliaMapper>();
 builder.Services.AddSingleton<CategoriaMapper>();
