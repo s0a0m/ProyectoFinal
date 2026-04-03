@@ -6,7 +6,7 @@ namespace src.Core.Services.Interfaces;
 
 public interface IProveedorService
 {
-    Task<Dom.Proveedor> CreateProveedorAsync(CrearProveedorViewModel proveedorVM);
+    Task<Dom.Proveedor> CreateProveedorAsync(Dom.Proveedor proveedorVM);
     Task<Dom.Proveedor> GetProveedorByIdAsync(int IdProveedor);
     Task<IEnumerable<Dom.Proveedor>> GetActiveProveedoresAsync();
     Task UpdateProveedorAsync(ActualizarProveedorViewModel proveedorVM);
@@ -14,4 +14,3 @@ public interface IProveedorService
     Task ReactivateAsync(int id);
     Task<CuentaCorrienteData?> ObtenerCuentaCorrienteAsync(short idProveedor);
 }
-

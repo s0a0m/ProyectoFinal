@@ -38,13 +38,12 @@ public class ProveedorService : IProveedorService
         _comprobanteRepository = comprobanteRepository;
     }
 
-    public async Task<Dom.Proveedor> CreateProveedorAsync(CrearProveedorViewModel proveedorVM)
+    public async Task<Dom.Proveedor> CreateProveedorAsync(Dom.Proveedor proveedor)
     {
-        Dom.Proveedor proveedor = CrearProveedorViewModel.cargarProveedor(proveedorVM);
+        if (string.IsNullOrEmpty(proveedor.Cuit))
+            throw new ArgumentException("El CUIT es obligatorio.");
 
-        // Agregar despues: Lógica de Negocio (Ej. validar CUIT si es necesario)
-
-        Dom.Provincia? provincia = await _commonDataService.GetProvinciaByIdAsync(
+        var provincia = await _commonDataService.GetProvinciaByIdAsync(
             proveedor.Direccion.Prov.IdProvincia
         );
 
@@ -55,10 +54,8 @@ public class ProveedorService : IProveedorService
                 nameof(proveedor.Direccion.Prov.IdProvincia)
             );
         }
-
         proveedor.Direccion.Prov = provincia;
         proveedor.Activo = true;
-
         await _proveedorRepository.AddAsync(proveedor);
         return proveedor;
     }

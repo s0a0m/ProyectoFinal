@@ -31,8 +31,8 @@ public static class ProveedorMapper
                 comentario = proveedor.Direccion.Comentario ?? string.Empty,
                 provincia = new ProvinciaViewModel
                 {
-                    Id_provincia = proveedor.Direccion.Prov?.IdProvincia ?? 0
-                }
+                    Id_provincia = proveedor.Direccion.Prov?.IdProvincia ?? 0,
+                },
             };
         }
 
@@ -44,7 +44,7 @@ public static class ProveedorMapper
                 DiasPago = proveedor.Condicion.DiasPago,
                 Tipo = proveedor.Condicion is Dom.Cuota ? "Cuota" : "Contado",
                 NumeroCuotas = (proveedor.Condicion as Dom.Cuota)?.Cuotas ?? 0,
-                InteresPorcentual = (proveedor.Condicion as Dom.Cuota)?.InteresPorcentual ?? 0M
+                InteresPorcentual = (proveedor.Condicion as Dom.Cuota)?.InteresPorcentual ?? 0M,
             };
         }
 
@@ -76,8 +76,8 @@ public static class ProveedorMapper
                 comentario = proveedor.Direccion.Comentario ?? string.Empty,
                 provincia = new ProvinciaViewModel
                 {
-                    Id_provincia = proveedor.Direccion.Prov?.IdProvincia ?? 0
-                }
+                    Id_provincia = proveedor.Direccion.Prov?.IdProvincia ?? 0,
+                },
             };
         }
 
@@ -90,7 +90,7 @@ public static class ProveedorMapper
                 DiasPago = proveedor.Condicion.DiasPago,
                 Tipo = proveedor.Condicion is Dom.Cuota ? "Cuota" : "Contado",
                 NumeroCuotas = cuota?.Cuotas ?? 0,
-                InteresPorcentual = cuota?.InteresPorcentual ?? 0M
+                InteresPorcentual = cuota?.InteresPorcentual ?? 0M,
             };
         }
 
@@ -117,12 +117,12 @@ public static class ProveedorMapper
             {
                 Calle = vm.Direccion.calle ?? string.Empty,
                 Comentario = vm.Direccion.comentario ?? string.Empty,
-                Numero = vm.Direccion.numero ?? string.Empty,
-                Piso = vm.Direccion.piso ?? string.Empty,
+                Numero = vm.Direccion.numero,
+                Piso = vm.Direccion.piso,
                 Prov = new Dom.Provincia
                 {
-                    IdProvincia = vm.Direccion.provincia?.Id_provincia ?? 0
-                }
+                    IdProvincia = vm.Direccion.provincia?.Id_provincia ?? 0,
+                },
             };
         }
 
@@ -161,12 +161,12 @@ public static class ProveedorMapper
             {
                 Calle = vm.Direccion.calle ?? string.Empty,
                 Comentario = vm.Direccion.comentario ?? string.Empty,
-                Numero = vm.Direccion.numero ?? string.Empty,
-                Piso = vm.Direccion.piso ?? string.Empty,
+                Numero = vm.Direccion.numero,
+                Piso = vm.Direccion.piso,
                 Prov = new Dom.Provincia
                 {
-                    IdProvincia = vm.Direccion.provincia?.Id_provincia ?? 0
-                }
+                    IdProvincia = vm.Direccion.provincia?.Id_provincia ?? 0,
+                },
             };
         }
 
@@ -227,35 +227,41 @@ public static class ProveedorMapper
         // Calcular total pagado desde ordenes confirmadas
         vm.TotalPagado = data.OrdenesPago?.Sum(o => o.MontoTotal) ?? 0;
 
-        vm.MotivosNC = data
-            .MotivosNC?.Select(m => new MotivoCCVM
-            {
-                IdMotivo = m.IdMotivo,
-                Descripcion = m.Descripcion ?? string.Empty,
-            })
-            .ToList() ?? new List<MotivoCCVM>();
+        vm.MotivosNC =
+            data.MotivosNC?.Select(m => new MotivoCCVM
+                {
+                    IdMotivo = m.IdMotivo,
+                    Descripcion = m.Descripcion ?? string.Empty,
+                })
+                .ToList()
+            ?? new List<MotivoCCVM>();
 
-        vm.MotivosND = data
-            .MotivosND?.Select(m => new MotivoCCVM
-            {
-                IdMotivo = m.IdMotivo,
-                Descripcion = m.Descripcion ?? string.Empty,
-            })
-            .ToList() ?? new List<MotivoCCVM>();
+        vm.MotivosND =
+            data.MotivosND?.Select(m => new MotivoCCVM
+                {
+                    IdMotivo = m.IdMotivo,
+                    Descripcion = m.Descripcion ?? string.Empty,
+                })
+                .ToList()
+            ?? new List<MotivoCCVM>();
 
-        foreach (var factura in data.Facturas?.OrderByDescending(f => f.FechaEmision) ?? Enumerable.Empty<Dom.Factura>())
+        foreach (
+            var factura in data.Facturas?.OrderByDescending(f => f.FechaEmision)
+                ?? Enumerable.Empty<Dom.Factura>()
+        )
         {
             // Comprobantes de esta factura
-            var notasFactura = data
-                .Comprobantes?.Where(c => c.IdFacturaReferencia == factura.IdFactura)
-                .ToList() ?? new List<Dom.Comprobante>();
+            var notasFactura =
+                data.Comprobantes?.Where(c => c.IdFacturaReferencia == factura.IdFactura).ToList()
+                ?? new List<Dom.Comprobante>();
 
             // Pagos de esta factura
-            var pagosFactura = data
-                .OrdenesPago?.Where(o =>
-                    o.Detalles != null && o.Detalles.Any(d => d.IdFactura == factura.IdFactura)
-                )
-                .ToList() ?? new List<Dom.OrdenPago>();
+            var pagosFactura =
+                data.OrdenesPago?.Where(o =>
+                        o.Detalles != null && o.Detalles.Any(d => d.IdFactura == factura.IdFactura)
+                    )
+                    .ToList()
+                ?? new List<Dom.OrdenPago>();
 
             var facturaVM = new FacturaCCVM
             {
@@ -312,16 +318,13 @@ public static class ProveedorMapper
             {
                 DiasPago = diasPago,
                 Cuotas = numeroCuotas,
-                InteresPorcentual = interesPorcentual
+                InteresPorcentual = interesPorcentual,
             };
         }
 
         if (tipo == "Contado")
         {
-            return new Dom.Contado
-            {
-                DiasPago = diasPago
-            };
+            return new Dom.Contado { DiasPago = diasPago };
         }
 
         return null;

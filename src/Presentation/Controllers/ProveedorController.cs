@@ -67,7 +67,8 @@ public class ProveedorController : Controller
 
         try
         {
-            await _provService.CreateProveedorAsync(proveedorVM);
+            var proveedor = proveedorVM.ToDomain();
+            await _provService.CreateProveedorAsync(proveedor);
             TempData["realizado"] = "El Proveedor fue creado con exito.";
             return RedirectToAction("ListarProveedores");
         }
@@ -174,7 +175,7 @@ public class ProveedorController : Controller
             var proveedor = await _provService.GetProveedorByIdAsync(idProv);
             var provincias = await _commonDataService.GetAllProvinciasAsync();
             var viewModel = proveedor.ToActualizarVM().PrepareWithProvincias(provincias);
-            
+
             return View("ActualizarProveedor", viewModel);
         }
         catch (KeyNotFoundException)
@@ -195,7 +196,7 @@ public class ProveedorController : Controller
             var provincias = await _commonDataService.GetAllProvinciasAsync();
             return View("ActualizarProveedor", proveedorVM.PrepareWithProvincias(provincias));
         }
-        
+
         try
         {
             await _provService.UpdateProveedorAsync(proveedorVM);
