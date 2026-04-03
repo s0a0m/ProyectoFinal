@@ -50,7 +50,9 @@ public class ProveedorController : Controller
     [AuthorizePermiso("P05_ABM_PROVEEDORES")]
     public async Task<IActionResult> CrearProveedor()
     {
-        return View(await PrepareCrearProveedorViewModel(new CrearProveedorViewModel()));
+        var provincias = await _commonDataService.GetAllProvinciasAsync();
+        var vm = new CrearProveedorViewModel().PrepareWithProvincias(provincias);
+        return View(vm);
     }
 
     [HttpPost]
@@ -59,7 +61,8 @@ public class ProveedorController : Controller
     {
         if (!ModelState.IsValid)
         {
-            return View(await PrepareCrearProveedorViewModel(proveedorVM));
+            var provincias = await _commonDataService.GetAllProvinciasAsync();
+            return View(proveedorVM.PrepareWithProvincias(provincias));
         }
 
         try
@@ -71,8 +74,8 @@ public class ProveedorController : Controller
         catch (ArgumentException ex) // Para errores de validación de negocio (ej. CUIT duplicado)
         {
             ModelState.AddModelError(ex.ParamName ?? string.Empty, ex.Message);
-
-            return View(await PrepareCrearProveedorViewModel(proveedorVM));
+            var provincias = await _commonDataService.GetAllProvinciasAsync();
+            return View(proveedorVM.PrepareWithProvincias(provincias));
         }
     }
 
@@ -166,21 +169,19 @@ public class ProveedorController : Controller
     [AuthorizePermiso("P05_ABM_PROVEEDORES")]
     public async Task<IActionResult> ActualizarProveedor(int idProv)
     {
-        Dom.Proveedor proveedor;
-
         try
         {
-            proveedor = await _provService.GetProveedorByIdAsync(idProv);
+            var proveedor = await _provService.GetProveedorByIdAsync(idProv);
+            var provincias = await _commonDataService.GetAllProvinciasAsync();
+            var viewModel = proveedor.ToActualizarVM().PrepareWithProvincias(provincias);
+            
+            return View("ActualizarProveedor", viewModel);
         }
         catch (KeyNotFoundException)
         {
             TempData["Error"] = $"Proveedor con ID {idProv} no encontrado.";
             return RedirectToAction("ListarProveedores");
         }
-
-        var viewModel = new ActualizarProveedorViewModel(proveedor);
-
-        return View("ActualizarProveedor", await PrepareActualizarProveedorViewModel(viewModel));
     }
 
     [HttpPost]
@@ -191,11 +192,10 @@ public class ProveedorController : Controller
     {
         if (!ModelState.IsValid)
         {
-            return View(
-                "ActualizarProveedor",
-                await PrepareActualizarProveedorViewModel(proveedorVM)
-            );
+            var provincias = await _commonDataService.GetAllProvinciasAsync();
+            return View("ActualizarProveedor", proveedorVM.PrepareWithProvincias(provincias));
         }
+        
         try
         {
             await _provService.UpdateProveedorAsync(proveedorVM);
@@ -210,31 +210,8 @@ public class ProveedorController : Controller
         catch (ArgumentException ex)
         {
             ModelState.AddModelError(ex.ParamName ?? string.Empty, ex.Message);
-
-            return View(
-                "ActualizarProveedor",
-                await PrepareActualizarProveedorViewModel(proveedorVM)
-            );
+            var provincias = await _commonDataService.GetAllProvinciasAsync();
+            return View("ActualizarProveedor", proveedorVM.PrepareWithProvincias(provincias));
         }
-    }
-
-    private async Task<CrearProveedorViewModel> PrepareCrearProveedorViewModel(
-        CrearProveedorViewModel model
-    )
-    {
-        IEnumerable<Dom.Provincia> listaProvincias =
-            await _commonDataService.GetAllProvinciasAsync();
-        model.Direccion.ListaProvincias = listaProvincias.ToList();
-        return model;
-    }
-
-    private async Task<ActualizarProveedorViewModel> PrepareActualizarProveedorViewModel(
-        ActualizarProveedorViewModel model
-    )
-    {
-        IEnumerable<Dom.Provincia> listaProvincias =
-            await _commonDataService.GetAllProvinciasAsync();
-        model.Direccion.ListaProvincias = listaProvincias.ToList();
-        return model;
     }
 }
