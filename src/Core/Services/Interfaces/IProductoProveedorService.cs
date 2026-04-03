@@ -11,7 +11,7 @@ public interface IProductoProveedorService
     Task<IEnumerable<ProductoProveedorListarViewModel>> GetAllParaListadoAsync();
     Task<ActualizarProductoProveedorViewModel> PrepararActualizarViewModelAsync(int idProducto, int idProveedor);
     Task<ServiceResult> CreateAsync(CrearProductoProveedorViewModel vm);
-    Task UpdateAsync(ActualizarProductoProveedorViewModel vm);
+    Task<ServiceResult> UpdateAsync(ActualizarProductoProveedorViewModel vm);
     Task RepoblarViewModelAsync(CrearProductoProveedorViewModel vm);
     Task GestionarCascadaProductoAsync(int idProducto, bool activando);
     Task GestionarCascadaProveedorAsync(int idProveedor, bool activando);

@@ -10,4 +10,5 @@ public class Producto
     // public IEnumerable<Grupo> Grupo { get; set; } = new List<Grupo>();
     public IEnumerable<Categoria> Categoria { get; set; } = new List<Categoria>();
     public IEnumerable<CodigoBarra> CodigoBarra { get; set; }
+    public IEnumerable<UbicacionProducto> UbicacionProducto { get; set; } = new List<UbicacionProducto>();
 }

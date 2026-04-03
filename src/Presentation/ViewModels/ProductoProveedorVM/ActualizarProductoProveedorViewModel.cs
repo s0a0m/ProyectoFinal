@@ -5,11 +5,11 @@ namespace src.Presentation.ViewModels.ProductoVM;
 
     public class ActualizarProductoProveedorViewModel
     {
-        // PKs (Ocultas o ReadOnly)
+        
         public int IdProducto { get; set; }
         public int IdProveedor { get; set; }
 
-        // Solo lectura para mostrar al usuario qué está editando
+        // Solo lectura 
         [Display(Name = "Producto")]
         public string NombreProducto { get; set; } = string.Empty;
 
@@ -19,13 +19,15 @@ namespace src.Presentation.ViewModels.ProductoVM;
         [Display(Name = "Código Externo")]
         public List<string> CodigosBarraExternos{ get; set; } = new();
         // Editables
+         [Display(Name = "Nuevos Códigos de Barra")]
+        public List<string> NuevosCodigosBarraExternos { get; set; } = new();
         
         [Required(ErrorMessage = "Debe ingresar el precio")]
-        [Range(0.01, 99999999)]
+        [Range(0.01, 99999999, ErrorMessage = "El precio debe tener un valor positivo y valido")]
         public decimal Precio { get; set; }
 
         [Required]
-        [Range(0, int.MaxValue)]
+        [Range(0, int.MaxValue, ErrorMessage = "El stock asignado debe de ser un número positivo y valido")]
         public int StockAsignado { get; set; }
         public bool Activo { get; set; }
     }

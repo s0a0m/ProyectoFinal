@@ -29,14 +29,23 @@ namespace src.Core.Services.Implementations
            
             return productos.Select(p => new ProductoListarViewModel
             {
-                IdProducto = p.IdProducto,
-                Nombre = p.Nombre,
-                StockTotal = p.StockTotal,
-                StockMinimo = p.StockMinimo,
-                Activo = p.Activo,
-                // Aplanamos las listas para búsqueda fácil en el string
+                IdProducto   = p.IdProducto,
+                Nombre       = p.Nombre,
+                StockTotal   = p.StockTotal,
+                StockMinimo  = p.StockMinimo,
+                Activo       = p.Activo,
                 CodigosBarra = string.Join(", ", p.CodigoBarra.Select(cb => cb.Codigo)),
-                Categorias = string.Join(", ", p.Categoria.Select(c => c.Nombre))
+                Categorias   = string.Join(", ", p.Categoria.Select(c => c.Nombre)),
+
+                // ── NUEVO ───────────────────────────────────────────────────────────────
+                Ubicaciones = p.UbicacionProducto.Select(u => new ProductoListarViewModel.UbicacionResumenVM
+                {
+                    Deposito = u.Fila?.Estante?.Deposito?.Nombre  ?? "—",
+                    Estante  = u.Fila?.Estante?.NumeroEstante      ?? "—",
+                    Fila     = u.Fila?.NFila                       ?? "—",
+                    Cantidad = u.Cantidad
+                }).ToList()
+                // ────────────────────────────────────────────────────────────────────────
             });
         }
 
@@ -64,7 +73,6 @@ namespace src.Core.Services.Implementations
                 IdProducto = producto.IdProducto,
                 Nombre = producto.Nombre,
                 StockMinimo = producto.StockMinimo,
-                StockTotal = producto.StockTotal,
                 Activo = producto.Activo,
                 // Cargamos los IDs y Strings existentes
                 CodigosBarra = producto.CodigoBarra.Select(cb => cb.Codigo).ToList(),
@@ -110,7 +118,7 @@ namespace src.Core.Services.Implementations
             {
                 Nombre = vm.Nombre.Trim(),
                 StockMinimo = vm.StockMinimo,
-                StockTotal = vm.StockTotal,
+                StockTotal = 0,
                 Activo = true,
                 Categoria = vm.IdsCategoriasSeleccionadas
                               .Select(id => new Dom.Categoria { IdCategoria = id })
@@ -142,7 +150,7 @@ namespace src.Core.Services.Implementations
                 IdProducto = vm.IdProducto,
                 Nombre = vm.Nombre.Trim(),
                 StockMinimo = vm.StockMinimo,
-                StockTotal = vm.StockTotal,
+                StockTotal = 0,
                 Activo = vm.Activo,
                 Categoria = vm.IdsCategoriasSeleccionadas
                               .Select(id => new Dom.Categoria { IdCategoria = id })

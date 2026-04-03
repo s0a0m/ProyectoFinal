@@ -42,6 +42,11 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<CompraAuditoria> AuditoriaCompras { get; set; }
 
     public virtual DbSet<Producto> Productos { get; set; }
+    public virtual DbSet<Deposito> Depositos { get; set; }
+    public virtual DbSet<Estante> Estantes { get; set; }
+    public virtual DbSet<Fila> Filas { get; set; }
+    public virtual DbSet<UbicacionProducto> UbicacionesProductos { get; set; }
+    public virtual DbSet<MovimientoStock> MovimientosStock { get; set; }
     public virtual DbSet<ProductoProveedor> ProductosProveedores { get; set; }
 
     // public DbSet<Grupo> Grupos { get; set; }
@@ -67,6 +72,40 @@ public partial class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
+        // Restricción para UbicacionProducto
+    modelBuilder.Entity<UbicacionProducto>()
+        .ToTable(tb => tb.HasCheckConstraint("CK_UbicacionProducto_Cantidad", "cantidad >= 0"));
+
+    // También es muy buena idea aplicarlo a tus movimientos de stock
+    modelBuilder.Entity<MovimientoStock>()
+        .ToTable(tb => tb.HasCheckConstraint("CK_MovimientosStock_Cantidad", "cantidad >= 0"));
+
+        modelBuilder.Entity<MovimientoStock>()
+        .HasOne(m => m.FilaOrigen)
+        .WithMany() // No necesitamos una colección de movimientos origen en la clase Fila
+        .HasForeignKey(m => m.IdFilaOrigen)
+        .OnDelete(DeleteBehavior.Restrict); // Evita que al borrar una fila se borre el movimiento
+
+        modelBuilder.Entity<MovimientoStock>()
+        .HasOne(m => m.FilaDestino)
+        .WithMany() // No necesitamos una colección de movimientos destino en la clase Fila
+        .HasForeignKey(m => m.IdFilaDestino)
+        .OnDelete(DeleteBehavior.Restrict); // Evita que al borrar una fila se borre el movimiento
+        
+        // Opcional: Evitar cascada si borras un producto (para mantener el historial de movimientos)
+        modelBuilder.Entity<MovimientoStock>()
+        .HasOne(m => m.Producto)
+        .WithMany()
+        .HasForeignKey(m => m.IdProducto)
+        .OnDelete(DeleteBehavior.Restrict);
+
+
+
+
+
+        modelBuilder.Entity<PagoDetalle>()
+            .HasKey(pd => new { pd.IdOrdenPago, pd.IdFactura });
         modelBuilder.Entity<PagoDetalle>().HasKey(pd => new { pd.IdOrdenPago, pd.IdFactura });
 
         modelBuilder.Entity<Comprobante>().UseTptMappingStrategy();

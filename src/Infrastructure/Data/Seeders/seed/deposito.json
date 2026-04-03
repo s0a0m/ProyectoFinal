@@ -1,0 +1,14 @@
+[
+  {
+    "IdDeposito": 1,
+    "Nombre": "Depósito Central",
+    "IdDireccion": 1,
+    "Activo": true
+  },
+  {
+    "IdDeposito": 2,
+    "Nombre": "Depósito Secundario",
+    "IdDireccion": 2,
+    "Activo": true
+  }
+]

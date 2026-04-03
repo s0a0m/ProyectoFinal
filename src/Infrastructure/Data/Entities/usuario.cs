@@ -26,7 +26,7 @@ public partial class Usuario
     public string Telefono { get; set; }
 
     [Required]
-    [StringLength(50)]
+    [StringLength(65)]
     [Column("contrasenia")]
     public string Contrasenia { get; set; }
 

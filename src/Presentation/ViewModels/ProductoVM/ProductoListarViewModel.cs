@@ -1,19 +1,28 @@
-using System.ComponentModel.DataAnnotations;
+namespace src.Presentation.ViewModels.ProductoVM;
 
-namespace src.Presentation.ViewModels.ProductoVM
+public class ProductoListarViewModel
 {
-    public class ProductoListarViewModel
-    {
-        public int IdProducto { get; set; }
-        public string Nombre { get; set; }
-        public int StockTotal { get; set; }
-        public int StockMinimo { get; set; }
-        public string CodigosBarra { get; set; } // "779001, 779002" (Para búsqueda fácil)
-        public string Categorias { get; set; } // "Herramientas, Ofertas" (Para filtros)
-        public bool Activo { get; set; }
+    public int IdProducto { get; set; }
+    public string Nombre { get; set; } = string.Empty;
+    public int StockTotal { get; set; }
+    public int StockMinimo { get; set; }
+    public bool Activo { get; set; }
+    public string CodigosBarra { get; set; } = string.Empty;
+    public string Categorias { get; set; } = string.Empty;
 
-        // RF 2.7 - Alerta automática (Propiedad calculada para la Vista)
-        public bool EnAlertaStock => StockTotal <= StockMinimo;
-        public string EstadoStock => EnAlertaStock ? "Bajo" : "Normal";
+    // ── NUEVO ──────────────────────────────────────────────────
+    public List<UbicacionResumenVM> Ubicaciones { get; set; } = new();
+    // ───────────────────────────────────────────────────────────
+
+    // Propiedad calculada — sin cambios
+    public bool EnAlertaStock => StockTotal < StockMinimo;
+
+    // ── NUEVO: clase anidada para serializar en el data-attribute ──
+    public class UbicacionResumenVM
+    {
+        public string Deposito { get; set; } = string.Empty;
+        public string Estante  { get; set; } = string.Empty;
+        public string Fila     { get; set; } = string.Empty;
+        public decimal Cantidad { get; set; }
     }
 }

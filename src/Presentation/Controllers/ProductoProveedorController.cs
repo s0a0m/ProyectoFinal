@@ -122,14 +122,24 @@ namespace src.Presentation.Controllers
         public async Task<IActionResult> Edit(ActualizarProductoProveedorViewModel vm)
         {
             if (!ModelState.IsValid)
-            {
-                // En Edit normalmente no hay listas que repoblar salvo que permitieras cambiar IDs
                 return View(vm);
-            }
 
             try
             {
-                await _service.UpdateAsync(vm);
+                var result = await _service.UpdateAsync(vm);
+
+                if (!result.Success)
+                {
+                    foreach (var error in result.Errors)
+                        ModelState.AddModelError(error.Key, error.Value);
+
+                    // Repoblar los códigos existentes para que la vista los vuelva a mostrar
+                    var vmRecargado = await _service.PrepararActualizarViewModelAsync(vm.IdProducto, vm.IdProveedor);
+                    vm.CodigosBarraExternos = vmRecargado.CodigosBarraExternos;
+
+                    return View(vm);
+                }
+
                 TempData["Success"] = "Relación actualizada correctamente.";
                 return RedirectToAction(nameof(Index));
             }
@@ -139,7 +149,7 @@ namespace src.Presentation.Controllers
             }
             catch (Exception)
             {
-                ModelState.AddModelError("", "Error al actualizar.");
+                ModelState.AddModelError("", "Error inesperado al actualizar.");
                 return View(vm);
             }
         }

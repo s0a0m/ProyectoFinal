@@ -21,13 +21,18 @@ namespace src.Repositories.Implementations
         }
         public async Task<IEnumerable<Dom.Producto>> GetAllAsync()
         {
-            // Traemos todo, incluyendo relaciones para mostrar en la tabla
             var efProductos = await _context.Productos
                 .Include(p => p.ProductoCodigoBarras)
                     .ThenInclude(pcb => pcb.CodigoBarra)
                 .Include(p => p.ProductosCategorias)
                     .ThenInclude(pc => pc.Categoria)
-                      .ThenInclude(c => c.Familia)
+                        .ThenInclude(c => c.Familia)
+                .Include(p => p.UbicacionesProductos)
+                    .ThenInclude(up => up.Fila)
+                        .ThenInclude(f => f.Estante)
+                            .ThenInclude(e => e.Deposito)
+                                .ThenInclude(d => d.Direccion)                  
+                                    .ThenInclude(dom => dom.IdProvinciaNavigation)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -41,7 +46,11 @@ namespace src.Repositories.Implementations
                     .ThenInclude(pcb => pcb.CodigoBarra)
                 .Include(p => p.ProductosCategorias)
                     .ThenInclude(pc => pc.Categoria)
-                    .ThenInclude(c => c.Familia) // Útil si necesitas mostrar la familia
+                        .ThenInclude(c => c.Familia)
+                .Include(p => p.UbicacionesProductos)
+                    .ThenInclude(up => up.Fila)
+                        .ThenInclude(f => f.Estante)
+                            .ThenInclude(e => e.Deposito)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.IdProducto == id);
 
@@ -112,7 +121,6 @@ namespace src.Repositories.Implementations
             // 1. Actualizar Escalares
             existing.Nombre = entity.Nombre;
             existing.StockMinimo = entity.StockMinimo;
-            existing.StockTotal = entity.StockTotal;
             existing.Activo = entity.Activo;
 
             // 2. Sincronizar Categorías (N-N) - (Tu lógica aquí estaba bien, la mantengo)
@@ -175,88 +183,7 @@ namespace src.Repositories.Implementations
 
             await _context.SaveChangesAsync();
         }
-        /* public async Task UpdateAsync(Dom.Producto entity)
-         {
-             var existing = await _context.Productos
-                 .Include(p => p.ProductosCategorias)
-                 .Include(p => p.ProductoCodigoBarras)
-                     .ThenInclude(pcb => pcb.CodigoBarra)
-                 .FirstOrDefaultAsync(p => p.IdProducto == entity.IdProducto);
-
-             if (existing == null) throw new KeyNotFoundException($"Producto {entity.IdProducto} no encontrado");
-
-             // 1. Actualizar Escalares
-             existing.Nombre = entity.Nombre;
-             existing.StockMinimo = entity.StockMinimo;
-             existing.StockTotal = entity.StockTotal;
-             existing.Activo = entity.Activo;
-
-             // 2. Sincronizar Categorías (N-N)
-             var nuevosIdsCategorias = entity.Categoria.Select(c => (short)c.IdCategoria).ToList();
-
-             // A. Eliminar
-             foreach (var existingLink in existing.ProductosCategorias.ToList())
-             {
-                 if (!nuevosIdsCategorias.Contains(existingLink.IdCategoria))
-                 {
-                     _context.ProductoCategorias.Remove(existingLink);
-                 }
-             }
-             // B. Agregar
-             foreach (var newId in nuevosIdsCategorias)
-             {
-                 if (!existing.ProductosCategorias.Any(pc => pc.IdCategoria == newId))
-                 {
-                     existing.ProductosCategorias.Add(new EF.ProductoCategoria 
-                     { 
-                         IdProducto = existing.IdProducto, 
-                         IdCategoria = newId
-                     });
-                 }
-             }
-
-             // 3. Sincronizar Códigos de Barra (N-N)
-             var nuevosCodigos = entity.CodigoBarra.Select(c => c.Codigo).ToList();
-
-             // A. Eliminar relaciones
-             foreach (var existingLink in existing.ProductoCodigoBarras.ToList())
-             {
-                 // Comparamos por el string del código
-                 if (!nuevosCodigos.Contains(existingLink.CodigoBarra.Codigo))
-                 {
-                     _context.ProductoCodigosBarras.Remove(existingLink);
-
-                     // Opcional: Si quieres borrar el código de la tabla maestra si ya no se usa
-                     // requeriría una verificación adicional (count == 0). Por ahora lo dejamos.
-                 }
-             }
-
-             // B. Agregar nuevos
-             foreach (var codigoValor in nuevosCodigos)
-             {
-                 bool yaRelacionado = existing.ProductoCodigoBarras.Any(pcb => pcb.CodigoBarra.Codigo == codigoValor);
-
-                 if (!yaRelacionado)
-                 {
-                     var codigoMaestro = await _context.CodigoBarras.FirstOrDefaultAsync(cb => cb.Codigo == codigoValor);
-
-                     if (codigoMaestro == null)
-                     {
-                         codigoMaestro = new EF.CodigoBarra { Codigo = codigoValor };
-                         // Al agregarlo a la colección de navegación, EF lo insertará
-                     }
-
-                     existing.ProductoCodigoBarras.Add(new EF.ProductoCodigoBarra
-                     {
-                         CodigoBarra = codigoMaestro
-                     });
-                 }
-             }
-
-             await _context.SaveChangesAsync();
-         }
-         */
-        public async Task DeleteAsync(int id)
+                public async Task DeleteAsync(int id)
         {
             var existing = await _context.Productos.FindAsync((short)id);
             if (existing != null)
@@ -294,5 +221,77 @@ namespace src.Repositories.Implementations
                 throw new Exception($"No se encontró el producto con ID {id}");
             }
         }
+
+        public async Task<IEnumerable<Dom.Producto>> GetBajosDeStockAsync()
+        {
+            var efProductos = await _context.Productos
+                .Where(p => p.Activo && p.StockTotal < p.StockMinimo)
+                .Include(p => p.ProductoCodigoBarras).ThenInclude(pcb => pcb.CodigoBarra)
+                .Include(p => p.ProductosCategorias).ThenInclude(pc => pc.Categoria).ThenInclude(c => c.Familia)
+                .Include(p => p.UbicacionesProductos).ThenInclude(up => up.Fila).ThenInclude(f => f.Estante).ThenInclude(e => e.Deposito)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return _productoMapper.ToDomain(efProductos);
+        }
+
+
+        public async Task<Dom.Producto?> BuscarPorNombreOCodigoAsync(string termino)
+        {
+            // Primero buscamos por código de barra exacto
+            var porCodigo = await _context.Productos
+                .Include(p => p.ProductoCodigoBarras)
+                .Include(p => p.ProductosCategorias)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p =>
+                    p.ProductoCodigoBarras.Any(c => c.CodigoBarra.Codigo == termino));
+
+            if (porCodigo is not null)
+                return _productoMapper.ToDomain(porCodigo);
+
+            // Si no encontramos por código, buscamos por nombre (primer match, case-insensitive)
+            var porNombre = await _context.Productos
+                .Include(p => p.ProductoCodigoBarras)
+                .Include(p => p.ProductosCategorias)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p =>
+                    Microsoft.EntityFrameworkCore.EF.Functions.Like(p.Nombre, $"%{termino}%"));
+
+            return porNombre is null ? null : _productoMapper.ToDomain(porNombre);
+        }
+
+
+
+        public async Task<IEnumerable<Dom.Producto>> BuscarListaPorNombreAsync(string termino)
+        {
+            var efProductos = await _context.Productos
+                .Include(p => p.ProductoCodigoBarras)
+                    .ThenInclude(pc => pc.CodigoBarra)   // ← faltaba
+                .Include(p => p.ProductosCategorias)
+                .Where(p => p.Activo &&
+                    Microsoft.EntityFrameworkCore.EF.Functions.ILike(p.Nombre, $"%{termino}%"))
+                .OrderBy(p => p.Nombre)
+                .AsNoTracking()                           // ← faltaba
+                .ToListAsync();
+
+            return efProductos.Count == 0
+                ? Enumerable.Empty<Dom.Producto>()
+                : _productoMapper.ToDomain(efProductos);
+        }
+
+        // Método nuevo: solo barras, sin fallback a nombre
+        public async Task<Dom.Producto?> BuscarPorCodigoExactoAsync(string codigo)
+        {
+            var ef = await _context.Productos
+                .Include(p => p.ProductoCodigoBarras)
+                    .ThenInclude(pc => pc.CodigoBarra)
+                .Include(p => p.ProductosCategorias)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p =>
+                    p.ProductoCodigoBarras.Any(c => c.CodigoBarra.Codigo == codigo));
+
+            return ef is null ? null : _productoMapper.ToDomain(ef);
+        }
+
     }
 }

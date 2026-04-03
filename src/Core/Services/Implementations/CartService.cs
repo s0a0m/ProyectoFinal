@@ -19,67 +19,46 @@ namespace src.Core.Services.Implementations
             _prodProvRepo = prodProvRepo;
         }
 
-        // Helper privado para leer/escribir sesión
         private ISession Session => _httpContextAccessor.HttpContext!.Session;
 
         public async Task<List<CarritoItemViewModel>> ObtenerCarritoCompletoAsync()
         {
             var sessionData = Session.GetString(SESSION_KEY);
             if (string.IsNullOrEmpty(sessionData))
-            {
                 return new List<CarritoItemViewModel>();
-            }
-            return JsonSerializer.Deserialize<List<CarritoItemViewModel>>(sessionData) ?? new List<CarritoItemViewModel>();
+
+            return JsonSerializer.Deserialize<List<CarritoItemViewModel>>(sessionData)
+                   ?? new List<CarritoItemViewModel>();
         }
 
         private void GuardarCarritoEnSesion(List<CarritoItemViewModel> carrito)
         {
             var options = new JsonSerializerOptions { WriteIndented = false };
-            var json = JsonSerializer.Serialize(carrito, options);
-            Session.SetString(SESSION_KEY, json);
+            Session.SetString(SESSION_KEY, JsonSerializer.Serialize(carrito, options));
         }
 
         public async Task ActualizarCantidadAsync(short idProducto, short idProveedor, int cantidad)
         {
             var carrito = await ObtenerCarritoCompletoAsync();
-
             var item = carrito.FirstOrDefault(x =>
-                x.IdProducto == idProducto &&
-                x.IdProveedor == idProveedor);
+                x.IdProducto == idProducto && x.IdProveedor == idProveedor);
 
-            if (item == null)
-            {
-                // Opción 1: no hacer nada (silencioso)
-                return;
-
-                // Opción 2 (más estricta):
-                // throw new InvalidOperationException("El item no existe en el carrito");
-            }
+            if (item == null) return;
 
             item.Cantidad = cantidad;
-
             GuardarCarritoEnSesion(carrito);
         }
 
         public async Task AgregarItemAsync(CarritoItemViewModel nuevoItem)
         {
             var carrito = await ObtenerCarritoCompletoAsync();
-
-            // Buscamos si ya existe el producto PARA ESE PROVEEDOR
             var itemExistente = carrito.FirstOrDefault(x =>
-                x.IdProducto == nuevoItem.IdProducto &&
-                x.IdProveedor == nuevoItem.IdProveedor);
+                x.IdProducto == nuevoItem.IdProducto && x.IdProveedor == nuevoItem.IdProveedor);
 
             if (itemExistente != null)
-            {
-                // Si existe, sumamos cantidad
                 itemExistente.Cantidad += nuevoItem.Cantidad;
-            }
             else
-            {
-                // Si no, lo agregamos
                 carrito.Add(nuevoItem);
-            }
 
             GuardarCarritoEnSesion(carrito);
         }
@@ -87,7 +66,8 @@ namespace src.Core.Services.Implementations
         public async Task RemoverItemAsync(short idProducto, short idProveedor)
         {
             var carrito = await ObtenerCarritoCompletoAsync();
-            var item = carrito.FirstOrDefault(x => x.IdProducto == idProducto && x.IdProveedor == idProveedor);
+            var item = carrito.FirstOrDefault(x =>
+                x.IdProducto == idProducto && x.IdProveedor == idProveedor);
 
             if (item != null)
             {
@@ -105,19 +85,16 @@ namespace src.Core.Services.Implementations
         public async Task LimpiarCarritoPorProveedorAsync(short idProveedor)
         {
             var carrito = await ObtenerCarritoCompletoAsync();
-
-            // Removemos todos los items que coincidan con ese proveedor
             carrito.RemoveAll(x => x.IdProveedor == idProveedor);
-
             GuardarCarritoEnSesion(carrito);
         }
 
         public async Task<int> GetCantidadTotalItemsAsync()
         {
             var carrito = await ObtenerCarritoCompletoAsync();
-            //return carrito.Sum(x => x.Cantidad);
             return carrito.Count;
         }
+
         public async Task<ServiceResult> ValidarYAgregarItemAsync(short idProducto, short idProveedor, int cantidad)
         {
             if (cantidad <= 0)
@@ -131,21 +108,21 @@ namespace src.Core.Services.Implementations
                 return ServiceResult.Fail($"Stock insuficiente. Máximo disponible: {dto.ProductoProveedor.StockAsignado}");
 
             var relacion = dto.ProductoProveedor;
-
             var item = new CarritoItemViewModel
             {
-                IdProducto = idProducto,
-                NombreProducto = relacion.Producto?.Nombre ?? "Producto Desconocido",
-                CodigosExternos = dto.CodigosBarrasExternos ?? new List<string>(),
-                IdProveedor = idProveedor,
-                NombreProveedor = relacion.Proveedor?.RazonSocial ?? "Proveedor Desconocido",
-                PrecioUnitario = relacion.Precio,
-                Cantidad = cantidad
+                IdProducto       = idProducto,
+                NombreProducto   = relacion.Producto?.Nombre ?? "Producto Desconocido",
+                CodigosExternos  = dto.CodigosBarrasExternos ?? new List<string>(),
+                IdProveedor      = idProveedor,
+                NombreProveedor  = relacion.Proveedor?.RazonSocial ?? "Proveedor Desconocido",
+                PrecioUnitario   = relacion.Precio,
+                Cantidad         = cantidad
             };
 
             await AgregarItemAsync(item);
             return ServiceResult.Ok("Producto añadido al carrito correctamente.");
         }
+
         public async Task<ServiceResult> ValidarYActualizarCantidadAsync(short idProducto, short idProveedor, int cantidad)
         {
             if (cantidad <= 0)
@@ -160,17 +137,56 @@ namespace src.Core.Services.Implementations
 
             var carrito = await ObtenerCarritoCompletoAsync();
             var item = carrito.FirstOrDefault(x =>
-                x.IdProducto == idProducto &&
-                x.IdProveedor == idProveedor);
+                x.IdProducto == idProducto && x.IdProveedor == idProveedor);
 
             if (item == null)
                 return ServiceResult.Fail("El producto no se encontró en su carrito.");
 
             item.Cantidad = cantidad;
             GuardarCarritoEnSesion(carrito);
-
             return ServiceResult.Ok("Cantidad actualizada correctamente.");
         }
 
+        /// <summary>
+        /// Valida que ningún ítem del carrito de un proveedor supere el stock real
+        /// vigente al momento de confirmar la compra.
+        /// Retorna Ok si todo está bien, o Fail con el detalle de los ítems con problema.
+        /// </summary>
+        public async Task<ServiceResult> ValidarStockParaPrevisualizarAsync(short idProveedor)
+        {
+            var items = await ObtenerItemsPorProveedorAsync(idProveedor);
+
+            if (!items.Any())
+                return ServiceResult.Fail("No hay productos en el carrito para este proveedor.");
+
+            var errores = new List<string>();
+
+            foreach (var item in items)
+            {
+                var dto = await _prodProvRepo.GetByIdAsync(item.IdProducto, item.IdProveedor);
+
+                // El producto fue eliminado o desvinculado del proveedor
+                if (dto == null)
+                {
+                    errores.Add($"'{item.NombreProducto}' ya no está disponible con este proveedor.");
+                    continue;
+                }
+
+                var stockActual = dto.ProductoProveedor.StockAsignado;
+
+                if (item.Cantidad > stockActual)
+                {
+                    errores.Add(
+                        $"'{item.NombreProducto}': solicitás {item.Cantidad} unidades " +
+                        $"pero el stock disponible es {stockActual}."
+                    );
+                }
+            }
+
+            if (errores.Any())
+                return ServiceResult.Fail(string.Join(" | ", errores));
+
+            return ServiceResult.Ok();
+        }
     }
 }

@@ -31,4 +31,9 @@ public class Producto
     public ICollection<ProductoCategoria> ProductosCategorias { get; set; } = new List<ProductoCategoria>();
     public ICollection<ProductoCodigoBarra> ProductoCodigoBarras { get; set; } = new List<ProductoCodigoBarra>();
     public ICollection<ProductoCodigoExterno> CodigosBarrasExternos { get; set; } = new List<ProductoCodigoExterno>();
+
+    public ICollection<UbicacionProducto> UbicacionesProductos { get; set; } = new List<UbicacionProducto>();
+
+    // Y si en el futuro quieres ver el historial de un producto directamente:
+    public ICollection<MovimientoStock> Movimientos { get; set; } = new List<MovimientoStock>();
 }

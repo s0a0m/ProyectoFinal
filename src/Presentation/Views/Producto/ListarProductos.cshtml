@@ -1,12 +1,12 @@
 @using src.Presentation.ViewModels.ProductoVM
+@using System.Text.Json
 @model IEnumerable<ProductoListarViewModel>
 
 @{
     ViewData["Title"] = "Inventario de Productos";
     
-    // Cálculos para KPIs
     var totalProductosActivos = Model.Count(p => p.Activo);
-    var productosBajoStock = Model.Count(p => p.EnAlertaStock && p.Activo); // Solo activos con bajo stock
+    var productosBajoStock = Model.Count(p => p.EnAlertaStock && p.Activo);
     var productosInactivos = Model.Count(p => !p.Activo);
 }
 
@@ -85,17 +85,18 @@
                     <tr>
                         <th>Producto</th>
                         <th>Códigos</th>
-                        <th>Clasificación</th> 
+                        <th>Clasificación</th>
                         <th class="text-center">Stock</th>
-                        <th class="text-center">Estado</th> <th class="text-center" style="width: 150px;">Acciones</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center" style="width: 150px;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr class="@(item.EnAlertaStock ? "fila-bajo-stock" : "")" 
+                        <tr class="@(item.EnAlertaStock ? "fila-bajo-stock" : "")"
                             data-activo="@(item.Activo ? "true" : "false")">
-                            
+
                             <td class="fw-bold text-dark">@item.Nombre</td>
 
                             <td>
@@ -134,10 +135,11 @@
 
                             <td class="text-center">
                                 <div class="btn-group" role="group">
-                                    <button type="button" 
-                                            class="btn btn-info btn-sm text-white me-1" 
+                                    @* ── CAMBIO: se agrega data-ubicaciones serializado como JSON ── *@
+                                    <button type="button"
+                                            class="btn btn-info btn-sm text-white me-1"
                                             title="Ver Detalle"
-                                            data-bs-toggle="modal" 
+                                            data-bs-toggle="modal"
                                             data-bs-target="#modalDetalleProducto"
                                             data-nombre="@item.Nombre"
                                             data-codigos="@item.CodigosBarra"
@@ -145,16 +147,15 @@
                                             data-stock="@item.StockTotal"
                                             data-stockmin="@item.StockMinimo"
                                             data-estado="@(item.Activo ? "Activo" : "Inactivo")"
-                                            data-enalerta="@(item.EnAlertaStock ? "true" : "false")">
+                                            data-enalerta="@(item.EnAlertaStock ? "true" : "false")"
+                                            data-ubicaciones="@JsonSerializer.Serialize(item.Ubicaciones)">
                                         <i class="bi bi-eye-fill"></i>
                                     </button>
-                                    
-                                    
-                                    
+
                                     @if (item.Activo)
                                     {
-                                        <a asp-action="ActualizarProducto"      asp-route-id="@item.IdProducto" class="btn btn-warning btn-sm text-white" title="Editar">
-                                        <i class="bi bi-pencil-square"></i>
+                                        <a asp-action="ActualizarProducto" asp-route-id="@item.IdProducto" class="btn btn-warning btn-sm text-white" title="Editar">
+                                            <i class="bi bi-pencil-square"></i>
                                         </a>
                                         <form asp-action="EliminarProducto" method="post" class="d-inline" onsubmit="return confirm('¿Estás seguro de desactivar este producto?');">
                                             <input type="hidden" name="id" value="@item.IdProducto" />
@@ -165,13 +166,12 @@
                                     }
                                     else
                                     {
-                                       <form asp-controller="Producto" 
-                                            asp-action="ReactivarProducto" 
-                                            asp-route-id="@item.IdProducto" 
-                                            method="post" 
-                                            class="d-inline" 
-                                            onsubmit="return confirm('¿Desea reactivar este producto?');">
-                                            
+                                        <form asp-controller="Producto"
+                                              asp-action="ReactivarProducto"
+                                              asp-route-id="@item.IdProducto"
+                                              method="post"
+                                              class="d-inline"
+                                              onsubmit="return confirm('¿Desea reactivar este producto?');">
                                             <button type="submit" class="btn btn-success btn-sm rounded-0 rounded-end" title="Reactivar Producto">
                                                 <i class="bi bi-arrow-counterclockwise"></i>
                                             </button>
@@ -197,7 +197,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
-                
+
                 <div class="text-center mb-4">
                     <h3 class="fw-bold text-dark" id="detalleNombre">Nombre Producto</h3>
                     <span class="badge rounded-pill" id="detalleEstado">Activo</span>
@@ -216,7 +216,7 @@
                             <div class="fs-2 text-secondary" id="detalleStockMin">0</div>
                         </div>
                     </div>
-                    
+
                     <div class="col-12" id="alertaStockDiv" style="display: none;">
                         <div class="alert alert-danger d-flex align-items-center mb-0 p-2">
                             <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
@@ -239,8 +239,20 @@
                             <span id="detalleCategorias">...</span>
                         </div>
                     </div>
-                </div>
 
+                    @* ── NUEVO: sección de ubicaciones ── *@
+                    <div class="col-12">
+                        <label class="fw-bold text-secondary small">
+                            <i class="bi bi-geo-alt-fill me-1"></i>UBICACIONES EN DEPÓSITO
+                        </label>
+                        @* max-height fija + scroll para que nunca desborde el modal *@
+                        <div id="detalleUbicaciones"
+                             class="border rounded bg-white p-2"
+                             style="max-height: 160px; overflow-y: auto;">
+                        </div>
+                    </div>
+
+                </div>
             </div>
             <div class="modal-footer bg-light border-0">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -252,127 +264,118 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
-            
-            // 1. Inicialización de DataTables
+
             var table = $('#tablaProductos').DataTable({
-                // Configuración de idioma
                 language: {
                     url: "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
                 },
-                // Orden inicial (por Producto)
-                order: [[0, 'asc']], 
-                // Cantidad de filas por página
-                pageLength: 10, 
-                
-                // --- AQUÍ AGREGAMOS LA NUEVA CONFIGURACIÓN ---
+                order: [[0, 'asc']],
+                pageLength: 10,
                 columnDefs: [
-                    // 'targets': Índices de columnas (empiezan en 0)
-                    // 1 = Códigos, 4 = Estado, 5 = Acciones -> NO ORDENABLES
                     { orderable: false, targets: [1, 4, 5] },
-                    // 0 = Producto, 2 = Clasif, 3 = Stock -> SÍ ORDENABLES (es el default, pero explícito)
-                    { orderable: true, targets: [0, 2, 3] }
+                    { orderable: true,  targets: [0, 2, 3] }
                 ],
-                // ---------------------------------------------
-
-                // Diseño de controles (Buscador y Paginación estilo Bootstrap 5)
                 dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
                      "<'row'<'col-sm-12'tr>>" +
                      "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             });
 
-            // 2. Lógica de Filtrado Personalizado (Extension de DataTables)
-            $.fn.dataTable.ext.search.push(
-                function(settings, data, dataIndex) {
-                    // Obtenemos la fila HTML actual
-                    var row = table.row(dataIndex).node();
-                    // Leemos el atributo data-activo
-                    var esActivo = $(row).attr('data-activo') === 'true';
-                    
-                    // Leemos el estado actual del filtro (variable global o default 'activos')
-                    var estadoFiltro = window.estadoFiltroActual || 'activos'; 
+            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                var row = table.row(dataIndex).node();
+                var esActivo = $(row).attr('data-activo') === 'true';
+                var estadoFiltro = window.estadoFiltroActual || 'activos';
 
-                    // Aplicamos lógica según el botón presionado
-                    if (estadoFiltro === 'activos') {
-                        return esActivo; // Muestra solo activos
-                    } else if (estadoFiltro === 'inactivos') {
-                        return !esActivo; // Muestra solo inactivos
-                    } else if (estadoFiltro === 'bajo_stock') {
-                        // Muestra activos QUE ADEMÁS tengan la clase de bajo stock
-                        return esActivo && $(row).hasClass('fila-bajo-stock');
-                    }
-                    return true; // Fallback
-                }
-            );
+                if (estadoFiltro === 'activos')    return esActivo;
+                if (estadoFiltro === 'inactivos')  return !esActivo;
+                if (estadoFiltro === 'bajo_stock') return esActivo && $(row).hasClass('fila-bajo-stock');
+                return true;
+            });
 
-            // 3. Estado Inicial
             window.estadoFiltroActual = 'activos';
-            table.draw(); // Aplicar el filtro inicial
+            table.draw();
 
-            // 4. Funciones Globales para los Botones de las Tarjetas
-            
-            // Botón Azul (Total) -> Resetea a ver solo activos
             window.resetearFiltros = function() {
                 window.estadoFiltroActual = 'activos';
-                // Cambiamos el título de la tabla visualmente
                 $('#tituloTabla').text('Listado de Productos Activos');
-                // Redibujamos la tabla (esto dispara el filtro de arriba)
                 table.draw();
             };
-
-            // Botón Gris (Inactivos) -> Ver solo inactivos
             window.filtrarInactivos = function() {
                 window.estadoFiltroActual = 'inactivos';
                 $('#tituloTabla').text('Papelera: Productos Inactivos');
                 table.draw();
             };
-
-            // Botón Rojo (Alertas) -> Ver solo stock bajo
             window.filtrarBajoStock = function() {
                 window.estadoFiltroActual = 'bajo_stock';
                 $('#tituloTabla').text('⚠️ Alertas: Productos con Bajo Stock');
                 table.draw();
             };
         });
+
         var modalDetalle = document.getElementById('modalDetalleProducto');
         modalDetalle.addEventListener('show.bs.modal', function (event) {
             var button = event.relatedTarget;
 
-            // Extraer datos
-            var nombre = button.getAttribute('data-nombre');
-            var codigos = button.getAttribute('data-codigos');
+            // Extraer datos existentes
+            var nombre    = button.getAttribute('data-nombre');
+            var codigos   = button.getAttribute('data-codigos');
             var categorias = button.getAttribute('data-categorias');
-            var stock = button.getAttribute('data-stock');
-            var stockMin = button.getAttribute('data-stockmin');
-            var estado = button.getAttribute('data-estado');
-            var enAlerta = button.getAttribute('data-enalerta') === 'true';
+            var stock     = button.getAttribute('data-stock');
+            var stockMin  = button.getAttribute('data-stockmin');
+            var estado    = button.getAttribute('data-estado');
+            var enAlerta  = button.getAttribute('data-enalerta') === 'true';
 
             // Inyectar en el Modal
-            modalDetalle.querySelector('#detalleNombre').textContent = nombre;
-            modalDetalle.querySelector('#detalleCodigos').textContent = codigos;
+            modalDetalle.querySelector('#detalleNombre').textContent    = nombre;
+            modalDetalle.querySelector('#detalleCodigos').textContent   = codigos;
             modalDetalle.querySelector('#detalleCategorias').textContent = categorias;
-            modalDetalle.querySelector('#detalleStock').textContent = stock;
-            modalDetalle.querySelector('#detalleStockMin').textContent = stockMin;
-            
-            // Estilar Estado
+            modalDetalle.querySelector('#detalleStock').textContent     = stock;
+            modalDetalle.querySelector('#detalleStockMin').textContent  = stockMin;
+
+            // Estado badge
             var badgeEstado = modalDetalle.querySelector('#detalleEstado');
             badgeEstado.textContent = estado;
-            if (estado === 'Activo') {
-                badgeEstado.className = 'badge rounded-pill bg-success';
-            } else {
-                badgeEstado.className = 'badge rounded-pill bg-secondary';
-            }
+            badgeEstado.className = estado === 'Activo'
+                ? 'badge rounded-pill bg-success'
+                : 'badge rounded-pill bg-secondary';
 
-            // Estilar Stock y Alerta
-            var divStock = modalDetalle.querySelector('#detalleStock');
+            // Stock alerta
+            var divStock  = modalDetalle.querySelector('#detalleStock');
             var divAlerta = modalDetalle.querySelector('#alertaStockDiv');
-
             if (enAlerta) {
-                divStock.className = 'fs-2 fw-bold text-danger';
+                divStock.className    = 'fs-2 fw-bold text-danger';
                 divAlerta.style.display = 'block';
             } else {
-                divStock.className = 'fs-2 fw-bold text-success';
+                divStock.className    = 'fs-2 fw-bold text-success';
                 divAlerta.style.display = 'none';
             }
+
+            // ── NUEVO: renderizar ubicaciones ────────────────────────────
+            var ubicaciones = [];
+            try { ubicaciones = JSON.parse(button.getAttribute('data-ubicaciones') || '[]'); }
+            catch(e) {}
+
+            var contenedor = modalDetalle.querySelector('#detalleUbicaciones');
+            contenedor.innerHTML = '';   // limpiar ubicaciones del producto anterior
+
+            if (ubicaciones.length === 0) {
+                contenedor.innerHTML =
+                    '<span class="text-muted small fst-italic">Sin ubicaciones asignadas</span>';
+            } else {
+                ubicaciones.forEach(function(u) {
+                    var fila = document.createElement('div');
+                    fila.className = 'd-flex justify-content-between align-items-center py-1 border-bottom';
+                    fila.innerHTML =
+                        '<div class="small">' +
+                            '<i class="bi bi-building me-1 text-muted"></i>' +
+                            '<span class="fw-semibold">' + u.Deposito + '</span>' +
+                            ' &rsaquo; ' + u.Estante +
+                            ' &rsaquo; Fila&nbsp;' + u.Fila +
+                        '</div>' +
+                        '<span class="badge bg-primary ms-2">' + u.Cantidad + '&nbsp;u.</span>';
+                    contenedor.appendChild(fila);
+                });
+            }
+            // ─────────────────────────────────────────────────────────────
         });
     </script>
 
@@ -384,10 +387,12 @@
             transform: scale(1.03);
             cursor: pointer;
         }
-        /* Estilo visual para filas inactivas */
         tr[data-activo="false"] td {
             color: #6c757d !important;
             background-color: #f8f9fa;
         }
+        /* Scrollbar discreto en el contenedor de ubicaciones */
+        #detalleUbicaciones::-webkit-scrollbar { width: 4px; }
+        #detalleUbicaciones::-webkit-scrollbar-thumb { background: #dee2e6; border-radius: 2px; }
     </style>
 }

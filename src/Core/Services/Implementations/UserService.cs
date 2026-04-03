@@ -20,7 +20,7 @@ public class UserService : IUserService
     }
 
 
-    // --- Nuevos Métodos para Preparar ViewModels ---
+    //  Preparar ViewModels ---
 
     public Dom.Usuario? ObtenerUsuarioActual()
     {
@@ -168,8 +168,8 @@ public class UserService : IUserService
             return ServiceResult.Fail("La identificación ya se encuentra registrada por otro usuario.");
 
         Dom.Usuario usuario = CrearUsuarioViewModel.CargarUsuario(usuarioVM);
-
-        // para despues: agregar un hash de la contraseña aquí 
+        usuario.Contrasenia = BCrypt.Net.BCrypt.HashPassword(usuarioVM.Contrasenia);
+        
         usuario.Activo = true;
 
         try
@@ -231,7 +231,7 @@ public class UserService : IUserService
 
         if (!string.IsNullOrEmpty(usuarioVM.Contrasenia))
         {
-            usuarioExistente.Contrasenia = usuarioVM.Contrasenia;
+            usuarioExistente.Contrasenia = BCrypt.Net.BCrypt.HashPassword(usuarioVM.Contrasenia);
         }
 
         try
@@ -308,9 +308,8 @@ public class UserService : IUserService
 
         if (usuario == null) return null;
 
-
-        //Cambiar a BCrypt o Hashing seguro en el futuro
-        if (usuario.Contrasenia != clave) return null;
+        bool isValid = BCrypt.Net.BCrypt.Verify(clave, usuario.Contrasenia);
+        if (!isValid) return null;
         if (usuario.Activo == false) return null;
 
         //LOGICA DE APLANADO DE PERMISOS
@@ -320,13 +319,11 @@ public class UserService : IUserService
             ? usuario.GrupoPermisos.SelectMany(g => g.Permisos)
             : new List<Dom.Permiso>();
 
-        //Unir y Eliminar Duplicados
         var permisosUnificados = permisosDirectos
             .Concat(permisosDeGrupos)
             .DistinctBy(p => p.IdPermiso)
-            .ToList();
+            .ToList();  
 
-        // 4. Asignamos la lista limpia al usuario para que el Controlador la use fácil
         usuario.PermisosUsuario = permisosUnificados;
 
         return usuario;

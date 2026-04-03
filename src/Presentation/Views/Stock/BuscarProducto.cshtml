@@ -1,0 +1,725 @@
+@using src.Presentation.ViewModels.StockVM
+@model BuscarProductoViewModel
+
+@{
+    ViewData["Title"] = "Stock por Producto";
+    bool tienePermisoStock = LayoutService.TienePermiso("P14_Gestion_Stock");
+
+    var filasJson = System.Text.Json.JsonSerializer.Serialize(
+        Model.FilasDisponibles.Select(f => new {
+            id         = f.IdFila,
+            texto      = f.TextoCompleto,
+            idDeposito = f.IdDeposito
+        })
+    );
+}
+
+@if (TempData["realizado"] != null)
+{
+    <div class="container py-3">
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["realizado"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+}
+@if (TempData["error"] != null)
+{
+    <div class="container py-3">
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+}
+
+<div class="container py-4" style="max-width: 980px;">
+
+    <div class="d-flex align-items-center gap-2 mb-4">
+        <a asp-controller="Deposito" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h2 class="fw-bold text-primary m-0">
+            <i class="bi bi-search me-2"></i>@ViewData["Title"]
+        </h2>
+    </div>
+
+    @* ── Buscador ─────────────────────────────────────────────────────────── *@
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" asp-action="BuscarProducto" asp-controller="Stock">
+                <div class="row g-2 align-items-end">
+                    <div class="col">
+                        <label class="form-label fw-semibold mb-1">
+                            @if (Model.PorCodigo)
+                            {
+                                <i class="bi bi-upc-scan me-1"></i>
+                                @:Código de barras (exacto)
+                            }
+                            else
+                            {
+                                <i class="bi bi-type me-1"></i>
+                                @:Nombre del producto (parcial)
+                            }
+                        </label>
+                        <input name="termino"
+                               id="inputTermino"
+                               class="form-control form-control-lg"
+                               placeholder="@(Model.PorCodigo ? "Ej: 7790001234567" : "Ej: Tornillo, martillo...")"
+                               value="@Model.Termino"
+                               autofocus>
+                        <input type="hidden" name="porCodigo" id="hiddenPorCodigo" value="@Model.PorCodigo.ToString().ToLower()">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary btn-lg px-4">
+                            <i class="bi bi-search me-1"></i>Buscar
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-3 d-flex gap-4">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio"
+                               name="_tipoBusqueda" id="radioNombre"
+                               value="nombre"
+                               @(!Model.PorCodigo ? "checked" : "")
+                               onchange="document.getElementById('hiddenPorCodigo').value='false';
+                                         document.getElementById('inputTermino').placeholder='Ej: Tornillo, martillo...'">
+                        <label class="form-check-label" for="radioNombre">
+                            <i class="bi bi-type me-1 text-primary"></i>
+                            Por nombre <span class="text-muted small">(muestra varios resultados)</span>
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio"
+                               name="_tipoBusqueda" id="radioCodigo"
+                               value="codigo"
+                               @(Model.PorCodigo ? "checked" : "")
+                               onchange="document.getElementById('hiddenPorCodigo').value='true';
+                                         document.getElementById('inputTermino').placeholder='Ej: 7790001234567'">
+                        <label class="form-check-label" for="radioCodigo">
+                            <i class="bi bi-upc-scan me-1 text-success"></i>
+                            Por código de barras <span class="text-muted small">(resultado exacto)</span>
+                        </label>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @* ── Sin búsqueda ──────────────────────────────────────────────────────── *@
+    @if (!Model.BusquedaRealizada)
+    {
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-box-seam display-1 mb-3 d-block opacity-25"></i>
+            <p class="h5 mb-1">Buscá un producto para ver su distribución de stock.</p>
+            <p class="small text-muted">Podés buscar por nombre parcial o por código de barras exacto.</p>
+        </div>
+    }
+
+    @* ── Sin resultados ────────────────────────────────────────────────────── *@
+    @if (Model.SinResultados)
+    {
+        <div class="alert alert-warning text-center p-4 shadow-sm">
+            <i class="bi bi-exclamation-circle-fill fs-3 mb-2 d-block"></i>
+            <p class="mb-0 fw-semibold">
+                No se encontró ningún producto con <strong>"@Model.Termino"</strong>.
+            </p>
+            <p class="small text-muted mt-1">
+                @if (Model.PorCodigo)
+                {
+                    @:Verificá que el código de barras sea correcto.
+                }
+                else
+                {
+                    @:Probá con otro término o activá "Por código de barras" si tenés el código exacto.
+                }
+            </p>
+        </div>
+    }
+
+    @* ── Varios resultados ─────────────────────────────────────────────────── *@
+    @if (Model.HayVariosResultados)
+    {
+        <div class="mb-3 d-flex align-items-center gap-2">
+            <h5 class="fw-bold text-dark m-0">
+                <i class="bi bi-list-ul me-2 text-primary"></i>Resultados para <em>"@Model.Termino"</em>
+            </h5>
+            <span class="badge bg-secondary rounded-pill">@Model.ResultadosList.Count productos</span>
+        </div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-uppercase small text-muted">
+                            <tr>
+                                <th>Producto</th>
+                                <th>Códigos de barra</th>
+                                <th class="text-center">Stock total</th>
+                                <th class="text-center">Ubicaciones</th>
+                                <th class="text-center" style="width:110px;">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.ResultadosList)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">
+                                        <i class="bi bi-box-seam me-2 text-primary"></i>@item.Nombre
+                                    </td>
+                                    <td class="text-muted small">
+                                        @if (string.IsNullOrEmpty(item.CodigosBarras))
+                                        {
+                                            <span class="fst-italic">—</span>
+                                        }
+                                        else
+                                        {
+                                            foreach (var cod in item.CodigosBarras.Split(','))
+                                            {
+                                                <span class="badge bg-light text-dark border me-1">@cod.Trim()</span>
+                                            }
+                                        }
+                                    </td>
+                                    <td class="text-center fw-bold">@item.StockTotal.ToString("N0")</td>
+                                    <td class="text-center text-muted small">@item.CantidadFilas filas</td>
+                                    <td class="text-center">
+                                        <a asp-controller="Stock"
+                                           asp-action="BuscarProducto"
+                                           asp-route-idProducto="@item.IdProducto"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye me-1"></i>Ver
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+    @* ── Un solo producto ──────────────────────────────────────────────────── *@
+    @if (Model.HayUnSoloResultado && Model.ProductoDetalle is not null)
+    {
+        var det = Model.ProductoDetalle;
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center justify-content-center
+                                    bg-primary bg-opacity-10 text-primary rounded-circle flex-shrink-0"
+                             style="width:54px;height:54px;">
+                            <i class="bi bi-box-seam fs-3"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-1">@det.NombreProducto</h4>
+                            @if (det.CodigosBarras.Any())
+                            {
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach (var cod in det.CodigosBarras)
+                                    {
+                                        <span class="badge bg-light text-dark border">
+                                            <i class="bi bi-upc-scan me-1 text-muted"></i>@cod
+                                        </span>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-muted small fst-italic">Sin código de barras registrado</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <small class="text-uppercase text-muted fw-bold d-block" style="font-size:.7rem;">Stock total global</small>
+                        <span class="fw-bold fs-3 text-dark">@det.StockTotal.ToString("N0")</span>
+                        <span class="text-muted small"> unidades</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (!det.Ubicaciones.Any())
+        {
+            <div class="alert alert-info text-center shadow-sm">
+                <i class="bi bi-info-circle me-1"></i>
+                Este producto no tiene stock asignado a ninguna ubicación todavía.
+            </div>
+        }
+        else
+        {
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-dark m-0">
+                    <i class="bi bi-geo-alt me-2 text-primary"></i>Distribución de stock
+                    <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill ms-1 fw-normal"
+                          style="font-size:.8em;">
+                        @det.Ubicaciones.Count ubicaciones
+                    </span>
+                </h5>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-uppercase small text-muted">
+                                <tr>
+                                    <th>Depósito</th>
+                                    <th>Estante</th>
+                                    <th>Fila</th>
+                                    <th class="text-center">Cantidad</th>
+                                    @if (tienePermisoStock)
+                                    {
+                                        <th class="text-center" style="width:160px;">Acciones</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var ub in det.Ubicaciones)
+                                {
+                                    <tr>
+                                        <td>
+                                            <i class="bi bi-building-gear me-2 text-primary"></i>@ub.NombreDeposito
+                                        </td>
+                                        <td class="text-muted">
+                                            <i class="bi bi-grid-3x3-gap-fill me-1 text-secondary"></i>@ub.NumeroEstante
+                                        </td>
+                                        <td class="text-muted">
+                                            <i class="bi bi-arrows-expand-vertical me-1 text-secondary"></i>@ub.NFila
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-info bg-opacity-10 text-info fw-bold px-3"
+                                                  style="font-size:.9em;">
+                                                @ub.Cantidad.ToString("N0")
+                                            </span>
+                                        </td>
+                                        @if (tienePermisoStock)
+                                        {
+                                            <td class="text-center">
+                                                <div class="btn-group btn-group-sm">
+                                                    @* Mover desde esta fila *@
+                                                    <button type="button"
+                                                            class="btn btn-outline-primary btn-mover-fila"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#modalMoverStock"
+                                                            data-idproducto="@det.IdProducto"
+                                                            data-nombre="@det.NombreProducto"
+                                                            data-idfila="@ub.IdFila"
+                                                            data-nombrefila="@ub.NFila"
+                                                            data-nombreestante="@ub.NumeroEstante"
+                                                            data-nombredeposito="@ub.NombreDeposito"
+                                                            data-cantidad="@ub.Cantidad"
+                                                            title="Mover stock a otro depósito/fila">
+                                                        <i class="bi bi-arrow-up-right me-1"></i>Mover
+                                                    </button>
+                                                    @* Quitar (egreso) desde esta fila *@
+                                                    <button type="button"
+                                                            class="btn btn-outline-danger btn-quitar-fila"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#modalQuitarStock"
+                                                            data-idproducto="@det.IdProducto"
+                                                            data-nombre="@det.NombreProducto"
+                                                            data-idfila="@ub.IdFila"
+                                                            data-nombrefila="@ub.NFila"
+                                                            data-nombreestante="@ub.NumeroEstante"
+                                                            data-nombredeposito="@ub.NombreDeposito"
+                                                            data-cantidad="@ub.Cantidad"
+                                                            title="Retirar stock del sistema (egreso)">
+                                                        <i class="bi bi-box-arrow-up me-1"></i>Quitar
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot class="table-light fw-bold">
+                                <tr>
+                                    <td colspan="3" class="text-end text-muted small text-uppercase">Total</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary px-3" style="font-size:.9em;">
+                                            @det.Ubicaciones.Sum(u => u.Cantidad).ToString("N0")
+                                        </span>
+                                    </td>
+                                    @if (tienePermisoStock) { <td></td> }
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@* ══════════════════════════════════════════════════════════════════════════
+   MODAL — MOVER STOCK
+   Origen fijo (el botón que lo abre). Múltiples destinos permitidos.
+══════════════════════════════════════════════════════════════════════════ *@
+@if (tienePermisoStock)
+{
+    <div class="modal fade" id="modalMoverStock" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <form asp-controller="Stock" asp-action="ProcesarMovimientos" method="post"
+                      id="formMoverStock">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="IdProducto" id="moverIdProducto" />
+                    <input type="hidden" name="ReturnUrl"
+                           value="@Context.Request.Path@Context.Request.QueryString" />
+
+                    <div class="modal-header bg-primary text-white">
+                        <div>
+                            <h5 class="modal-title mb-0">
+                                <i class="bi bi-arrow-left-right me-2"></i>Mover Stock
+                            </h5>
+                            <small id="moverNombreProducto" class="opacity-75"></small>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white"
+                                data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        @* ── Card de origen fijo ─────────────────────────────── *@
+                        <div class="alert alert-secondary d-flex align-items-center gap-3 py-2 mb-4">
+                            <i class="bi bi-geo-alt-fill text-primary fs-5 flex-shrink-0"></i>
+                            <div class="flex-fill">
+                                <div class="small text-muted fw-bold text-uppercase mb-1">Origen (fijo)</div>
+                                <span id="moverOrigenTexto" class="fw-semibold"></span>
+                            </div>
+                            <div class="text-end flex-shrink-0">
+                                <div class="small text-muted">Disponible</div>
+                                <span class="badge bg-info text-dark fs-6 px-3" id="moverOrigenDisponible">0</span>
+                                <span class="small text-muted"> u.</span>
+                            </div>
+                        </div>
+
+                        @* ── Destinos ────────────────────────────────────────── *@
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold text-dark m-0">
+                                <i class="bi bi-list-check me-2 text-primary"></i>Destinos
+                            </h6>
+                            <button type="button" class="btn btn-outline-primary btn-sm"
+                                    id="btnAgregarDestino">
+                                <i class="bi bi-plus-lg me-1"></i>Agregar destino
+                            </button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0" id="tablaDestinos">
+                                <thead class="table-light text-uppercase small text-muted">
+                                    <tr>
+                                        <th>Destino (fila)</th>
+                                        <th style="width:160px;">Cantidad</th>
+                                        <th style="width:40px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyDestinos"></tbody>
+                            </table>
+                        </div>
+                        <p id="msgSinDestinos" class="text-muted small fst-italic mt-2 mb-0 ps-1">
+                            Hacé clic en "Agregar destino" para comenzar.
+                        </p>
+
+                        @* ── Resumen disponible ──────────────────────────────── *@
+                        <div class="mt-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-info-circle text-muted"></i>
+                            <span class="small text-muted">
+                                Restante para asignar:
+                                <strong id="moverRestante" class="text-dark">0</strong> u.
+                            </span>
+                        </div>
+
+                        <p class="text-muted small mt-3 mb-0">
+                            <i class="bi bi-shield-check me-1 text-success"></i>
+                            Cada movimiento queda registrado en el historial con fecha, usuario y ubicaciones.
+                        </p>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light"
+                                data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary px-4"
+                                id="btnConfirmarMovimientos" disabled>
+                            <i class="bi bi-check-circle me-1"></i>
+                            Confirmar <span id="countDestinos">0</span> movimiento(s)
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @* ══════════════════════════════════════════════════════════════════════════
+       MODAL — QUITAR STOCK (egreso)
+    ══════════════════════════════════════════════════════════════════════════ *@
+    <div class="modal fade" id="modalQuitarStock" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form asp-controller="Stock" asp-action="RetirarStock" method="post"
+                      id="formQuitarStock">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="idProducto"  id="quitarIdProducto" />
+                    <input type="hidden" name="idFila"      id="quitarIdFila" />
+                    <input type="hidden" name="returnUrl"
+                           value="@Context.Request.Path@Context.Request.QueryString" />
+
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">
+                            <i class="bi bi-box-arrow-up me-2"></i>Retirar Stock (Egreso)
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white"
+                                data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-muted mb-1 small">Producto</p>
+                        <p class="fw-semibold mb-3" id="quitarNombreProducto"></p>
+
+                        <div class="alert alert-secondary d-flex align-items-center gap-3 py-2 mb-4">
+                            <i class="bi bi-geo-alt-fill text-danger fs-5"></i>
+                            <div>
+                                <div class="small text-muted fw-bold text-uppercase">Ubicación</div>
+                                <span id="quitarOrigenTexto" class="fw-semibold"></span>
+                            </div>
+                            <div class="ms-auto text-end">
+                                <div class="small text-muted">Disponible</div>
+                                <span class="badge bg-info text-dark px-2" id="quitarDisponible"></span>
+                                <span class="small text-muted"> u.</span>
+                            </div>
+                        </div>
+
+                        <label class="form-label fw-semibold">
+                            Cantidad a retirar <span class="text-danger">*</span>
+                        </label>
+                        <input type="number" name="cantidad" id="quitarCantidad"
+                               class="form-control form-control-lg"
+                               min="1" step="1" required placeholder="0">
+                        <div class="form-text text-danger d-none" id="quitarError">
+                            La cantidad supera el stock disponible.
+                        </div>
+
+                        <div class="alert alert-warning mt-3 py-2 small">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            Esta acción retira unidades del sistema de forma permanente.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger px-4" id="btnConfirmarQuitar">
+                            <i class="bi bi-box-arrow-up me-1"></i>Confirmar Egreso
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+<script>
+// ── Datos inyectados desde servidor ─────────────────────────────────────────
+const FILAS_DISPONIBLES = @Html.Raw(filasJson);
+
+// ── Estado del modal Mover ──────────────────────────────────────────────────
+let origenId        = 0;
+let origenMax       = 0;
+let destinoCount    = 0;
+
+// ════════════════════════════════════════════════════════════════════════════
+//  MODAL MOVER STOCK
+// ════════════════════════════════════════════════════════════════════════════
+document.getElementById('modalMoverStock')?.addEventListener('show.bs.modal', function (e) {
+    const btn = e.relatedTarget;
+    if (!btn?.dataset.idfila) return;
+
+    origenId  = parseInt(btn.dataset.idfila);
+    origenMax = parseFloat(btn.dataset.cantidad);
+
+    // Datos del producto y origen
+    document.getElementById('moverIdProducto').value        = btn.dataset.idproducto;
+    document.getElementById('moverNombreProducto').textContent = btn.dataset.nombre;
+    document.getElementById('moverOrigenTexto').textContent  =
+        `${btn.dataset.nombredeposito}  ›  Estante ${btn.dataset.nombreestante}  ›  Fila ${btn.dataset.nombrefila}`;
+    document.getElementById('moverOrigenDisponible').textContent = formatNum(origenMax);
+
+    // Limpiar destinos anteriores
+    document.getElementById('tbodyDestinos').innerHTML = '';
+    destinoCount = 0;
+    actualizarEstado();
+
+    // Agregar primer destino automáticamente
+    agregarDestino();
+});
+
+// ── Agregar un destino ──────────────────────────────────────────────────────
+document.getElementById('btnAgregarDestino')?.addEventListener('click', () => agregarDestino());
+
+function agregarDestino() {
+    const idx   = destinoCount++;
+    const tbody = document.getElementById('tbodyDestinos');
+
+    let opts = '<option value="">— Fila destino —</option>';
+    FILAS_DISPONIBLES.forEach(f => {
+        if (f.id !== origenId) {
+            opts += `<option value="${f.id}">${f.texto}</option>`;
+        }
+    });
+
+    const tr = document.createElement('tr');
+    tr.dataset.idx = idx;
+    tr.innerHTML = `
+        <td>
+            <select class="form-select form-select-sm sel-destino"
+                    name="Movimientos[${idx}].IdFilaDestino" required>
+                ${opts}
+            </select>
+        </td>
+        <td>
+            <input type="hidden" name="Movimientos[${idx}].IdFilaOrigen" value="${origenId}">
+            <div class="input-group input-group-sm">
+                <input type="number" class="form-control inp-cantidad"
+                       name="Movimientos[${idx}].Cantidad"
+                       min="1" step="1" placeholder="0" required>
+                <span class="input-group-text text-muted small">u.</span>
+            </div>
+            <div class="invalid-feedback">Supera el disponible.</div>
+        </td>
+        <td class="text-center">
+            <button type="button"
+                    class="btn btn-sm btn-link text-danger p-0 border-0 btn-quitar-dest"
+                    title="Quitar fila">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </td>
+    `;
+
+    tr.querySelector('.inp-cantidad').addEventListener('input', actualizarEstado);
+    tr.querySelector('.btn-quitar-dest').addEventListener('click', () => {
+        tr.remove();
+        actualizarEstado();
+    });
+
+    tbody.appendChild(tr);
+    actualizarEstado();
+    tr.querySelector('.sel-destino').focus();
+}
+
+// ── Actualizar contadores y botón confirmar ─────────────────────────────────
+function actualizarEstado() {
+    const filas       = document.querySelectorAll('#tbodyDestinos tr');
+    const count       = filas.length;
+    let   totalAsig   = 0;
+
+    filas.forEach(tr => {
+        const v = parseFloat(tr.querySelector('.inp-cantidad')?.value || '0');
+        if (!isNaN(v) && v > 0) totalAsig += v;
+    });
+
+    const restante = origenMax - totalAsig;
+
+    document.getElementById('countDestinos').textContent    = count;
+    document.getElementById('moverRestante').textContent    = formatNum(restante);
+    document.getElementById('msgSinDestinos').style.display = count === 0 ? 'block' : 'none';
+
+    const restEl = document.getElementById('moverRestante');
+    restEl.className = restante < 0
+        ? 'text-danger fw-bold'
+        : restante === 0
+            ? 'text-success fw-bold'
+            : 'text-dark fw-bold';
+
+    const ok = count > 0 && totalAsig > 0 && totalAsig <= origenMax;
+    document.getElementById('btnConfirmarMovimientos').disabled = !ok;
+}
+
+// ── Validación en submit ────────────────────────────────────────────────────
+document.getElementById('formMoverStock')?.addEventListener('submit', function (e) {
+    let valido   = true;
+    let totalAsig = 0;
+    const destinos = new Set();
+
+    document.querySelectorAll('#tbodyDestinos tr').forEach(tr => {
+        const dest  = tr.querySelector('.sel-destino').value;
+        const cant  = parseFloat(tr.querySelector('.inp-cantidad').value);
+
+        if (!dest || isNaN(cant) || cant <= 0) {
+            valido = false;
+            return;
+        }
+        if (parseInt(dest) === origenId) {
+            alert('El destino no puede ser la misma fila que el origen.');
+            valido = false;
+            return;
+        }
+        if (destinos.has(dest)) {
+            alert('Hay destinos duplicados. Combiná las cantidades en una sola fila.');
+            valido = false;
+            return;
+        }
+        destinos.add(dest);
+        totalAsig += cant;
+    });
+
+    if (valido && totalAsig > origenMax) {
+        alert(`El total a mover (${formatNum(totalAsig)} u.) supera el stock disponible en origen (${formatNum(origenMax)} u.).`);
+        valido = false;
+    }
+
+    if (!valido) e.preventDefault();
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+//  MODAL QUITAR STOCK
+// ════════════════════════════════════════════════════════════════════════════
+document.getElementById('modalQuitarStock')?.addEventListener('show.bs.modal', function (e) {
+    const btn = e.relatedTarget;
+    if (!btn) return;
+
+    const maxDisp = parseFloat(btn.dataset.cantidad);
+
+    document.getElementById('quitarIdProducto').value          = btn.dataset.idproducto;
+    document.getElementById('quitarIdFila').value              = btn.dataset.idfila;
+    document.getElementById('quitarNombreProducto').textContent = btn.dataset.nombre;
+    document.getElementById('quitarOrigenTexto').textContent   =
+        `${btn.dataset.nombredeposito}  ›  Estante ${btn.dataset.nombreestante}  ›  Fila ${btn.dataset.nombrefila}`;
+    document.getElementById('quitarDisponible').textContent    = formatNum(maxDisp);
+
+    const inp = document.getElementById('quitarCantidad');
+    inp.max   = maxDisp;
+    inp.value = '';
+    document.getElementById('quitarError').classList.add('d-none');
+});
+
+document.getElementById('quitarCantidad')?.addEventListener('input', function () {
+    const max = parseFloat(this.max);
+    const val = parseFloat(this.value);
+    const errEl = document.getElementById('quitarError');
+    const btnEl = document.getElementById('btnConfirmarQuitar');
+    if (!isNaN(val) && val > max) {
+        errEl.classList.remove('d-none');
+        btnEl.disabled = true;
+    } else {
+        errEl.classList.add('d-none');
+        btnEl.disabled = false;
+    }
+});
+
+document.getElementById('formQuitarStock')?.addEventListener('submit', function (e) {
+    const inp = document.getElementById('quitarCantidad');
+    const max = parseFloat(inp.max);
+    const val = parseFloat(inp.value);
+    if (isNaN(val) || val <= 0 || val > max) {
+        e.preventDefault();
+        document.getElementById('quitarError').classList.remove('d-none');
+    }
+});
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+function formatNum(n) {
+    return Number.isInteger(n) ? n.toString() : n.toFixed(2).replace(/\.?0+$/, '');
+}
+</script>
+<partial name="_ValidationScriptsPartial" />
+}

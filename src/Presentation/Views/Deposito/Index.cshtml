@@ -1,0 +1,387 @@
+@using src.Presentation.ViewModels.DepositoVM
+@model DepositoIndexViewModel
+
+@{
+    ViewData["Title"] = "Gestión de Depósitos";
+    var hayDepositos   = Model.Depositos.Any();
+    bool tienePermisoABM   = LayoutService.TienePermiso("P13_ABM_Deposito");
+    bool tienePermisoStock = LayoutService.TienePermiso("P14_Gestion_Stock");
+}
+
+@if (TempData["realizado"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show container mt-3 shadow-sm" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>@TempData["realizado"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show container mt-3 shadow-sm" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="container py-4">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5 gap-3">
+        <h2 class="fw-bold text-primary m-0">
+            <i class="bi bi-building-gear me-2"></i>@ViewData["Title"]
+        </h2>
+        <div class="d-flex align-items-center gap-3 flex-wrap justify-content-end">
+
+            <div class="btn-group" role="group">
+                <input type="radio" class="btn-check" name="filtroDeposito" id="btnActivos"
+                       autocomplete="off" checked onchange="filtrarDepositos('activo')">
+                <label class="btn btn-outline-primary" for="btnActivos">Activos</label>
+                <input type="radio" class="btn-check" name="filtroDeposito" id="btnInactivos"
+                       autocomplete="off" onchange="filtrarDepositos('inactivo')">
+                <label class="btn btn-outline-secondary" for="btnInactivos">Inactivos</label>
+            </div>
+
+            @if (tienePermisoStock)
+            {
+                <a asp-controller="Stock" asp-action="BuscarProducto" class="btn btn-outline-info shadow-sm">
+                    <i class="bi bi-search me-1"></i>Stock por Producto
+                </a>
+            }
+            @if (tienePermisoStock)
+            {
+                <a asp-controller="Stock" asp-action="HistorialMovimientos"
+                class="btn btn-outline-secondary shadow-sm">
+                    <i class="bi bi-clock-history me-1"></i>Historial General
+                </a>
+            }
+
+            @if (tienePermisoABM)
+            {
+                <button type="button" class="btn btn-success shadow-sm"
+                        data-bs-toggle="modal" data-bs-target="#modalDeposito"
+                        data-modo="crear">
+                    <i class="bi bi-plus-lg me-1"></i>Nuevo Depósito
+                </button>
+            }
+        </div>
+    </div>
+
+    @if (!hayDepositos)
+    {
+        <div class="alert alert-light text-center p-5 border rounded bg-light">
+            <i class="bi bi-building display-1 text-muted mb-3 d-block"></i>
+            <p class="h5 text-muted">No hay depósitos registrados en el sistema.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4" id="contenedorTarjetas">
+            @foreach (var dep in Model.Depositos)
+            {
+                <div class="col-12 col-md-6 col-lg-4 col-xl-3 tarjeta-deposito"
+                     data-estado="@(dep.Activo ? "activo" : "inactivo")">
+                    <div class="card h-100 border-0 shadow-sm hover-effect @(dep.Activo ? "" : "bg-light opacity-75")">
+
+                        <div class="card-header bg-transparent border-0 d-flex justify-content-between pt-3">
+                            @if (dep.Activo)
+                            {
+                                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3">Inactivo</span>
+                            }
+
+                            @if (tienePermisoStock && dep.Activo)
+                            {
+                                <div class="dropdown">
+                                    <button class="btn btn-link text-dark p-0 text-decoration-none"
+                                            type="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                                        <li>
+                                            <a class="dropdown-item d-flex align-items-center gap-2"
+                                            asp-controller="Stock"
+                                            asp-action="HistorialMovimientos"
+                                            asp-route-idDeposito="@dep.IdDeposito">
+                                                <i class="bi bi-clock-history"></i> Historial de movimientos
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="card-body text-center pt-0">
+                            <div class="mb-3">
+                                <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle"
+                                     style="width:64px;height:64px;">
+                                    <i class="bi bi-building-gear fs-2"></i>
+                                </div>
+                            </div>
+                            <h5 class="card-title fw-bold text-truncate" title="@dep.Nombre">@dep.Nombre</h5>
+                            <p class="text-muted small mb-3">
+                                <i class="bi bi-geo-alt me-1"></i>@dep.DireccionResumen
+                            </p>
+                            <div class="d-flex justify-content-center gap-3">
+                                <div class="bg-light rounded p-2 text-center" style="min-width:75px;">
+                                    <small class="text-uppercase text-muted fw-bold d-block" style="font-size:.7rem;">Estantes</small>
+                                    <span class="fw-bold text-dark">@dep.TotalEstantes</span>
+                                </div>
+                                <div class="bg-light rounded p-2 text-center" style="min-width:75px;">
+                                    <small class="text-uppercase text-muted fw-bold d-block" style="font-size:.7rem;">Filas</small>
+                                    <span class="fw-bold text-dark">@dep.TotalFilas</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-transparent border-0 pb-3 px-3">
+                            <div class="d-grid gap-2">
+                                <a asp-controller="Deposito" asp-action="VerDetalle"
+                                   asp-route-id="@dep.IdDeposito"
+                                   class="btn btn-info btn-sm text-white">
+                                    <i class="bi bi-eye me-1"></i>Ver Detalle
+                                </a>
+
+                                @if (tienePermisoABM)
+                                {
+                                    @if (dep.Activo)
+                                    {
+                                        <button type="button" class="btn btn-outline-primary btn-sm"
+                                                data-bs-toggle="modal" data-bs-target="#modalDeposito"
+                                                data-modo="editar"
+                                                data-id="@dep.IdDeposito"
+                                                data-nombre="@dep.Nombre"
+                                                data-calle="@dep.Calle"
+                                                data-numero="@dep.Numero"
+                                                data-piso="@(dep.Piso.HasValue ? dep.Piso.Value.ToString() : "")"
+                                                data-comentario="@dep.Comentario"
+                                                data-idprovincia="@dep.IdProvincia">
+                                            <i class="bi bi-pencil me-1"></i>Editar
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modalEliminarDeposito-@dep.IdDeposito">
+                                            <i class="bi bi-trash me-1"></i>Desactivar
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <form asp-controller="Deposito" asp-action="ReactivarDeposito" method="post"
+                                              onsubmit="return confirm('¿Reactivar este depósito?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@dep.IdDeposito" />
+                                            <button type="submit" class="btn btn-success btn-sm w-100 text-white">
+                                                <i class="bi bi-arrow-counterclockwise me-1"></i>Reactivar
+                                            </button>
+                                        </form>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (tienePermisoABM && dep.Activo)
+                    {
+                        <div class="modal fade" id="modalEliminarDeposito-@dep.IdDeposito" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header border-0">
+                                        <h5 class="modal-title text-danger">
+                                            <i class="bi bi-exclamation-triangle-fill me-2"></i>Desactivar Depósito
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body text-center">
+                                        <p class="text-muted mb-1">
+                                            ¿Desactivar <strong>@dep.Nombre</strong>?
+                                        </p>
+                                        <p class="small text-danger fw-bold bg-danger bg-opacity-10 p-2 rounded">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            Solo es posible si no contiene stock. Sus estantes y filas quedarán inaccesibles.
+                                        </p>
+                                    </div>
+                                    <div class="modal-footer border-0 justify-content-center">
+                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                                        <form asp-controller="Deposito" asp-action="EliminarDeposito" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@dep.IdDeposito" />
+                                            <button type="submit" class="btn btn-danger px-4">Sí, Desactivar</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <div id="mensajeVacioFiltro" class="alert alert-info text-center mt-4" style="display:none;">
+            No hay depósitos en este estado.
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="modalDeposito" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="formDeposito" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="modalDepositoId" name="IdDeposito" value="0" />
+
+                <div class="modal-header bg-primary text-white" id="modalDepositoHeader">
+                    <h5 class="modal-title" id="modalDepositoTitulo">
+                        <i class="bi bi-building-gear me-2"></i>Nuevo Depósito
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                   
+                    <div id="modalDepositoSpinner" class="text-center py-4" style="display:none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="text-muted mt-2 small">Cargando datos del depósito...</p>
+                    </div>
+
+                    <div id="modalDepositoCuerpo">
+                       
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nombre del depósito <span class="text-danger">*</span></label>
+                            <input name="Nombre" id="modalDepositoNombre" class="form-control" required maxlength="100"
+                                   placeholder="Ej: Depósito Central">
+                        </div>
+
+                        <hr class="my-3">
+                        <h6 class="fw-bold text-muted mb-3">
+                            <i class="bi bi-geo-alt me-1"></i>Dirección
+                        </h6>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-8">
+                                <label class="form-label fw-semibold">Calle <span class="text-danger">*</span></label>
+                                <input name="Calle" id="modalDepositoCalle" class="form-control" required maxlength="200"
+                                       placeholder="Ej: Av. San Martín">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-label fw-semibold">Número <span class="text-danger">*</span></label>
+                                <input name="Numero" id="modalDepositoNumero" type="number" min="1" max="32767"
+                                       class="form-control" required placeholder="1234">
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-4">
+                                <label class="form-label fw-semibold">Piso</label>
+                                <input name="Piso" id="modalDepositoPiso" type="number" min="0" max="32767"
+                                       class="form-control" placeholder="Opcional">
+                            </div>
+                            <div class="col-8">
+                                <label class="form-label fw-semibold">Provincia <span class="text-danger">*</span></label>
+                                <select name="IdProvincia" id="modalDepositoProvincia" class="form-select" required>
+                                    <option value="">— Seleccionar provincia —</option>
+                                    @foreach (var prov in Model.Formulario.Provincias)
+                                    {
+                                        <option value="@prov.Value">@prov.Text</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Comentario / Referencias</label>
+                            <textarea name="Comentario" id="modalDepositoComentario" class="form-control" rows="2"
+                                      maxlength="300" placeholder="Ej: Portón trasero, timbre 3..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" id="modalDepositoSubmit" class="btn btn-primary px-4">
+                        <i class="bi bi-floppy me-1"></i>Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // ── Filtro tarjetas ────────────────────────────────────────────────────
+        function filtrarDepositos(estado) {
+            const tarjetas = document.querySelectorAll('.tarjeta-deposito');
+            let visibles = 0;
+            tarjetas.forEach(card => {
+                if (card.getAttribute('data-estado') === estado) {
+                    card.classList.remove('d-none');
+                    visibles++;
+                } else {
+                    card.classList.add('d-none');
+                }
+            });
+            const msg = document.getElementById('mensajeVacioFiltro');
+            if (msg) {
+                msg.style.display = visibles === 0 ? 'block' : 'none';
+                if (visibles === 0)
+                    msg.textContent = estado === 'activo'
+                        ? 'No hay depósitos activos.'
+                        : 'No hay depósitos inactivos.';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', () => filtrarDepositos('activo'));
+
+        // ── Modal Crear / Editar Depósito ──────────────────────────────────────
+        const modalDepositoEl = document.getElementById('modalDeposito');
+
+modalDepositoEl.addEventListener('show.bs.modal', function (e) {
+    const btn  = e.relatedTarget;
+    const modo = btn.dataset.modo;
+
+    const titulo = this.querySelector('#modalDepositoTitulo');
+    const header = this.querySelector('#modalDepositoHeader');
+    const form   = this.querySelector('#formDeposito');
+    const submit = this.querySelector('#modalDepositoSubmit');
+
+    // Limpiar campos
+    this.querySelector('#modalDepositoId').value         = '0';
+    this.querySelector('#modalDepositoNombre').value     = '';
+    this.querySelector('#modalDepositoCalle').value      = '';
+    this.querySelector('#modalDepositoNumero').value     = '';
+    this.querySelector('#modalDepositoPiso').value       = '';
+    this.querySelector('#modalDepositoComentario').value = '';
+    this.querySelector('#modalDepositoProvincia').value  = '';
+
+    if (modo === 'crear') {
+        titulo.innerHTML = '<i class="bi bi-building-gear me-2"></i>Nuevo Depósito';
+        header.className = 'modal-header bg-primary text-white';
+        submit.className = 'btn btn-primary px-4';
+        form.action      = '@Url.Action("CrearDeposito", "Deposito")';
+    }
+
+    if (modo === 'editar') {
+        titulo.innerHTML = '<i class="bi bi-pencil-square me-2"></i>Editar Depósito';
+        header.className = 'modal-header bg-warning text-dark';
+        submit.className = 'btn btn-warning px-4';
+        form.action      = '@Url.Action("ActualizarDeposito", "Deposito")';
+
+        // Sin AJAX — todo viene de data-attributes del botón
+        this.querySelector('#modalDepositoId').value         = btn.dataset.id;
+        this.querySelector('#modalDepositoNombre').value     = btn.dataset.nombre     || '';
+        this.querySelector('#modalDepositoCalle').value      = btn.dataset.calle      || '';
+        this.querySelector('#modalDepositoNumero').value     = btn.dataset.numero     || '';
+        this.querySelector('#modalDepositoPiso').value       = btn.dataset.piso       || '';
+        this.querySelector('#modalDepositoComentario').value = btn.dataset.comentario || '';
+        this.querySelector('#modalDepositoProvincia').value  = btn.dataset.idprovincia|| '';
+    }
+});
+    </script>
+
+    <style>
+        .hover-effect { transition: transform .2s ease-in-out, box-shadow .2s; }
+        .hover-effect:hover { transform: translateY(-5px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important; }
+    </style>
+}

@@ -229,6 +229,36 @@ namespace src.Migrations
                     b.UseTptMappingStrategy();
                 });
 
+            modelBuilder.Entity("src.Models.CodeFirst.Deposito", b =>
+                {
+                    b.Property<int>("IdDeposito")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id_deposito");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdDeposito"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("activo");
+
+                    b.Property<short>("IdDireccion")
+                        .HasColumnType("smallint")
+                        .HasColumnName("id_direccion");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("nombre");
+
+                    b.HasKey("IdDeposito");
+
+                    b.HasIndex("IdDireccion");
+
+                    b.ToTable("deposito");
+                });
+
             modelBuilder.Entity("src.Models.CodeFirst.DetalleCompra", b =>
                 {
                     b.Property<int>("IdDetalleCompra")
@@ -348,6 +378,45 @@ namespace src.Migrations
                     b.ToTable("domicilio", (string)null);
                 });
 
+            modelBuilder.Entity("src.Models.CodeFirst.Estante", b =>
+                {
+                    b.Property<int>("IdEstante")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id_estante");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdEstante"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("activo");
+
+                    b.Property<int>("IdDeposito")
+                        .HasColumnType("integer")
+                        .HasColumnName("id_deposito");
+
+                    b.Property<string>("NumeroEstante")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("numero_estante");
+
+                    b.Property<string>("Observaciones")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("observaciones");
+
+                    b.Property<bool>("TieneEspacio")
+                        .HasColumnType("boolean")
+                        .HasColumnName("tiene_espacio");
+
+                    b.HasKey("IdEstante");
+
+                    b.HasIndex("IdDeposito");
+
+                    b.ToTable("estante");
+                });
+
             modelBuilder.Entity("src.Models.CodeFirst.Factura", b =>
                 {
                     b.Property<int>("IdFactura")
@@ -433,6 +502,45 @@ namespace src.Migrations
                     b.ToTable("familia");
                 });
 
+            modelBuilder.Entity("src.Models.CodeFirst.Fila", b =>
+                {
+                    b.Property<int>("IdFila")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id_fila");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdFila"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("activo");
+
+                    b.Property<int>("IdEstante")
+                        .HasColumnType("integer")
+                        .HasColumnName("id_estante");
+
+                    b.Property<string>("NFila")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("n_fila");
+
+                    b.Property<string>("Observaciones")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("observaciones");
+
+                    b.Property<bool>("TieneEspacio")
+                        .HasColumnType("boolean")
+                        .HasColumnName("tiene_espacio");
+
+                    b.HasKey("IdFila");
+
+                    b.HasIndex("IdEstante");
+
+                    b.ToTable("fila");
+                });
+
             modelBuilder.Entity("src.Models.CodeFirst.GrupoPermisoPermiso", b =>
                 {
                     b.Property<short>("IdGrupoPermiso")
@@ -505,6 +613,60 @@ namespace src.Migrations
                     b.HasKey("IdMotivoComprobante");
 
                     b.ToTable("motivo_comprobante");
+                });
+
+            modelBuilder.Entity("src.Models.CodeFirst.MovimientoStock", b =>
+                {
+                    b.Property<int>("IdMovimientoStock")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id_movimiento_stock");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdMovimientoStock"));
+
+                    b.Property<decimal>("Cantidad")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("cantidad");
+
+                    b.Property<DateTime>("FechaMovimiento")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("fecha_movimiento");
+
+                    b.Property<int?>("IdFilaDestino")
+                        .HasColumnType("integer")
+                        .HasColumnName("id_fila_destino");
+
+                    b.Property<int?>("IdFilaOrigen")
+                        .HasColumnType("integer")
+                        .HasColumnName("id_fila_origen");
+
+                    b.Property<short>("IdProducto")
+                        .HasColumnType("smallint")
+                        .HasColumnName("id_producto");
+
+                    b.Property<short>("IdUsuario")
+                        .HasColumnType("smallint")
+                        .HasColumnName("id_usuario");
+
+                    b.Property<short?>("ProductoIdProducto")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("IdMovimientoStock");
+
+                    b.HasIndex("IdFilaDestino");
+
+                    b.HasIndex("IdFilaOrigen");
+
+                    b.HasIndex("IdProducto");
+
+                    b.HasIndex("IdUsuario");
+
+                    b.HasIndex("ProductoIdProducto");
+
+                    b.ToTable("movimiento_stock", t =>
+                        {
+                            t.HasCheckConstraint("CK_MovimientosStock_Cantidad", "cantidad >= 0");
+                        });
                 });
 
             modelBuilder.Entity("src.Models.CodeFirst.NovedadesProveedor", b =>
@@ -870,6 +1032,30 @@ namespace src.Migrations
                     b.ToTable("provincia");
                 });
 
+            modelBuilder.Entity("src.Models.CodeFirst.UbicacionProducto", b =>
+                {
+                    b.Property<short>("IdProducto")
+                        .HasColumnType("smallint")
+                        .HasColumnName("id_producto");
+
+                    b.Property<int>("IdFila")
+                        .HasColumnType("integer")
+                        .HasColumnName("id_fila");
+
+                    b.Property<decimal>("Cantidad")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("cantidad");
+
+                    b.HasKey("IdProducto", "IdFila");
+
+                    b.HasIndex("IdFila");
+
+                    b.ToTable("ubicacion_producto", t =>
+                        {
+                            t.HasCheckConstraint("CK_UbicacionProducto_Cantidad", "cantidad >= 0");
+                        });
+                });
+
             modelBuilder.Entity("src.Models.CodeFirst.Usuario", b =>
                 {
                     b.Property<short>("IdUsuario")
@@ -893,8 +1079,8 @@ namespace src.Migrations
 
                     b.Property<string>("Contrasenia")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasMaxLength(65)
+                        .HasColumnType("character varying(65)")
                         .HasColumnName("contrasenia");
 
                     b.Property<string>("Correo")
@@ -1065,6 +1251,17 @@ namespace src.Migrations
                     b.Navigation("Proveedor");
                 });
 
+            modelBuilder.Entity("src.Models.CodeFirst.Deposito", b =>
+                {
+                    b.HasOne("src.Models.CodeFirst.Domicilio", "Direccion")
+                        .WithMany()
+                        .HasForeignKey("IdDireccion")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Direccion");
+                });
+
             modelBuilder.Entity("src.Models.CodeFirst.DetalleCompra", b =>
                 {
                     b.HasOne("src.Models.CodeFirst.Compra", "Compra")
@@ -1114,6 +1311,17 @@ namespace src.Migrations
                     b.Navigation("IdProvinciaNavigation");
                 });
 
+            modelBuilder.Entity("src.Models.CodeFirst.Estante", b =>
+                {
+                    b.HasOne("src.Models.CodeFirst.Deposito", "Deposito")
+                        .WithMany("Estantes")
+                        .HasForeignKey("IdDeposito")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Deposito");
+                });
+
             modelBuilder.Entity("src.Models.CodeFirst.Factura", b =>
                 {
                     b.HasOne("src.Models.CodeFirst.Compra", "Compra")
@@ -1141,6 +1349,17 @@ namespace src.Migrations
                     b.Navigation("Proveedor");
                 });
 
+            modelBuilder.Entity("src.Models.CodeFirst.Fila", b =>
+                {
+                    b.HasOne("src.Models.CodeFirst.Estante", "Estante")
+                        .WithMany("Filas")
+                        .HasForeignKey("IdEstante")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Estante");
+                });
+
             modelBuilder.Entity("src.Models.CodeFirst.GrupoPermisoPermiso", b =>
                 {
                     b.HasOne("src.Models.CodeFirst.GrupoPermisos", "GrupoPermiso")
@@ -1160,6 +1379,43 @@ namespace src.Migrations
                     b.Navigation("GrupoPermiso");
 
                     b.Navigation("Permiso");
+                });
+
+            modelBuilder.Entity("src.Models.CodeFirst.MovimientoStock", b =>
+                {
+                    b.HasOne("src.Models.CodeFirst.Fila", "FilaDestino")
+                        .WithMany()
+                        .HasForeignKey("IdFilaDestino")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("src.Models.CodeFirst.Fila", "FilaOrigen")
+                        .WithMany()
+                        .HasForeignKey("IdFilaOrigen")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("src.Models.CodeFirst.Producto", "Producto")
+                        .WithMany()
+                        .HasForeignKey("IdProducto")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("src.Models.CodeFirst.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("IdUsuario")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("src.Models.CodeFirst.Producto", null)
+                        .WithMany("Movimientos")
+                        .HasForeignKey("ProductoIdProducto");
+
+                    b.Navigation("FilaDestino");
+
+                    b.Navigation("FilaOrigen");
+
+                    b.Navigation("Producto");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("src.Models.CodeFirst.NovedadesProveedor", b =>
@@ -1304,6 +1560,25 @@ namespace src.Migrations
                     b.Navigation("IdDomicilioNavigation");
                 });
 
+            modelBuilder.Entity("src.Models.CodeFirst.UbicacionProducto", b =>
+                {
+                    b.HasOne("src.Models.CodeFirst.Fila", "Fila")
+                        .WithMany("UbicacionesProductos")
+                        .HasForeignKey("IdFila")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("src.Models.CodeFirst.Producto", "Producto")
+                        .WithMany("UbicacionesProductos")
+                        .HasForeignKey("IdProducto")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Fila");
+
+                    b.Navigation("Producto");
+                });
+
             modelBuilder.Entity("src.Models.CodeFirst.UsuarioGrupoPermisos", b =>
                 {
                     b.HasOne("src.Models.CodeFirst.GrupoPermisos", "GrupoPermiso")
@@ -1399,9 +1674,19 @@ namespace src.Migrations
                     b.Navigation("Facturas");
                 });
 
+            modelBuilder.Entity("src.Models.CodeFirst.Deposito", b =>
+                {
+                    b.Navigation("Estantes");
+                });
+
             modelBuilder.Entity("src.Models.CodeFirst.Domicilio", b =>
                 {
                     b.Navigation("Proveedores");
+                });
+
+            modelBuilder.Entity("src.Models.CodeFirst.Estante", b =>
+                {
+                    b.Navigation("Filas");
                 });
 
             modelBuilder.Entity("src.Models.CodeFirst.Factura", b =>
@@ -1412,6 +1697,11 @@ namespace src.Migrations
             modelBuilder.Entity("src.Models.CodeFirst.Familia", b =>
                 {
                     b.Navigation("Categorias");
+                });
+
+            modelBuilder.Entity("src.Models.CodeFirst.Fila", b =>
+                {
+                    b.Navigation("UbicacionesProductos");
                 });
 
             modelBuilder.Entity("src.Models.CodeFirst.GrupoPermisos", b =>
@@ -1437,6 +1727,8 @@ namespace src.Migrations
                 {
                     b.Navigation("CodigosBarrasExternos");
 
+                    b.Navigation("Movimientos");
+
                     b.Navigation("Novedades");
 
                     b.Navigation("ProductoCodigoBarras");
@@ -1444,6 +1736,8 @@ namespace src.Migrations
                     b.Navigation("ProductosCategorias");
 
                     b.Navigation("ProductosProveedores");
+
+                    b.Navigation("UbicacionesProductos");
                 });
 
             modelBuilder.Entity("src.Models.CodeFirst.Proveedor", b =>

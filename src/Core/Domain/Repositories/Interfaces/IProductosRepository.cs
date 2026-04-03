@@ -14,8 +14,14 @@ namespace src.Repositories.Interfaces
         Task DeleteAsync(int id);
         Task ReactivateAsync(int id);
 
+        /// Busca un producto por nombre (LIKE) o por código de barra exacto.
+
         // Métodos de soporte para validaciones de negocio (RF 2.3.1)
         Task<bool> ExistsCodigoBarraAsync(string codigo, int? excluirProductoId = null);
-        
+        Task<IEnumerable<Dom.Producto>> GetBajosDeStockAsync();
+
+        // Cambiar estas dos firmas en la interfaz:
+        Task<IEnumerable<Dom.Producto>> BuscarListaPorNombreAsync(string termino);
+        Task<Dom.Producto?>              BuscarPorCodigoExactoAsync(string codigo);
     }
 }
