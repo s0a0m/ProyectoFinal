@@ -21,7 +21,7 @@
         <div class="col-md-4">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body py-3 px-3">
-                    <small class="text-uppercase text-muted fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Saldo adeudado</small>
+                    <small class="text-uppercase text-muted fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Saldo actual</small>
                     <p class="fs-4 fw-bold mb-0 mt-1 @(Model.SaldoTotal > 0 ? "text-danger" : "text-success")">$@Model.SaldoTotal.ToString("N2")</p>
                     <small class="text-muted">@facturasPendientes factura(s) pendiente(s)</small>
                 </div>
