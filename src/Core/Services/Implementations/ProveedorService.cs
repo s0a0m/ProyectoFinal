@@ -201,22 +201,4 @@ public class ProveedorService : IProveedorService
             MotivosND = motivosND.ToList(),
         };
     }
-    // public async Task<CuentaCorrienteData?> ObtenerCuentaCorrienteAsync(short idProveedor)
-    // {
-    //     var proveedor = await _proveedorRepository.GetProveedorById(idProveedor);
-    //     if (proveedor == null)
-    //         return null;
-    //
-    //     var facturas = await _facturaRepo.GetByProveedorAsync(idProveedor);
-    //     var ordenes = await _ordenPagoRepository.GetByProveedorAsync(idProveedor);
-    //     var comprobantes = await _comprobanteRepository.GetByProveedorAsync(idProveedor);
-    //
-    //     return new CuentaCorrienteData
-    //     {
-    //         Proveedor = proveedor,
-    //         Facturas = facturas.ToList(),
-    //         OrdenesPago = ordenes.Where(o => o.Enviada).ToList(),
-    //         Comprobantes = comprobantes.ToList(),
-    //     };
-    // }
 }

@@ -572,3 +572,4 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/csharp,dotnetcore,aspnetcore,visualstudiocode,windows
 .aider*
+**/*.cshtml__virtual.html
