@@ -1,5 +1,6 @@
 using src.Core.Contracts;
 using src.Presentation.ViewModels.CuentaCorrienteVM;
+using src.Presentation.ViewModels.ProveedorVM;
 using src.ViewModels;
 using Dom = src.Models.Domain;
 
@@ -7,6 +8,20 @@ namespace src.Presentation.Mappers;
 
 public static class ProveedorMapper
 {
+    // Domain → ListarViewModel
+    public static ListarProveedorViewModel ToListarViewModel(this Dom.Proveedor proveedor)
+    {
+        return new ListarProveedorViewModel
+        {
+            IdProveedor = proveedor.IdProveedor,
+            RazonSocial = proveedor.RazonSocial ?? string.Empty,
+            Cuit = proveedor.Cuit ?? string.Empty,
+            PersonaResponsable = proveedor.PersonaResponsable ?? string.Empty,
+            Telefono = proveedor.Telefono ?? string.Empty,
+            SaldoActual = proveedor.SaldoInicial,
+            Activo = proveedor.Activo
+        };
+    }
     // Domain → VM (crear)
     public static CrearProveedorViewModel ToCrearVM(this Dom.Proveedor proveedor)
     {

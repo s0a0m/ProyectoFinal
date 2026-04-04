@@ -2,7 +2,9 @@ using src.Contracts;
 using src.Core.Contracts;
 using src.Core.Services.Interfaces;
 using src.Models.Domain;
+using src.Presentation.Mappers;
 using src.Presentation.ViewModels.CuentaCorrienteVM;
+using src.Presentation.ViewModels.ProveedorVM;
 using src.Repositories.Interfaces;
 using src.ViewModels;
 using Dom = src.Models.Domain;
@@ -91,10 +93,10 @@ public class ProveedorService : IProveedorService
         await _prodService.GestionarCascadaProveedorAsync(id, true);
     }
 
-    public async Task<IEnumerable<Proveedor>> GetActiveProveedoresAsync()
+    public async Task<IEnumerable<ListarProveedorViewModel>> GetActiveProveedoresAsync()
     {
         var proveedores = await _proveedorRepository.GetAllProveedorAsync();
-        return proveedores;
+        return proveedores.Select(p => p.ToListarViewModel());
     }
 
     public async Task<Proveedor> GetProveedorByIdAsync(int IdProveedor)

@@ -42,8 +42,8 @@ public class ProveedorController : Controller
     [AuthorizePermiso("P06_VER_LISTA_PROVEEDORES")]
     public async Task<IActionResult> ListarProveedores()
     {
-        var listarProveedores = await _provService.GetActiveProveedoresAsync();
-        return View("ListarProveedores", listarProveedores);
+        var proveedoresVM = await _provService.GetActiveProveedoresAsync();
+        return View("ListarProveedores", proveedoresVM);
     }
 
     [HttpGet]
