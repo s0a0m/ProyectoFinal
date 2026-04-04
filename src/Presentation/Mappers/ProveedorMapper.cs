@@ -218,7 +218,7 @@ public static class ProveedorMapper
             RazonSocial = data.Proveedor.RazonSocial ?? string.Empty,
             PersonaResponsable = data.Proveedor.PersonaResponsable ?? string.Empty,
             Cuit = data.Proveedor.Cuit ?? string.Empty,
-            SaldoTotal = data.Proveedor.SaldoInicial,
+            SaldoTotal = data.Proveedor.SaldoActual,
             TotalFacturado = data.Facturas?.Sum(f => f.TotalFacturado) ?? 0,
             TotalNC = data.Comprobantes?.Where(c => c is Dom.NotaCredito).Sum(c => c.Total) ?? 0,
             TotalND = data.Comprobantes?.Where(c => c is Dom.NotaDebito).Sum(c => c.Total) ?? 0,
