@@ -1,0 +1,9 @@
+{
+    "RoslynExtensionsOptions": {
+        "enableAnalyzersSupport": false,
+        "enableImportCompletion": false
+    },
+    "FileOptions": {
+        "SystemExcludeSearchPatterns": [ "**/obj/**", "**/bin/**", "**/*.cshtml.g.cs" ]
+    }
+}
