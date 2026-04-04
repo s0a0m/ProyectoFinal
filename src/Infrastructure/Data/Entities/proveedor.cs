@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace src.Models.CodeFirst;
 
 [Table("proveedor")]
@@ -11,11 +12,13 @@ public partial class Proveedor
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id_proveedor")]
     public short IdProveedor { get; set; }
+
     [Column("cuit")]
     public string Cuit { get; set; }
 
     [Column("razon_social")]
     public string RazonSocial { get; set; }
+
     [Column("id_condicion_pago_habitual")]
     public short IdCondicionPagoHabitual { get; set; }
 
@@ -27,16 +30,24 @@ public partial class Proveedor
 
     [Column("persona_responsable")]
     public string PersonaResponsable { get; set; }
-    [Column("saldo", TypeName = "decimal(11, 2)")]
-    public decimal Saldo { get; set; }
+
+    [Column("saldo_inicial", TypeName = "decimal(11, 2)")]
+    public decimal SaldoInicial { get; set; }
+
+    [Column("saldo_actual", TypeName = "decimal(11, 2)")]
+    public decimal SaldoActual { get; set; }
+
     [Column("id_domicilio")]
     public short IdDomicilio { get; set; }
+
     [Column("activo")]
     public bool Activo { get; set; }
 
     public virtual CondicionDePago IdCondicionPagoHabitualNavigation { get; set; }
 
     public virtual Domicilio IdDomicilioNavigation { get; set; }
-    public virtual ICollection<ProductoProveedor> ProductosProveedores { get; set; } = new List<ProductoProveedor>();
-    public ICollection<ProductoCodigoExterno> CodigosBarrasExternos { get; set; } = new List<ProductoCodigoExterno>();
+    public virtual ICollection<ProductoProveedor> ProductosProveedores { get; set; } =
+        new List<ProductoProveedor>();
+    public ICollection<ProductoCodigoExterno> CodigosBarrasExternos { get; set; } =
+        new List<ProductoCodigoExterno>();
 }

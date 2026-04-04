@@ -81,7 +81,7 @@ public static class ComprobanteMapper
             IdProveedor = data.Proveedor.IdProveedor,
             RazonSocial = data.Proveedor.RazonSocial,
             Cuit = data.Proveedor.Cuit,
-            SaldoProveedor = data.Proveedor.Saldo,
+            SaldoProveedor = data.Proveedor.SaldoInicial,
             MotivosNC = data
                 .MotivosNC.Select(m => new MotivoVM
                 {

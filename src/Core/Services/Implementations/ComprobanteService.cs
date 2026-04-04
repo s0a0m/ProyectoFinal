@@ -78,9 +78,9 @@ namespace src.Core.Services.Implementations
                 comprobante.Aplicar(factura, factura.Proveedor);
                 var comprobanteCreado = await _comprobanteRepository.AddAsync(comprobante);
                 await _facturaRepository.UpdateAsync(factura);
-                await _proveedorRepository.ActualizarSaldoAsync(
+                await _proveedorRepository.ActualizarSaldoActualAsync(
                     factura.Proveedor.IdProveedor,
-                    factura.Proveedor.Saldo
+                    factura.Proveedor.SaldoInicial
                 );
 
                 return ServiceResult<int>.Ok(

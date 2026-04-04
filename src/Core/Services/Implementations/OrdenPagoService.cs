@@ -137,7 +137,10 @@ public class OrdenPagoService : IOrdenPagoService
                 true,
                 orden.FechaPago.Value
             );
-            await _proveedorRepository.ActualizarSaldoAsync(proveedor.IdProveedor, proveedor.Saldo);
+            await _proveedorRepository.ActualizarSaldoActualAsync(
+                proveedor.IdProveedor,
+                proveedor.SaldoInicial
+            );
 
             return ServiceResult.Ok("Orden confirmada correctamente");
         }

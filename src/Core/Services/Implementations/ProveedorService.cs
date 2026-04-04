@@ -128,7 +128,7 @@ public class ProveedorService : IProveedorService
         proveedorExistente.Telefono = proveedorVM.Telefono.Trim();
         proveedorExistente.Correo = proveedorVM.Correo.Trim();
         proveedorExistente.PersonaResponsable = proveedorVM.PersonaResponsable.Trim();
-        proveedorExistente.Saldo = proveedorVM.Saldo;
+        proveedorExistente.SaldoInicial = proveedorVM.Saldo;
 
         // Mapeo de Dirección
         proveedorExistente.Direccion.Calle = proveedorVM.Direccion.calle.Trim();

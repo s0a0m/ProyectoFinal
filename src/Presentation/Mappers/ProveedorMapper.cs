@@ -17,7 +17,7 @@ public static class ProveedorMapper
             Telefono = proveedor.Telefono ?? string.Empty,
             Correo = proveedor.Correo ?? string.Empty,
             PersonaResponsable = proveedor.PersonaResponsable ?? string.Empty,
-            Saldo = proveedor.Saldo,
+            Saldo = proveedor.SaldoInicial,
         };
 
         // Mapear Dirección
@@ -62,7 +62,7 @@ public static class ProveedorMapper
             Telefono = proveedor.Telefono ?? string.Empty,
             Correo = proveedor.Correo ?? string.Empty,
             PersonaResponsable = proveedor.PersonaResponsable ?? string.Empty,
-            Saldo = proveedor.Saldo,
+            Saldo = proveedor.SaldoInicial,
         };
 
         // Mapear Dirección
@@ -106,7 +106,7 @@ public static class ProveedorMapper
             Telefono = vm.Telefono ?? string.Empty,
             Correo = vm.Correo ?? string.Empty,
             PersonaResponsable = vm.PersonaResponsable ?? string.Empty,
-            Saldo = vm.Saldo,
+            SaldoInicial = vm.Saldo,
             RazonSocial = vm.RazonSocial ?? string.Empty,
         };
 
@@ -150,7 +150,7 @@ public static class ProveedorMapper
             Telefono = vm.Telefono ?? string.Empty,
             Correo = vm.Correo ?? string.Empty,
             PersonaResponsable = vm.PersonaResponsable ?? string.Empty,
-            Saldo = vm.Saldo,
+            SaldoInicial = vm.Saldo,
             RazonSocial = vm.RazonSocial ?? string.Empty,
         };
 
@@ -218,7 +218,7 @@ public static class ProveedorMapper
             RazonSocial = data.Proveedor.RazonSocial ?? string.Empty,
             PersonaResponsable = data.Proveedor.PersonaResponsable ?? string.Empty,
             Cuit = data.Proveedor.Cuit ?? string.Empty,
-            SaldoTotal = data.Proveedor.Saldo,
+            SaldoTotal = data.Proveedor.SaldoInicial,
             TotalFacturado = data.Facturas?.Sum(f => f.TotalFacturado) ?? 0,
             TotalNC = data.Comprobantes?.Where(c => c is Dom.NotaCredito).Sum(c => c.Total) ?? 0,
             TotalND = data.Comprobantes?.Where(c => c is Dom.NotaDebito).Sum(c => c.Total) ?? 0,
