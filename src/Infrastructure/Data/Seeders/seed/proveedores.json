@@ -47,7 +47,7 @@
     "Correo": "ventas@sicaelec.com.ar",
     "PersonaResponsable": "Mariela Suárez",
     "SaldoInicial": 121500.0,
-    "SaldoActual": 121500.0,
+    "SaldoActual": 10951500.0,
     "IdDomicilio": 4,
     "Activo": true
   },
@@ -125,7 +125,7 @@
     "Correo": "ventas@tigre.com.ar",
     "PersonaResponsable": "Esteban Quito",
     "SaldoInicial": 98200.1,
-    "SaldoActual": 98200.1,
+    "SaldoActual": 6698200.1,
     "IdDomicilio": 10,
     "Activo": true
   },
@@ -164,7 +164,7 @@
     "Correo": "fvresponde@fvsa.com",
     "PersonaResponsable": "Graciela Alfano",
     "SaldoInicial": 145000.0,
-    "SaldoActual": 145000.0,
+    "SaldoActual": 7545000.0,
     "IdDomicilio": 13,
     "Activo": true
   },
