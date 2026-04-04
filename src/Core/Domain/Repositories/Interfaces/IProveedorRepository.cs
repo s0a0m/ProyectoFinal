@@ -6,6 +6,7 @@ public interface IProveedorRepository
 {
     Task<IEnumerable<Dom.Proveedor>> GetAllProveedorAsync();
     Task<Dom.Proveedor?> GetProveedorById(int id);
+    Task<Dom.Proveedor?> GetByCuitAsync(string cuit);
     Task AddAsync(Dom.Proveedor entity);
     Task UpdateAsync(Dom.Proveedor entity);
     Task<bool> DeleteAsync(int id);

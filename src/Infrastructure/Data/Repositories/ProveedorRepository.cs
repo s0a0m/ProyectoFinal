@@ -46,6 +46,18 @@ public class ProveedorRepository : IProveedorRepository
         return proveedorEF is null ? null : _proveedorMapper.ToDomain(proveedorEF);
     }
 
+    public async Task<Dom.Proveedor?> GetByCuitAsync(string cuit)
+    {
+        if (string.IsNullOrWhiteSpace(cuit))
+            return null;
+
+        EF.Proveedor? proveedorEF = await GetQueryProveedor()
+            .Where(p => p.Cuit.Trim() == cuit.Trim())
+            .FirstOrDefaultAsync();
+        
+        return proveedorEF is null ? null : _proveedorMapper.ToDomain(proveedorEF);
+    }
+
     public async Task AddAsync(Dom.Proveedor entity)
     {
         EF.Proveedor proveedorEF = _proveedorMapper.ToEntity(entity);

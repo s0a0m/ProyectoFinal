@@ -44,7 +44,17 @@ public class ProveedorService : IProveedorService
     public async Task<Dom.Proveedor> CreateProveedorAsync(Dom.Proveedor proveedor)
     {
         if (string.IsNullOrEmpty(proveedor.Cuit))
-            throw new ArgumentException("El CUIT es obligatorio.");
+            throw new ArgumentException("El CUIT es obligatorio.", nameof(proveedor.Cuit));
+
+        // Validar que el CUIT no exista
+        var proveedorExistente = await _proveedorRepository.GetByCuitAsync(proveedor.Cuit.Trim());
+        if (proveedorExistente != null)
+        {
+            throw new ArgumentException(
+                "Ya existe un proveedor registrado con este CUIT.",
+                nameof(proveedor.Cuit)
+            );
+        }
 
         var provincia = await _commonDataService.GetProvinciaByIdAsync(
             proveedor.Direccion.Prov.IdProvincia
@@ -162,10 +172,10 @@ public class ProveedorService : IProveedorService
             }
         }
 
-        // Validar CUIT único (solo si cambió y no tiene movimientos, o si no cambió)
+        // Validar CUIT único (solo si cambió)
         if (proveedorExistente.Cuit != proveedorVM.Cuit.Trim())
         {
-            var proveedorConMismoCuit = await _proveedorRepository.GetProveedorByCuit(proveedorVM.Cuit.Trim());
+            var proveedorConMismoCuit = await _proveedorRepository.GetByCuitAsync(proveedorVM.Cuit.Trim());
             if (proveedorConMismoCuit != null && proveedorConMismoCuit.IdProveedor != proveedorVM.IdProveedor)
             {
                 var result = ServiceResult.Fail("El CUIT ya está registrado para otro proveedor.");
