@@ -81,7 +81,22 @@ namespace src.Core.Services.Implementations
             {
                 await _unitOfWork.BeginTransactionAsync();
 
+                // Aplicar el comprobante a la factura
                 comprobante.Aplicar(factura, factura.Proveedor);
+                
+                // Actualizar el saldo del proveedor según el tipo de comprobante
+                if (comprobante is Dom.NotaCredito)
+                {
+                    // NC reduce la deuda del proveedor (a nuestro favor)
+                    factura.Proveedor.ReducirSaldo(comprobante.Total);
+                }
+                else if (comprobante is Dom.NotaDebito)
+                {
+                    // ND aumenta la deuda del proveedor (debemos más)
+                    factura.Proveedor.AumentarSaldo(comprobante.Total);
+                }
+
+                // Persistir los cambios
                 var comprobanteCreado = await _comprobanteRepository.AddAsync(comprobante);
                 await _facturaRepository.UpdateAsync(factura);
                 await _proveedorRepository.ActualizarSaldoActualAsync(
