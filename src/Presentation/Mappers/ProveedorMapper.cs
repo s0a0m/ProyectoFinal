@@ -18,10 +18,11 @@ public static class ProveedorMapper
             Cuit = proveedor.Cuit ?? string.Empty,
             PersonaResponsable = proveedor.PersonaResponsable ?? string.Empty,
             Telefono = proveedor.Telefono ?? string.Empty,
-            SaldoActual = proveedor.SaldoInicial,
-            Activo = proveedor.Activo
+            SaldoActual = proveedor.SaldoActual,
+            Activo = proveedor.Activo,
         };
     }
+
     // Domain → VM (crear)
     public static CrearProveedorViewModel ToCrearVM(this Dom.Proveedor proveedor)
     {
