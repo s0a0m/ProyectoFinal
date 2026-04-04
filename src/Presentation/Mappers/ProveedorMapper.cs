@@ -216,10 +216,12 @@ public static class ProveedorMapper
         var totalFacturado = data.Facturas?.Sum(f => f.TotalFacturado) ?? 0;
         var totalND = data.Comprobantes?.Where(c => c is Dom.NotaDebito).Sum(c => c.Total) ?? 0;
         var totalNC = data.Comprobantes?.Where(c => c is Dom.NotaCredito).Sum(c => c.Total) ?? 0;
+        
+        // TotalPagado: solo suma de MontoTotal de órdenes enviadas (excluyendo ND)
         var totalPagado = data.OrdenesPago?.Where(o => o.Enviada).Sum(o => o.MontoTotal) ?? 0;
         
-        // Calcular saldo total: (Facturado + ND - Pagado - NC) + SaldoInicial
-        var saldoTotal = (totalFacturado + totalND - totalPagado - totalNC) + data.Proveedor.SaldoInicial;
+        // SaldoTotal: (SaldoInicial + TotalFacturado + TotalND) - (TotalPagado + TotalNC)
+        var saldoTotal = (data.Proveedor.SaldoInicial + totalFacturado + totalND) - (totalPagado + totalNC);
 
         var vm = new CuentaCorrienteVM
         {
