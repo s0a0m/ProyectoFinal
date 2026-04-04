@@ -44,6 +44,12 @@ namespace src.ViewModels
         [Required(ErrorMessage = "La Dirección es obligatoria.")]
         public DireccionViewModel Direccion { get; set; } = new();
 
+        /// <summary>
+        /// Indica si el proveedor puede editar campos críticos (CUIT, Saldo Inicial).
+        /// Se establece en false cuando el proveedor tiene facturas u órdenes de pago.
+        /// </summary>
+        public bool PuedeEditarIntegridad { get; set; } = true;
+
         // --- Constructores ---
 
         /// <summary>

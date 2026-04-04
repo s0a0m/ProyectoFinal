@@ -177,6 +177,9 @@ public class ProveedorController : Controller
             var provincias = await _commonDataService.GetAllProvinciasAsync();
             var viewModel = proveedor.ToActualizarVM().PrepareWithProvincias(provincias);
 
+            // Verificar si tiene movimientos para bloquear campos críticos
+            viewModel.PuedeEditarIntegridad = !await _provService.TieneMovimientosAsync(idProv);
+
             return View("ActualizarProveedor", viewModel);
         }
         catch (KeyNotFoundException)
@@ -195,25 +198,32 @@ public class ProveedorController : Controller
         if (!ModelState.IsValid)
         {
             var provincias = await _commonDataService.GetAllProvinciasAsync();
+            proveedorVM.PuedeEditarIntegridad = !await _provService.TieneMovimientosAsync(proveedorVM.IdProveedor);
             return View("ActualizarProveedor", proveedorVM.PrepareWithProvincias(provincias));
         }
 
-        try
+        var resultado = await _provService.UpdateProveedorAsync(proveedorVM);
+
+        if (!resultado.Success)
         {
-            await _provService.UpdateProveedorAsync(proveedorVM);
-            TempData["realizado"] = "El Proveedor fue actualizado con éxito.";
-            return RedirectToAction("ListarProveedores");
-        }
-        catch (KeyNotFoundException)
-        {
-            TempData["Error"] = "El proveedor que intenta actualizar ya no existe.";
-            return RedirectToAction("ListarProveedores");
-        }
-        catch (ArgumentException ex)
-        {
-            ModelState.AddModelError(ex.ParamName ?? string.Empty, ex.Message);
+            // Si hay errores específicos de campos, agregarlos al ModelState
+            foreach (var error in resultado.Errors)
+            {
+                ModelState.AddModelError(error.Key, error.Value);
+            }
+
+            // Si es un error general (sin campo específico), agregarlo como error de modelo
+            if (!resultado.Errors.Any() && !string.IsNullOrEmpty(resultado.Message))
+            {
+                ModelState.AddModelError(string.Empty, resultado.Message);
+            }
+
             var provincias = await _commonDataService.GetAllProvinciasAsync();
+            proveedorVM.PuedeEditarIntegridad = !await _provService.TieneMovimientosAsync(proveedorVM.IdProveedor);
             return View("ActualizarProveedor", proveedorVM.PrepareWithProvincias(provincias));
         }
+
+        TempData["realizado"] = resultado.Message;
+        return RedirectToAction("ListarProveedores");
     }
 }

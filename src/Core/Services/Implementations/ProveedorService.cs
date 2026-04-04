@@ -1,3 +1,4 @@
+using Core.Common;
 using src.Contracts;
 using src.Core.Contracts;
 using src.Core.Services.Interfaces;
@@ -123,8 +124,15 @@ public class ProveedorService : IProveedorService
     }
 
     // src/Core/Services/Implementations/ProveedorService.cs
+    public async Task<bool> TieneMovimientosAsync(int idProveedor)
+    {
+        var facturas = await _facturaRepo.GetByProveedorAsync((short)idProveedor);
+        var ordenes = await _ordenPagoRepository.GetByProveedorAsync((short)idProveedor);
+        
+        return facturas.Any() || ordenes.Any(o => o.Enviada);
+    }
 
-    public async Task UpdateProveedorAsync(ActualizarProveedorViewModel proveedorVM)
+    public async Task<ServiceResult> UpdateProveedorAsync(ActualizarProveedorViewModel proveedorVM)
     {
         Dom.Proveedor proveedorExistente;
         try
@@ -133,7 +141,37 @@ public class ProveedorService : IProveedorService
         }
         catch (KeyNotFoundException)
         {
-            throw;
+            return ServiceResult.Fail("El proveedor que intenta actualizar no existe.");
+        }
+
+        // VALIDACIÓN DE INTEGRIDAD: Verificar si tiene movimientos
+        bool tieneMovimientos = await TieneMovimientosAsync(proveedorVM.IdProveedor);
+        
+        if (tieneMovimientos)
+        {
+            // Verificar si se intenta cambiar CUIT o Saldo Inicial
+            bool cambiosCriticos = 
+                proveedorExistente.Cuit != proveedorVM.Cuit.Trim() ||
+                proveedorExistente.SaldoInicial != proveedorVM.Saldo;
+
+            if (cambiosCriticos)
+            {
+                return ServiceResult.Fail(
+                    "Integridad de datos: No se puede editar CUIT o Saldo Inicial con transacciones existentes"
+                );
+            }
+        }
+
+        // Validar CUIT único (solo si cambió y no tiene movimientos, o si no cambió)
+        if (proveedorExistente.Cuit != proveedorVM.Cuit.Trim())
+        {
+            var proveedorConMismoCuit = await _proveedorRepository.GetProveedorByCuit(proveedorVM.Cuit.Trim());
+            if (proveedorConMismoCuit != null && proveedorConMismoCuit.IdProveedor != proveedorVM.IdProveedor)
+            {
+                var result = ServiceResult.Fail("El CUIT ya está registrado para otro proveedor.");
+                result.AddError(nameof(proveedorVM.Cuit), "El CUIT ya está registrado para otro proveedor.");
+                return result;
+            }
         }
 
         // Mapeo de propiedades simples
@@ -156,10 +194,9 @@ public class ProveedorService : IProveedorService
 
         if (provinciaSeleccionada == null)
         {
-            throw new ArgumentException(
-                "La provincia seleccionada no es válida.",
-                "Direccion.provincia.Id_provincia"
-            );
+            var result = ServiceResult.Fail("La provincia seleccionada no es válida.");
+            result.AddError("Direccion.provincia.Id_provincia", "La provincia seleccionada no es válida.");
+            return result;
         }
 
         proveedorExistente.Direccion.Prov = provinciaSeleccionada;
@@ -184,13 +221,13 @@ public class ProveedorService : IProveedorService
         }
         else
         {
-            throw new ArgumentException(
-                "El tipo de condición de pago no es válido.",
-                "CondicionPago.Tipo"
-            );
+            var result = ServiceResult.Fail("El tipo de condición de pago no es válido.");
+            result.AddError("CondicionPago.Tipo", "El tipo de condición de pago no es válido.");
+            return result;
         }
 
         await _proveedorRepository.UpdateAsync(proveedorExistente);
+        return ServiceResult.Ok("El proveedor fue actualizado con éxito.");
     }
 
     public async Task<CuentaCorrienteData?> ObtenerCuentaCorrienteAsync(short idProveedor)

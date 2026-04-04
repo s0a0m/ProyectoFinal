@@ -1,3 +1,4 @@
+using Core.Common;
 using src.Core.Contracts;
 using src.Presentation.ViewModels.ProveedorVM;
 using src.ViewModels;
@@ -11,8 +12,9 @@ public interface IProveedorService
     Task<Dom.Proveedor> GetProveedorByIdAsync(int IdProveedor);
     Task<DetalleProveedorViewModel> GetDetalleProveedorByIdAsync(int IdProveedor);
     Task<IEnumerable<ListarProveedorViewModel>> GetActiveProveedoresAsync();
-    Task UpdateProveedorAsync(ActualizarProveedorViewModel proveedorVM);
+    Task<ServiceResult> UpdateProveedorAsync(ActualizarProveedorViewModel proveedorVM);
     Task DeleteAsync(int id);
     Task ReactivateAsync(int id);
     Task<CuentaCorrienteData?> ObtenerCuentaCorrienteAsync(short idProveedor);
+    Task<bool> TieneMovimientosAsync(int idProveedor);
 }
