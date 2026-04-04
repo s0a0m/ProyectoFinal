@@ -23,6 +23,47 @@ public static class ProveedorMapper
         };
     }
 
+    // Domain → DetalleViewModel
+    public static DetalleProveedorViewModel ToDetalleViewModel(this Dom.Proveedor proveedor)
+    {
+        var condicionPago = new CondicionPagoDetalleVM();
+
+        if (proveedor.Condicion != null)
+        {
+            if (proveedor.Condicion is Dom.Contado contado)
+            {
+                condicionPago.Nombre = "Contado";
+                condicionPago.IntervaloDias = $"{contado.DiasPago} días";
+            }
+            else if (proveedor.Condicion is Dom.Cuota cuota)
+            {
+                condicionPago.Nombre = "Cuota";
+                condicionPago.IntervaloDias = $"{cuota.DiasPago} días";
+                condicionPago.NumeroCuotas = cuota.Cuotas;
+                condicionPago.InteresPorcentual = cuota.InteresPorcentual;
+            }
+        }
+
+        return new DetalleProveedorViewModel
+        {
+            IdProveedor = proveedor.IdProveedor,
+            RazonSocial = proveedor.RazonSocial ?? string.Empty,
+            Cuit = proveedor.Cuit ?? string.Empty,
+            SaldoActual = proveedor.SaldoActual,
+            SaldoInicial = proveedor.SaldoInicial,
+            Estado = proveedor.Activo,
+            PersonaResponsable = proveedor.PersonaResponsable ?? string.Empty,
+            Telefono = proveedor.Telefono ?? string.Empty,
+            Correo = proveedor.Correo ?? string.Empty,
+            Provincia = proveedor.Direccion?.Prov?.Nombre ?? string.Empty,
+            Calle = proveedor.Direccion?.Calle ?? string.Empty,
+            Altura = proveedor.Direccion?.Numero ?? 0,
+            Piso = proveedor.Direccion?.Piso,
+            Comentario = proveedor.Direccion?.Comentario ?? string.Empty,
+            CondicionPago = condicionPago
+        };
+    }
+
     // Domain → VM (crear)
     public static CrearProveedorViewModel ToCrearVM(this Dom.Proveedor proveedor)
     {

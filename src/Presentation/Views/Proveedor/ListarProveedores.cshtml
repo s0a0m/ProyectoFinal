@@ -245,11 +245,30 @@
         }
 
         document.addEventListener("DOMContentLoaded", function() {
-            filtrarProveedores('activo');
+            // Restaurar estado del filtro desde sessionStorage
+            const estadoGuardado = sessionStorage.getItem('proveedorEstadoFiltro') || 'activo';
+            const busquedaGuardada = sessionStorage.getItem('proveedorBusqueda') || '';
+            
+            // Aplicar estado guardado
+            if (estadoGuardado === 'inactivo') {
+                document.getElementById('btnInactivos').checked = true;
+            }
+            document.getElementById('searchInput').value = busquedaGuardada;
+            
+            filtrarProveedores(estadoGuardado);
             
             // Búsqueda en tiempo real
-            document.getElementById('searchInput').addEventListener('input', aplicarFiltros);
+            document.getElementById('searchInput').addEventListener('input', function() {
+                sessionStorage.setItem('proveedorBusqueda', this.value);
+                aplicarFiltros();
+            });
         });
+
+        function filtrarProveedores(estado) {
+            estadoActual = estado;
+            sessionStorage.setItem('proveedorEstadoFiltro', estado);
+            aplicarFiltros();
+        }
     </script>
 
     <style>

@@ -29,12 +29,13 @@ public class ProveedorController : Controller
     {
         try
         {
-            Dom.Proveedor proveedor = await _provService.GetProveedorByIdAsync(idProv);
-            return View(proveedor);
+            var proveedorVM = await _provService.GetDetalleProveedorByIdAsync(idProv);
+            return View(proveedorVM);
         }
         catch (KeyNotFoundException)
         {
-            return NotFound();
+            TempData["error"] = "Proveedor no encontrado.";
+            return RedirectToAction("ListarProveedores");
         }
     }
 

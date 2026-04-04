@@ -110,6 +110,18 @@ public class ProveedorService : IProveedorService
         return proveedor;
     }
 
+    public async Task<DetalleProveedorViewModel> GetDetalleProveedorByIdAsync(int IdProveedor)
+    {
+        Dom.Proveedor? proveedor = await _proveedorRepository.GetProveedorById(IdProveedor);
+
+        if (proveedor == null)
+        {
+            throw new KeyNotFoundException($"Proveedor con ID {IdProveedor} no encontrado.");
+        }
+
+        return proveedor.ToDetalleViewModel();
+    }
+
     // src/Core/Services/Implementations/ProveedorService.cs
 
     public async Task UpdateProveedorAsync(ActualizarProveedorViewModel proveedorVM)
