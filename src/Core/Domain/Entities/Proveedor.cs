@@ -18,11 +18,11 @@ public class Proveedor
 
     public void ReducirSaldo(decimal monto)
     {
-        SaldoInicial -= monto;
+        SaldoActual -= monto;
     }
 
     public void AumentarSaldo(decimal monto)
     {
-        SaldoInicial += monto;
+        SaldoActual += monto;
     }
 }

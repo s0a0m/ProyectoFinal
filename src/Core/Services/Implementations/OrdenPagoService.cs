@@ -11,18 +11,21 @@ public class OrdenPagoService : IOrdenPagoService
     private readonly IProveedorRepository _proveedorRepository;
     private readonly IFacturaRepository _facturaRepository;
     private readonly INumeracionService _numeracionService;
+    private readonly IUnitOfWork _unitOfWork;
 
     public OrdenPagoService(
         IOrdenPagoRepository ordenPagoRepository,
         IProveedorRepository proveedorRepository,
         IFacturaRepository facturaRepository,
-        INumeracionService numeracionService
+        INumeracionService numeracionService,
+        IUnitOfWork unitOfWork
     )
     {
         _ordenPagoRepository = ordenPagoRepository;
         _proveedorRepository = proveedorRepository;
         _facturaRepository = facturaRepository;
         _numeracionService = numeracionService;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Dom.OrdenPago?> ObtenerPorIdAsync(int idOrden)
@@ -97,6 +100,8 @@ public class OrdenPagoService : IOrdenPagoService
 
         try
         {
+            await _unitOfWork.BeginTransactionAsync();
+
             foreach (var detalle in orden.Detalles)
             {
                 var factura = await _facturaRepository.GetByIdAsync(detalle.IdFactura);
@@ -105,17 +110,23 @@ public class OrdenPagoService : IOrdenPagoService
 
                 // Validar saldo actual (pudo cambiar por NC desde que se creó el borrador)
                 if (!factura.PuedeRecibirPago)
+                {
+                    await _unitOfWork.RollbackAsync();
                     return ServiceResult.Fail(
                         $"La factura {factura.Numero} ya no tiene saldo pendiente. "
                             + $"Elimine esta orden y cree una nueva."
                     );
+                }
 
                 if (detalle.MontoAplicado > factura.Saldo)
+                {
+                    await _unitOfWork.RollbackAsync();
                     return ServiceResult.Fail(
                         $"El monto {detalle.MontoAplicado} supera el saldo actual "
                             + $"({factura.Saldo}) de la factura {factura.Numero}. "
                             + $"Elimine esta orden y cree una nueva."
                     );
+                }
 
                 factura.AplicarPago(detalle.MontoAplicado);
 
@@ -139,13 +150,16 @@ public class OrdenPagoService : IOrdenPagoService
             );
             await _proveedorRepository.ActualizarSaldoActualAsync(
                 proveedor.IdProveedor,
-                proveedor.SaldoInicial
+                proveedor.SaldoActual
             );
+
+            await _unitOfWork.CommitAsync();
 
             return ServiceResult.Ok("Orden confirmada correctamente");
         }
         catch (Exception ex)
         {
+            await _unitOfWork.RollbackAsync();
             return ServiceResult.Fail($"Error al confirmar: {ex.Message}");
         }
     }

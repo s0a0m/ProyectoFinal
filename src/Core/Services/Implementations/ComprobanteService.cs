@@ -13,18 +13,21 @@ namespace src.Core.Services.Implementations
         private readonly IFacturaRepository _facturaRepository;
         private readonly IProveedorRepository _proveedorRepository;
         private readonly INumeracionService _numeracionService;
+        private readonly IUnitOfWork _unitOfWork;
 
         public ComprobanteService(
             IComprobanteRepository comprobanteRepository,
             IFacturaRepository facturaRepository,
             IProveedorRepository proveedorRepository,
-            INumeracionService numeracionService
+            INumeracionService numeracionService,
+            IUnitOfWork unitOfWork
         )
         {
             _comprobanteRepository = comprobanteRepository;
             _facturaRepository = facturaRepository;
             _proveedorRepository = proveedorRepository;
             _numeracionService = numeracionService;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IEnumerable<Comprobante>> ObtenerPorFacturaAsync(int facturaId)
@@ -73,15 +76,20 @@ namespace src.Core.Services.Implementations
                 prefijo,
                 prefijo.Replace("-", "")
             );
+            
             try
             {
+                await _unitOfWork.BeginTransactionAsync();
+
                 comprobante.Aplicar(factura, factura.Proveedor);
                 var comprobanteCreado = await _comprobanteRepository.AddAsync(comprobante);
                 await _facturaRepository.UpdateAsync(factura);
                 await _proveedorRepository.ActualizarSaldoActualAsync(
                     factura.Proveedor.IdProveedor,
-                    factura.Proveedor.SaldoInicial
+                    factura.Proveedor.SaldoActual
                 );
+
+                await _unitOfWork.CommitAsync();
 
                 return ServiceResult<int>.Ok(
                     comprobanteCreado.IdComprobante,
@@ -90,6 +98,7 @@ namespace src.Core.Services.Implementations
             }
             catch (Exception ex)
             {
+                await _unitOfWork.RollbackAsync();
                 return ServiceResult<int>.Fail($"Error al guardar: {ex.Message}");
             }
         }

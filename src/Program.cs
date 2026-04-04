@@ -77,7 +77,6 @@ builder.Services.AddScoped<ICompraRepository, CompraRepository>();
 builder.Services.AddScoped<ICondicionPagoRepository, CondicionPagoRepository>();
 builder.Services.AddScoped<IComprobanteRepository, ComprobanteRepository>();
 builder.Services.AddScoped<IOrdenPagoRepository, OrdenPagoRepository>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IDepositoRepository,          DepositoRepository>();
 builder.Services.AddScoped<IEstanteRepository,           EstanteRepository>();
 builder.Services.AddScoped<IFilaRepository,              FilaRepository>();
@@ -87,6 +86,9 @@ builder.Services.AddScoped<IUbicacionProductoRepository, UbicacionProductoReposi
 
 
 // builder.Services.AddScoped<ICompraRepository, CompraRepository>();
+// Unit of Work
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 // Servicios
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IOrdenPagoService, OrdenPagoService>();
