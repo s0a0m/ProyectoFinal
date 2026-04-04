@@ -14,10 +14,10 @@
     ]
   },
   {
-    "//": "PAGO ESCENARIO B: SICA - Cancelación total (Factura + ND)",
+    "//": "PAGO ESCENARIO B: SICA - Pago exacto de la factura",
     "Numero": "ORD-0004-00000120",
     "IdProveedor": 4,
-    "MontoTotal": 11371500.0,
+    "MontoTotal": 10830000.0,
     "FechaPago": "2025-12-29T11:00:00",
     "Enviada": true,
     "Detalles": [

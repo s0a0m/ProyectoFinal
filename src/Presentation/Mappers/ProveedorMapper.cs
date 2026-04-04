@@ -216,13 +216,13 @@ public static class ProveedorMapper
         var totalFacturado = data.Facturas?.Sum(f => f.TotalFacturado) ?? 0;
         var totalND = data.Comprobantes?.Where(c => c is Dom.NotaDebito).Sum(c => c.Total) ?? 0;
         var totalNC = data.Comprobantes?.Where(c => c is Dom.NotaCredito).Sum(c => c.Total) ?? 0;
-        
-        // TotalPagado: solo suma de MontoTotal de órdenes enviadas (excluyendo ND)
-        var totalPagado = data.OrdenesPago?.Where(o => o.Enviada).Sum(o => o.MontoTotal) ?? 0;
-        
-        // SaldoTotal: (SaldoInicial + TotalFacturado + TotalND) - (TotalPagado + TotalNC)
-        var saldoTotal = (data.Proveedor.SaldoInicial + totalFacturado + totalND) - (totalPagado + totalNC);
 
+        // TotalPagado: solo suma de MontoTotal de órdenes enviadas (excluyendo ND)
+        var totalPagado = (data.OrdenesPago?.Where(o => o.Enviada).Sum(o => o.MontoTotal) ?? 0);
+        // SaldoTotal: (SaldoInicial + TotalFacturado + TotalND) - (TotalPagado + TotalNC)
+        // var saldoTotal = (data.Proveedor.SaldoInicial + totalFacturado + totalND) - (totalPagado + totalNC);
+        var SaldoTotal =
+            (data.Proveedor.SaldoInicial + totalFacturado + totalND) - (totalPagado + totalNC);
         var vm = new CuentaCorrienteVM
         {
             IdProveedor = data.Proveedor.IdProveedor,
@@ -233,7 +233,7 @@ public static class ProveedorMapper
             TotalND = totalND,
             TotalNC = totalNC,
             TotalPagado = totalPagado,
-            SaldoTotal = saldoTotal,
+            SaldoTotal = SaldoTotal,
         };
 
         vm.MotivosNC =
@@ -273,23 +273,23 @@ public static class ProveedorMapper
                 ?? new List<Dom.OrdenPago>();
 
             // Calcular totales de notas y pagos para esta factura específica
-            var totalNotasDebito = notasFactura
-                .Where(c => c is Dom.NotaDebito)
-                .Sum(c => c.Total);
-            
-            var totalNotasCredito = notasFactura
-                .Where(c => c is Dom.NotaCredito)
-                .Sum(c => c.Total);
-            
+            var totalNotasDebito = notasFactura.Where(c => c is Dom.NotaDebito).Sum(c => c.Total);
+
+            var totalNotasCredito = notasFactura.Where(c => c is Dom.NotaCredito).Sum(c => c.Total);
+
             // Solo contar pagos de órdenes enviadas
             var totalPagos = pagosFactura
                 .Where(o => o.Enviada)
-                .Sum(o => o.Detalles?.Where(d => d.IdFactura == factura.IdFactura)
-                    .Sum(d => d.MontoAplicado) ?? 0);
-            
+                .Sum(o =>
+                    o.Detalles?.Where(d => d.IdFactura == factura.IdFactura)
+                        .Sum(d => d.MontoAplicado)
+                    ?? 0
+                );
+
             // Calcular saldo de la factura: TotalFacturado + ND - NC - Pagos
-            var saldoCalculado = factura.TotalFacturado + totalNotasDebito - totalNotasCredito - totalPagos;
-            
+            var saldoCalculado =
+                factura.TotalFacturado + totalNotasDebito - totalNotasCredito - totalPagos;
+
             var facturaVM = new FacturaCCVM
             {
                 IdFactura = factura.IdFactura,

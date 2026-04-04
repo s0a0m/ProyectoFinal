@@ -18,6 +18,7 @@
         </div>
     </div>
 
+    @* Mensajes de éxito/error *@
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -25,14 +26,8 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
 
+    @* Filtros *@
     <div class="card shadow-sm border-0 mb-3">
         <div class="card-body p-2 d-flex gap-2">
             <button class="btn btn-sm btn-outline-secondary active filter-btn" data-filter="">Todas</button>
@@ -43,7 +38,7 @@
 
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
-            <table id="tablaOrdenes" class="table table-hover align-middle mb-0">
+            <table id="tablaOrdenes" class="table table-hover align-middle mb-0" style="width:100%">
                 <thead class="table-light">
                     <tr>
                         <th>Fecha pago</th>
@@ -55,27 +50,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (!Model.Ordenes.Any())
-                    {
-                        <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">
-                                <i class="bi bi-inbox d-block mb-2" style="font-size: 2rem;"></i>
-                                No hay órdenes de pago registradas.
-                            </td>
-                        </tr>
-                    }
                     @foreach (var item in Model.Ordenes)
                     {
                         <tr>
                             <td>
-                                @if (item.FechaPago == DateTime.MinValue)
-                                {
-                                    <span class="text-muted small fst-italic">Sin fecha</span>
-                                }
-                                else
-                                {
-                                    @item.FechaPago.ToString("dd/MM/yyyy")
-                                }
+                                @(item.FechaPago == DateTime.MinValue ? "Sin fecha" : item.FechaPago.ToString("dd/MM/yyyy"))
                             </td>
                             <td class="fw-bold">@item.Numero</td>
                             <td class="text-center">
@@ -94,28 +73,26 @@
                             </td>
                             <td class="text-center">
                                 <div class="btn-group btn-group-sm">
-                                    <button type="button" class="btn btn-outline-secondary btn-sm"
-                                        onclick="verDetalleOrden(@item.IdOrdenPago)" title="Ver detalle">
+                                    <button type="button" class="btn btn-outline-secondary"
+                                            onclick="verDetalleOrden(@item.IdOrdenPago)" title="Ver detalle">
                                         <i class="bi bi-eye"></i>
                                     </button>
                                     @if (!item.Enviada)
                                     {
-                                        @using (Html.BeginForm("Confirmar", "OrdenPago", FormMethod.Post, new { @class = "d-inline", onsubmit = "return confirm('¿Confirmar orden? Esto actualizará los saldos.')" }))
-                                        {
+                                        <form asp-action="Confirmar" method="post" class="d-inline" onsubmit="return confirm('¿Confirmar orden?')">
                                             <input type="hidden" name="id" value="@item.IdOrdenPago" />
                                             <input type="hidden" name="idProveedor" value="@Model.IdProveedor" />
-                                            <button type="submit" class="btn btn-outline-success btn-sm" title="Confirmar">
+                                            <button type="submit" class="btn btn-outline-success" title="Confirmar">
                                                 <i class="bi bi-check-lg"></i>
                                             </button>
-                                        }
-                                        @using (Html.BeginForm("Eliminar", "OrdenPago", FormMethod.Post, new { @class = "d-inline", onsubmit = "return confirm('¿Eliminar esta orden? No se puede deshacer.')" }))
-                                        {
+                                        </form>
+                                        <form asp-action="Eliminar" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar esta orden?')">
                                             <input type="hidden" name="id" value="@item.IdOrdenPago" />
                                             <input type="hidden" name="idProveedor" value="@Model.IdProveedor" />
-                                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar">
+                                            <button type="submit" class="btn btn-outline-danger" title="Eliminar">
                                                 <i class="bi bi-trash"></i>
                                             </button>
-                                        }
+                                        </form>
                                     }
                                 </div>
                             </td>
@@ -127,14 +104,11 @@
     </div>
 </div>
 
+@* Modal *@
 <div class="modal fade" id="modalDetalleOrden" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" id="contenidoModalOrden">
-            <div class="modal-body text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Cargando...</span>
-                </div>
-            </div>
+            @* Se carga vía AJAX *@
         </div>
     </div>
 </div>
@@ -142,12 +116,17 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+            // Inicializar DataTable
             var table = $('#tablaOrdenes').DataTable({
                 "language": { "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json" },
                 "order": [[0, "desc"]],
-                "pageLength": 25
+                "pageLength": 25,
+                "columnDefs": [
+                    { "orderable": false, "targets": 5 } // La columna de acciones no se ordena
+                ]
             });
 
+            // Lógica de filtros
             $('.filter-btn').on('click', function() {
                 $('.filter-btn').removeClass('active btn-secondary').addClass('btn-outline-secondary');
                 $(this).removeClass('btn-outline-secondary').addClass('active btn-secondary');
@@ -157,20 +136,14 @@
         });
 
         function verDetalleOrden(idOrden) {
-            var myModal = new bootstrap.Modal(document.getElementById('modalDetalleOrden'));
+            var modalEl = document.getElementById('modalDetalleOrden');
+            var myModal = new bootstrap.Modal(modalEl);
+            $('#contenidoModalOrden').html('<div class="modal-body text-center py-5"><div class="spinner-border text-primary"></div></div>');
             myModal.show();
+            
             $.get('/OrdenesPago/ObtenerDetalleModal/' + idOrden)
                 .done(function(data) { $('#contenidoModalOrden').html(data); })
-                .fail(function() {
-                    $('#contenidoModalOrden').html(
-                        '<div class="modal-header"><h5 class="modal-title">Error</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>' +
-                        '<div class="modal-body text-danger">No se pudo cargar el detalle.</div>'
-                    );
-                });
-            document.getElementById('modalDetalleOrden').addEventListener('hidden.bs.modal', function() {
-                $('#contenidoModalOrden').html('<div class="modal-body text-center py-5"><div class="spinner-border text-primary"></div></div>');
-            }, { once: true });
+                .fail(function() { $('#contenidoModalOrden').html('<div class="modal-body text-danger">Error al cargar el detalle.</div>'); });
         }
     </script>
 }
-
