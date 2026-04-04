@@ -1,11 +1,10 @@
 using Riok.Mapperly.Abstractions;
-using EF = src.Models.CodeFirst;
 using Dom = src.Models.Domain;
+using EF = src.Models.CodeFirst;
 
 namespace src.Models.Mappers;
 
 [Mapper]
-[UseMapper(typeof(DomicilioMapper))]
 public partial class ProveedorMapper
 {
     private readonly DomicilioMapper _domicilioMapper;
@@ -15,19 +14,39 @@ public partial class ProveedorMapper
         _domicilioMapper = domicilioMapper;
     }
 
-    [MapProperty(nameof(EF.Proveedor.IdCondicionPagoHabitualNavigation), nameof(Dom.Proveedor.Condicion))]
+    [MapProperty(
+        nameof(EF.Proveedor.IdCondicionPagoHabitualNavigation),
+        nameof(Dom.Proveedor.Condicion)
+    )]
     [MapProperty(nameof(EF.Proveedor.IdDomicilioNavigation), nameof(Dom.Proveedor.Direccion))]
-    [MapProperty(nameof(EF.Proveedor.IdDomicilio), nameof(Dom.Proveedor.Direccion.IdDomicilio))]
-    [MapProperty(nameof(EF.Proveedor.IdCondicionPagoHabitual), nameof(Dom.Proveedor.Condicion.IdCondicionPago))]
     [MapperIgnoreSource(nameof(EF.Proveedor.ProductosProveedores))]
+    [MapperIgnoreSource(nameof(EF.Proveedor.CodigosBarrasExternos))]
+    [MapperIgnoreSource(nameof(EF.Proveedor.IdDomicilio))]
+    [MapperIgnoreSource(nameof(EF.Proveedor.IdCondicionPagoHabitual))]
     public partial Dom.Proveedor ToDomain(EF.Proveedor source);
+
+    [MapDerivedType(typeof(EF.Contado), typeof(Dom.Contado))]
+    [MapDerivedType(typeof(EF.Cuota), typeof(Dom.Cuota))]
+    public partial Dom.CondicionDePago MapCondicion(EF.CondicionDePago source);
+
+    [MapProperty(
+        nameof(Dom.Proveedor.Condicion),
+        nameof(EF.Proveedor.IdCondicionPagoHabitualNavigation)
+    )]
+    [MapProperty(nameof(Dom.Proveedor.Direccion), nameof(EF.Proveedor.IdDomicilioNavigation))]
+    [MapperIgnoreTarget(nameof(EF.Proveedor.ProductosProveedores))]
+    [MapperIgnoreTarget(nameof(EF.Proveedor.CodigosBarrasExternos))]
+    [MapperIgnoreTarget(nameof(EF.Proveedor.IdDomicilio))]
+    [MapperIgnoreTarget(nameof(EF.Proveedor.IdCondicionPagoHabitual))]
+    public partial EF.Proveedor ToEntity(Dom.Proveedor source);
+
+    [MapDerivedType(typeof(Dom.Contado), typeof(EF.Contado))]
+    [MapDerivedType(typeof(Dom.Cuota), typeof(EF.Cuota))]
+    public partial EF.CondicionDePago MapCondicionToEf(Dom.CondicionDePago source);
+
     public partial IEnumerable<Dom.Proveedor> ToDomain(IEnumerable<EF.Proveedor> source);
 
-    [MapProperty(nameof(Dom.Proveedor.Condicion), nameof(EF.Proveedor.IdCondicionPagoHabitualNavigation))]
-    [MapProperty(nameof(Dom.Proveedor.Direccion), nameof(EF.Proveedor.IdDomicilioNavigation))]
-    [MapProperty(nameof(Dom.Proveedor.Condicion.IdCondicionPago), nameof(EF.Proveedor.IdCondicionPagoHabitual))]
-    [MapProperty(nameof(Dom.Proveedor.Direccion.IdDomicilio), nameof(EF.Proveedor.IdDomicilio))]
-    [MapperIgnoreTarget(nameof(EF.Proveedor.ProductosProveedores))]
-    public partial EF.Proveedor ToEntity(Dom.Proveedor source);
-    public partial IEnumerable<EF.Proveedor> ToEntity(IEnumerable<Dom.Proveedor> source);
+    private Dom.Direccion Map(EF.Domicilio source) => _domicilioMapper.ToDomain(source);
+
+    private EF.Domicilio Map(Dom.Direccion source) => _domicilioMapper.ToEntity(source);
 }
