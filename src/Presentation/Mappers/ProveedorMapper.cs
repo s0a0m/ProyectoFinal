@@ -263,14 +263,30 @@ public static class ProveedorMapper
                     .ToList()
                 ?? new List<Dom.OrdenPago>();
 
+            // Calcular totales de notas y pagos
+            var totalNotasDebito = notasFactura
+                .Where(c => c is Dom.NotaDebito)
+                .Sum(c => c.Total);
+            
+            var totalNotasCredito = notasFactura
+                .Where(c => c is Dom.NotaCredito)
+                .Sum(c => c.Total);
+            
+            var totalPagos = pagosFactura
+                .Sum(o => o.Detalles?.Where(d => d.IdFactura == factura.IdFactura)
+                    .Sum(d => d.MontoAplicado) ?? 0);
+            
+            // Calcular saldo: TotalFacturado + ND - NC - Pagos
+            var saldoCalculado = factura.TotalFacturado + totalNotasDebito - totalNotasCredito - totalPagos;
+            
             var facturaVM = new FacturaCCVM
             {
                 IdFactura = factura.IdFactura,
                 NumeroFactura = factura.Numero ?? string.Empty,
                 FechaEmision = factura.FechaEmision,
                 TotalFacturado = factura.TotalFacturado,
-                Saldo = factura.Saldo,
-                Pagada = factura.Pagada,
+                Saldo = saldoCalculado,
+                Pagada = saldoCalculado <= 0,
                 PuedeEditarse = factura.PuedeEditarse && !notasFactura.Any() && !pagosFactura.Any(),
                 Notas = notasFactura
                     .Select(c => new NotaCCVM
