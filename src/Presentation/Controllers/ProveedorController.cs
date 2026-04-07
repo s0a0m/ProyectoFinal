@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Session;
 using src.Core.Services.Interfaces;
 using src.Presentation.Attributes;
 using src.Presentation.Mappers;
+using src.Presentation.ViewModels.ProveedorVM;
 using src.Repositories.Interfaces;
-using src.ViewModels;
 using Dom = src.Models.Domain;
 using EF = src.Models.CodeFirst;
 
@@ -198,7 +198,9 @@ public class ProveedorController : Controller
         if (!ModelState.IsValid)
         {
             var provincias = await _commonDataService.GetAllProvinciasAsync();
-            proveedorVM.PuedeEditarIntegridad = !await _provService.TieneMovimientosAsync(proveedorVM.IdProveedor);
+            proveedorVM.PuedeEditarIntegridad = !await _provService.TieneMovimientosAsync(
+                proveedorVM.IdProveedor
+            );
             return View("ActualizarProveedor", proveedorVM.PrepareWithProvincias(provincias));
         }
 
@@ -219,7 +221,9 @@ public class ProveedorController : Controller
             }
 
             var provincias = await _commonDataService.GetAllProvinciasAsync();
-            proveedorVM.PuedeEditarIntegridad = !await _provService.TieneMovimientosAsync(proveedorVM.IdProveedor);
+            proveedorVM.PuedeEditarIntegridad = !await _provService.TieneMovimientosAsync(
+                proveedorVM.IdProveedor
+            );
             return View("ActualizarProveedor", proveedorVM.PrepareWithProvincias(provincias));
         }
 

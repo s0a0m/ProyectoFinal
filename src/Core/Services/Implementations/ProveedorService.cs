@@ -138,7 +138,7 @@ public class ProveedorService : IProveedorService
     {
         var facturas = await _facturaRepo.GetByProveedorAsync((short)idProveedor);
         var ordenes = await _ordenPagoRepository.GetByProveedorAsync((short)idProveedor);
-        
+
         return facturas.Any() || ordenes.Any(o => o.Enviada);
     }
 
@@ -156,13 +156,13 @@ public class ProveedorService : IProveedorService
 
         // VALIDACIÓN DE INTEGRIDAD: Verificar si tiene movimientos
         bool tieneMovimientos = await TieneMovimientosAsync(proveedorVM.IdProveedor);
-        
+
         if (tieneMovimientos)
         {
             // Verificar si se intenta cambiar CUIT o Saldo Inicial
-            bool cambiosCriticos = 
-                proveedorExistente.Cuit != proveedorVM.Cuit.Trim() ||
-                proveedorExistente.SaldoInicial != proveedorVM.Saldo;
+            bool cambiosCriticos =
+                proveedorExistente.Cuit != proveedorVM.Cuit.Trim()
+                || proveedorExistente.SaldoInicial != proveedorVM.Saldo;
 
             if (cambiosCriticos)
             {
@@ -175,11 +175,19 @@ public class ProveedorService : IProveedorService
         // Validar CUIT único (solo si cambió)
         if (proveedorExistente.Cuit != proveedorVM.Cuit.Trim())
         {
-            var proveedorConMismoCuit = await _proveedorRepository.GetByCuitAsync(proveedorVM.Cuit.Trim());
-            if (proveedorConMismoCuit != null && proveedorConMismoCuit.IdProveedor != proveedorVM.IdProveedor)
+            var proveedorConMismoCuit = await _proveedorRepository.GetByCuitAsync(
+                proveedorVM.Cuit.Trim()
+            );
+            if (
+                proveedorConMismoCuit != null
+                && proveedorConMismoCuit.IdProveedor != proveedorVM.IdProveedor
+            )
             {
                 var result = ServiceResult.Fail("El CUIT ya está registrado para otro proveedor.");
-                result.AddError(nameof(proveedorVM.Cuit), "El CUIT ya está registrado para otro proveedor.");
+                result.AddError(
+                    nameof(proveedorVM.Cuit),
+                    "El CUIT ya está registrado para otro proveedor."
+                );
                 return result;
             }
         }
@@ -192,6 +200,11 @@ public class ProveedorService : IProveedorService
         proveedorExistente.PersonaResponsable = proveedorVM.PersonaResponsable.Trim();
         proveedorExistente.SaldoInicial = proveedorVM.Saldo;
 
+        if (proveedorExistente.SaldoInicial != proveedorVM.Saldo)
+        {
+            proveedorExistente.SaldoInicial = proveedorVM.Saldo;
+            proveedorExistente.SaldoActual = proveedorVM.Saldo;
+        }
         // Mapeo de Dirección
         proveedorExistente.Direccion.Calle = proveedorVM.Direccion.calle.Trim();
         proveedorExistente.Direccion.Numero = proveedorVM.Direccion.numero;
@@ -205,7 +218,10 @@ public class ProveedorService : IProveedorService
         if (provinciaSeleccionada == null)
         {
             var result = ServiceResult.Fail("La provincia seleccionada no es válida.");
-            result.AddError("Direccion.provincia.Id_provincia", "La provincia seleccionada no es válida.");
+            result.AddError(
+                "Direccion.provincia.Id_provincia",
+                "La provincia seleccionada no es válida."
+            );
             return result;
         }
 
