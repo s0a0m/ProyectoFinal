@@ -1,4 +1,3 @@
-// Presentation/Mappers/FacturaMapper.cs
 using src.Core.Contracts;
 using src.Presentation.ViewModels.FacturaVM;
 using Dom = src.Models.Domain;

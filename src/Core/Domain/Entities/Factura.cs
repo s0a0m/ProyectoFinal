@@ -12,7 +12,7 @@ public class Factura
     public bool Pagada { get; set; }
 
     public List<DetalleFactura> Detalles { get; set; } = new List<DetalleFactura>();
-    public Proveedor? Proveedor { get; set; }
+    public Proveedor Proveedor { get; set; } = new();
     public Compra? Compra { get; set; }
     public CondicionDePago? CondicionPago { get; set; }
 
