@@ -1,4 +1,5 @@
-namespace src.ViewModels;
+namespace src.Presentation.ViewModels.ProvinciaVM;
+
 using System.ComponentModel.DataAnnotations;
 
 public class ProvinciaViewModel
@@ -9,3 +10,4 @@ public class ProvinciaViewModel
 
     public string? NombreProvincia { get; set; }
 }
+

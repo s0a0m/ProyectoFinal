@@ -1,5 +1,5 @@
-@using src.ViewModels
-@model ActualizarProveedorViewModel 
+@using src.Presentation.ViewModels.ProveedorVM
+@model ActualizarProveedorViewModel
 @{
     ViewData["Title"] = "Actualizar Proveedor"; // Título de la pestaña/página
 }
@@ -187,7 +187,7 @@
             document.addEventListener("DOMContentLoaded", function() {
                 const alertDiv = document.createElement('div');
                 alertDiv.className = 'alert alert-warning alert-dismissible fade show container mt-3';
-                alertDiv.innerHTML = '<i class="bi bi-info-circle-fill me-2"></i>Este proveedor tiene transacciones registradas. Los campos CUIT y Saldo Inicial están protegidos para mantener la integridad de datos.<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+                alertDiv.innerHTML = '<i class="bi bi-info-circle-fill me-2"></i>Este proveedor tiene transacciones registradas. Los campos CUIT y Saldo Inicial están bloqueados.<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
                 document.querySelector('main').insertAdjacentElement('beforebegin', alertDiv);
             });
         </script>

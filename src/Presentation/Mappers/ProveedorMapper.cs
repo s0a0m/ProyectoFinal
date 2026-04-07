@@ -1,6 +1,9 @@
 using src.Core.Contracts;
+using src.Presentation.ViewModels.CondicionPagoVM;
 using src.Presentation.ViewModels.CuentaCorrienteVM;
+using src.Presentation.ViewModels.DireccionVM;
 using src.Presentation.ViewModels.ProveedorVM;
+using src.Presentation.ViewModels.ProvinciaVM;
 using src.ViewModels;
 using Dom = src.Models.Domain;
 
@@ -60,7 +63,7 @@ public static class ProveedorMapper
             Altura = proveedor.Direccion?.Numero ?? 0,
             Piso = proveedor.Direccion?.Piso,
             Comentario = proveedor.Direccion?.Comentario ?? string.Empty,
-            CondicionPago = condicionPago
+            CondicionPago = condicionPago,
         };
     }
 
