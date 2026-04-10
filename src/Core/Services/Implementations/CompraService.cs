@@ -23,20 +23,10 @@ namespace src.Core.Services.Implementations
             throw new NotImplementedException();
         }
 
-        public async Task<int> CreateAsync(CrearCompraViewModel compraVM, short idUsuario)
+        public async Task<int> CreateAsync(Dom.Compra compra)
         {
-            var compra = DominioMapper.Map(compraVM);
-            compra.FechaCompra = DateTime.UtcNow;
-            compra.Estado = EstadoCompra.PENDIENTE;
-            compra.FechaRecepcion = null;
-            compra.Usuario.IdUsuario = idUsuario;
-            var compraEF = DominioMapper.Map(compra);
-            foreach (var detalle in compraEF.Detalles)
-            {
-                detalle.IdDetalleCompra = 0;
-            }
             await _compraRepository.AddAsync(compra);
-            return compraEF.IdCompra;
+            return compra.IdCompra;
         }
 
         public Task EsEditableAsync(short id)
@@ -56,9 +46,58 @@ namespace src.Core.Services.Implementations
             return compra == null ? null : DominioMapper.MapToRead(compra);
         }
 
-        public Task UpdateAsync(Compra compra)
+        public async Task UpdateAsync(Compra compra)
         {
-            throw new NotImplementedException();
+            // Obtener la compra actual del repositorio
+            var compraActual = await _compraRepository.GetByIdAsync(compra.IdCompra);
+            if (compraActual == null)
+            {
+                throw new InvalidOperationException($"No se encontró la compra con ID {compra.IdCompra}");
+            }
+
+            // Validar que el estado NO sea COMPLETADA ni CANCELADA
+            if (compraActual.Estado == EstadoCompra.COMPLETADA || compraActual.Estado == EstadoCompra.CANCELADA)
+            {
+                throw new InvalidOperationException("No se puede editar una compra finalizada o cancelada.");
+            }
+
+            // Actualizar observaciones
+            compraActual.Observaciones = compra.Observaciones;
+
+            // Sincronizar la lista de detalles
+            var idsNuevos = new HashSet<int>(compra.Detalles.Select(d => d.IdDetalleCompra));
+            
+            // Remover detalles que ya no están en la nueva lista
+            var detallesAEliminar = compraActual.Detalles
+                .Where(d => !idsNuevos.Contains(d.IdDetalleCompra))
+                .ToList();
+            
+            foreach (var detalle in detallesAEliminar)
+            {
+                compraActual.Detalles.Remove(detalle);
+            }
+
+            // Actualizar o agregar detalles
+            foreach (var detalleNuevo in compra.Detalles)
+            {
+                var detalleExistente = compraActual.Detalles
+                    .FirstOrDefault(d => d.IdDetalleCompra == detalleNuevo.IdDetalleCompra);
+                
+                if (detalleExistente != null)
+                {
+                    // Actualizar detalle existente
+                    detalleExistente.Cantidad = detalleNuevo.Cantidad;
+                    detalleExistente.PrecioPactado = detalleNuevo.PrecioPactado;
+                }
+                else
+                {
+                    // Agregar nuevo detalle
+                    compraActual.Detalles.Add(detalleNuevo);
+                }
+            }
+
+            // Llamar al repositorio para persistir los cambios
+            await _compraRepository.UpdateAsync(compraActual);
         }
 
         public async Task<Dom.Compra?> ObtenerPorIdAsync(int id)

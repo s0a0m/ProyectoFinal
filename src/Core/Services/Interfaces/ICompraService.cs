@@ -9,7 +9,7 @@ namespace src.Core.Services.Interfaces
     {
         Task<IEnumerable<ListarCompraViewModel>> GetAllAsync();
         Task<ListarCompraViewModel?> GetByIdAsync(short id);
-        Task<int> CreateAsync(CrearCompraViewModel compra, short idUsuario);
+        Task<int> CreateAsync(Dom.Compra compra);
         Task UpdateAsync(Dom.Compra compra);
         Task CancelarCompraAsync(short id);
         Task EsEditableAsync(short id);

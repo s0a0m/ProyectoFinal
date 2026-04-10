@@ -4,8 +4,8 @@ using src.Presentation.ViewModels.CompraVM;
 using src.Models.Domain;
 using src.Models.Common;
 using src.Repositories.Interfaces;
-using src.Repositories.Interfaces;
 using src.Presentation.Attributes;
+using src.Presentation.Mappers;
 
 
 namespace src.Presentation.Controllers
@@ -14,12 +14,14 @@ namespace src.Presentation.Controllers
     {
         private readonly ICartService _cartService;
         private readonly ICompraRepository _compraRepo;
+        private readonly ICompraService _compraService;
         private readonly IUserService _userService;
 
-        public CompraController(ICartService cartService, ICompraRepository compraRepo, IUserService userService)
+        public CompraController(ICartService cartService, ICompraRepository compraRepo, ICompraService compraService, IUserService userService)
         {
             _cartService = cartService;
             _compraRepo = compraRepo;
+            _compraService = compraService;
             _userService = userService;
         }
 
@@ -80,24 +82,14 @@ namespace src.Presentation.Controllers
 
             try 
             {
-                // 3. Mapeo Manual: ViewModel -> Entidad Compra (Domain)
-                var nuevaCompra = new Compra
-                {
-                    FechaCompra = model.FechaCompra.ToUniversalTime(),
-                    Observaciones = model.Observaciones,
-                    Estado = src.Models.Common.EstadoCompra.PENDIENTE,
-                    Proveedor = new Proveedor { IdProveedor = model.IdProveedor },
-                    Usuario = new Usuario { IdUsuario = usuario.IdUsuario }, // Usamos el ID recuperado
-                    Detalles = itemsSession.Select(i => new DetalleCompra
-                    {
-                        Producto = new Producto { IdProducto = i.IdProducto },
-                        Cantidad = i.Cantidad,
-                        PrecioPactado = i.PrecioUnitario
-                    }).ToList()
-                };
+                // 3. Mapeo usando el mapper
+                var nuevaCompra = model.ToDomain();
+                nuevaCompra.FechaCompra = model.FechaCompra.ToUniversalTime();
+                nuevaCompra.Estado = EstadoCompra.PENDIENTE;
+                nuevaCompra.Usuario = new Usuario { IdUsuario = usuario.IdUsuario };
 
-                // 4. Guardar usando el repositorio de tu compañero
-                await _compraRepo.AddAsync(nuevaCompra);
+                // 4. Guardar usando el servicio
+                await _compraService.CreateAsync(nuevaCompra);
 
                 // 5. Limpiar Carrito
                 await _cartService.LimpiarCarritoPorProveedorAsync(model.IdProveedor);
@@ -233,7 +225,7 @@ namespace src.Presentation.Controllers
         {
             if (!ModelState.IsValid)
             { 
-                // TRUCO: Volvemos a cargar la entidad y "parchamos" con los datos del usuario para mostrar el error.
+                // Volvemos a cargar la entidad y "parchamos" con los datos del usuario para mostrar el error.
                 var compraDb = await _compraRepo.GetByIdAsync(model.IdCompra);
                 if(compraDb != null)
                 {
@@ -244,7 +236,6 @@ namespace src.Presentation.Controllers
                     // Mapeamos nombres de productos de nuevo porque el form solo mandó IDs
                     foreach (var detVM in model.Detalles)
                     {
-                        // Buscamos el producto original en la compraDb para sacar el nombre
                         var detOriginal = compraDb.Detalles.FirstOrDefault(d => d.IdDetalleCompra == detVM.IdDetalleCompra);
                         if (detOriginal != null)
                         {
@@ -255,26 +246,16 @@ namespace src.Presentation.Controllers
                 ModelState.AddModelError(string.Empty, "Por favor corrija los errores en el formulario.");
                 return View("Gestionar", model);
             }
+
             try
             {
-                // 1. Recuperar entidad original para validaciones
-                var compraOriginal = await _compraRepo.GetByIdAsync(model.IdCompra);
-                if (compraOriginal == null) return NotFound();
-                
-                if (compraOriginal.Estado == EstadoCompra.COMPLETADA || compraOriginal.Estado == EstadoCompra.CANCELADA)
-                {
-                    TempData["Error"] = "No se puede editar una compra finalizada o cancelada.";
-                    return RedirectToAction(nameof(Gestionar), new { id = model.IdCompra });
-                }
-
+                // Validar que haya al menos un detalle
                 var detallesVm = (model.Detalles ?? new List<GestionarDetalleViewModel>())
                             .Where(d => !d.Eliminar)
                             .ToList();
 
                 if (!detallesVm.Any())
                 {
-                  
-                    // Volver a cargar datos auxiliares para la vista
                     var compraDb = await _compraRepo.GetByIdAsync(model.IdCompra);
                     if (compraDb != null)
                     {
@@ -283,7 +264,7 @@ namespace src.Presentation.Controllers
                         model.UsuarioNombreCompleto = $"{compraDb.Usuario?.Nombre} {compraDb.Usuario?.Apellido}";
                         model.Estado = compraDb.Estado.ToString();
 
-                         model.Detalles = compraDb.Detalles.Select(d => new GestionarDetalleViewModel
+                        model.Detalles = compraDb.Detalles.Select(d => new GestionarDetalleViewModel
                         {
                             IdDetalleCompra = d.IdDetalleCompra,
                             IdProducto = d.Producto?.IdProducto ?? 0,
@@ -297,46 +278,16 @@ namespace src.Presentation.Controllers
                     return View("Gestionar", model);
                 }
 
-
-
-
-                 var idsVm = new HashSet<int>(detallesVm.Select(d => d.IdDetalleCompra));
-                 var detallesAEliminar = compraOriginal.Detalles
-                                    .Where(d => !idsVm.Contains(d.IdDetalleCompra))
-                                    .ToList();
-
-                foreach (var dEl in detallesAEliminar)
-                {
-                    compraOriginal.Detalles.Remove(dEl);
-                }
-                 compraOriginal.Observaciones = model.Observaciones;
-                // 2. Actualizar Detalle
-                // Iteramos sobre los detalles que vienen del formulario
-                foreach (var detVM in model.Detalles)
-                {
-                    var detDom = compraOriginal.Detalles.FirstOrDefault(d => d.IdDetalleCompra == detVM.IdDetalleCompra);
-                    if (detDom != null)
-                    {
-                        detDom.Cantidad = detVM.Cantidad;
-                        detDom.PrecioPactado = detVM.PrecioPactado;
-                    }else
-                        {
-                            // Nuevo detalle (si aplica)
-                            compraOriginal.Detalles.Add(new src.Models.Domain.DetalleCompra
-                            {
-                                Producto = new src.Models.Domain.Producto { IdProducto = detVM.IdProducto },
-                                Cantidad = detVM.Cantidad,
-                                PrecioPactado = Math.Round(detVM.PrecioPactado, 2)
-                            });
-                        }
-                }
-                
-               
-
-                // 3. Guardar en Repo
-                await _compraRepo.UpdateAsync(compraOriginal);
+                // Mapear y actualizar usando el servicio
+                var compraDom = model.ToDomain();
+                await _compraService.UpdateAsync(compraDom);
 
                 TempData["Success"] = "Cambios guardados correctamente.";
+                return RedirectToAction(nameof(Gestionar), new { id = model.IdCompra });
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["Error"] = ex.Message;
                 return RedirectToAction(nameof(Gestionar), new { id = model.IdCompra });
             }
             catch (Exception ex)
