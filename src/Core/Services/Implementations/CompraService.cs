@@ -1,4 +1,6 @@
 using System.Runtime.CompilerServices;
+using src.Core.Common;
+using src.Core.Contracts;
 using src.Core.Services.Interfaces;
 using src.Models.Common;
 using src.Models.Domain;
@@ -12,10 +14,26 @@ namespace src.Core.Services.Implementations
     public class CompraService : ICompraService
     {
         private readonly ICompraRepository _compraRepository;
+        private readonly ICartService _cartService;
 
-        public CompraService(ICompraRepository compraRepository)
+        public CompraService(ICompraRepository compraRepository, ICartService cartService)
         {
             _compraRepository = compraRepository;
+            _cartService = cartService;
+        }
+
+        public async Task<ServiceResult<List<CarritoItemDto>>> ObtenerCompraParaConfirmarAsync(
+            short idProveedor
+        )
+        {
+            var itemsProveedor = await _cartService.ObtenerItemsPorProveedorAsync(idProveedor);
+
+            if (!itemsProveedor.Any())
+                return ServiceResult<List<CarritoItemDto>>.Fail(
+                    "No hay productos seleccionados para este proveedor."
+                );
+
+            return ServiceResult<List<CarritoItemDto>>.Ok(itemsProveedor.ToList());
         }
 
         public Task CancelarCompraAsync(short id)
@@ -52,13 +70,20 @@ namespace src.Core.Services.Implementations
             var compraActual = await _compraRepository.GetByIdAsync(compra.IdCompra);
             if (compraActual == null)
             {
-                throw new InvalidOperationException($"No se encontró la compra con ID {compra.IdCompra}");
+                throw new InvalidOperationException(
+                    $"No se encontró la compra con ID {compra.IdCompra}"
+                );
             }
 
             // Validar que el estado NO sea COMPLETADA ni CANCELADA
-            if (compraActual.Estado == EstadoCompra.COMPLETADA || compraActual.Estado == EstadoCompra.CANCELADA)
+            if (
+                compraActual.Estado == EstadoCompra.COMPLETADA
+                || compraActual.Estado == EstadoCompra.CANCELADA
+            )
             {
-                throw new InvalidOperationException("No se puede editar una compra finalizada o cancelada.");
+                throw new InvalidOperationException(
+                    "No se puede editar una compra finalizada o cancelada."
+                );
             }
 
             // Actualizar observaciones
@@ -66,12 +91,12 @@ namespace src.Core.Services.Implementations
 
             // Sincronizar la lista de detalles
             var idsNuevos = new HashSet<int>(compra.Detalles.Select(d => d.IdDetalleCompra));
-            
+
             // Remover detalles que ya no están en la nueva lista
-            var detallesAEliminar = compraActual.Detalles
-                .Where(d => !idsNuevos.Contains(d.IdDetalleCompra))
+            var detallesAEliminar = compraActual
+                .Detalles.Where(d => !idsNuevos.Contains(d.IdDetalleCompra))
                 .ToList();
-            
+
             foreach (var detalle in detallesAEliminar)
             {
                 compraActual.Detalles.Remove(detalle);
@@ -80,9 +105,10 @@ namespace src.Core.Services.Implementations
             // Actualizar o agregar detalles
             foreach (var detalleNuevo in compra.Detalles)
             {
-                var detalleExistente = compraActual.Detalles
-                    .FirstOrDefault(d => d.IdDetalleCompra == detalleNuevo.IdDetalleCompra);
-                
+                var detalleExistente = compraActual.Detalles.FirstOrDefault(d =>
+                    d.IdDetalleCompra == detalleNuevo.IdDetalleCompra
+                );
+
                 if (detalleExistente != null)
                 {
                     // Actualizar detalle existente
@@ -106,4 +132,3 @@ namespace src.Core.Services.Implementations
         }
     }
 }
-
