@@ -22,19 +22,6 @@ namespace src.Core.Services.Implementations
             _cartService = cartService;
         }
 
-        public async Task<ServiceResult<List<CarritoItemDto>>> ObtenerCompraParaConfirmarAsync(
-            short idProveedor
-        )
-        {
-            var itemsProveedor = await _cartService.ObtenerItemsPorProveedorAsync(idProveedor);
-
-            if (!itemsProveedor.Any())
-                return ServiceResult<List<CarritoItemDto>>.Fail(
-                    "No hay productos seleccionados para este proveedor."
-                );
-
-            return ServiceResult<List<CarritoItemDto>>.Ok(itemsProveedor.ToList());
-        }
 
         public Task CancelarCompraAsync(short id)
         {

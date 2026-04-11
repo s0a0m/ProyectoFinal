@@ -29,20 +29,34 @@ namespace src.Presentation.Controllers
         [AuthorizePermiso("P07_GESTION_COMPRAS")]
         public async Task<IActionResult> Previsualizar(short idProveedor)
         {
-            var itemsProveedor = await _cartService.ObtenerItemsPorProveedorAsync(idProveedor);
+            var result = await _cartService.ObtenerItemsPorProveedorAsync(idProveedor);
 
-            if (!itemsProveedor.Any())
+            if (!result.Success || !result.Data.Any())
             {
-                TempData["Error"] = "No hay productos seleccionados para este proveedor.";
+                TempData["Error"] = result.Success 
+                    ? "No hay productos seleccionados para este proveedor." 
+                    : result.Message;
                 return RedirectToAction("Index", "Carrito");
             }
+
+            // Mapeo DTO → ViewModel
+            var itemsViewModel = result.Data.Select(dto => new CarritoItemViewModel
+            {
+                IdProducto = dto.IdProducto,
+                NombreProducto = dto.NombreProducto,
+                CodigosExternos = dto.CodigosExternos,
+                IdProveedor = dto.IdProveedor,
+                NombreProveedor = dto.NombreProveedor,
+                PrecioUnitario = dto.PrecioUnitario,
+                Cantidad = dto.Cantidad
+            }).ToList();
 
             var viewModel = new ConfirmarCompraViewModel
             {
                 IdProveedor = idProveedor,
-                NombreProveedor = itemsProveedor.First().NombreProveedor, 
+                NombreProveedor = itemsViewModel.First().NombreProveedor, 
                 FechaCompra = DateTime.Now,
-                Items = itemsProveedor.ToList()
+                Items = itemsViewModel
             };
 
             return View(viewModel);
@@ -54,19 +68,31 @@ namespace src.Presentation.Controllers
         public async Task<IActionResult> Confirmar(ConfirmarCompraViewModel model)
         {
             // 1. Validar y recuperar items de sesión
-            var itemsSession = await _cartService.ObtenerItemsPorProveedorAsync(model.IdProveedor);
+            var result = await _cartService.ObtenerItemsPorProveedorAsync(model.IdProveedor);
             
-            if (!itemsSession.Any())
+            if (!result.Success || !result.Data.Any())
             {
-                TempData["Error"] = "No hay items en el carrito para este proveedor.";
+                TempData["Error"] = result.Success 
+                    ? "No hay items en el carrito para este proveedor." 
+                    : result.Message;
                 return RedirectToAction("Index", "Carrito");
             }
 
             if (!ModelState.IsValid)
             {
-                model.Items = itemsSession.ToList();
-                // conservar nombre proveedor para la vista
-                model.NombreProveedor = model.NombreProveedor ?? itemsSession.First().NombreProveedor;
+                // Mapeo DTO → ViewModel para volver a mostrar la vista
+                model.Items = result.Data.Select(dto => new CarritoItemViewModel
+                {
+                    IdProducto = dto.IdProducto,
+                    NombreProducto = dto.NombreProducto,
+                    CodigosExternos = dto.CodigosExternos,
+                    IdProveedor = dto.IdProveedor,
+                    NombreProveedor = dto.NombreProveedor,
+                    PrecioUnitario = dto.PrecioUnitario,
+                    Cantidad = dto.Cantidad
+                }).ToList();
+                
+                model.NombreProveedor = model.NombreProveedor ?? model.Items.First().NombreProveedor;
                 return View("Previsualizar", model);
             }
 
@@ -101,7 +127,19 @@ namespace src.Presentation.Controllers
             {
                 var mensajeError = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
                 TempData["Error"] = "Error al procesar: " + mensajeError;
-                model.Items = itemsSession;
+                
+                // Mapeo DTO → ViewModel para volver a mostrar la vista
+                model.Items = result.Data.Select(dto => new CarritoItemViewModel
+                {
+                    IdProducto = dto.IdProducto,
+                    NombreProducto = dto.NombreProducto,
+                    CodigosExternos = dto.CodigosExternos,
+                    IdProveedor = dto.IdProveedor,
+                    NombreProveedor = dto.NombreProveedor,
+                    PrecioUnitario = dto.PrecioUnitario,
+                    Cantidad = dto.Cantidad
+                }).ToList();
+                
                 return View("Previsualizar", model);
             }
         }

@@ -19,8 +19,26 @@ namespace src.Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var items = await _cartService.ObtenerCarritoCompletoAsync();
-            return View(items);
+            var result = await _cartService.ObtenerCarritoCompletoAsync();
+            if (!result.Success)
+            {
+                SetErrorMessage(result.Message);
+                return View(new List<CarritoItemViewModel>());
+            }
+
+            // Mapeo DTO → ViewModel
+            var viewModels = result.Data.Select(dto => new CarritoItemViewModel
+            {
+                IdProducto = dto.IdProducto,
+                NombreProducto = dto.NombreProducto,
+                CodigosExternos = dto.CodigosExternos,
+                IdProveedor = dto.IdProveedor,
+                NombreProveedor = dto.NombreProveedor,
+                PrecioUnitario = dto.PrecioUnitario,
+                Cantidad = dto.Cantidad
+            }).ToList();
+
+            return View(viewModels);
         }
 
         [HttpPost]
@@ -46,7 +64,7 @@ namespace src.Presentation.Controllers
 
             if (!result.Success)
             {
-                MapServiceErrors(result);
+                SetErrorMessage(result.Message);
                 return RedirectToAction(nameof(Index));
             }
 
@@ -58,7 +76,13 @@ namespace src.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Eliminar(short idProducto, short idProveedor)
         {
-            await _cartService.RemoverItemAsync(idProducto, idProveedor);
+            var result = await _cartService.RemoverItemAsync(idProducto, idProveedor);
+            
+            if (!result.Success)
+                SetErrorMessage(result.Message);
+            else
+                SetSuccessMessage(result.Message);
+
             return RedirectToAction(nameof(Index));
         }
 

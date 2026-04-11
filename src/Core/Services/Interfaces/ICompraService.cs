@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using src.Core.Common;
+using Core.Common;
 using src.Core.Contracts;
 using src.Presentation.ViewModels.CompraVM;
 using Dom = src.Models.Domain;
@@ -16,8 +16,5 @@ namespace src.Core.Services.Interfaces
         Task CancelarCompraAsync(short id);
         Task EsEditableAsync(short id);
         Task<Dom.Compra?> ObtenerPorIdAsync(int id);
-        Task<ServiceResult<List<CarritoItemDto>>> ObtenerCompraParaConfirmarAsync(
-            short idProveedor
-        );
     }
 }
