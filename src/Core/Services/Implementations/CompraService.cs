@@ -1,5 +1,5 @@
 using System.Runtime.CompilerServices;
-using src.Core.Common;
+using Core.Common;
 using src.Core.Contracts;
 using src.Core.Services.Interfaces;
 using src.Models.Common;
@@ -21,7 +21,6 @@ namespace src.Core.Services.Implementations
             _compraRepository = compraRepository;
             _cartService = cartService;
         }
-
 
         public Task CancelarCompraAsync(short id)
         {

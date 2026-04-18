@@ -77,13 +77,10 @@ builder.Services.AddScoped<ICompraRepository, CompraRepository>();
 builder.Services.AddScoped<ICondicionPagoRepository, CondicionPagoRepository>();
 builder.Services.AddScoped<IComprobanteRepository, ComprobanteRepository>();
 builder.Services.AddScoped<IOrdenPagoRepository, OrdenPagoRepository>();
-builder.Services.AddScoped<IDepositoRepository,          DepositoRepository>();
-builder.Services.AddScoped<IEstanteRepository,           EstanteRepository>();
-builder.Services.AddScoped<IFilaRepository,              FilaRepository>();
+builder.Services.AddScoped<IDepositoRepository, DepositoRepository>();
+builder.Services.AddScoped<IEstanteRepository, EstanteRepository>();
+builder.Services.AddScoped<IFilaRepository, FilaRepository>();
 builder.Services.AddScoped<IUbicacionProductoRepository, UbicacionProductoRepository>();
-
-
-
 
 // builder.Services.AddScoped<ICompraRepository, CompraRepository>();
 // Unit of Work
@@ -103,17 +100,12 @@ builder.Services.AddScoped<IOrdenPagoService, OrdenPagoService>();
 builder.Services.AddScoped<INumeracionRepository, NumeracionRepository>();
 builder.Services.AddScoped<INumeracionService, NumeracionService>();
 
-
-
 builder.Services.AddScoped<IDepositoService, DepositoService>();
 builder.Services.AddScoped<IEstanteService, EstanteService>();
 builder.Services.AddScoped<IFilaService, FilaService>();
-builder.Services.AddScoped<IStockService,    StockService>();
+builder.Services.AddScoped<IStockService, StockService>();
 
 // Repositorios (agregar si aún no están registrados)
-
-
-
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>

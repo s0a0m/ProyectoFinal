@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using src.Core.Services.Interfaces;
-using src.Presentation.ViewModels.CompraVM;
-using src.Models.Domain;
 using src.Models.Common;
-using src.Repositories.Interfaces;
+using src.Models.Domain;
 using src.Presentation.Attributes;
 using src.Presentation.Mappers;
-
+using src.Presentation.ViewModels.CarritoVM;
+using src.Presentation.ViewModels.CompraVM;
+using src.Repositories.Interfaces;
 
 namespace src.Presentation.Controllers
 {
@@ -17,7 +17,12 @@ namespace src.Presentation.Controllers
         private readonly ICompraService _compraService;
         private readonly IUserService _userService;
 
-        public CompraController(ICartService cartService, ICompraRepository compraRepo, ICompraService compraService, IUserService userService)
+        public CompraController(
+            ICartService cartService,
+            ICompraRepository compraRepo,
+            ICompraService compraService,
+            IUserService userService
+        )
         {
             _cartService = cartService;
             _compraRepo = compraRepo;
@@ -33,30 +38,32 @@ namespace src.Presentation.Controllers
 
             if (!result.Success || !result.Data.Any())
             {
-                TempData["Error"] = result.Success 
-                    ? "No hay productos seleccionados para este proveedor." 
+                TempData["Error"] = result.Success
+                    ? "No hay productos seleccionados para este proveedor."
                     : result.Message;
                 return RedirectToAction("Index", "Carrito");
             }
 
             // Mapeo DTO → ViewModel
-            var itemsViewModel = result.Data.Select(dto => new CarritoItemViewModel
-            {
-                IdProducto = dto.IdProducto,
-                NombreProducto = dto.NombreProducto,
-                CodigosExternos = dto.CodigosExternos,
-                IdProveedor = dto.IdProveedor,
-                NombreProveedor = dto.NombreProveedor,
-                PrecioUnitario = dto.PrecioUnitario,
-                Cantidad = dto.Cantidad
-            }).ToList();
+            var itemsViewModel = result
+                .Data.Select(dto => new CarritoItemViewModel
+                {
+                    IdProducto = dto.IdProducto,
+                    NombreProducto = dto.NombreProducto,
+                    CodigosExternos = dto.CodigosExternos,
+                    IdProveedor = dto.IdProveedor,
+                    NombreProveedor = dto.NombreProveedor,
+                    PrecioUnitario = dto.PrecioUnitario,
+                    Cantidad = dto.Cantidad,
+                })
+                .ToList();
 
             var viewModel = new ConfirmarCompraViewModel
             {
                 IdProveedor = idProveedor,
-                NombreProveedor = itemsViewModel.First().NombreProveedor, 
+                NombreProveedor = itemsViewModel.First().NombreProveedor,
                 FechaCompra = DateTime.Now,
-                Items = itemsViewModel
+                Items = itemsViewModel,
             };
 
             return View(viewModel);
@@ -69,11 +76,11 @@ namespace src.Presentation.Controllers
         {
             // 1. Validar y recuperar items de sesión
             var result = await _cartService.ObtenerItemsPorProveedorAsync(model.IdProveedor);
-            
+
             if (!result.Success || !result.Data.Any())
             {
-                TempData["Error"] = result.Success 
-                    ? "No hay items en el carrito para este proveedor." 
+                TempData["Error"] = result.Success
+                    ? "No hay items en el carrito para este proveedor."
                     : result.Message;
                 return RedirectToAction("Index", "Carrito");
             }
@@ -81,32 +88,35 @@ namespace src.Presentation.Controllers
             if (!ModelState.IsValid)
             {
                 // Mapeo DTO → ViewModel para volver a mostrar la vista
-                model.Items = result.Data.Select(dto => new CarritoItemViewModel
-                {
-                    IdProducto = dto.IdProducto,
-                    NombreProducto = dto.NombreProducto,
-                    CodigosExternos = dto.CodigosExternos,
-                    IdProveedor = dto.IdProveedor,
-                    NombreProveedor = dto.NombreProveedor,
-                    PrecioUnitario = dto.PrecioUnitario,
-                    Cantidad = dto.Cantidad
-                }).ToList();
-                
-                model.NombreProveedor = model.NombreProveedor ?? model.Items.First().NombreProveedor;
+                model.Items = result
+                    .Data.Select(dto => new CarritoItemViewModel
+                    {
+                        IdProducto = dto.IdProducto,
+                        NombreProducto = dto.NombreProducto,
+                        CodigosExternos = dto.CodigosExternos,
+                        IdProveedor = dto.IdProveedor,
+                        NombreProveedor = dto.NombreProveedor,
+                        PrecioUnitario = dto.PrecioUnitario,
+                        Cantidad = dto.Cantidad,
+                    })
+                    .ToList();
+
+                model.NombreProveedor =
+                    model.NombreProveedor ?? model.Items.First().NombreProveedor;
                 return View("Previsualizar", model);
             }
 
             // 2. Obtener Usuario Actual
             // Asumo que tu UserService tiene un método para obtener el ID del usuario logueado
             // Si no, puedes obtenerlo del Claim principal si usas Auth estándar.
-            var usuario  = _userService.ObtenerUsuarioActual();// Ajusta según tu implementación real
+            var usuario = _userService.ObtenerUsuarioActual(); // Ajusta según tu implementación real
             if (usuario == null)
             {
                 TempData["Error"] = "Debe iniciar sesión para confirmar la compra.";
                 return RedirectToAction("Login", "Acceso");
             }
 
-            try 
+            try
             {
                 // 3. Mapeo usando el mapper
                 var nuevaCompra = model.ToDomain();
@@ -123,28 +133,29 @@ namespace src.Presentation.Controllers
                 TempData["Success"] = "Orden de compra generada exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                var mensajeError = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                var mensajeError =
+                    ex.InnerException != null ? ex.InnerException.Message : ex.Message;
                 TempData["Error"] = "Error al procesar: " + mensajeError;
-                
+
                 // Mapeo DTO → ViewModel para volver a mostrar la vista
-                model.Items = result.Data.Select(dto => new CarritoItemViewModel
-                {
-                    IdProducto = dto.IdProducto,
-                    NombreProducto = dto.NombreProducto,
-                    CodigosExternos = dto.CodigosExternos,
-                    IdProveedor = dto.IdProveedor,
-                    NombreProveedor = dto.NombreProveedor,
-                    PrecioUnitario = dto.PrecioUnitario,
-                    Cantidad = dto.Cantidad
-                }).ToList();
-                
+                model.Items = result
+                    .Data.Select(dto => new CarritoItemViewModel
+                    {
+                        IdProducto = dto.IdProducto,
+                        NombreProducto = dto.NombreProducto,
+                        CodigosExternos = dto.CodigosExternos,
+                        IdProveedor = dto.IdProveedor,
+                        NombreProveedor = dto.NombreProveedor,
+                        PrecioUnitario = dto.PrecioUnitario,
+                        Cantidad = dto.Cantidad,
+                    })
+                    .ToList();
+
                 return View("Previsualizar", model);
             }
         }
-
-
 
         // ==========================================
         // PARTE 2: GESTIÓN DE COMPRAS (NUEVO)
@@ -156,31 +167,36 @@ namespace src.Presentation.Controllers
         {
             // 1. Traer TODO sin filtros de servidor
             var comprasDom = await _compraRepo.GetAllAsync();
-            
+
             // Ordenamos por fecha descendente para ver lo más nuevo primero
             var listaOrdenada = comprasDom.OrderByDescending(c => c.FechaCompra).ToList();
 
             // Mapeo manual a VM
-            var listaVM = listaOrdenada.Select(c => new ListarCompraViewModel
-            {
-                IdCompra = c.IdCompra,
-                Fecha = c.FechaCompra,
-                Estado = c.Estado.ToString(), // "PENDIENTE", "ENVIADA", etc.
-                Total = c.TotalOrden,
-                ProveedorRazonSocial = c.Proveedor?.RazonSocial ?? "Desc.",
-                UsuarioNombre = c.Usuario?.Nombre ?? "-",
-                UsuarioApellido = c.Usuario?.Apellido ?? "-",
-                Detalles = c.Detalles.Select(d => new ListarDetalleCompraViewModel
+            var listaVM = listaOrdenada
+                .Select(c => new ListarCompraViewModel
                 {
-                    // Solo mapeo básico necesario para la lista (si lo necesitas)
-                    IdDetalleCompra = d.IdDetalleCompra,
-                    ProductoNombre = d.Producto?.Nombre ?? "-",
-                    Cantidad = d.Cantidad
-                }).ToList()
-            }).ToList();
+                    IdCompra = c.IdCompra,
+                    Fecha = c.FechaCompra,
+                    Estado = c.Estado.ToString(), // "PENDIENTE", "ENVIADA", etc.
+                    Total = c.TotalOrden,
+                    ProveedorRazonSocial = c.Proveedor?.RazonSocial ?? "Desc.",
+                    UsuarioNombre = c.Usuario?.Nombre ?? "-",
+                    UsuarioApellido = c.Usuario?.Apellido ?? "-",
+                    Detalles = c
+                        .Detalles.Select(d => new ListarDetalleCompraViewModel
+                        {
+                            // Solo mapeo básico necesario para la lista (si lo necesitas)
+                            IdDetalleCompra = d.IdDetalleCompra,
+                            ProductoNombre = d.Producto?.Nombre ?? "-",
+                            Cantidad = d.Cantidad,
+                        })
+                        .ToList(),
+                })
+                .ToList();
 
             return View(listaVM);
         }
+
         // Acción para pasar de PENDIENTE a ENVIADA
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -199,7 +215,6 @@ namespace src.Presentation.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
         // Acción: CANCELAR Compra (Desde Pendiente o Enviada)
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -216,10 +231,8 @@ namespace src.Presentation.Controllers
                 TempData["Error"] = "Error al cancelar: " + ex.Message;
             }
             // Retornamos al índice respetando el filtro desde donde vino (o default)
-            return RedirectToAction(nameof(Index)); 
+            return RedirectToAction(nameof(Index));
         }
-
-
 
         // Vista de Detalle para "Gestionar" (Caso ENVIADA)
         [HttpGet]
@@ -227,10 +240,11 @@ namespace src.Presentation.Controllers
         public async Task<IActionResult> Gestionar(int id)
         {
             var compra = await _compraRepo.GetByIdAsync(id);
-            if (compra == null) return NotFound();
+            if (compra == null)
+                return NotFound();
 
             // Reutilizamos el VM de listar o creamos uno de detalle si fuera necesario
-           var vm = new GestionarCompraViewModel
+            var vm = new GestionarCompraViewModel
             {
                 IdCompra = compra.IdCompra,
                 Fecha = compra.FechaCompra,
@@ -239,20 +253,21 @@ namespace src.Presentation.Controllers
                 ProveedorRazonSocial = compra.Proveedor?.RazonSocial ?? "Desc.",
                 UsuarioNombreCompleto = $"{compra.Usuario?.Nombre} {compra.Usuario?.Apellido}",
                 Observaciones = compra.Observaciones,
-                
-                Detalles = compra.Detalles.Select(d => new GestionarDetalleViewModel
-                {
-                    IdDetalleCompra = d.IdDetalleCompra,
-                    IdProducto = d.Producto?.IdProducto ?? 0,
-                    ProductoNombre = d.Producto?.Nombre ?? "Desc.",
-                    Cantidad = d.Cantidad,
-                    PrecioPactado = d.PrecioPactado
-                }).ToList()
+
+                Detalles = compra
+                    .Detalles.Select(d => new GestionarDetalleViewModel
+                    {
+                        IdDetalleCompra = d.IdDetalleCompra,
+                        IdProducto = d.Producto?.IdProducto ?? 0,
+                        ProductoNombre = d.Producto?.Nombre ?? "Desc.",
+                        Cantidad = d.Cantidad,
+                        PrecioPactado = d.PrecioPactado,
+                    })
+                    .ToList(),
             };
 
             return View(vm);
         }
-
 
         // Acción: GUARDAR CAMBIOS (Edición de cantidades/precios)
         // Solo válido si está PENDIENTE o ENVIADA
@@ -262,26 +277,32 @@ namespace src.Presentation.Controllers
         public async Task<IActionResult> GuardarCambios(GestionarCompraViewModel model)
         {
             if (!ModelState.IsValid)
-            { 
+            {
                 // Volvemos a cargar la entidad y "parchamos" con los datos del usuario para mostrar el error.
                 var compraDb = await _compraRepo.GetByIdAsync(model.IdCompra);
-                if(compraDb != null)
+                if (compraDb != null)
                 {
                     model.ProveedorRazonSocial = compraDb.Proveedor?.RazonSocial ?? "-";
                     model.Fecha = compraDb.FechaCompra;
                     model.Estado = compraDb.Estado.ToString();
-                    model.UsuarioNombreCompleto = $"{compraDb.Usuario?.Nombre} {compraDb.Usuario?.Apellido}";
+                    model.UsuarioNombreCompleto =
+                        $"{compraDb.Usuario?.Nombre} {compraDb.Usuario?.Apellido}";
                     // Mapeamos nombres de productos de nuevo porque el form solo mandó IDs
                     foreach (var detVM in model.Detalles)
                     {
-                        var detOriginal = compraDb.Detalles.FirstOrDefault(d => d.IdDetalleCompra == detVM.IdDetalleCompra);
+                        var detOriginal = compraDb.Detalles.FirstOrDefault(d =>
+                            d.IdDetalleCompra == detVM.IdDetalleCompra
+                        );
                         if (detOriginal != null)
                         {
                             detVM.ProductoNombre = detOriginal.Producto?.Nombre ?? "Producto";
                         }
                     }
                 }
-                ModelState.AddModelError(string.Empty, "Por favor corrija los errores en el formulario.");
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Por favor corrija los errores en el formulario."
+                );
                 return View("Gestionar", model);
             }
 
@@ -289,8 +310,8 @@ namespace src.Presentation.Controllers
             {
                 // Validar que haya al menos un detalle
                 var detallesVm = (model.Detalles ?? new List<GestionarDetalleViewModel>())
-                            .Where(d => !d.Eliminar)
-                            .ToList();
+                    .Where(d => !d.Eliminar)
+                    .ToList();
 
                 if (!detallesVm.Any())
                 {
@@ -299,20 +320,26 @@ namespace src.Presentation.Controllers
                     {
                         model.ProveedorRazonSocial = compraDb.Proveedor?.RazonSocial ?? "-";
                         model.Fecha = compraDb.FechaCompra;
-                        model.UsuarioNombreCompleto = $"{compraDb.Usuario?.Nombre} {compraDb.Usuario?.Apellido}";
+                        model.UsuarioNombreCompleto =
+                            $"{compraDb.Usuario?.Nombre} {compraDb.Usuario?.Apellido}";
                         model.Estado = compraDb.Estado.ToString();
 
-                        model.Detalles = compraDb.Detalles.Select(d => new GestionarDetalleViewModel
-                        {
-                            IdDetalleCompra = d.IdDetalleCompra,
-                            IdProducto = d.Producto?.IdProducto ?? 0,
-                            ProductoNombre = d.Producto?.Nombre ?? "Desc.",
-                            Cantidad = d.Cantidad,
-                            PrecioPactado = d.PrecioPactado,
-                            Eliminar = false
-                        }).ToList();
+                        model.Detalles = compraDb
+                            .Detalles.Select(d => new GestionarDetalleViewModel
+                            {
+                                IdDetalleCompra = d.IdDetalleCompra,
+                                IdProducto = d.Producto?.IdProducto ?? 0,
+                                ProductoNombre = d.Producto?.Nombre ?? "Desc.",
+                                Cantidad = d.Cantidad,
+                                PrecioPactado = d.PrecioPactado,
+                                Eliminar = false,
+                            })
+                            .ToList();
                     }
-                    ModelState.AddModelError(string.Empty, "La compra debe tener al menos un producto en el detalle.");
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "La compra debe tener al menos un producto en el detalle."
+                    );
                     return View("Gestionar", model);
                 }
 
