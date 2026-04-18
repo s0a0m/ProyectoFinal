@@ -13,7 +13,10 @@ namespace src.Core.Services.Implementations
         private const string SESSION_KEY = "CarritoCompras";
         private readonly IProductoProveedorRepository _prodProvRepo;
 
-        public CartService(IHttpContextAccessor httpContextAccessor, IProductoProveedorRepository prodProvRepo)
+        public CartService(
+            IHttpContextAccessor httpContextAccessor,
+            IProductoProveedorRepository prodProvRepo
+        )
         {
             _httpContextAccessor = httpContextAccessor;
             _prodProvRepo = prodProvRepo;
@@ -27,8 +30,9 @@ namespace src.Core.Services.Implementations
             if (string.IsNullOrEmpty(sessionData))
                 return ServiceResult<List<CarritoItemDto>>.Ok(new List<CarritoItemDto>());
 
-            var carrito = JsonSerializer.Deserialize<List<CarritoItemDto>>(sessionData)
-                   ?? new List<CarritoItemDto>();
+            var carrito =
+                JsonSerializer.Deserialize<List<CarritoItemDto>>(sessionData)
+                ?? new List<CarritoItemDto>();
 
             return ServiceResult<List<CarritoItemDto>>.Ok(carrito);
         }
@@ -39,7 +43,11 @@ namespace src.Core.Services.Implementations
             Session.SetString(SESSION_KEY, JsonSerializer.Serialize(carrito, options));
         }
 
-        public async Task<ServiceResult> ActualizarCantidadAsync(short idProducto, short idProveedor, int cantidad)
+        public async Task<ServiceResult> ActualizarCantidadAsync(
+            short idProducto,
+            short idProveedor,
+            int cantidad
+        )
         {
             var result = await ObtenerCarritoCompletoAsync();
             if (!result.Success)
@@ -47,7 +55,8 @@ namespace src.Core.Services.Implementations
 
             var carrito = result.Data;
             var item = carrito.FirstOrDefault(x =>
-                x.IdProducto == idProducto && x.IdProveedor == idProveedor);
+                x.IdProducto == idProducto && x.IdProveedor == idProveedor
+            );
 
             if (item == null)
                 return ServiceResult.Fail("El producto no se encontró en el carrito.");
@@ -65,7 +74,8 @@ namespace src.Core.Services.Implementations
 
             var carrito = result.Data;
             var itemExistente = carrito.FirstOrDefault(x =>
-                x.IdProducto == nuevoItem.IdProducto && x.IdProveedor == nuevoItem.IdProveedor);
+                x.IdProducto == nuevoItem.IdProducto && x.IdProveedor == nuevoItem.IdProveedor
+            );
 
             if (itemExistente != null)
                 itemExistente.Cantidad += nuevoItem.Cantidad;
@@ -84,7 +94,8 @@ namespace src.Core.Services.Implementations
 
             var carrito = result.Data;
             var item = carrito.FirstOrDefault(x =>
-                x.IdProducto == idProducto && x.IdProveedor == idProveedor);
+                x.IdProducto == idProducto && x.IdProveedor == idProveedor
+            );
 
             if (item != null)
             {
@@ -95,7 +106,9 @@ namespace src.Core.Services.Implementations
             return ServiceResult.Ok("Item removido correctamente.");
         }
 
-        public async Task<ServiceResult<List<CarritoItemDto>>> ObtenerItemsPorProveedorAsync(short idProveedor)
+        public async Task<ServiceResult<List<CarritoItemDto>>> ObtenerItemsPorProveedorAsync(
+            short idProveedor
+        )
         {
             var result = await ObtenerCarritoCompletoAsync();
             if (!result.Success)
@@ -123,34 +136,44 @@ namespace src.Core.Services.Implementations
             return result.Success ? result.Data.Count : 0;
         }
 
-        public async Task<ServiceResult> ValidarYAgregarItemAsync(short idProducto, short idProveedor, int cantidad)
+        public async Task<ServiceResult> ValidarYAgregarItemAsync(
+            short idProducto,
+            short idProveedor,
+            int cantidad
+        )
         {
             if (cantidad <= 0)
                 return ServiceResult.Fail("La cantidad debe ser mayor a cero.");
 
             var dto = await _prodProvRepo.GetByIdAsync(idProducto, idProveedor);
             if (dto == null)
-                return ServiceResult.Fail("El producto no está disponible con el proveedor seleccionado.");
+                return ServiceResult.Fail(
+                    "El producto no está disponible con el proveedor seleccionado."
+                );
 
-            if (cantidad > dto.ProductoProveedor.StockAsignado)
-                return ServiceResult.Fail($"Stock insuficiente. Máximo disponible: {dto.ProductoProveedor.StockAsignado}");
+            // if (cantidad > dto.ProductoProveedor.StockAsignado)
+            //     return ServiceResult.Fail($"Stock insuficiente. Máximo disponible: {dto.ProductoProveedor.StockAsignado}");
 
             var relacion = dto.ProductoProveedor;
             var item = new CarritoItemDto
             {
-                IdProducto       = idProducto,
-                NombreProducto   = relacion.Producto?.Nombre ?? "Producto Desconocido",
-                CodigosExternos  = dto.CodigosBarrasExternos ?? new List<string>(),
-                IdProveedor      = idProveedor,
-                NombreProveedor  = relacion.Proveedor?.RazonSocial ?? "Proveedor Desconocido",
-                PrecioUnitario   = relacion.Precio,
-                Cantidad         = cantidad
+                IdProducto = idProducto,
+                NombreProducto = relacion.Producto?.Nombre ?? "Producto Desconocido",
+                CodigosExternos = dto.CodigosBarrasExternos ?? new List<string>(),
+                IdProveedor = idProveedor,
+                NombreProveedor = relacion.Proveedor?.RazonSocial ?? "Proveedor Desconocido",
+                PrecioUnitario = relacion.Precio,
+                Cantidad = cantidad,
             };
 
             return await AgregarItemAsync(item);
         }
 
-        public async Task<ServiceResult> ValidarYActualizarCantidadAsync(short idProducto, short idProveedor, int cantidad)
+        public async Task<ServiceResult> ValidarYActualizarCantidadAsync(
+            short idProducto,
+            short idProveedor,
+            int cantidad
+        )
         {
             if (cantidad <= 0)
                 return ServiceResult.Fail("La cantidad debe ser mayor a cero para actualizar.");
@@ -159,8 +182,8 @@ namespace src.Core.Services.Implementations
             if (dto == null)
                 return ServiceResult.Fail("El producto ya no está disponible con este proveedor.");
 
-            if (cantidad > dto.ProductoProveedor.StockAsignado)
-                return ServiceResult.Fail($"Stock insuficiente. El stock actual disponible es {dto.ProductoProveedor.StockAsignado}.");
+            // if (cantidad > dto.ProductoProveedor.StockAsignado)
+            //     return ServiceResult.Fail($"Stock insuficiente. El stock actual disponible es {dto.ProductoProveedor.StockAsignado}.");
 
             var result = await ObtenerCarritoCompletoAsync();
             if (!result.Success)
@@ -168,7 +191,8 @@ namespace src.Core.Services.Implementations
 
             var carrito = result.Data;
             var item = carrito.FirstOrDefault(x =>
-                x.IdProducto == idProducto && x.IdProveedor == idProveedor);
+                x.IdProducto == idProducto && x.IdProveedor == idProveedor
+            );
 
             if (item == null)
                 return ServiceResult.Fail("El producto no se encontró en su carrito.");
@@ -197,19 +221,21 @@ namespace src.Core.Services.Implementations
 
                 if (dto == null)
                 {
-                    errores.Add($"'{item.NombreProducto}' ya no está disponible con este proveedor.");
+                    errores.Add(
+                        $"'{item.NombreProducto}' ya no está disponible con este proveedor."
+                    );
                     continue;
                 }
 
-                var stockActual = dto.ProductoProveedor.StockAsignado;
+                // var stockActual = dto.ProductoProveedor.StockAsignado;
 
-                if (item.Cantidad > stockActual)
-                {
-                    errores.Add(
-                        $"'{item.NombreProducto}': solicitás {item.Cantidad} unidades " +
-                        $"pero el stock disponible es {stockActual}."
-                    );
-                }
+                // if (item.Cantidad > stockActual)
+                // {
+                //     errores.Add(
+                //         $"'{item.NombreProducto}': solicitás {item.Cantidad} unidades " +
+                //         $"pero el stock disponible es {stockActual}."
+                //     );
+                // }
             }
 
             if (errores.Any())

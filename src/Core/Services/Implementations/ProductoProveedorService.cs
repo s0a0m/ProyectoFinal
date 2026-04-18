@@ -1,14 +1,14 @@
+using Core.Common;
+using Microsoft.EntityFrameworkCore;
 using src.Contracts;
 using src.Core.Services.Interfaces;
 using src.Models.Domain;
 using src.Models.Mappers;
+using src.Presentation.ViewModels.ProductoVM;
 using src.Repositories.Interfaces;
 using src.ViewModels;
-using Dom = src.Models.Domain;
-using src.Presentation.ViewModels.ProductoVM;
 using ZXing.Maxicode;
-using Microsoft.EntityFrameworkCore;
-using Core.Common;
+using Dom = src.Models.Domain;
 
 namespace src.Core.Services.Implementations;
 
@@ -19,7 +19,12 @@ public class ProductoProveedorService : IProductoProveedorService
     private readonly IProductoCodigoExternoRepository _productoCodigoExternoRepository;
     private readonly IProductoRepository _productoRepository;
 
-    public ProductoProveedorService(IProveedorRepository proveedorRepository, IProductoCodigoExternoRepository productoCodigoExternoRepository, IProductoRepository productoRepository, IProductoProveedorRepository productoProveedorRepository)
+    public ProductoProveedorService(
+        IProveedorRepository proveedorRepository,
+        IProductoCodigoExternoRepository productoCodigoExternoRepository,
+        IProductoRepository productoRepository,
+        IProductoProveedorRepository productoProveedorRepository
+    )
     {
         _proveedorRepository = proveedorRepository;
         this._productoCodigoExternoRepository = productoCodigoExternoRepository;
@@ -39,13 +44,12 @@ public class ProductoProveedorService : IProductoProveedorService
             NombreProducto = d.ProductoProveedor.Producto.Nombre,
             NombreProveedor = d.ProductoProveedor.Proveedor.RazonSocial,
             Precio = d.ProductoProveedor.Precio,
-            StockAsignado = d.ProductoProveedor.StockAsignado,
+            // StockAsignado = d.ProductoProveedor.StockAsignado,
 
             // Asignación directa de la lista (El ViewModel ahora espera List<string>)
-            CodigosBarraExternos = d.CodigosBarrasExternos ?? new List<string>()
+            CodigosBarraExternos = d.CodigosBarrasExternos ?? new List<string>(),
         });
     }
-
 
     public async Task<CrearProductoProveedorViewModel> PrepararCrearViewModelAsync()
     {
@@ -54,7 +58,10 @@ public class ProductoProveedorService : IProductoProveedorService
         return vm;
     }
 
-    public async Task<ActualizarProductoProveedorViewModel> PrepararActualizarViewModelAsync(int idProducto, int idProveedor)
+    public async Task<ActualizarProductoProveedorViewModel> PrepararActualizarViewModelAsync(
+        int idProducto,
+        int idProveedor
+    )
     {
         var dto = await _productoProveedorRepository.GetByIdAsync(idProducto, idProveedor);
 
@@ -72,10 +79,10 @@ public class ProductoProveedorService : IProductoProveedorService
 
             // Campos editables
             Precio = dto.ProductoProveedor.Precio,
-            StockAsignado = dto.ProductoProveedor.StockAsignado,
+            // StockAsignado = dto.ProductoProveedor.StockAsignado,
 
             // Asignamos la lista para que se vea en la vista (como ReadOnly)
-            CodigosBarraExternos = dto.CodigosBarrasExternos ?? new List<string>()
+            CodigosBarraExternos = dto.CodigosBarrasExternos ?? new List<string>(),
         };
 
         return vm;
@@ -87,27 +94,38 @@ public class ProductoProveedorService : IProductoProveedorService
 
         if (await _productoProveedorRepository.ExistsAsync(vm.IdProducto, vm.IdProveedor))
         {
-            
-            result.AddError(nameof(vm.IdProducto), "Este producto ya está asignado a este proveedor.");
-            result.AddError(nameof(vm.IdProveedor), "El proveedor ya tiene asignado este producto.");
+            result.AddError(
+                nameof(vm.IdProducto),
+                "Este producto ya está asignado a este proveedor."
+            );
+            result.AddError(
+                nameof(vm.IdProveedor),
+                "El proveedor ya tiene asignado este producto."
+            );
         }
 
         var codigosLimpios = new List<string>();
         if (vm.CodigosBarraExternos != null && vm.CodigosBarraExternos.Any())
         {
-            codigosLimpios = vm.CodigosBarraExternos
-                .Where(c => !string.IsNullOrWhiteSpace(c))
+            codigosLimpios = vm
+                .CodigosBarraExternos.Where(c => !string.IsNullOrWhiteSpace(c))
                 .Select(c => c.Trim())
                 .Distinct()
                 .ToList();
 
-           
             foreach (var codigo in codigosLimpios)
             {
-                if (await _productoCodigoExternoRepository.ExistsAsync(codigo, (short)vm.IdProveedor))
+                if (
+                    await _productoCodigoExternoRepository.ExistsAsync(
+                        codigo,
+                        (short)vm.IdProveedor
+                    )
+                )
                 {
-                    
-                    result.AddError(nameof(vm.CodigosBarraExternos), $"El código '{codigo}' ya está asignado a otro producto del proveedor.");
+                    result.AddError(
+                        nameof(vm.CodigosBarraExternos),
+                        $"El código '{codigo}' ya está asignado a otro producto del proveedor."
+                    );
                 }
             }
         }
@@ -126,7 +144,7 @@ public class ProductoProveedorService : IProductoProveedorService
                 Producto = new Dom.Producto { IdProducto = vm.IdProducto },
                 Proveedor = new Dom.Proveedor { IdProveedor = vm.IdProveedor },
                 Precio = vm.Precio,
-                StockAsignado = vm.StockAsignado
+                // StockAsignado = vm.StockAsignado
             };
 
             await _productoProveedorRepository.AddAsync(dominio, codigosLimpios);
@@ -142,7 +160,7 @@ public class ProductoProveedorService : IProductoProveedorService
 
     public async Task<ServiceResult> UpdateAsync(ActualizarProductoProveedorViewModel vm)
     {
-         var result = new ServiceResult();
+        var result = new ServiceResult();
 
         if (!await _productoProveedorRepository.ExistsAsync(vm.IdProducto, vm.IdProveedor))
             throw new KeyNotFoundException("No se puede actualizar una relación inexistente.");
@@ -151,18 +169,25 @@ public class ProductoProveedorService : IProductoProveedorService
         var nuevosCodigosLimpios = new List<string>();
         if (vm.NuevosCodigosBarraExternos != null && vm.NuevosCodigosBarraExternos.Any())
         {
-            nuevosCodigosLimpios = vm.NuevosCodigosBarraExternos
-                .Where(c => !string.IsNullOrWhiteSpace(c))
+            nuevosCodigosLimpios = vm
+                .NuevosCodigosBarraExternos.Where(c => !string.IsNullOrWhiteSpace(c))
                 .Select(c => c.Trim())
                 .Distinct()
                 .ToList();
 
             foreach (var codigo in nuevosCodigosLimpios)
             {
-                if (await _productoCodigoExternoRepository.ExistsAsync(codigo, (short)vm.IdProveedor))
+                if (
+                    await _productoCodigoExternoRepository.ExistsAsync(
+                        codigo,
+                        (short)vm.IdProveedor
+                    )
+                )
                 {
-                    result.AddError(nameof(vm.NuevosCodigosBarraExternos),
-                        $"El código '{codigo}' ya está asignado a otro producto del proveedor.");
+                    result.AddError(
+                        nameof(vm.NuevosCodigosBarraExternos),
+                        $"El código '{codigo}' ya está asignado a otro producto del proveedor."
+                    );
                 }
             }
         }
@@ -177,7 +202,7 @@ public class ProductoProveedorService : IProductoProveedorService
                 Producto = new Dom.Producto { IdProducto = vm.IdProducto },
                 Proveedor = new Dom.Proveedor { IdProveedor = vm.IdProveedor },
                 Precio = vm.Precio,
-                StockAsignado = vm.StockAsignado
+                // StockAsignado = vm.StockAsignado
             };
 
             await _productoProveedorRepository.UpdateAsync(dominio, nuevosCodigosLimpios);
@@ -223,27 +248,19 @@ public class ProductoProveedorService : IProductoProveedorService
     {
         var productos = await _productoRepository.GetAllAsync();
 
-      
-        var proveedores = await _proveedorRepository.GetAllProveedorAsync(); 
+        var proveedores = await _proveedorRepository.GetAllProveedorAsync();
 
         vm.ListaProductos = productos
             .Where(p => p.Activo)
-            .Select(p => new SelectListItemDto
-            {
-                Id = p.IdProducto,
-                Descripcion = p.Nombre 
-            })
+            .Select(p => new SelectListItemDto { Id = p.IdProducto, Descripcion = p.Nombre })
             .OrderBy(x => x.Descripcion)
             .ToList();
 
         vm.ListaProveedores = proveedores
             .Where(p => p.Activo)
-            .Select(p => new SelectListItemDto
-            {
-                Id = p.IdProveedor,
-                Descripcion = p.RazonSocial
-            })
+            .Select(p => new SelectListItemDto { Id = p.IdProveedor, Descripcion = p.RazonSocial })
             .OrderBy(x => x.Descripcion)
             .ToList();
     }
 }
+
