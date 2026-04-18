@@ -60,7 +60,6 @@
                         <th>Proveedor</th>
                         <th>Códigos Externos</th>
                         <th class="text-end">Precio Costo</th>
-                        <th class="text-center">Stock Asig.</th>
                         <th class="text-center" style="width: 100px;">Acciones</th>
                     </tr>
                 </thead>
@@ -98,22 +97,11 @@
                             </td>
 
                             <td class="text-center">
-                                @if (item.StockAsignado > 0)
-                                {
-                                    <span class="badge bg-info text-dark rounded-pill">@item.StockAsignado</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary rounded-pill">0</span>
-                                }
-                            </td>
-
-                            <td class="text-center">
                                 <div class="btn-group" role="group">
                                     <button type="button" class="btn btn-info btn-sm text-white me-1" title="Ver Detalle"
                                         data-bs-toggle="modal" data-bs-target="#modalDetalleRelacion"
                                         data-producto="@item.NombreProducto" data-proveedor="@item.NombreProveedor"
-                                        data-precio="@item.Precio.ToString("N2")" data-stock="@item.StockAsignado"
+                                        data-precio="@item.Precio.ToString("N2")"
                                         data-codigos='@Json.Serialize(item.CodigosBarraExternos)'>
                                         <i class="bi bi-eye-fill"></i>
                                     </button>
@@ -122,18 +110,16 @@
                                         <a asp-action="Edit" asp-route-idProducto="@item.IdProducto"
                                             asp-route-idProveedor="@item.IdProveedor"
                                             class="btn btn-warning btn-sm text-white"
-                                            title="Editar Precio/Stock">
+                                            title="Editar Precio">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
 
                                         <button class="btn btn-outline-primary btn-sm ms-1" type="button"
                                             data-idproducto="@item.IdProducto"
                                             data-idproveedor="@item.IdProveedor"
-                                            data-stock="@item.StockAsignado"
                                             data-nombre="@item.NombreProducto"
                                             onclick="prepararYAbrirModal(this)"
-                                            title="Agregar al Carrito"
-                                            @(item.StockAsignado <= 0 ? "disabled" : "")>
+                                            title="Agregar al Carrito">
                                             <i class="bi bi-cart-plus"></i>
                                         </button>
                                     }
@@ -169,18 +155,10 @@
                         <span class="fs-5" id="modalProveedor">...</span>
                     </div>
                 </div>
-                <div class="row g-3 mb-4">
-                    <div class="col-6">
-                        <div class="p-3 border rounded bg-white h-100 text-center shadow-sm">
-                            <small class="text-muted text-uppercase fw-bold">Precio Costo</small>
-                            <div class="fs-3 fw-bold text-success" id="modalPrecio">...</div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="p-3 border rounded bg-white h-100 text-center shadow-sm">
-                            <small class="text-muted text-uppercase fw-bold">Stock Asignado</small>
-                            <div class="fs-3 fw-bold text-dark" id="modalStock">...</div>
-                        </div>
+                <div class="mb-4">
+                    <div class="p-3 border rounded bg-white text-center shadow-sm">
+                        <small class="text-muted text-uppercase fw-bold">Precio Costo</small>
+                        <div class="fs-3 fw-bold text-success" id="modalPrecio">...</div>
                     </div>
                 </div>
                 <div>
@@ -214,16 +192,15 @@
                 <form id="formCantidadCarrito" onsubmit="return confirmarAgregarCarrito(event)">
                     <input type="hidden" id="hiddenIdProducto" />
                     <input type="hidden" id="hiddenIdProveedor" />
-                    <input type="hidden" id="hiddenMaxStock" />
 
                     <div class="mb-3">
-                        <label class="form-label small">Cantidad (disponible: <span id="lblMaxStock">0</span>)</label>
+                        <label class="form-label small">Cantidad</label>
                         <div class="input-group">
                             <button type="button" class="btn btn-outline-secondary" onclick="ajustarCantidad(-1)">-</button>
                             <input type="number" id="txtCantidadCarrito" class="form-control text-center" value="1" min="1" required />
                             <button type="button" class="btn btn-outline-secondary" onclick="ajustarCantidad(1)">+</button>
                         </div>
-                        <div id="errStock" class="text-danger small mt-1" style="display:none;">Cantidad supera el disponible</div>
+                        <div id="errStock" class="text-danger small mt-1" style="display:none;">Cantidad inválida</div>
                     </div>
 
                     <div class="d-grid">
@@ -237,25 +214,6 @@
 
 @section Scripts {
     <script>
-        // ── Registro local de lo ya agregado al carrito en esta sesión.
-        // Se reinicia si el usuario recarga la página (comportamiento esperado,
-        // ya que el carrito en servidor también arrancaría desde 0 en una sesión nueva).
-        // Clave: "idProducto-idProveedor"  |  Valor: cantidad acumulada confirmada por el servidor.
-        var _carritoLocal = {};
-
-        function _claveCarrito(idProd, idProv) {
-            return idProd + '-' + idProv;
-        }
-
-        function _cantEnCarrito(idProd, idProv) {
-            return _carritoLocal[_claveCarrito(idProd, idProv)] || 0;
-        }
-
-        function _registrarAgregado(idProd, idProv, cantidad) {
-            var clave = _claveCarrito(idProd, idProv);
-            _carritoLocal[clave] = (_carritoLocal[clave] || 0) + cantidad;
-        }
-
         // ── DataTables + Modal Detalle ────────────────────────────────────
         $(document).ready(function () {
             $('#tablaRelaciones').DataTable({
@@ -263,9 +221,9 @@
                 order: [[0, 'asc']],
                 pageLength: 10,
                 columnDefs: [
-                    { orderable: false, targets: [5] },
+                    { orderable: false, targets: [4] },
                     { className: "text-end",    targets: [3] },
-                    { className: "text-center", targets: [4, 5] }
+                    { className: "text-center", targets: [4] }
                 ],
                 dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
                      "<'row'<'col-sm-12'tr>>" +
@@ -281,7 +239,6 @@
                 modalDetalle.querySelector('#modalProducto').textContent = btn.getAttribute('data-producto');
                 modalDetalle.querySelector('#modalProveedor').textContent = btn.getAttribute('data-proveedor');
                 modalDetalle.querySelector('#modalPrecio').textContent   = '$' + btn.getAttribute('data-precio');
-                modalDetalle.querySelector('#modalStock').textContent    = btn.getAttribute('data-stock');
 
                 var contenedor = modalDetalle.querySelector('#modalContenedorCodigos');
                 contenedor.innerHTML = '';
@@ -305,51 +262,24 @@
             abrirModalCantidad(
                 btn.getAttribute('data-idproducto'),
                 btn.getAttribute('data-idproveedor'),
-                parseInt(btn.getAttribute('data-stock')),
                 btn.getAttribute('data-nombre')
             );
         }
 
         var modalCantidadBS = null;
 
-        function abrirModalCantidad(idProd, idProv, stockTotal, nombreProd) {
-            // Cuánto ya fue reservado en el carrito durante esta sesión
-            var yaReservado = _cantEnCarrito(idProd, idProv);
-            // Cuánto queda realmente disponible para agregar
-            var disponible  = stockTotal - yaReservado;
-
+        function abrirModalCantidad(idProd, idProv, nombreProd) {
             // Poblar campos del modal
             document.getElementById('hiddenIdProducto').value  = idProd;
             document.getElementById('hiddenIdProveedor').value = idProv;
-            document.getElementById('hiddenMaxStock').value    = disponible;
 
             document.getElementById('lblProductoCarrito').innerText = nombreProd;
-            document.getElementById('lblMaxStock').innerText         = disponible;
 
             var inputCant  = document.getElementById('txtCantidadCarrito');
             inputCant.value = 1;
-            inputCant.max   = disponible;
 
-            // Bloquear controles si ya no hay disponible
-            var agotado = disponible <= 0;
-            inputCant.disabled = agotado;
-            document.getElementById('btnConfirmarCarrito').disabled = agotado;
-            document.querySelectorAll('#formCantidadCarrito .btn-outline-secondary')
-                .forEach(function (b) { b.disabled = agotado; });
-
-            // Mostrar / ocultar aviso de reserva previa
-            var avisoEl = document.getElementById('avisoEnCarrito');
-            if (yaReservado > 0) {
-                avisoEl.innerHTML = '<i class="bi bi-info-circle-fill me-1"></i>'
-                    + (agotado
-                        ? 'Ya agregaste todo el stock disponible al carrito.'
-                        : 'Ya tenés <strong>' + yaReservado + '</strong> unidad(es) en el carrito. '
-                          + 'Podés agregar hasta <strong>' + disponible + '</strong> más.');
-                avisoEl.style.display = 'block';
-            } else {
-                avisoEl.style.display = 'none';
-            }
-
+            // Ocultar aviso de reserva previa (ya no aplica sin control de stock)
+            document.getElementById('avisoEnCarrito').style.display = 'none';
             document.getElementById('errStock').style.display = 'none';
 
             var modalEl = document.getElementById('modalCantidadCarrito');
@@ -361,11 +291,9 @@
 
         function ajustarCantidad(delta) {
             var input  = document.getElementById('txtCantidadCarrito');
-            var max    = parseInt(document.getElementById('hiddenMaxStock').value);
             var nuevo  = (parseInt(input.value) || 0) + delta;
-            if (nuevo >= 1 && nuevo <= max) {
+            if (nuevo >= 1) {
                 input.value = nuevo;
-                document.getElementById('errStock').style.display = 'none';
             }
         }
 
@@ -375,18 +303,14 @@
             var idProd = document.getElementById('hiddenIdProducto').value;
             var idProv = document.getElementById('hiddenIdProveedor').value;
             var cant   = parseInt(document.getElementById('txtCantidadCarrito').value);
-            var max    = parseInt(document.getElementById('hiddenMaxStock').value);
 
-            if (isNaN(cant) || cant < 1 || cant > max) {
+            if (isNaN(cant) || cant < 1) {
                 document.getElementById('errStock').style.display = 'block';
                 return false;
             }
 
             $.post('/Carrito/Agregar', { idProducto: idProd, idProveedor: idProv, cantidad: cant })
                 .done(function (response) {
-                    // Solo registramos la reserva local DESPUÉS de que el servidor confirme
-                    _registrarAgregado(idProd, idProv, cant);
-
                     var badge = $("#cart-badge");
                     if (badge.length) {
                         badge.text(response.totalItems);
