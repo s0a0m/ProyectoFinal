@@ -1,6 +1,5 @@
-using src.Contracts;
 using ExcelDataReader;
-
+using src.Contracts;
 
 namespace src.External;
 
@@ -11,15 +10,22 @@ public class ExcelDataAdapter : Repositories.Interfaces.IExcelDataReader
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
     }
 
-    public IEnumerable<ProductoProveedorDataRow> ReadDataAsync(Stream fileStream, ImportacionColumnaMap mapaColumnas, bool contieneEncabezado = true, CancellationToken cancellationToken = default)
+    public IEnumerable<ProductoProveedorDataRow> ReadDataAsync(
+        Stream fileStream,
+        ImportacionColumnaMap mapaColumnas,
+        bool contieneEncabezado = true,
+        CancellationToken cancellationToken = default
+    )
     {
         return ReadDataWithYield(fileStream, mapaColumnas, contieneEncabezado, cancellationToken);
     }
+
     public IEnumerable<ProductoProveedorDataRow> ReadDataWithYield(
         Stream fileStream,
         ImportacionColumnaMap mapaColumnas,
         bool contieneEncabezado = true,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         IExcelDataReader? reader = null;
         using var nonClosingStream = new NonClosingStreamWrapper(fileStream);
@@ -55,25 +61,37 @@ public class ExcelDataAdapter : Repositories.Interfaces.IExcelDataReader
         }
     }
 
-    private ProductoProveedorDataRow ProcesarFila(IExcelDataReader reader, ImportacionColumnaMap mapa, int maxFieldCount)
+    private ProductoProveedorDataRow ProcesarFila(
+        IExcelDataReader reader,
+        ImportacionColumnaMap mapa,
+        int maxFieldCount
+    )
     {
         return new ProductoProveedorDataRow
         {
-            CodigoBarraExterno = GetSafeString(reader, mapa.CodigosBarrasExternosIndex, maxFieldCount) ?? string.Empty,
-            NombreSugerido = GetSafeString(reader, mapa.NombreSugeridoIndex, maxFieldCount) ?? string.Empty,
+            CodigoBarraExterno =
+                GetSafeString(reader, mapa.CodigosBarrasExternosIndex, maxFieldCount)
+                ?? string.Empty,
+            NombreSugerido =
+                GetSafeString(reader, mapa.NombreSugeridoIndex, maxFieldCount) ?? string.Empty,
             Precio = GetSafeDecimal(reader, mapa.PrecioIndex, maxFieldCount),
-            StockActual = GetSafeInt(reader, mapa.StockIndex, maxFieldCount)
+            // StockActual = GetSafeInt(reader, mapa.StockIndex, maxFieldCount)
         };
     }
+
     private decimal GetSafeDecimal(IExcelDataReader reader, int index, int fieldCount)
     {
-        if (index < 0 || index >= fieldCount || reader.IsDBNull(index)) return 0m;
+        if (index < 0 || index >= fieldCount || reader.IsDBNull(index))
+            return 0m;
 
         var value = reader.GetValue(index);
 
-        if (value is double d) return (decimal)d;
-        if (value is int i) return (decimal)i;
-        if (value is decimal dec) return dec;
+        if (value is double d)
+            return (decimal)d;
+        if (value is int i)
+            return (decimal)i;
+        if (value is decimal dec)
+            return dec;
 
         if (value is string s && decimal.TryParse(s, out decimal parsed))
         {
@@ -85,7 +103,8 @@ public class ExcelDataAdapter : Repositories.Interfaces.IExcelDataReader
 
     private string? GetSafeString(IExcelDataReader reader, int index, int fieldCount)
     {
-        if (index < 0 || index >= fieldCount || reader.IsDBNull(index)) return null;
+        if (index < 0 || index >= fieldCount || reader.IsDBNull(index))
+            return null;
 
         var value = reader.GetValue(index);
         return value?.ToString()?.Trim();
@@ -93,12 +112,15 @@ public class ExcelDataAdapter : Repositories.Interfaces.IExcelDataReader
 
     private int GetSafeInt(IExcelDataReader reader, int index, int fieldCount)
     {
-        if (index < 0 || index >= fieldCount || reader.IsDBNull(index)) return 0;
+        if (index < 0 || index >= fieldCount || reader.IsDBNull(index))
+            return 0;
 
         var value = reader.GetValue(index);
 
-        if (value is double d) return (int)d;
-        if (value is int i) return i;
+        if (value is double d)
+            return (int)d;
+        if (value is int i)
+            return i;
 
         if (value is string s && double.TryParse(s, out double parsedDouble))
         {
@@ -108,3 +130,4 @@ public class ExcelDataAdapter : Repositories.Interfaces.IExcelDataReader
         return 0;
     }
 }
+

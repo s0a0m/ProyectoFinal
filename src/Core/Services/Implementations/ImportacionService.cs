@@ -133,12 +133,12 @@ namespace src.Core.Services.Implementations
                     continue;
                 }
 
-                if (fila.StockActual > 99999999 || fila.StockActual < 0)
-                {
-                    resultado.Accion = "Error: Stock fuera de rango válido";
-                    resultadosDelLote.Add(resultado);
-                    continue;
-                }
+                // if (fila.StockActual > 99999999 || fila.StockActual < 0)
+                // {
+                //     resultado.Accion = "Error: Stock fuera de rango válido";
+                //     resultadosDelLote.Add(resultado);
+                //     continue;
+                // }
 
                 // CASO 1: ¿El producto ya existe y está vinculado al proveedor?
                 if (
@@ -152,7 +152,7 @@ namespace src.Core.Services.Implementations
                     // productoProvExistente.StockAsignado = fila.StockActual;
                     // productoProvExistente.FechaActualizacion = DateTime.UtcNow; // Si tienes este campo
 
-                    resultado.Accion = "Producto Actualizado: Precio y Stock modificados";
+                    resultado.Accion = "Producto Actualizado: Precio modificado";
                     resultado.Nombre =
                         productoProvExistente.Producto?.Nombre ?? fila.NombreSugerido;
                 }
@@ -171,11 +171,11 @@ namespace src.Core.Services.Implementations
                         novedadExistente.PrecioSugerido = fila.Precio;
                         huboCambio = true;
                     }
-                    if (novedadExistente.StockSugerido != fila.StockActual)
-                    {
-                        novedadExistente.StockSugerido = fila.StockActual;
-                        huboCambio = true;
-                    }
+                    // if (novedadExistente.StockSugerido != fila.StockActual)
+                    // {
+                    //     novedadExistente.StockSugerido = fila.StockActual;
+                    //     huboCambio = true;
+                    // }
 
                     if (huboCambio)
                     {
@@ -197,7 +197,7 @@ namespace src.Core.Services.Implementations
                         CodigoBarraExterno = fila.CodigoBarraExterno,
                         NombreSugerido = fila.NombreSugerido,
                         PrecioSugerido = fila.Precio,
-                        StockSugerido = fila.StockActual,
+                        // StockSugerido = fila.StockActual,
                         Estado = EstadoNovedad.PENDIENTE,
                         FechaImportacion = DateTime.UtcNow,
                     };
@@ -237,4 +237,3 @@ namespace src.Core.Services.Implementations
         }
     }
 }
-
