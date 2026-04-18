@@ -27,12 +27,12 @@ public class ActualizarProductoProveedorViewModel
     [Range(0.01, 99999999, ErrorMessage = "El precio debe tener un valor positivo y valido")]
     public decimal Precio { get; set; }
 
-    [Required]
-    [Range(
-        0,
-        int.MaxValue,
-        ErrorMessage = "El stock asignado debe de ser un número positivo y valido"
-    )]
+    // [Required]
+    // [Range(
+    //     0,
+    //     int.MaxValue,
+    //     ErrorMessage = "El stock asignado debe de ser un número positivo y valido"
+    // )]
     // public int StockAsignado { get; set; }
     public bool Activo { get; set; }
 }
