@@ -4,44 +4,31 @@
 
 @{
     ViewData["Title"] = "Relación Producto - Proveedor";
-
-    bool tienePermisoCompra = LayoutService.TienePermiso("P07_GESTION_COMPRAS");
+    // Simplificamos la lógica de permisos para evitar errores de sintaxis en Razor
+    var tienePermiso = LayoutService.TienePermiso("P07_GESTION_COMPRAS");
 }
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+@* Alertas Estándar del Módulo de Productos *@
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
         <i class="bi bi-check-circle-fill me-2"></i>@TempData["Success"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 }
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
         <i class="bi bi-exclamation-octagon-fill me-2"></i>@TempData["Error"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
-@if (ViewBag.TotalNovedades > 0)
-{
-    <div class="alert alert-warning border-start border-warning border-4 d-flex align-items-center justify-content-between shadow-sm"
-        role="alert">
-        <div>
-            <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
-            <strong>Atención:</strong> Tienes <span class="badge bg-dark">@ViewBag.TotalNovedades</span> productos
-            pendientes de revisión (Novedades de importación).
-        </div>
-        <a asp-controller="Novedades" asp-action="Index" class="btn btn-warning btn-sm fw-bold">
-            <i class="bi bi-eye me-1"></i>Ver Novedades
-        </a>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 }
 
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white">
-        <h6 class="m-0 font-weight-bold text-primary">Listado de Precios y Stock por Proveedor</h6>
+        <h6 class="m-0 font-weight-bold text-primary">Listado de Precios por Proveedor</h6>
         <div class="d-flex gap-2">
             <a asp-controller="ProductoProveedor" asp-action="Configurar" class="btn btn-success btn-sm shadow-sm">
                 <i class="bi bi-file-earmark-spreadsheet me-1"></i>Importar Excel
@@ -53,73 +40,53 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle" id="tablaRelaciones" width="100%" cellspacing="0">
+            <table class="table table-bordered table-hover align-middle" id="tablaRelaciones" width="100%">
                 <thead class="table-light">
                     <tr>
                         <th>Producto</th>
                         <th>Proveedor</th>
                         <th>Códigos Externos</th>
                         <th class="text-end">Precio Costo</th>
-                        <th class="text-center" style="width: 100px;">Acciones</th>
+                        <th class="text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td class="fw-bold text-dark">@item.NombreProducto</td>
-
-                            <td>
-                                <i class="bi bi-truck text-muted me-1"></i>@item.NombreProveedor
-                            </td>
-
+                            <td class="fw-bold">@item.NombreProducto</td>
+                            <td><i class="bi bi-truck text-muted me-1"></i>@item.NombreProveedor</td>
                             <td>
                                 @if (item.CodigosBarraExternos != null && item.CodigosBarraExternos.Any())
                                 {
-                                    <div class="d-flex flex-wrap gap-1">
-                                        @foreach (var codigo in item.CodigosBarraExternos)
-                                        {
-                                            <span class="font-monospace small badge bg-light text-dark border"
-                                                style="cursor: default;" title="Código Proveedor">
-                                                @codigo
-                                            </span>
-                                        }
-                                    </div>
-                                }
-                                else
-                                {
-                                    <span class="text-muted small fst-italic">Sin códigos</span>
+                                    @foreach (var cod in item.CodigosBarraExternos)
+                                    {
+                                        <span class="badge bg-light text-dark border small">@cod</span>
+                                    }
                                 }
                             </td>
-
-                            <td class="text-end fw-bold text-success">
-                                $@item.Precio.ToString("N2")
-                            </td>
-
+                            <td class="text-end fw-bold text-success">$@item.Precio.ToString("N2")</td>
                             <td class="text-center">
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-info btn-sm text-white me-1" title="Ver Detalle"
-                                        data-bs-toggle="modal" data-bs-target="#modalDetalleRelacion"
-                                        data-producto="@item.NombreProducto" data-proveedor="@item.NombreProveedor"
-                                        data-precio="@item.Precio.ToString("N2")"
-                                        data-codigos='@Json.Serialize(item.CodigosBarraExternos)'>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-info btn-sm text-white" 
+                                            data-bs-toggle="modal" data-bs-target="#modalDetalleRelacion"
+                                            data-producto="@item.NombreProducto" 
+                                            data-proveedor="@item.NombreProveedor"
+                                            data-precio="@item.Precio.ToString("N2")"
+                                            data-codigos='@Json.Serialize(item.CodigosBarraExternos)'>
                                         <i class="bi bi-eye-fill"></i>
                                     </button>
-                                    @if (tienePermisoCompra)
+
+                                    @if (tienePermiso)
                                     {
-                                        <a asp-action="Edit" asp-route-idProducto="@item.IdProducto"
-                                            asp-route-idProveedor="@item.IdProveedor"
-                                            class="btn btn-warning btn-sm text-white"
-                                            title="Editar Precio">
+                                        <a asp-action="Edit" 
+                                           asp-route-idProducto="@item.IdProducto" 
+                                           asp-route-idProveedor="@item.IdProveedor"
+                                           class="btn btn-warning btn-sm text-white ms-1">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
-
-                                        <button class="btn btn-outline-primary btn-sm ms-1" type="button"
-                                            data-idproducto="@item.IdProducto"
-                                            data-idproveedor="@item.IdProveedor"
-                                            data-nombre="@item.NombreProducto"
-                                            onclick="prepararYAbrirModal(this)"
-                                            title="Agregar al Carrito">
+                                        <button type="button" class="btn btn-outline-primary btn-sm ms-1"
+                                                onclick="abrirModalCarrito('@item.IdProducto', '@item.IdProveedor', '@item.NombreProducto')">
                                             <i class="bi bi-cart-plus"></i>
                                         </button>
                                     }
@@ -133,79 +100,54 @@
     </div>
 </div>
 
-<!-- ── Modal Detalle ── -->
+@* --- Modal Detalle --- *@
 <div class="modal fade" id="modalDetalleRelacion" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title">
-                    <i class="bi bi-card-list me-2"></i>Detalle de la Relación
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header bg-info text-white py-2">
+                <h6 class="modal-title">Detalle de Relación</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4">
-                <div class="text-center mb-4 p-3 bg-light rounded border">
-                    <small class="text-muted text-uppercase fw-bold d-block mb-1">Producto</small>
-                    <h4 class="fw-bold text-dark mb-0" id="modalProducto">...</h4>
+            <div class="modal-body">
+                <div class="p-3 bg-light rounded border text-center mb-3">
+                    <h5 class="fw-bold mb-0" id="modalProducto"></h5>
                 </div>
-                <div class="mb-4">
-                    <label class="fw-bold text-secondary small">PROVEEDOR ASIGNADO</label>
-                    <div class="d-flex align-items-center p-2 border-bottom">
-                        <i class="bi bi-shop fs-4 text-primary me-3"></i>
-                        <span class="fs-5" id="modalProveedor">...</span>
-                    </div>
+                <p class="mb-1 small text-muted">PROVEEDOR</p>
+                <p class="fw-bold border-bottom pb-2" id="modalProveedor"></p>
+                <div class="bg-white border rounded p-3 text-center mb-3 shadow-sm">
+                    <p class="small text-muted mb-0">PRECIO COSTO</p>
+                    <h3 class="text-success fw-bold mb-0" id="modalPrecio"></h3>
                 </div>
-                <div class="mb-4">
-                    <div class="p-3 border rounded bg-white text-center shadow-sm">
-                        <small class="text-muted text-uppercase fw-bold">Precio Costo</small>
-                        <div class="fs-3 fw-bold text-success" id="modalPrecio">...</div>
-                    </div>
-                </div>
-                <div>
-                    <label class="fw-bold text-secondary small mb-2">CÓDIGOS EXTERNOS (PROVEEDOR)</label>
-                    <div id="modalContenedorCodigos" class="d-flex flex-wrap gap-2 p-3 bg-light rounded border">
-                        <span class="text-muted fst-italic small">Cargando...</span>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer bg-light border-0">
-                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cerrar</button>
+                <p class="small text-muted mb-1">CÓDIGOS EXTERNOS</p>
+                <div id="modalContenedorCodigos" class="d-flex flex-wrap gap-1"></div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ── Modal Carrito ── -->
+@* --- Modal Carrito --- *@
 <div class="modal fade" id="modalCantidadCarrito" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h6 class="modal-title"><i class="bi bi-cart-plus me-2"></i>Agregar al Carrito</h6>
+        <div class="modal-content shadow">
+            <div class="modal-header bg-primary text-white py-2">
+                <h6 class="modal-title">Agregar al Carrito</h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p id="lblProductoCarrito" class="fw-bold mb-2 text-primary text-center">Producto</p>
-
-                <!-- Aviso de unidades ya reservadas en el carrito -->
-                <div id="avisoEnCarrito" class="alert alert-info py-2 small mb-3" style="display: none;"></div>
-
-                <form id="formCantidadCarrito" onsubmit="return confirmarAgregarCarrito(event)">
-                    <input type="hidden" id="hiddenIdProducto" />
-                    <input type="hidden" id="hiddenIdProveedor" />
-
-                    <div class="mb-3">
+                <p id="lblProductoCarrito" class="fw-bold text-center text-primary mb-3"></p>
+                <form id="formCarrito" onsubmit="confirmarCarrito(event)">
+                    <input type="hidden" id="cartIdProd" />
+                    <input type="hidden" id="cartIdProv" />
+                    <div class="mb-3 text-center">
                         <label class="form-label small">Cantidad</label>
-                        <div class="input-group">
-                            <button type="button" class="btn btn-outline-secondary" onclick="ajustarCantidad(-1)">-</button>
-                            <input type="number" id="txtCantidadCarrito" class="form-control text-center" value="1" min="1" required />
-                            <button type="button" class="btn btn-outline-secondary" onclick="ajustarCantidad(1)">+</button>
+                        <div class="input-group input-group-sm">
+                            <button type="button" class="btn btn-outline-secondary" onclick="stepCant(-1)">-</button>
+                            <input type="number" id="cartCant" class="form-control text-center" value="1" min="1" />
+                            <button type="button" class="btn btn-outline-secondary" onclick="stepCant(1)">+</button>
                         </div>
-                        <div id="errStock" class="text-danger small mt-1" style="display:none;">Cantidad inválida</div>
+                        <div id="cartError" class="text-danger small mt-2" style="display:none"></div>
                     </div>
-
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-success" id="btnConfirmarCarrito">Agregar</button>
-                    </div>
+                    <button type="submit" class="btn btn-success btn-sm w-100">Confirmar</button>
                 </form>
             </div>
         </div>
@@ -214,127 +156,72 @@
 
 @section Scripts {
     <script>
-        // ── DataTables + Modal Detalle ────────────────────────────────────
         $(document).ready(function () {
             $('#tablaRelaciones').DataTable({
                 language: { url: "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json" },
-                order: [[0, 'asc']],
-                pageLength: 10,
-                columnDefs: [
-                    { orderable: false, targets: [4] },
-                    { className: "text-end",    targets: [3] },
-                    { className: "text-center", targets: [4] }
-                ],
-                dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-                     "<'row'<'col-sm-12'tr>>" +
-                     "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                pageLength: 10
             });
 
-            var modalDetalle = document.getElementById('modalDetalleRelacion');
-            modalDetalle.addEventListener('show.bs.modal', function (event) {
-                var btn      = event.relatedTarget;
-                var codigos  = [];
-                try { codigos = JSON.parse(btn.getAttribute('data-codigos')); } catch (e) {}
-
-                modalDetalle.querySelector('#modalProducto').textContent = btn.getAttribute('data-producto');
-                modalDetalle.querySelector('#modalProveedor').textContent = btn.getAttribute('data-proveedor');
-                modalDetalle.querySelector('#modalPrecio').textContent   = '$' + btn.getAttribute('data-precio');
-
-                var contenedor = modalDetalle.querySelector('#modalContenedorCodigos');
-                contenedor.innerHTML = '';
-
-                if (codigos && codigos.length > 0) {
-                    codigos.forEach(function (cod) {
-                        var badge = document.createElement('span');
-                        badge.className = 'badge bg-white text-dark border font-monospace shadow-sm py-2 px-3';
-                        badge.innerHTML = '<i class="bi bi-upc-scan me-2 text-muted"></i>' + cod;
-                        contenedor.appendChild(badge);
-                    });
-                } else {
-                    contenedor.innerHTML = '<span class="text-muted fst-italic small">Este producto no tiene códigos externos asociados a este proveedor.</span>';
-                }
+            const modalDetalle = document.getElementById('modalDetalleRelacion');
+            modalDetalle.addEventListener('show.bs.modal', function (e) {
+                const b = e.relatedTarget;
+                const cods = JSON.parse(b.getAttribute('data-codigos') || "[]");
+                
+                modalDetalle.querySelector('#modalProducto').textContent = b.getAttribute('data-producto');
+                modalDetalle.querySelector('#modalProveedor').textContent = b.getAttribute('data-proveedor');
+                modalDetalle.querySelector('#modalPrecio').textContent = '$' + b.getAttribute('data-precio');
+                
+                const cont = modalDetalle.querySelector('#modalContenedorCodigos');
+                cont.innerHTML = cods.length ? cods.map(c => `<span class="badge bg-white text-dark border p-2">${c}</span>`).join('') : '<span class="text-muted small">Sin códigos</span>';
             });
         });
 
-        // ── Modal Carrito ─────────────────────────────────────────────────
+        let bsModalCart = null;
 
-        function prepararYAbrirModal(btn) {
-            abrirModalCantidad(
-                btn.getAttribute('data-idproducto'),
-                btn.getAttribute('data-idproveedor'),
-                btn.getAttribute('data-nombre')
-            );
+        function abrirModalCarrito(id, prov, nombre) {
+            document.getElementById('cartIdProd').value = id;
+            document.getElementById('cartIdProv').value = prov;
+            document.getElementById('lblProductoCarrito').textContent = nombre;
+            document.getElementById('cartCant').value = 1;
+            $("#cartError").hide();
+
+            if (!bsModalCart) bsModalCart = new bootstrap.Modal(document.getElementById('modalCantidadCarrito'));
+            bsModalCart.show();
         }
 
-        var modalCantidadBS = null;
-
-        function abrirModalCantidad(idProd, idProv, nombreProd) {
-            // Poblar campos del modal
-            document.getElementById('hiddenIdProducto').value  = idProd;
-            document.getElementById('hiddenIdProveedor').value = idProv;
-
-            document.getElementById('lblProductoCarrito').innerText = nombreProd;
-
-            var inputCant  = document.getElementById('txtCantidadCarrito');
-            inputCant.value = 1;
-
-            // Ocultar aviso de reserva previa (ya no aplica sin control de stock)
-            document.getElementById('avisoEnCarrito').style.display = 'none';
-            document.getElementById('errStock').style.display = 'none';
-
-            var modalEl = document.getElementById('modalCantidadCarrito');
-            if (!modalCantidadBS) {
-                modalCantidadBS = new bootstrap.Modal(modalEl);
-            }
-            modalCantidadBS.show();
+        function stepCant(d) {
+            const i = document.getElementById('cartCant');
+            const v = (parseInt(i.value) || 0) + d;
+            if (v >= 1) i.value = v;
         }
 
-        function ajustarCantidad(delta) {
-            var input  = document.getElementById('txtCantidadCarrito');
-            var nuevo  = (parseInt(input.value) || 0) + delta;
-            if (nuevo >= 1) {
-                input.value = nuevo;
-            }
-        }
-
-        function confirmarAgregarCarrito(e) {
+        function confirmarCarrito(e) {
             e.preventDefault();
+            const data = {
+                idProducto: document.getElementById('cartIdProd').value,
+                idProveedor: document.getElementById('cartIdProv').value,
+                cantidad: parseInt(document.getElementById('cartCant').value)
+            };
 
-            var idProd = document.getElementById('hiddenIdProducto').value;
-            var idProv = document.getElementById('hiddenIdProveedor').value;
-            var cant   = parseInt(document.getElementById('txtCantidadCarrito').value);
-
-            if (isNaN(cant) || cant < 1) {
-                document.getElementById('errStock').style.display = 'block';
-                return false;
+            if (isNaN(data.cantidad) || data.cantidad > 2147483647) {
+                $("#cartError").text("La cantidad es demasiado grande para ser procesada.").show();
+                return;
             }
 
-            $.post('/Carrito/Agregar', { idProducto: idProd, idProveedor: idProv, cantidad: cant })
-                .done(function (response) {
-                    var badge = $("#cart-badge");
-                    if (badge.length) {
-                        badge.text(response.totalItems);
-                        if (response.totalItems > 0) badge.show();
-                    }
+            if (data.cantidad < 1) {
+                $("#cartError").text("La cantidad debe ser mayor a cero.").show();
+                return;
+            }
 
-                    if (modalCantidadBS) modalCantidadBS.hide();
+            $.post('/Carrito/Agregar', data)
+                .done(r => {
+                    const b = $("#cart-badge");
+                    if (b.length) b.text(r.totalItems).show();
+                    bsModalCart.hide();
                 })
-                .fail(function (xhr) {
-                    console.error("Error carrito: " + xhr.responseText);
-                    alert("Error al conectar con el servidor.");
+                .fail(x => {
+                    $("#cartError").text(x.responseJSON?.mensaje || "Error").show();
                 });
-
-            return false;
         }
     </script>
-    <style>
-        .zoom-hover {
-            transition: transform 0.2s;
-        }
-
-        .zoom-hover:hover {
-            transform: scale(1.03);
-            cursor: default;
-        }
-    </style>
 }

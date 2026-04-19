@@ -10,15 +10,10 @@ namespace src.Presentation.Controllers
     public class CarritoController : Controller
     {
         private readonly ICartService _cartService;
-        private readonly IProductoProveedorRepository _prodProvRepo;
 
-        public CarritoController(
-            ICartService cartService,
-            IProductoProveedorRepository prodProvRepo
-        )
+        public CarritoController(ICartService cartService)
         {
             _cartService = cartService;
-            _prodProvRepo = prodProvRepo;
         }
 
         [HttpGet]
@@ -28,12 +23,12 @@ namespace src.Presentation.Controllers
 
             if (!result.Success)
             {
-                TempData["Error"] = result.Message;
+                // Mensaje específico para la vista del carrito
+                TempData["CartError"] = result.Message;
                 return View(new List<CarritoItemViewModel>());
             }
 
             var viewModels = result.Data.Select(dto => dto.ToViewModel()).ToList();
-
             return View(viewModels);
         }
 
@@ -47,7 +42,10 @@ namespace src.Presentation.Controllers
             );
 
             if (!result.Success)
-                return BadRequest(new { mensaje = result.Message, errores = result.Errors });
+            {
+                // Devolvemos JSON porque es una llamada AJAX desde el modal
+                return BadRequest(new { mensaje = result.Message });
+            }
 
             return Ok(
                 new
@@ -73,12 +71,10 @@ namespace src.Presentation.Controllers
             );
 
             if (!result.Success)
-            {
-                TempData["Error"] = result.Message;
-                return RedirectToAction(nameof(Index));
-            }
+                TempData["CartError"] = result.Message;
+            else
+                TempData["CartSuccess"] = result.Message;
 
-            TempData["Success"] = result.Message;
             return RedirectToAction(nameof(Index));
         }
 
@@ -89,9 +85,9 @@ namespace src.Presentation.Controllers
             var result = await _cartService.RemoverItemAsync(idProducto, idProveedor);
 
             if (!result.Success)
-                TempData["Error"] = result.Message;
+                TempData["CartError"] = result.Message;
             else
-                TempData["Success"] = result.Message;
+                TempData["CartSuccess"] = result.Message;
 
             return RedirectToAction(nameof(Index));
         }
@@ -104,7 +100,7 @@ namespace src.Presentation.Controllers
 
             if (!result.Success)
             {
-                TempData["Error"] = result.Message;
+                TempData["CartError"] = result.Message;
                 return RedirectToAction(nameof(Index));
             }
 

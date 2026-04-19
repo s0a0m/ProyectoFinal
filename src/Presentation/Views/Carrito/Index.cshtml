@@ -6,32 +6,47 @@
 }
 
 <div class="container py-5">
-    <h2 class="mb-4"><i class="bi bi-cart3 me-2"></i>Carrito de Compras</h2>
-
-    <div asp-validation-summary="ModelOnly" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-        <strong><i class="bi bi-exclamation-triangle-fill me-2"></i>Atención:</strong>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="bi bi-cart3 me-2"></i>Carrito de Compras</h2>
+        @if (Model.Any())
+        {
+          <a asp-controller="ProductoProveedor" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-plus-circle me-1"></i>Seguir Comprando
+          </a>
+        }
     </div>
+
+    @* Mantenemos el TempData solo para errores que vengan del servidor (ej. producto eliminado) *@
+    @if (TempData["CartError"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["CartError"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
     @if (!Model.Any())
     {
-        <div class="alert alert-info text-center py-5">
-            <i class="bi bi-basket display-1 d-block mb-3"></i>
+        <div class="alert alert-info text-center py-5 shadow-sm border-0">
+            <i class="bi bi-basket display-1 d-block mb-3 text-muted"></i>
             <h4>Tu carrito está vacío</h4>
-            <a asp-controller="ProductoProveedor" asp-action="Index" class="btn btn-primary mt-3">Ir a comprar</a>
+            <p class="text-muted">Aún no has agregado productos para solicitar a proveedores.</p>
+            <a asp-controller="ProductoProveedor" asp-action="Index" class="btn btn-primary mt-3 px-4">
+                Ver Catálogo de Productos
+            </a>
         </div>
     }
     else
     {
         @foreach (var grupo in Model.GroupBy(x => x.NombreProveedor))
         {
-            var idProveedor    = grupo.First().IdProveedor;
+            var idProveedor = grupo.First().IdProveedor;
             var totalProveedor = grupo.Sum(x => x.Subtotal);
 
             <div class="card shadow-sm mb-4 border-0">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 text-primary"><i class="bi bi-shop me-2"></i>@grupo.Key</h5>
-                    <span class="badge bg-secondary">@grupo.Sum(x => x.Cantidad) items</span>
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+                    <h5 class="mb-0 text-primary fw-bold"><i class="bi bi-shop me-2"></i>@grupo.Key</h5>
+                    <span class="badge bg-dark rounded-pill">@grupo.Sum(x => x.Cantidad) unidades</span>
                 </div>
 
                 <div class="card-body p-0">
@@ -39,79 +54,64 @@
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Producto</th>
+                                    <th class="ps-3">Producto</th>
                                     <th>Códigos</th>
-                                    <th class="text-center">Cant.</th>
-                                    <th class="text-end">Precio</th>
-                                    <th class="text-end">Subtotal</th>
-                                    <th></th>
+                                    <th class="text-center" style="width: 180px;">Cantidad</th>
+                                    <th class="text-end">Precio Unit.</th>
+                                    <th class="text-end pe-3">Subtotal</th>
+                                    <th class="text-center"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var item in grupo)
                                 {
                                     <tr>
-                                        <td>@item.NombreProducto</td>
-
+                                        <td class="ps-3 fw-bold">@item.NombreProducto</td>
                                         <td>
                                             @if (item.CodigosExternos != null && item.CodigosExternos.Any())
                                             {
                                                 <div class="d-flex flex-wrap gap-1">
                                                     @foreach (var codigo in item.CodigosExternos)
                                                     {
-                                                        <span class="badge bg-light text-dark border font-monospace text-wrap"
-                                                              style="font-size: 0.75rem;">
-                                                            @codigo
-                                                        </span>
+                                                        <span class="badge bg-light text-dark border font-monospace">@codigo</span>
                                                     }
                                                 </div>
                                             }
-                                            else
-                                            {
-                                                <span class="text-muted small fst-italic">Sin códigos externos</span>
-                                            }
                                         </td>
-
-                                        <td class="text-center fw-bold">
-                                            <form asp-action="Actualizar" method="post" class="d-inline-flex align-items-center">
+                                        <td class="text-center">
+                                            <div class="d-flex flex-column align-items-center">
+                                                <form asp-action="Actualizar" method="post" class="input-group input-group-sm form-actualizar" style="max-width: 110px;">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="idProducto" value="@item.IdProducto" />
+                                                    <input type="hidden" name="idProveedor" value="@item.IdProveedor" />
+                                                    <input name="cantidad" type="number" class="form-control text-center input-cantidad" value="@item.Cantidad" />
+                                                    <button type="submit" class="btn btn-primary">
+                                                        <i class="bi bi-check-lg"></i>
+                                                    </button>
+                                                </form>
+                                                @* Span de error pequeño, oculto por defecto *@
+                                                <span class="text-danger msg-error-local" style="display:none; font-size: 0.7rem; line-height: 1;">Carga inválida</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-end text-muted small">$@item.PrecioUnitario.ToString("N2")</td>
+                                        <td class="text-end fw-bold pe-3">$@item.Subtotal.ToString("N2")</td>
+                                        <td class="text-center">
+                                            <form asp-action="Eliminar" method="post">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="idProducto" value="@item.IdProducto" />
                                                 <input type="hidden" name="idProveedor" value="@item.IdProveedor" />
-                                                <input name="cantidad" type="number"
-                                                       class="form-control form-control-sm text-center"
-                                                       value="@item.Cantidad" min="0" style="width:80px;" />
-                                                <button type="submit" class="btn btn-sm btn-outline-primary ms-2"
-                                                        title="Actualizar cantidad">
-                                                    <i class="bi bi-arrow-repeat"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-
-                                        <td class="text-end text-muted">$@item.PrecioUnitario.ToString("N2")</td>
-                                        <td class="text-end fw-bold">$@item.Subtotal.ToString("N2")</td>
-
-                                        <td class="text-end">
-                                            <form asp-action="Eliminar" method="post" class="d-inline">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="idProducto" value="@item.IdProducto" />
-                                                <input type="hidden" name="idProveedor" value="@item.IdProveedor" />
-                                                <button type="submit" class="btn btn-sm btn-outline-danger border-0"
-                                                        title="Quitar">
-                                                    <i class="bi bi-trash"></i>
+                                                <button type="submit" class="btn btn-sm btn-link text-danger p-0">
+                                                    <i class="bi bi-trash fs-5"></i>
                                                 </button>
                                             </form>
                                         </td>
                                     </tr>
                                 }
                             </tbody>
-                            <tfoot class="bg-white">
+                            <tfoot class="bg-light">
                                 <tr>
-                                    <td colspan="4" class="text-end fw-bold text-uppercase text-muted small pt-3">
-                                        Total @grupo.Key
-                                    </td>
-                                    <td class="text-end fs-5 fw-bold text-dark pt-3">
-                                        $@totalProveedor.ToString("N2")
-                                    </td>
+                                    <td colspan="4" class="text-end fw-bold text-muted small">TOTAL PROVEEDOR</td>
+                                    <td class="text-end fs-5 fw-bold text-dark pe-3">$@totalProveedor.ToString("N2")</td>
                                     <td></td>
                                 </tr>
                             </tfoot>
@@ -119,13 +119,12 @@
                     </div>
                 </div>
 
-                <div class="card-footer bg-white border-top-0 py-3 text-end">
-                    
-                    <form asp-controller="Carrito" asp-action="IrAPrevisualizar" method="post" class="d-inline">
+                <div class="card-footer bg-white py-3 text-end">
+                    <form asp-controller="Carrito" asp-action="IrAPrevisualizar" method="post">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="idProveedor" value="@idProveedor" />
-                        <button type="submit" class="btn btn-success px-4">
-                            Continuar Compra <i class="bi bi-arrow-right ms-1"></i>
+                        <button type="submit" class="btn btn-success px-4 fw-bold">
+                            Generar Pedido <i class="bi bi-arrow-right ms-1"></i>
                         </button>
                     </form>
                 </div>
@@ -139,30 +138,56 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // Json.Serialize produce un string JS correctamente escapado,
-            // evitando que caracteres como ' rompan silenciosamente el literal.
-            const errorMsg   = @Json.Serialize(TempData["ServiceErrorMessage"]?.ToString() ?? "");
-            const successMsg = @Json.Serialize(TempData["ServiceSuccessMessage"]?.ToString() ?? "");
-
-            if (errorMsg) {
+            
+            // 1. Errores del Servidor (TempData) - Usamos Modal con botón de cerrar
+            const cartError = @Json.Serialize(TempData["CartError"]?.ToString() ?? "");
+            if (cartError) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Stock insuficiente',
-                    // Cada ítem con problema viene separado por " | "
-                    html: errorMsg.split(' | ').map(e => `<p class="mb-1">• ${e}</p>`).join(''),
-                    confirmButtonColor: '#d33'
+                    title: 'Hubo un problema',
+                    text: cartError,
+                    showCloseButton: true, // Aquí está la "X" que pediste
+                    confirmButtonColor: '#0d6efd',
+                    confirmButtonText: 'Entendido'
                 });
             }
 
-            if (successMsg) {
-                Swal.mixin({
+            // 2. Éxitos del Servidor (TempData) - Usamos Toast (no necesita X porque desaparece solo)
+            const cartSuccess = @Json.Serialize(TempData["CartSuccess"]?.ToString() ?? "");
+            if (cartSuccess) {
+                Swal.fire({
+                    icon: 'success',
+                    title: cartSuccess,
                     toast: true,
                     position: 'top-end',
                     showConfirmButton: false,
-                    timer: 3000,
+                    timer: 2500,
                     timerProgressBar: true
-                }).fire({ icon: 'success', title: successMsg });
+                });
             }
+
+            // 3. Validación Local de Cantidad (Sin SweetAlert, error pequeño en texto)
+            const forms = document.querySelectorAll('.form-actualizar');
+            forms.forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    const input = form.querySelector('.input-cantidad');
+                    const errorSpan = form.parentNode.querySelector('.msg-error-local');
+                    const cant = parseInt(input.value);
+
+                    errorSpan.style.display = 'none';
+                    input.classList.remove('is-invalid');
+
+                    // Límite Int32 de C# y validación de positivos
+                    if (isNaN(cant) || cant > 2147483647 || cant < 1) {
+                        e.preventDefault();
+                        errorSpan.innerText = (isNaN(cant) || cant > 2147483647) ? "Valor excesivo" : "Mínimo 1";
+                        errorSpan.style.display = 'block';
+                        input.classList.add('is-invalid');
+                        return false;
+                    }
+                });
+            });
         });
     </script>
+}
 }
