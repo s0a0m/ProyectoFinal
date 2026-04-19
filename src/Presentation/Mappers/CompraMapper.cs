@@ -39,7 +39,6 @@ public static class CompraMapper
         {
             IdProveedor = idProveedor,
             NombreProveedor = items.FirstOrDefault()?.NombreProveedor ?? "Proveedor",
-            FechaCompra = DateTime.Now,
             Items = items.Select(dto => dto.ToViewModel()).ToList(),
         };
     }
@@ -96,7 +95,6 @@ public static class CompraMapper
     {
         return new Dom.Compra
         {
-            FechaCompra = vm.FechaCompra,
             Observaciones = vm.Observaciones,
             Proveedor = new Dom.Proveedor { IdProveedor = vm.IdProveedor },
             Detalles = vm

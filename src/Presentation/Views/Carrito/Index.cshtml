@@ -16,14 +16,7 @@
         }
     </div>
 
-    @* Mantenemos el TempData solo para errores que vengan del servidor (ej. producto eliminado) *@
-    @if (TempData["CartError"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["CartError"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
+
 
     @if (!Model.Any())
     {

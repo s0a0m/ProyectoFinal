@@ -207,6 +207,18 @@ namespace src.Core.Services.Implementations
             if (item == null)
                 return ServiceResult.Fail("El producto no se encontró en su carrito.");
 
+            decimal totalSinItemActual = carrito
+                .Where(x => !(x.IdProducto == idProducto && x.IdProveedor == idProveedor))
+                .Sum(x => x.Subtotal);
+
+            decimal nuevoSubtotalItem = dto.ProductoProveedor.Precio * cantidad;
+
+            if (totalSinItemActual + nuevoSubtotalItem > BusinessLimits.MAX_TOTAL_COMPRA)
+            {
+                return ServiceResult.Fail(
+                    "No se puede actualizar la cantidad: el monto total del carrito excedería el límite permitido."
+                );
+            }
             item.Cantidad = cantidad;
             GuardarCarritoEnSesion(carrito);
             return ServiceResult.Ok("Cantidad actualizada correctamente.");
