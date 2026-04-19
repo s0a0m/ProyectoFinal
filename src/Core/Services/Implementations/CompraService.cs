@@ -1,11 +1,7 @@
-using System.Runtime.CompilerServices;
 using Core.Common;
-using src.Core.Contracts;
 using src.Core.Services.Interfaces;
 using src.Models.Common;
 using src.Models.Domain;
-using src.Models.Mappers;
-using src.Presentation.ViewModels.CompraVM;
 using src.Repositories.Interfaces;
 using Dom = src.Models.Domain;
 
@@ -22,99 +18,121 @@ namespace src.Core.Services.Implementations
             _cartService = cartService;
         }
 
-        public Task CancelarCompraAsync(short id)
+        public async Task<ServiceResult<int>> ProcesarCompraDesdeCarritoAsync(
+            short idProveedor,
+            int idUsuario,
+            string observaciones
+        )
         {
-            throw new NotImplementedException();
+            // 1. Obtener datos frescos de la sesión (Verdad única)
+            var cartResult = await _cartService.ObtenerItemsPorProveedorAsync(idProveedor);
+
+            if (!cartResult.Success || !cartResult.Data.Any())
+                return ServiceResult<int>.Fail("El carrito está vacío o expiró.");
+
+            try
+            {
+                // 2. Mapeo de Negocio: DTO a Entidad de Dominio
+                var nuevaCompra = new Dom.Compra
+                {
+                    Proveedor = new Dom.Proveedor { IdProveedor = idProveedor },
+                    Usuario = new Dom.Usuario { IdUsuario = (short)idUsuario },
+                    Observaciones = observaciones,
+                    FechaCompra = DateTime.UtcNow,
+                    Estado = EstadoCompra.PENDIENTE,
+                    Detalles = cartResult
+                        .Data.Select(d => new Dom.DetalleCompra
+                        {
+                            Producto = new Dom.Producto { IdProducto = d.IdProducto },
+                            Cantidad = d.Cantidad,
+                            PrecioPactado = d.PrecioUnitario,
+                        })
+                        .ToList(),
+                };
+
+                // 3. Guardar en Base de Datos
+                await _compraRepository.AddAsync(nuevaCompra);
+
+                // 4. Limpiar Carrito (Solo si la compra se guardó bien)
+                await _cartService.LimpiarCarritoPorProveedorAsync(idProveedor);
+
+                return ServiceResult<int>.Ok(
+                    nuevaCompra.IdCompra,
+                    "Orden de compra generada exitosamente."
+                );
+            }
+            catch (Exception)
+            {
+                return ServiceResult<int>.Fail(
+                    "Error crítico al procesar la compra en base de datos."
+                );
+            }
         }
 
-        public async Task<int> CreateAsync(Dom.Compra compra)
-        {
-            await _compraRepository.AddAsync(compra);
-            return compra.IdCompra;
-        }
+        public async Task<IEnumerable<Dom.Compra>> GetAllAsync() =>
+            await _compraRepository.GetAllAsync();
 
-        public Task EsEditableAsync(short id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IEnumerable<ListarCompraViewModel>> GetAllAsync()
-        {
-            var compras = await _compraRepository.GetAllAsync();
-            return DominioMapper.MapToRead(compras);
-        }
-
-        public async Task<ListarCompraViewModel?> GetByIdAsync(short id)
+        public async Task<ServiceResult<Dom.Compra>> GetByIdAsync(int id)
         {
             var compra = await _compraRepository.GetByIdAsync(id);
-            return compra == null ? null : DominioMapper.MapToRead(compra);
+            return compra == null
+                ? ServiceResult<Dom.Compra>.Fail("La orden de compra no existe.")
+                : ServiceResult<Dom.Compra>.Ok(compra);
         }
 
-        public async Task UpdateAsync(Compra compra)
+        public async Task<ServiceResult> UpdateAsync(Dom.Compra compraEditada)
         {
-            // Obtener la compra actual del repositorio
-            var compraActual = await _compraRepository.GetByIdAsync(compra.IdCompra);
+            var compraActual = await _compraRepository.GetByIdAsync(compraEditada.IdCompra);
             if (compraActual == null)
+                return ServiceResult.Fail("No se encontró la compra.");
+            if (compraActual.Estado != EstadoCompra.PENDIENTE)
+                return ServiceResult.Fail("Solo se pueden editar pedidos pendientes.");
+
+            try
             {
-                throw new InvalidOperationException(
-                    $"No se encontró la compra con ID {compra.IdCompra}"
+                SincronizarDetalles(compraActual, compraEditada);
+                compraActual.Observaciones = compraEditada.Observaciones;
+                await _compraRepository.UpdateAsync(compraActual);
+                return ServiceResult.Ok("Cambios guardados.");
+            }
+            catch (Exception)
+            {
+                return ServiceResult.Fail("Error al actualizar.");
+            }
+        }
+
+        public ServiceResult ValidarMontoTotal(decimal totalCalculado)
+        {
+            if (totalCalculado > BusinessLimits.MAX_TOTAL_COMPRA)
+            {
+                return ServiceResult.Fail(
+                    $"El monto total excede el límite permitido de {BusinessLimits.MAX_TOTAL_COMPRA:C2}."
                 );
             }
+            return ServiceResult.Ok();
+        }
 
-            // Validar que el estado NO sea COMPLETADA ni CANCELADA
-            if (
-                compraActual.Estado == EstadoCompra.COMPLETADA
-                || compraActual.Estado == EstadoCompra.CANCELADA
-            )
-            {
-                throw new InvalidOperationException(
-                    "No se puede editar una compra finalizada o cancelada."
-                );
-            }
-
-            // Actualizar observaciones
-            compraActual.Observaciones = compra.Observaciones;
-
-            // Sincronizar la lista de detalles
-            var idsNuevos = new HashSet<int>(compra.Detalles.Select(d => d.IdDetalleCompra));
-
-            // Remover detalles que ya no están en la nueva lista
-            var detallesAEliminar = compraActual
+        private void SincronizarDetalles(Dom.Compra actual, Dom.Compra editada)
+        {
+            var idsNuevos = editada.Detalles.Select(d => d.IdDetalleCompra).ToList();
+            actual
                 .Detalles.Where(d => !idsNuevos.Contains(d.IdDetalleCompra))
-                .ToList();
+                .ToList()
+                .ForEach(d => actual.Detalles.Remove(d));
 
-            foreach (var detalle in detallesAEliminar)
+            foreach (var detN in editada.Detalles)
             {
-                compraActual.Detalles.Remove(detalle);
-            }
-
-            // Actualizar o agregar detalles
-            foreach (var detalleNuevo in compra.Detalles)
-            {
-                var detalleExistente = compraActual.Detalles.FirstOrDefault(d =>
-                    d.IdDetalleCompra == detalleNuevo.IdDetalleCompra
+                var existente = actual.Detalles.FirstOrDefault(d =>
+                    d.IdDetalleCompra == detN.IdDetalleCompra
                 );
-
-                if (detalleExistente != null)
+                if (existente != null)
                 {
-                    // Actualizar detalle existente
-                    detalleExistente.Cantidad = detalleNuevo.Cantidad;
-                    detalleExistente.PrecioPactado = detalleNuevo.PrecioPactado;
+                    existente.Cantidad = detN.Cantidad;
+                    existente.PrecioPactado = detN.PrecioPactado;
                 }
                 else
-                {
-                    // Agregar nuevo detalle
-                    compraActual.Detalles.Add(detalleNuevo);
-                }
+                    actual.Detalles.Add(detN);
             }
-
-            // Llamar al repositorio para persistir los cambios
-            await _compraRepository.UpdateAsync(compraActual);
-        }
-
-        public async Task<Dom.Compra?> ObtenerPorIdAsync(int id)
-        {
-            return await _compraRepository.GetByIdAsync(id);
         }
     }
 }

@@ -34,16 +34,18 @@ public class FacturaController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> CreateFromCompra(int idCompra)
+    public async Task<IActionResult> CrearDesdeCompra(int id)
     {
-        var compra = await _compraService.ObtenerPorIdAsync(idCompra);
-        if (compra == null)
+        var result = await _compraService.GetByIdAsync(id);
+
+        if (!result.Success)
         {
-            TempData["Error"] = "Compra no encontrada";
+            TempData["Error"] = result.Message;
             return RedirectToAction("Index", "Compra");
         }
+        var viewModel = result.Data.ToCrearVM();
 
-        return View(compra.ToCrearVM());
+        return View(viewModel);
     }
 
     [HttpPost]

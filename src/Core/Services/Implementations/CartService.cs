@@ -151,10 +151,20 @@ namespace src.Core.Services.Implementations
                     "El producto no está disponible con el proveedor seleccionado."
                 );
 
-            // if (cantidad > dto.ProductoProveedor.StockAsignado)
-            //     return ServiceResult.Fail($"Stock insuficiente. Máximo disponible: {dto.ProductoProveedor.StockAsignado}");
-
             var relacion = dto.ProductoProveedor;
+
+            var carritoActual = await ObtenerCarritoCompletoAsync();
+            decimal totalActual = carritoActual.Data.Sum(x => x.Subtotal);
+
+            decimal montoNuevoItem = relacion.Precio * cantidad;
+
+            if (totalActual + montoNuevoItem > BusinessLimits.MAX_TOTAL_COMPRA)
+            {
+                return ServiceResult.Fail(
+                    "No se puede agregar el producto: el monto total del carrito excede el límite permitido."
+                );
+            }
+
             var item = new CarritoItemDto
             {
                 IdProducto = idProducto,

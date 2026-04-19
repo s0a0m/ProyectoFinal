@@ -1,3 +1,4 @@
+using src.Core.Contracts;
 using src.Presentation.ViewModels.CompraVM;
 using Dom = src.Models.Domain;
 
@@ -5,6 +6,44 @@ namespace src.Presentation.Mappers;
 
 public static class CompraMapper
 {
+    // Domain → ListarCompraViewModel
+    public static ListarCompraViewModel ToListarVM(this Dom.Compra c)
+    {
+        return new ListarCompraViewModel
+        {
+            IdCompra = c.IdCompra,
+            Fecha = c.FechaCompra,
+            Estado = c.Estado.ToString(),
+            Total = c.TotalOrden,
+            ProveedorRazonSocial = c.Proveedor?.RazonSocial ?? "Desc.",
+            UsuarioNombre = c.Usuario?.Nombre ?? "-",
+            UsuarioApellido = c.Usuario?.Apellido ?? "-",
+            Detalles = c
+                .Detalles.Select(d => new ListarDetalleCompraViewModel
+                {
+                    IdDetalleCompra = d.IdDetalleCompra,
+                    ProductoNombre = d.Producto?.Nombre ?? "-",
+                    Cantidad = d.Cantidad,
+                })
+                .ToList(),
+        };
+    }
+
+    // Carrito DTO → ConfirmarCompraViewModel (Previsualizar)
+    public static ConfirmarCompraViewModel ToPrevisualizarVM(
+        short idProveedor,
+        List<CarritoItemDto> items
+    )
+    {
+        return new ConfirmarCompraViewModel
+        {
+            IdProveedor = idProveedor,
+            NombreProveedor = items.FirstOrDefault()?.NombreProveedor ?? "Proveedor",
+            FechaCompra = DateTime.Now,
+            Items = items.Select(dto => dto.ToViewModel()).ToList(),
+        };
+    }
+
     // Domain → VM (Para la vista de Gestión)
     public static GestionarCompraViewModel ToGestionarVM(this Dom.Compra compra)
     {
