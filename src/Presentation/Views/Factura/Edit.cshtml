@@ -7,6 +7,7 @@
 
 <div class="container py-4">
     <form asp-action="Edit" method="post" id="formFactura">
+        @* Campos ocultos para mantener el estado en el POST *@
         <input type="hidden" asp-for="IdFactura" />
         <input type="hidden" asp-for="IdCompra" />
         <input type="hidden" asp-for="IdProveedor" />
@@ -14,153 +15,140 @@
 
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h2 class="h3 text-warning"><i class="bi bi-pencil-square me-2"></i>Editar Factura</h2>
-                <div class="text-muted">
-                    Proveedor: <strong>@Model.RazonSocial</strong> | Comprobante #@Model.NumeroFactura
-                </div>
+                <h2 class="h3 text-warning fw-bold"><i class="bi bi-pencil-square me-2"></i>Editar Factura</h2>
+                <p class="text-muted small">Proveedor: <strong>@Model.RazonSocial</strong> | Comprobante #@Model.NumeroFactura</p>
             </div>
-            <a asp-action="Details" asp-route-id="@Model.IdFactura" class="btn btn-outline-secondary">Cancelar</a>
+            <a asp-action="Details" asp-route-id="@Model.IdFactura" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg me-1"></i> Cancelar
+            </a>
         </div>
 
-       
+        @* Mensajes de Error de Lógica (Servidor/Duplicados) *@
         @if (!ViewData.ModelState.IsValid)
         {
-            <div asp-validation-summary="All" class="alert alert-danger"></div>
+            <div class="alert alert-danger border-0 shadow-sm mb-4">
+                <div asp-validation-summary="ModelOnly" class="small mt-1"></div>
+            </div>
         }
-        
 
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-light py-3 border-bottom-0">
-                <h6 class="m-0 fw-bold text-secondary">Datos del Comprobante</h6>
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label asp-for="NumeroFactura" class="form-label small text-muted fw-bold">NÚMERO DE FACTURA</label>
-                        <input asp-for="NumeroFactura" class="form-control" />
-                        <span asp-validation-for="NumeroFactura" class="text-danger small"></span>
+        <div class="row g-4">
+            @* LADO IZQUIERDO: Cabecera e Items *@
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-light py-3">
+                        <h6 class="m-0 fw-bold text-secondary text-uppercase small">Datos del Comprobante</h6>
                     </div>
-                    <div class="col-md-3">
-                        <label asp-for="FechaEmision" class="form-label small text-muted fw-bold">FECHA EMISIÓN</label>
-                        <input asp-for="FechaEmision" type="date" class="form-control" />
-                        <span asp-validation-for="FechaEmision" class="text-danger small"></span>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="NumeroFactura" class="form-label small fw-bold text-muted">NÚMERO DE FACTURA</label>
+                                <input asp-for="NumeroFactura" class="form-control" />
+                                <span asp-validation-for="NumeroFactura" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="FechaEmision" class="form-label small fw-bold text-muted">FECHA EMISIÓN</label>
+                                <input asp-for="FechaEmision" type="date" class="form-control" />
+                                <span asp-validation-for="FechaEmision" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-light py-3">
+                        <h6 class="m-0 fw-bold text-secondary text-uppercase small">Items de la Factura</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="bg-light small text-uppercase text-muted">
+                                <tr>
+                                    <th class="ps-4">Producto</th>
+                                    <th class="text-center">Cant.</th>
+                                    <th class="text-end">Precio Base</th>
+                                    <th class="text-center" style="width: 140px;">Desc. (%)</th>
+                                    <th class="text-end pe-4">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.Detalles.Count; i++)
+                                {
+                                    <tr class="fila-producto" 
+                                        data-cantidad="@Model.Detalles[i].Cantidad" 
+                                        data-bruto="@Model.Detalles[i].PrecioBruto.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)">
+                                        
+                                        <input type="hidden" asp-for="Detalles[i].IdProducto" />
+                                        @* Importante: mantenemos estos hiddens para que el ModelBinder no pierda los datos al re-mostrar la vista por error *@
+                                        <input type="hidden" asp-for="Detalles[i].NombreProducto" />
+                                        <input type="hidden" asp-for="Detalles[i].Cantidad" />
+                                        <input type="hidden" asp-for="Detalles[i].PrecioBruto" />
+
+                                        <td class="ps-4">
+                                            <div class="fw-bold text-dark">@Model.Detalles[i].NombreProducto</div>
+                                        </td>
+                                        <td class="text-center">@Model.Detalles[i].Cantidad</td>
+                                        <td class="text-end">$@Model.Detalles[i].PrecioBruto.ToString("N2")</td>
+                                        <td>
+                                            <div class="input-group input-group-sm">
+                                                <input asp-for="Detalles[i].PorcentajeDescuento" type="number" 
+                                                       class="form-control text-center input-desc" step="0.01" />
+                                                <span class="input-group-text">%</span>
+                                            </div>
+                                            <span asp-validation-for="Detalles[i].PorcentajeDescuento" class="text-danger" style="font-size: 0.7rem;"></span>
+                                        </td>
+                                        <td class="text-end pe-4 fw-bold text-success span-subtotal">$0.00</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-light py-3 border-bottom-0">
-                <h6 class="m-0 fw-bold text-secondary">Condición de Pago</h6>
-            </div>
-            <div class="card-body">
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-3">
-                        <label class="form-label small text-muted fw-bold">TIPO</label>
-                        <select asp-for="TipoCondicion" class="form-select" id="selectTipoPago">
-                            <option value="Contado">Contado</option>
-                            <option value="Cuota">En Cuotas</option>
-                        </select>
+            @* LADO DERECHO: Pago y Total *@
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-light py-3">
+                        <h6 class="m-0 fw-bold text-secondary text-uppercase small">Financiación</h6>
                     </div>
-
-                    <div class="col-md-3">
-                        <label asp-for="DiasPago" class="form-label small text-muted fw-bold">DÍAS VENCIMIENTO</label>
-                        <div class="input-group">
-                            <input asp-for="DiasPago" type="number" class="form-control" min="0" />
-                            <span class="input-group-text small">días</span>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="TipoCondicion" class="form-label small fw-bold text-muted">TIPO</label>
+                            <select asp-for="TipoCondicion" class="form-select" id="selectTipoPago">
+                                <option value="Contado">Contado</option>
+                                <option value="Cuota">En Cuotas</option>
+                            </select>
                         </div>
-                        <span asp-validation-for="DiasPago" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-md-3 seccion-cuota" style="display:none;">
-                        <label asp-for="CantidadCuotas" class="form-label small text-muted fw-bold">CANT. CUOTAS</label>
-                        <input asp-for="CantidadCuotas" type="number" class="form-control" min="1" />
-                        <span asp-validation-for="CantidadCuotas" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-md-3 seccion-cuota" style="display:none;">
-                        <label asp-for="InteresPorcentual" class="form-label small text-muted fw-bold">INTERÉS</label>
-                        <div class="input-group">
-                            <input asp-for="InteresPorcentual" type="number" class="form-control" min="0" step="0.01" />
-                            <span class="input-group-text">%</span>
+                        <div class="mb-3">
+                            <label asp-for="DiasPago" class="form-label small fw-bold text-muted">DÍAS VENCIMIENTO</label>
+                            <div class="input-group">
+                                <input asp-for="DiasPago" type="number" class="form-control" min="0" />
+                                <span class="input-group-text small">días</span>
+                            </div>
                         </div>
-                        <span asp-validation-for="InteresPorcentual" class="text-danger small"></span>
+                        <div class="seccion-cuota" style="display:none;">
+                            <div class="mb-3">
+                                <label asp-for="CantidadCuotas" class="form-label small fw-bold text-muted">CANT. CUOTAS</label>
+                                <input asp-for="CantidadCuotas" type="number" class="form-control" min="1" />
+                            </div>
+                            <div class="mb-0">
+                                <label asp-for="InteresPorcentual" class="form-label small fw-bold text-muted">INTERÉS (%)</label>
+                                <input asp-for="InteresPorcentual" type="number" class="form-control" step="0.01" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0 bg-light mb-4">
+                    <div class="card-body p-4 text-center">
+                        <label class="small text-uppercase fw-bold text-muted d-block mb-1">Total Actualizado</label>
+                        <h2 class="display-6 fw-bold text-success mb-4" id="totalGeneral">$0,00</h2>
+                        
+                        <button type="submit" class="btn btn-warning btn-lg w-100 fw-bold shadow-sm">
+                            <i class="bi bi-save me-2"></i>Guardar Cambios
+                        </button>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-light py-3 border-bottom-0">
-                <h6 class="m-0 fw-bold text-secondary">Items de la Factura</h6>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-bordered align-middle mb-0">
-                    <thead class="table-light small text-uppercase text-muted">
-                        <tr>
-                            <th>Producto</th>
-                            <th class="text-center" style="width: 100px;">Cant.</th>
-                            <th class="text-end" style="width: 140px;">Precio Base</th>
-                            <th class="text-end" style="width: 120px;">Desc. (%)</th>
-                            <th class="text-end" style="width: 160px;">Precio Neto</th>
-                            <th class="text-end" style="width: 160px;">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for (int i = 0; i < Model.Detalles.Count; i++)
-                        {
-                            <tr class="fila-producto">
-                                <input type="hidden" asp-for="Detalles[i].IdProducto" />
-                                <input type="hidden" asp-for="Detalles[i].NombreProducto" /> <td class="fw-bold text-dark">@Model.Detalles[i].NombreProducto</td>
-                                
-                                <td>
-                                    <input asp-for="Detalles[i].Cantidad" type="number" class="form-control text-center input-cant" readonly />
-                                </td>
-                                <td>
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-text">$</span>
-                                        @* readonly en lugar de disabled para que se envie *@
-                                        <input asp-for="Detalles[i].PrecioBruto" type="text" class="form-control text-end input-bruto" readonly />
-                                    </div>
-                                    <span asp-validation-for="Detalles[i].PrecioBruto" class="text-danger small"></span>
-                                </td>
-
-                                <td>
-                                    <div class="input-group input-group-sm">
-                                        <input asp-for="Detalles[i].PorcentajeDescuento" type="number" class="form-control text-end input-desc" step="0.01" min="0" max="100" />
-                                        <span class="input-group-text">%</span>
-                                    </div>
-                                    <span asp-validation-for="Detalles[i].PorcentajeDescuento" class="text-danger small"></span>
-                                </td>
-
-                                <td>
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-text">$</span>
-                                        <input asp-for="Detalles[i].PrecioNeto" type="text" class="form-control text-end input-neto fw-bold bg-light" readonly />
-                                    </div>
-                                    <span asp-validation-for="Detalles[i].PrecioNeto" class="text-danger small"></span>
-                                </td>
-                                
-                                <td class="text-end fw-bold text-success span-subtotal">
-                                    $0.00
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                    <tfoot class="bg-white">
-                        <tr>
-                            <td colspan="5" class="text-end fw-bold pt-3 fs-5">TOTAL ACTUALIZADO</td>
-                            <td class="text-end fw-bold fs-4 text-success pt-3" id="totalGeneral">$0.00</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-
-        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
-            <button type="submit" class="btn btn-warning btn-lg px-5 shadow text-dark">
-                <i class="bi bi-save me-2"></i>Guardar Cambios
-            </button>
         </div>
     </form>
 </div>
@@ -169,215 +157,45 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
     document.addEventListener("DOMContentLoaded", function() {
+        const totalGeneral = document.getElementById('totalGeneral');
+        const filas = document.querySelectorAll('.fila-producto');
+        const selectTipo = document.getElementById('selectTipoPago');
+        const sectionsCuota = document.querySelectorAll('.seccion-cuota');
 
-        // ---- helpers ----
-        function qs(selector, root = document) { return (root || document).querySelector(selector); }
-        function qsa(selector, root = document) { return Array.from((root || document).querySelectorAll(selector)); }
-
-        // Normaliza texto numérico para submit (acepta "1.234,56" o "1234.56")
-        function normalizeNumberForSubmit(v) {
-            if (v === null || v === undefined) return '';
-            v = v.toString().trim();
-            if (v === '') return '';
-            // quitar símbolos $ y espacios
-            v = v.replace(/\s/g,'').replace(/\$/g,'');
-            // Si contiene ',' asume coma decimal (es-AR) - eliminar puntos como miles
-            if (v.indexOf(',') !== -1) {
-                v = v.replace(/\./g,'');        // quitar separador de miles
-                v = v.replace(',', '.');       // coma -> punto decimal
-            } else {
-                // no hay coma, quitar comas (posibles separadores ingleses)
-                v = v.replace(/,/g,'');
-            }
-            // conservar sólo dígitos, punto y signo -
-            v = v.replace(/[^0-9\.\-]/g,'');
-            return v;
-        }
-
-        // formatea número para mostrar (ej: 1234.5 -> "1.234,50")
-        function formatForDisplayNumber(num) {
-            if (num === null || num === undefined || !Number.isFinite(Number(num))) return "0,00";
-            return Number(num).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
-        // Handler para pegar valores en inputs numéricos (protege formatos)
-        function handlePasteNumeric(e) {
-            e.preventDefault();
-            const paste = (e.clipboardData || window.clipboardData).getData('text') || '';
-            let normalized = paste.replace(',', '.').replace(/[^\d\.\-]/g, '');
-            // limitar decimales a 2
-            const parts = normalized.split('.');
-            if (parts.length > 1) parts[1] = parts[1].slice(0,2);
-            if (parts[0].length > 12) parts[0] = parts[0].slice(0,12);
-            normalized = parts.length > 1 ? parts[0] + '.' + parts[1] : parts[0];
-            const tgt = e.target;
-            if (tgt && tgt.tagName === 'INPUT') tgt.value = normalized;
-            // trigger input event para recalcular
-            tgt.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-
-        // ---- Toggle campos de cuota ----
-        const selectTipo = qs('#selectTipoPago');
-        const sectionsCuota = qsa('.seccion-cuota');
+        // 1. Lógica de visibilidad de cuotas
         function toggleCuotaFields() {
-            if (!selectTipo) return;
             const esCuota = selectTipo.value === 'Cuota';
             sectionsCuota.forEach(el => el.style.display = esCuota ? 'block' : 'none');
         }
+
+        // 2. Lógica de cálculos
+        function recalcular() {
+            let total = 0;
+            filas.forEach(row => {
+                const cant = parseFloat(row.dataset.cantidad) || 0;
+                const bruto = parseFloat(row.dataset.bruto) || 0;
+                const desc = parseFloat(row.querySelector('.input-desc').value) || 0;
+
+                const neto = bruto - (bruto * (desc / 100));
+                const sub = neto * cant;
+                total += sub;
+
+                row.querySelector('.span-subtotal').innerText = '$' + sub.toLocaleString('es-AR', { minimumFractionDigits: 2 });
+            });
+            totalGeneral.innerText = '$' + total.toLocaleString('es-AR', { minimumFractionDigits: 2 });
+        }
+
+        // Eventos
         if (selectTipo) {
             selectTipo.addEventListener('change', toggleCuotaFields);
             toggleCuotaFields();
         }
 
-        // ---- Cálculos de filas / totales ----
-        const filas = qsa('.fila-producto');
-        const totalGeneral = qs('#totalGeneral');
-
-        function calcularFila(row) {
-            const cantRaw = qs('.input-cant', row)?.value ?? '0';
-            const brutoRaw = qs('.input-bruto', row)?.value ?? '0';
-            const descRaw = qs('.input-desc', row)?.value ?? '0';
-
-            const cant = parseFloat(normalizeNumberForSubmit(cantRaw)) || 0;
-            const bruto = parseFloat(normalizeNumberForSubmit(brutoRaw)) || 0;
-            const desc = parseFloat(normalizeNumberForSubmit(descRaw)) || 0;
-
-            let neto = bruto - (bruto * (desc / 100));
-            if (!Number.isFinite(neto) || neto < 0) neto = 0;
-
-            // Actualizar input neto (display formateado)
-            const inputNeto = qs('.input-neto', row);
-            if (inputNeto) {
-                inputNeto.value = formatForDisplayNumber(neto);
-                // guardar raw en data para uso al submit (opcional)
-                inputNeto.dataset.raw = neto.toFixed(2);
-            }
-
-            const sub = neto * cant;
-            const spanSub = qs('.span-subtotal', row);
-            if (spanSub) spanSub.innerText = '$' + formatForDisplayNumber(sub);
-
-            return sub;
-        }
-
-        function recalcularTotal() {
-            if (!totalGeneral) return;
-            let total = 0;
-            filas.forEach(row => { total += calcularFila(row); });
-            totalGeneral.innerText = '$' + formatForDisplayNumber(total);
-        }
-
-        // Formatear inicialmente inputs precio bruto y neto para visual
-        qsa('.input-bruto').forEach(inp => {
-            const raw = inp.value ?? '';
-            const norm = normalizeNumberForSubmit(raw);
-            if (norm !== '') inp.value = formatForDisplayNumber(Number(norm));
-            // attach paste protection
-            inp.addEventListener('paste', handlePasteNumeric);
-            // focus => mostrar sin formato (para facilitar copia/edición si fuera editable)
-            inp.addEventListener('focus', function() {
-                const n = normalizeNumberForSubmit(this.value);
-                this.value = n === '' ? '' : n;
-            });
-            // blur => formatear
-            inp.addEventListener('blur', function() {
-                const n = normalizeNumberForSubmit(this.value);
-                this.value = n === '' ? '' : formatForDisplayNumber(Number(n));
-                recalcularTotal();
-            });
+        document.querySelectorAll('.input-desc').forEach(inp => {
+            inp.addEventListener('input', recalcular);
         });
 
-        // input-neto (readonly) formateo inicial y paste handler in case someone pastes
-        qsa('.input-neto').forEach(inp => {
-            const raw = inp.value ?? inp.dataset.raw ?? '';
-            const norm = normalizeNumberForSubmit(raw);
-            if (norm !== '') inp.value = formatForDisplayNumber(Number(norm));
-            inp.addEventListener('paste', handlePasteNumeric);
-        });
-
-        // porcentaje: attach paste handler and input listener
-        qsa('.input-desc').forEach(inp => {
-            inp.addEventListener('paste', handlePasteNumeric);
-            inp.addEventListener('input', function() {
-                // limpieza mínima de caracteres no permitidos
-                const v = this.value ?? '';
-                // permitir sólo dígitos y punto
-                this.value = v.replace(/[^\d\.\-]/g, '');
-                recalcularTotal();
-            });
-        });
-
-        // calcular cuando cambian cant/otros (aunque cantidad es readonly en editar)
-        qsa('.input-cant').forEach(inp => {
-            inp.addEventListener('input', recalcularTotal);
-        });
-
-        // init
-        recalcularTotal();
-
-        // ---- Validación de porcentajes (0-100) ----
-        function validatePercents() {
-            let ok = true;
-            qsa('.input-desc').forEach(inp => {
-                const raw = inp.value?.toString().trim() || '0';
-                const normalized = normalizeNumberForSubmit(raw);
-                const num = normalized === '' ? 0 : parseFloat(normalized);
-                const feedbackSpan = inp.closest('td')?.querySelector('.text-danger');
-                if (feedbackSpan && feedbackSpan.innerText === 'Porcentaje inválido (0-100)') feedbackSpan.innerText = '';
-                if (!Number.isFinite(num) || num < 0 || num > 100) {
-                    if (feedbackSpan) {
-                        feedbackSpan.innerText = 'Porcentaje inválido (0-100)';
-                    } else {
-                        const s = document.createElement('div');
-                        s.className = 'text-danger small';
-                        s.innerText = 'Porcentaje inválido (0-100)';
-                        inp.parentNode.appendChild(s);
-                    }
-                    ok = false;
-                }
-            });
-            return ok;
-        }
-
-        // ---- Submit: normalizar valores antes de enviar al servidor ----
-        const form = qs('#formFactura');
-        if (form) {
-            form.addEventListener('submit', function(ev) {
-                // validar porcentajes
-                if (!validatePercents()) {
-                    ev.preventDefault();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    return false;
-                }
-
-                // normalizar numéricos que enviaremos
-                qsa('.input-bruto, .input-neto, .input-desc, .input-cant').forEach(function(inp) {
-                    // para .input-neto si guardamos raw en data, preferirlo
-                    if (inp.classList.contains('input-neto') && inp.dataset.raw) {
-                        inp.value = inp.dataset.raw;
-                        return;
-                    }
-                    const norm = normalizeNumberForSubmit(inp.value);
-                    if (inp.classList.contains('input-cant') && (norm === '' || isNaN(Number(norm)))) {
-                        inp.value = '0';
-                    } else {
-                        inp.value = norm;
-                    }
-                });
-
-                // fecha: si el usuario puso dd/mm/yyyy convertimos a yyyy-mm-dd
-                const fechaInput = qs('input[name="FechaEmision"]');
-                if (fechaInput) {
-                    const val = fechaInput.value;
-                    if (/\d{2}\/\d{2}\/\d{4}/.test(val)) {
-                        const parts = val.split('/');
-                        fechaInput.value = `${parts[2]}-${parts[1]}-${parts[0]}`;
-                    }
-                }
-                // permitir submit
-            });
-        }
-
-    }); // DOMContentLoaded
+        recalcular(); 
+    });
     </script>
 }

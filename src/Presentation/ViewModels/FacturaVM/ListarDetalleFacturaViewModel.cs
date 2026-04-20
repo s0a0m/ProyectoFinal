@@ -6,7 +6,7 @@ public class ListarDetalleFacturaViewModel
 {
     public int IdFactura { get; set; }
     public string NumeroComprobante { get; set; } = null!;
-
+    public int? IdCompra { get; set; }
     public DateTime Fecha { get; set; }
     public DateTime FechaPago { get; set; }
     public decimal Total { get; set; }
@@ -67,4 +67,3 @@ public class ItemFacturaViewModel
     public decimal Subtotal { get; set; }
     public decimal PorcentajeDescuento { get; set; } = 0;
 }
-

@@ -26,26 +26,29 @@ public class FacturaController : Controller
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
-        var factura = await _facturaService.ObtenerPorIdAsync(id);
-        if (factura == null)
-            return NotFound();
+        var result = await _facturaService.ObtenerPorIdAsync(id);
 
-        return View(factura.ToDetalleVM());
+        if (!result.Success)
+        {
+            TempData["Error"] = result.Message;
+            return RedirectToAction(nameof(Index));
+        }
+
+        return View(result.Data.ToDetalleVM());
     }
 
     [HttpGet]
     public async Task<IActionResult> CrearDesdeCompra(int id)
     {
-        var result = await _compraService.GetByIdAsync(id);
+        var result = await _facturaService.ValidarCompraParaFacturacionAsync(id);
 
         if (!result.Success)
         {
             TempData["Error"] = result.Message;
             return RedirectToAction("Index", "Compra");
         }
-        var viewModel = result.Data.ToCrearVM();
 
-        return View(viewModel);
+        return View("CrearDesdeCompra", result.Data.ToCrearVM());
     }
 
     [HttpPost]
@@ -62,30 +65,16 @@ public class FacturaController : Controller
             if (!model.InteresPorcentual.HasValue)
                 ModelState.AddModelError("InteresPorcentual", "Debe especificar el interés.");
         }
-
         if (!ModelState.IsValid)
-            return View("CreateFromCompra", model);
-
-        bool existe = await _facturaService.ExisteNumeroFacturaAsync(
-            (short)model.IdProveedor,
-            model.NumeroFactura
-        );
-        if (existe)
-        {
-            ModelState.AddModelError(
-                "NumeroFactura",
-                "Este número de factura ya existe para este proveedor."
-            );
-            return View("CreateFromCompra", model);
-        }
+            return View("CrearDesdeCompra", model);
 
         var factura = model.ToDomain();
         var resultado = await _facturaService.CrearDesdeCompraAsync(factura, model.IdCompra);
 
         if (!resultado.Success)
         {
-            ModelState.AddModelError("", resultado.Message);
-            return View("CreateFromCompra", model);
+            TempData["Error"] = resultado.Message;
+            return View("CrearDesdeCompra", model);
         }
 
         TempData["Success"] = resultado.Message;
@@ -95,14 +84,21 @@ public class FacturaController : Controller
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var factura = await _facturaService.ObtenerPorIdAsync(id);
-        if (factura == null)
+        var result = await _facturaService.ObtenerPorIdAsync(id);
+
+        if (!result.Success)
         {
-            TempData["Error"] = "Factura no encontrada";
-            return RedirectToAction("Index");
+            TempData["Error"] = result.Message;
+            return RedirectToAction(nameof(Index));
+        }
+        if (result.Data.Saldo < result.Data.TotalFacturado || result.Data.Pagada)
+        {
+            TempData["Error"] =
+                "No se puede editar una factura que ya posee pagos o créditos asociados.";
+            return RedirectToAction(nameof(Details), new { id = id });
         }
 
-        return View(factura.ToEditVM());
+        return View(result.Data.ToEditVM());
     }
 
     [HttpPost]
@@ -139,13 +135,14 @@ public class FacturaController : Controller
     [HttpGet]
     public async Task<IActionResult> DocumentosAsociados(int id)
     {
-        var data = await _facturaService.ObtenerDocumentosAsociadosAsync(id);
-        if (data == null)
+        var result = await _facturaService.ObtenerDocumentosAsociadosAsync(id);
+
+        if (!result.Success)
         {
-            TempData["Error"] = "Factura no encontrada";
-            return RedirectToAction("Index");
+            TempData["Error"] = result.Message;
+            return RedirectToAction(nameof(Index));
         }
 
-        return View(data.ToDocumentosVM());
+        return View(result.Data.ToDocumentosVM());
     }
 }
