@@ -98,11 +98,33 @@ namespace src.Presentation.Controllers
             }
 
             var result = await _compraService.UpdateAsync(model.ToDomain());
-            TempData[result.Success ? "Success" : "Error"] = result.Message;
 
-            return result.Success
-                ? RedirectToAction(nameof(Index))
-                : RedirectToAction(nameof(Gestionar), new { id = model.IdCompra });
+            if (result.Success)
+            {
+                TempData["Success"] = result.Message;
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["Error"] = result.Message;
+            return RedirectToAction(nameof(Gestionar), new { id = model.IdCompra });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarcarEnviada(int id)
+        {
+            var result = await _compraService.MarcarEnviadaAsync(id);
+            TempData[result.Success ? "Success" : "Error"] = result.Message;
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Cancelar(int id, string motivo)
+        {
+            var result = await _compraService.CancelarCompraAsync(id, motivo);
+            TempData[result.Success ? "Success" : "Error"] = result.Message;
+            return RedirectToAction(nameof(Index));
         }
     }
 }

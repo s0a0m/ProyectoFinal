@@ -14,5 +14,7 @@ namespace src.Core.Services.Interfaces
             string observaciones
         );
         ServiceResult ValidarMontoTotal(decimal totalCalculado);
+        Task<ServiceResult> CancelarCompraAsync(int id, string motivo);
+        Task<ServiceResult> MarcarEnviadaAsync(int id);
     }
 }

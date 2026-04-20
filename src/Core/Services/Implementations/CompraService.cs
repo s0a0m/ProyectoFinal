@@ -69,6 +69,38 @@ namespace src.Core.Services.Implementations
             }
         }
 
+        public async Task<ServiceResult> MarcarEnviadaAsync(int id)
+        {
+            var compra = await _compraRepository.GetByIdAsync(id);
+
+            if (compra == null)
+                return ServiceResult.Fail("La orden no existe.");
+
+            if (compra.Estado != EstadoCompra.PENDIENTE)
+                return ServiceResult.Fail(
+                    $"No se puede enviar una orden en estado {compra.Estado}."
+                );
+
+            await _compraRepository.MarcarComoEnviadaAsync(id);
+
+            return ServiceResult.Ok("Orden enviada exitosamente.");
+        }
+
+        public async Task<ServiceResult> CancelarCompraAsync(int id, string motivo)
+        {
+            var compra = await _compraRepository.GetByIdAsync(id);
+
+            if (compra == null)
+                return ServiceResult.Fail("La orden no existe.");
+
+            if (compra.Estado == EstadoCompra.COMPLETADA || compra.Estado == EstadoCompra.CANCELADA)
+                return ServiceResult.Fail("No se puede cancelar una orden finalizada.");
+
+            await _compraRepository.CancelarCompraAsync(id, motivo);
+
+            return ServiceResult.Ok("Orden cancelada.");
+        }
+
         public async Task<IEnumerable<Dom.Compra>> GetAllAsync() =>
             await _compraRepository.GetAllAsync();
 
@@ -85,20 +117,31 @@ namespace src.Core.Services.Implementations
             var compraActual = await _compraRepository.GetByIdAsync(compraEditada.IdCompra);
             if (compraActual == null)
                 return ServiceResult.Fail("No se encontró la compra.");
-            if (compraActual.Estado != EstadoCompra.PENDIENTE)
-                return ServiceResult.Fail("Solo se pueden editar pedidos pendientes.");
 
-            try
+            if (compraActual.Estado == EstadoCompra.ENVIADA)
             {
+                if (compraActual.Observaciones != compraEditada.Observaciones)
+                {
+                    compraActual.Observaciones = compraEditada.Observaciones;
+                    await _compraRepository.UpdateAsync(compraActual);
+                }
+                return ServiceResult.Ok("Observaciones actualizadas.");
+            }
+
+            if (compraActual.Estado == EstadoCompra.PENDIENTE)
+            {
+                decimal nuevoTotal = compraEditada.Detalles.Sum(d => d.Cantidad * d.PrecioPactado);
+                if (nuevoTotal > BusinessLimits.MAX_TOTAL_COMPRA)
+                    return ServiceResult.Fail($"El monto excede el límite permitido.");
+
                 SincronizarDetalles(compraActual, compraEditada);
                 compraActual.Observaciones = compraEditada.Observaciones;
+
                 await _compraRepository.UpdateAsync(compraActual);
-                return ServiceResult.Ok("Cambios guardados.");
+                return ServiceResult.Ok("Cambios guardados correctamente.");
             }
-            catch (Exception)
-            {
-                return ServiceResult.Fail("Error al actualizar.");
-            }
+
+            return ServiceResult.Fail("La orden no se puede modificar en su estado actual.");
         }
 
         public ServiceResult ValidarMontoTotal(decimal totalCalculado)
