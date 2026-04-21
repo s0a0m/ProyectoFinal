@@ -1,4 +1,5 @@
 using Core.Common;
+using src.Core.Contracts;
 using src.Core.Services.Interfaces;
 using src.Repositories.Interfaces;
 using Dom = src.Models.Domain;
@@ -28,48 +29,92 @@ public class OrdenPagoService : IOrdenPagoService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<Dom.OrdenPago?> ObtenerPorIdAsync(int idOrden)
+    public async Task<ServiceResult<Dom.OrdenPago>> ObtenerDetalleOrdenAsync(int idOrden)
     {
-        return await _ordenPagoRepository.GetByIdWithDetallesAsync(idOrden);
+        var orden = await _ordenPagoRepository.GetByIdWithDetallesAsync(idOrden);
+
+        if (orden == null)
+            return ServiceResult<Dom.OrdenPago>.Fail("La orden de pago solicitada no existe.");
+
+        return ServiceResult<Dom.OrdenPago>.Ok(orden);
     }
 
-    public async Task<IEnumerable<Dom.OrdenPago>> ObtenerPorProveedorAsync(short idProveedor)
+    public async Task<ServiceResult<HistorialPagosData>> ObtenerHistorialPagosAsync(
+        short idProveedor
+    )
     {
-        return await _ordenPagoRepository.GetByProveedorAsync(idProveedor);
+        var proveedor = await _proveedorRepository.GetProveedorById(idProveedor);
+        if (proveedor == null)
+            return ServiceResult<HistorialPagosData>.Fail("Proveedor no encontrado.");
+
+        var ordenes = await _ordenPagoRepository.GetByProveedorAsync(idProveedor);
+
+        var data = new HistorialPagosData
+        {
+            IdProveedor = idProveedor,
+            RazonSocial = proveedor.RazonSocial,
+            Ordenes = ordenes.ToList(),
+        };
+
+        return ServiceResult<HistorialPagosData>.Ok(data);
     }
 
-    public async Task<IEnumerable<Dom.Factura>> ObtenerFacturasPendientesAsync(short idProveedor)
+    public async Task<ServiceResult<NuevoPagoData>> ObtenerDatosParaNuevoPagoAsync(
+        short idProveedor
+    )
     {
+        var proveedor = await _proveedorRepository.GetProveedorById(idProveedor);
+        if (proveedor == null)
+            return ServiceResult<NuevoPagoData>.Fail("El proveedor no existe.");
+
         var facturas = await _facturaRepository.GetByProveedorAsync(idProveedor);
-        return facturas.Where(f => f.Saldo > 0 && !f.Pagada);
+        var pendientes = facturas.Where(f => f.Saldo > 0 && !f.Pagada).ToList();
+
+        if (!pendientes.Any())
+            return ServiceResult<NuevoPagoData>.Fail(
+                "El proveedor no tiene facturas pendientes de pago."
+            );
+
+        return ServiceResult<NuevoPagoData>.Ok(
+            new NuevoPagoData
+            {
+                IdProveedor = idProveedor,
+                RazonSocial = proveedor.RazonSocial,
+                FacturasPendientes = pendientes,
+            }
+        );
     }
 
     public async Task<ServiceResult<int>> CrearOrdenAsync(Dom.OrdenPago orden)
     {
         if (orden.Detalles == null || !orden.Detalles.Any())
-            return ServiceResult<int>.Fail("Debe seleccionar al menos una factura");
+            return ServiceResult<int>.Fail("Debe seleccionar al menos una factura.");
 
-        if (orden.MontoTotal <= 0)
-            return ServiceResult<int>.Fail("El monto total debe ser mayor a cero");
+        decimal sumaCalculada = 0;
 
-        // Validar cada factura
         foreach (var detalle in orden.Detalles)
         {
             var factura = await _facturaRepository.GetByIdAsync(detalle.IdFactura);
             if (factura == null)
-                return ServiceResult<int>.Fail($"Factura {detalle.IdFactura} no encontrada");
+                return ServiceResult<int>.Fail($"Factura ID {detalle.IdFactura} no encontrada.");
 
             if (!factura.PuedeRecibirPago)
+                return ServiceResult<int>.Fail($"La factura {factura.Numero} ya está pagada.");
+
+            if (detalle.MontoAplicado <= 0)
                 return ServiceResult<int>.Fail(
-                    $"La factura {factura.Numero} no tiene saldo pendiente"
+                    $"El monto para la factura {factura.Numero} debe ser mayor a cero."
                 );
 
             if (detalle.MontoAplicado > factura.Saldo)
                 return ServiceResult<int>.Fail(
-                    $"El monto {detalle.MontoAplicado} supera el saldo "
-                        + $"({factura.Saldo}) de la factura {factura.Numero}"
+                    $"El monto aplicado a {factura.Numero} supera el saldo pendiente."
                 );
+
+            sumaCalculada += detalle.MontoAplicado;
         }
+
+        orden.MontoTotal = sumaCalculada;
         orden.Numero = await _numeracionService.GenerarNumeroAsync("OP-", "OP");
         orden.Enviada = false;
         orden.FechaPago = null;
@@ -77,11 +122,11 @@ public class OrdenPagoService : IOrdenPagoService
         try
         {
             await _ordenPagoRepository.CreateAsync(orden);
-            return ServiceResult<int>.Ok(orden.IdOrdenPago, "Orden creada correctamente");
+            return ServiceResult<int>.Ok(orden.IdOrdenPago, "Borrador de orden de pago creado.");
         }
         catch (Exception ex)
         {
-            return ServiceResult<int>.Fail($"Error al crear la orden: {ex.Message}");
+            return ServiceResult<int>.Fail($"Error en base de datos: {ex.Message}");
         }
     }
 
@@ -89,14 +134,11 @@ public class OrdenPagoService : IOrdenPagoService
     {
         var orden = await _ordenPagoRepository.GetByIdWithDetallesAsync(idOrden);
         if (orden == null)
-            return ServiceResult.Fail("La orden de pago no existe");
-
+            return ServiceResult.Fail("La orden de pago no existe.");
         if (orden.Enviada)
-            return ServiceResult.Fail("La orden ya fue confirmada anteriormente");
-
-        var proveedor = await _proveedorRepository.GetProveedorById(orden.IdProveedor);
-        if (proveedor == null)
-            return ServiceResult.Fail("Proveedor no encontrado");
+            return ServiceResult.Fail(
+                "Esta orden ya fue confirmada y no puede procesarse nuevamente."
+            );
 
         try
         {
@@ -107,29 +149,15 @@ public class OrdenPagoService : IOrdenPagoService
                 var factura = await _facturaRepository.GetByIdAsync(detalle.IdFactura);
                 if (factura == null)
                     continue;
-
-                // Validar saldo actual (pudo cambiar por NC desde que se creó el borrador)
-                if (!factura.PuedeRecibirPago)
+                if (!factura.PuedeRecibirPago || detalle.MontoAplicado > factura.Saldo)
                 {
                     await _unitOfWork.RollbackAsync();
                     return ServiceResult.Fail(
-                        $"La factura {factura.Numero} ya no tiene saldo pendiente. "
-                            + $"Elimine esta orden y cree una nueva."
-                    );
-                }
-
-                if (detalle.MontoAplicado > factura.Saldo)
-                {
-                    await _unitOfWork.RollbackAsync();
-                    return ServiceResult.Fail(
-                        $"El monto {detalle.MontoAplicado} supera el saldo actual "
-                            + $"({factura.Saldo}) de la factura {factura.Numero}. "
-                            + $"Elimine esta orden y cree una nueva."
+                        $"El saldo de la factura {factura.Numero} cambió. Elimine este borrador y cree uno nuevo."
                     );
                 }
 
                 factura.AplicarPago(detalle.MontoAplicado);
-
                 await _facturaRepository.ActualizarSaldoYEstadoAsync(
                     factura.IdFactura,
                     factura.Saldo,
@@ -138,49 +166,56 @@ public class OrdenPagoService : IOrdenPagoService
                 );
             }
 
-            proveedor.ReducirSaldo(orden.MontoTotal);
-
             orden.Enviada = true;
             orden.FechaPago = DateTime.UtcNow;
-
             await _ordenPagoRepository.UpdateEstadoEnviadaAsync(
                 idOrden,
                 true,
                 orden.FechaPago.Value
             );
-            await _proveedorRepository.ActualizarSaldoActualAsync(
-                proveedor.IdProveedor,
-                proveedor.SaldoActual
-            );
+
+            var proveedor = await _proveedorRepository.GetProveedorById(orden.IdProveedor);
+            if (proveedor != null)
+            {
+                proveedor.SaldoActual -= orden.MontoTotal;
+                await _proveedorRepository.ActualizarSaldoActualAsync(
+                    proveedor.IdProveedor,
+                    proveedor.SaldoActual
+                );
+            }
 
             await _unitOfWork.CommitAsync();
-
-            return ServiceResult.Ok("Orden confirmada correctamente");
+            return ServiceResult.Ok(
+                "Pago confirmado exitosamente. Los saldos han sido actualizados."
+            );
         }
         catch (Exception ex)
         {
             await _unitOfWork.RollbackAsync();
-            return ServiceResult.Fail($"Error al confirmar: {ex.Message}");
+            return ServiceResult.Fail($"Error crítico en confirmación: {ex.Message}");
         }
     }
 
     public async Task<ServiceResult> EliminarOrdenAsync(int idOrden)
     {
         var orden = await _ordenPagoRepository.GetByIdWithDetallesAsync(idOrden);
+
         if (orden == null)
-            return ServiceResult.Fail("La orden no existe");
+            return ServiceResult.Fail("La orden que intenta eliminar no existe.");
 
         if (orden.Enviada)
-            return ServiceResult.Fail("No se puede eliminar una orden ya confirmada");
+            return ServiceResult.Fail(
+                "No es posible eliminar una orden confirmada. Debe proceder a una anulación si el sistema lo permite."
+            );
 
         try
         {
             await _ordenPagoRepository.DeleteAsync(idOrden);
-            return ServiceResult.Ok("Orden eliminada correctamente");
+            return ServiceResult.Ok("El borrador de la orden fue eliminado.");
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail($"Error al eliminar: {ex.Message}");
+            return ServiceResult.Fail($"No se pudo eliminar el borrador: {ex.Message}");
         }
     }
 }
