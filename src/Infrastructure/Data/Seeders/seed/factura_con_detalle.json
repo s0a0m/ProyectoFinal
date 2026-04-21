@@ -1,100 +1,34 @@
 [
   {
-    "//": "FACTURA ESCENARIO A (FV)",
-    "IdFactura": 3,
-    "IdCompra": 4,
+    "//": "ESCENARIO A: FV - Factura de Compra #1",
+    "IdFactura": 1,
+    "IdCompra": 1,
     "IdProveedor": 13,
-    "IdCondicionPagoUsada": 3,
-    "Numero": "FAC-0013-00022100",
-    "FechaEmision": "2025-12-18T16:00:00",
+    "IdCondicionPagoUsada": 13,
+    "Numero": "FAC-00000001",
+    "FechaEmision": "2026-04-12T15:00:00",
     "FechaPago": null,
-    "TotalFacturado": 7400000.0,
-    "Saldo": 7400000.0,
+    "TotalFacturado": 100000.0,
+    "Saldo": 50000.0,
     "Pagada": false,
     "Detalles": [
       {
-        "IdDetalleFactura": 4,
-        "IdFactura": 3,
+        "IdDetalleFactura": 1,
+        "IdFactura": 1,
         "IdProducto": 19,
-        "Cantidad": 50,
-        "PrecioBruto": 6000000.0,
-        "PorcentajeDescuento": 5,
-        "PrecioNeto": 5700000.0
+        "Cantidad": 1,
+        "PrecioBruto": 70000.0,
+        "PorcentajeDescuento": 0,
+        "PrecioNeto": 70000.0
       },
       {
-        "IdDetalleFactura": 5,
-        "IdFactura": 3,
+        "IdDetalleFactura": 2,
+        "IdFactura": 1,
         "IdProducto": 20,
-        "Cantidad": 30,
-        "PrecioBruto": 1560000.0,
+        "Cantidad": 1,
+        "PrecioBruto": 30000.0,
         "PorcentajeDescuento": 0,
-        "PrecioNeto": 1560000.0
-      }
-    ]
-  },
-  {
-    "//": "FACTURA ESCENARIO B (SICA)",
-    "IdFactura": 4,
-    "IdCompra": 5,
-    "IdProveedor": 4,
-    "IdCondicionPagoUsada": 2,
-    "Numero": "FAC-0004-00998877",
-    "FechaEmision": "2025-12-19T10:00:00",
-    "FechaPago": null,
-    "TotalFacturado": 10830000.0,
-    "Saldo": 10830000.0,
-    "Pagada": false,
-    "Detalles": [
-      {
-        "IdDetalleFactura": 6,
-        "IdFactura": 4,
-        "IdProducto": 14,
-        "Cantidad": 200,
-        "PrecioBruto": 9700000.0,
-        "PorcentajeDescuento": 10,
-        "PrecioNeto": 8730000.0
-      },
-      {
-        "IdDetalleFactura": 7,
-        "IdFactura": 4,
-        "IdProducto": 15,
-        "Cantidad": 500,
-        "PrecioBruto": 2100000.0,
-        "PorcentajeDescuento": 0,
-        "PrecioNeto": 2100000.0
-      }
-    ]
-  },
-  {
-    "//": "FACTURA ESCENARIO C (TIGRE)",
-    "IdFactura": 5,
-    "IdCompra": 6,
-    "IdProveedor": 10,
-    "IdCondicionPagoUsada": 4,
-    "Numero": "FAC-0010-00554433",
-    "FechaEmision": "2025-12-22T14:00:00",
-    "FechaPago": null,
-    "TotalFacturado": 6600000.0,
-    "Saldo": 6600000.0,
-    "Pagada": false,
-    "Detalles": [
-      {
-        "IdDetalleFactura": 8,
-        "IdFactura": 5,
-        "IdProducto": 22,
-        "Cantidad": 400,
-        "PrecioBruto": 5680000.0,
-        "PorcentajeDescuento": 0,
-        "PrecioNeto": 5680000.0
-      },
-      {
-        "IdDetalleFactura": 9,
-        "IdFactura": 5,
-        "IdProducto": 23,
-        "Cantidad": 1000,
-        "PrecioBruto": 920000.0,
-        "PorcentajeDescuento": 0,
-        "PrecioNeto": 920000.0
+        "PrecioNeto": 30000.0
       }
     ]
   }

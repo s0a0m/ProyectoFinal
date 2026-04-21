@@ -3,39 +3,60 @@
 
 @{
     ViewData["Title"] = $"Gestionar Compra #{Model.IdCompra}";
-    // Lógica de permisos por estado
     bool puedeEditarProductos = Model.Estado == "PENDIENTE";
     bool puedeEditarObservaciones = Model.Estado == "PENDIENTE" || Model.Estado == "ENVIADA";
     bool mostrarBotonGuardar = puedeEditarProductos || puedeEditarObservaciones;
 }
 
 <div class="container py-4">
-    @* Encabezado *@
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="mb-1 fw-bold text-dark"><i class="bi bi-pencil-square me-2"></i>Orden #@Model.IdCompra</h2>
-            <span class="badge px-3 py-2 fs-6 @(Model.Estado == "PENDIENTE" ? "bg-warning text-dark border border-warning" : "bg-primary-subtle text-primary border border-primary")">
-                <i class="bi bi-info-circle me-1"></i>Estado: @Model.Estado
+    @* Navegación y Encabezado *@
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-2">
+            <li class="breadcrumb-item"><a asp-action="Index">Órdenes de Compra</a></li>
+            <li class="breadcrumb-item active">Gestionar #@Model.IdCompra</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+       
+<div>
+    <h2 class="mb-1 fw-bold text-dark"><i class="bi bi-pencil-square text-primary me-2"></i>Orden #@Model.IdCompra</h2>
+    <div class="d-flex align-items-center gap-2">
+        @if (Model.Estado == "PENDIENTE")
+        {
+            <span class="badge bg-warning text-dark px-3 py-2 fs-6 shadow-sm">
+                <i class="bi bi-clock-history me-1"></i> @Model.Estado
             </span>
-        </div>
-        <div class="d-flex gap-2">
-            <a asp-action="Index" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i>Volver al Listado
+        }
+        else
+        {
+            <span class="badge bg-primary text-white px-3 py-2 fs-6 shadow-sm">
+                <i class="bi bi-send-check me-1"></i> @Model.Estado
+            </span>
+        }
+        <span class="text-muted small ms-2">| Creada el @Model.Fecha.ToString("dd/MM/yyyy HH:mm")</span>
+    </div>
+</div>
+       <div class="d-flex gap-2">
+            <a asp-action="Index" class="btn btn-outline-secondary shadow-sm">
+                <i class="bi bi-arrow-left me-1"></i> Volver
             </a>
             @if (Model.Estado == "ENVIADA")
             {
                 <a asp-controller="Factura" asp-action="CrearDesdeCompra" asp-route-id="@Model.IdCompra" class="btn btn-success shadow-sm">
-                    <i class="bi bi-receipt-cutoff me-1"></i>Cargar Factura
+                    <i class="bi bi-receipt-cutoff me-1"></i> Vincular Factura
                 </a>
             }
         </div>
     </div>
 
-    @* Mensajes de Error/Éxito *@
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Error"]
+        <div class="alert alert-danger border-0 shadow-sm mb-4 alert-dismissible fade show">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-octagon-fill fs-4 me-3"></i>
+                <div>@TempData["Error"]</div>
+            </div>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
@@ -45,119 +66,123 @@
         <input type="hidden" asp-for="IdCompra" />
         <input type="hidden" asp-for="IdProveedor" />
 
-        @* Card de Información General *@
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body bg-light rounded shadow-sm">
-                <div class="row text-center text-md-start">
-                    <div class="col-md-4 border-end">
-                        <label class="small text-muted fw-bold">PROVEEDOR</label>
-                        <div class="fs-5 text-primary fw-bold">@Model.ProveedorRazonSocial</div>
-                    </div>
-                    <div class="col-md-4 border-end ps-md-4">
-                        <label class="small text-muted fw-bold">FECHA EMISIÓN</label>
-                        <div class="fs-5">@Model.Fecha.ToString("dd/MM/yyyy HH:mm")</div>
-                    </div>
-                    <div class="col-md-4 ps-md-4">
-                        <label class="small text-muted fw-bold">OPERADOR</label>
-                        <div class="fs-5">@Model.UsuarioNombreCompleto</div>
-                    </div>
-                </div>
-                <hr class="my-3">
-                <div class="form-group">
-                    <label asp-for="Observaciones" class="small text-muted fw-bold mb-1">OBSERVACIONES</label>
-                    @if (puedeEditarObservaciones)
-                    {
-                        <textarea asp-for="Observaciones" class="form-control border-0 shadow-sm" rows="2" placeholder="Notas internas o logísticas..."></textarea>
-                        <span asp-validation-for="Observaciones" class="text-danger small"></span>
-                    }
-                    else
-                    {
-                        <div class="p-3 bg-white rounded border shadow-sm text-muted italic">
-                            @(string.IsNullOrEmpty(Model.Observaciones) ? "Sin notas adicionales." : Model.Observaciones)
+        <div class="row g-4">
+            @* Panel Lateral: Información *@
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h6 class="text-uppercase text-muted fw-bold small mb-3">Información del Proveedor</h6>
+                        <div class="p-3 bg-light rounded-3 border mb-3">
+                            <div class="fw-bold text-primary fs-5">@Model.ProveedorRazonSocial</div>
                         </div>
-                        <input type="hidden" asp-for="Observaciones" />
-                    }
-                </div>
-            </div>
-        </div>
 
-        @* Card de Detalles *@
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-white py-3">
-                <h6 class="m-0 fw-bold text-secondary">Productos en la Orden</h6>
-            </div>
-            <div class="table-responsive">
-                <table class="table align-middle mb-0">
-                    <thead class="table-light small text-uppercase">
-                        <tr>
-                            <th class="ps-4">Producto</th>
-                            <th class="text-center" style="width: 150px;">Cantidad</th>
-                            <th class="text-end" style="width: 180px;">Precio Pactado</th>
-                            <th class="text-end pe-4" style="width: 180px;">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for (int i = 0; i < Model.Detalles.Count; i++)
+                        <h6 class="text-uppercase text-muted fw-bold small mb-2">Operador Responsable</h6>
+                        <p class="text-dark mb-4"><i class="bi bi-person-badge me-2"></i>@Model.UsuarioNombreCompleto</p>
+
+                        <h6 class="text-uppercase text-muted fw-bold small mb-2">Observaciones</h6>
+                        @if (puedeEditarObservaciones)
                         {
-                            <tr>
-                                <td class="ps-4">
-                                    <input type="hidden" asp-for="Detalles[i].IdDetalleCompra" />
-                                    <input type="hidden" asp-for="Detalles[i].IdProducto" />
-                                    <input type="hidden" asp-for="Detalles[i].ProductoNombre" />
-                                    <div class="fw-bold">@Model.Detalles[i].ProductoNombre</div>
-                                </td>
-                                <td class="text-center">
-                                    @if (puedeEditarProductos)
-                                    {
-                                        <input asp-for="Detalles[i].Cantidad" type="number" min="1" class="form-control form-control-sm text-center input-cantidad" onchange="calcularTotales()" />
-                                    }
-                                    else
-                                    {
-                                        <span class="fw-bold">@Model.Detalles[i].Cantidad</span>
-                                        <input type="hidden" asp-for="Detalles[i].Cantidad" />
-                                    }
-                                </td>
-                                <td class="text-end">
-                                    @if (puedeEditarProductos)
-                                    {
-                                        <div class="input-group input-group-sm justify-content-end">
-                                            <span class="input-group-text">$</span>
-                                            <input asp-for="Detalles[i].PrecioPactado" type="number" step="0.01" class="form-control text-end input-precio" style="max-width: 120px;" onchange="calcularTotales()" />
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">$@Model.Detalles[i].PrecioPactado.ToString("N2")</span>
-                                        <input type="hidden" asp-for="Detalles[i].PrecioPactado" />
-                                    }
-                                </td>
-                                <td class="text-end pe-4 fw-bold">
-                                    <span class="celda-subtotal text-dark">$@Model.Detalles[i].Subtotal.ToString("N2")</span>
-                                </td>
-                            </tr>
+                            <textarea asp-for="Observaciones" class="form-control bg-light border-0" rows="4" 
+                                      placeholder="Añada notas internas, instrucciones de entrega o aclaraciones..."></textarea>
+                            <span asp-validation-for="Observaciones" class="text-danger small"></span>
                         }
-                    </tbody>
-                    <tfoot class="table-light fw-bold border-top">
-                        <tr>
-                            <td colspan="3" class="text-end py-3 text-muted small">TOTAL DE LA ORDEN</td>
-                            <td class="text-end pe-4 py-3 fs-5 text-success" id="celdaTotal">$@Model.TotalEstimado.ToString("N2")</td>
-                        </tr>
-                    </tfoot>
-                </table>
+                        else
+                        {
+                            <div class="p-3 bg-light rounded border text-muted small">
+                                @(string.IsNullOrEmpty(Model.Observaciones) ? "Sin observaciones registradas." : Model.Observaciones)
+                            </div>
+                            <input type="hidden" asp-for="Observaciones" />
+                        }
+                    </div>
+                </div>
             </div>
 
-            @if (mostrarBotonGuardar)
-            {
-                <div class="card-footer bg-white border-top-0 py-4 text-end">
-                    @if (puedeEditarProductos)
+            @* Panel Principal: Productos *@
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="m-0 fw-bold text-dark">Detalle de Productos</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="bg-light small text-muted text-uppercase">
+                                <tr>
+                                    <th class="ps-4">Producto</th>
+                                    <th class="text-center" style="width: 130px;">Cantidad</th>
+                                    <th class="text-end" style="width: 160px;">Precio Pactado</th>
+                                    <th class="text-end pe-4" style="width: 160px;">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.Detalles.Count; i++)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            <input type="hidden" asp-for="Detalles[i].IdDetalleCompra" />
+                                            <input type="hidden" asp-for="Detalles[i].IdProducto" />
+                                            <input type="hidden" asp-for="Detalles[i].ProductoNombre" />
+                                            <div class="fw-bold text-dark">@Model.Detalles[i].ProductoNombre</div>
+                                            <div class="text-muted extra-small">SKU: PROD-@Model.Detalles[i].IdProducto</div>
+                                        </td>
+                                        <td class="text-center">
+                                            @if (puedeEditarProductos)
+                                            {
+                                                <input asp-for="Detalles[i].Cantidad" type="number" min="1" 
+                                                       class="form-control form-control-sm text-center input-cantidad border-primary-subtle" 
+                                                       oninput="calcularTotales()" />
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary-subtle text-secondary-emphasis fs-6">@Model.Detalles[i].Cantidad</span>
+                                                <input type="hidden" asp-for="Detalles[i].Cantidad" />
+                                            }
+                                        </td>
+                                        <td class="text-end">
+                                            @if (puedeEditarProductos)
+                                            {
+                                                <div class="input-group input-group-sm">
+                                                    <span class="input-group-text bg-white border-primary-subtle">$</span>
+                                                    <input asp-for="Detalles[i].PrecioPactado" type="number" step="0.01" 
+                                                           class="form-control text-end input-precio border-primary-subtle" 
+                                                           oninput="calcularTotales()" />
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-dark fw-medium">$@Model.Detalles[i].PrecioPactado.ToString("N2")</span>
+                                                <input type="hidden" asp-for="Detalles[i].PrecioPactado" />
+                                            }
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <span class="celda-subtotal fw-bold text-dark">$@Model.Detalles[i].Subtotal.ToString("N2")</span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot class="bg-light-subtle">
+                                <tr>
+                                    <td colspan="3" class="text-end py-3 text-muted text-uppercase small fw-bold">Total Estimado</td>
+                                    <td class="text-end pe-4 py-3 fs-5 fw-bold text-success" id="celdaTotal">
+                                        $@Model.TotalEstimado.ToString("N2")
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    @if (mostrarBotonGuardar)
                     {
-                        <small class="text-muted d-block mb-3">Límite máximo permitido: $999.999.999,90</small>
+                        <div class="card-footer bg-white border-top-0 py-4 d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">
+                                <i class="bi bi-info-circle me-1"></i> Solo puede modificar productos en estado <strong>PENDIENTE</strong>.
+                            </span>
+                            <button type="submit" class="btn btn-primary px-5 shadow" id="btnGuardar">
+                                <i class="bi bi-save me-2"></i> Guardar Cambios
+                            </button>
+                        </div>
                     }
-                    <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm">
-                        <i class="bi bi-save me-2"></i>Guardar Cambios
-                    </button>
                 </div>
-            }
+            </div>
         </div>
     </form>
 </div>
@@ -165,23 +190,47 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+        // Formateador de moneda para AR
+        const formatter = new Intl.NumberFormat('es-AR', {
+            style: 'currency',
+            currency: 'ARS',
+            minimumFractionDigits: 2
+        });
+
         function calcularTotales() {
             let total = 0;
             document.querySelectorAll('tbody tr').forEach(row => {
                 const cantInput = row.querySelector('.input-cantidad');
                 const precioInput = row.querySelector('.input-precio');
                 
-                // Si no hay inputs (caso ENVIADA), leemos el texto o los hidden
-                const cant = cantInput ? parseInt(cantInput.value) : parseInt(row.querySelector('input[name*="Cantidad"]').value);
+                // Obtenemos valores de inputs o de hidden
+                const cant = cantInput ? parseFloat(cantInput.value) : parseFloat(row.querySelector('input[name*="Cantidad"]').value);
                 const precio = precioInput ? parseFloat(precioInput.value) : parseFloat(row.querySelector('input[name*="PrecioPactado"]').value);
                 
                 if (!isNaN(cant) && !isNaN(precio)) {
                     const subtotal = cant * precio;
                     total += subtotal;
-                    row.querySelector('.celda-subtotal').innerText = '$' + subtotal.toLocaleString('es-AR', {minimumFractionDigits:2});
+                    row.querySelector('.celda-subtotal').innerText = formatter.format(subtotal);
                 }
             });
-            document.getElementById('celdaTotal').innerText = '$' + total.toLocaleString('es-AR', {minimumFractionDigits:2});
+            document.getElementById('celdaTotal').innerText = formatter.format(total);
         }
+
+        // Efecto visual al guardar
+        document.getElementById('formGestionar')?.addEventListener('submit', function() {
+            const btn = document.getElementById('btnGuardar');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Procesando...';
+            }
+        });
     </script>
+
+    <style>
+        .extra-small { font-size: 0.75rem; }
+        .breadcrumb-item a { text-decoration: none; color: #6c757d; }
+        .breadcrumb-item a:hover { color: #0d6efd; }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { opacity: 1; }
+    </style>
 }

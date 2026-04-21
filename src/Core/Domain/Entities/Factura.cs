@@ -18,7 +18,7 @@ public class Factura
 
     // Validaciones
     public bool PuedeEmitirNC => Saldo > 0 && !Pagada;
-    public bool PuedeEmitirND => true;
+    public bool PuedeEmitirND => !Pagada;
     public bool PuedeRecibirPago => Saldo > 0 && !Pagada;
     public bool PuedeEditarse => TotalFacturado == Saldo;
 

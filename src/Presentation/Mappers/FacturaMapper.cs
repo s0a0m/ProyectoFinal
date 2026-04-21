@@ -211,6 +211,8 @@ public static class FacturaMapper
         {
             IdFactura = data.Factura.IdFactura,
             NumeroFactura = data.Factura.Numero,
+            SaldoFactura = data.Factura.Saldo,
+            IdProveedor = (short)data.Factura.Proveedor.IdProveedor,
             Proveedor = data.Factura.Proveedor?.RazonSocial ?? "Desconocido",
             Comprobantes = data
                 .Comprobantes.Select(c => new ResumenComprobanteViewModel

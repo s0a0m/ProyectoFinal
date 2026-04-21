@@ -85,10 +85,11 @@
                                            class="btn btn-warning btn-sm text-white ms-1">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
-                                        <button type="button" class="btn btn-outline-primary btn-sm ms-1"
-                                                onclick="abrirModalCarrito('@item.IdProducto', '@item.IdProveedor', '@item.NombreProducto')">
-                                            <i class="bi bi-cart-plus"></i>
-                                        </button>
+                                      <button type="button" 
+        class="btn btn-sm btn-primary" 
+        onclick="abrirModalCarrito('@item.IdProducto', '@item.IdProveedor', '@item.NombreProducto.Replace("'", "\\'").Replace("\"", "&quot;")')">
+    <i class="bi bi-cart-plus"></i>
+</button>
                                     }
                                 </div>
                             </td>

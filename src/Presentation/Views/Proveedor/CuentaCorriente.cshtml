@@ -90,15 +90,34 @@
                                         <div class="col-md-2 text-center">
                                             <span class="badge @estadoClass rounded-pill">@factura.Estado</span>
                                         </div>
-                                        <div class="col-md-3 text-end">
-                                            <div class="btn-group btn-group-sm">
-                                                @if (!factura.Pagada) {
-                                                    <button type="button" class="btn btn-outline-info" onclick="abrirModalNota(@factura.IdFactura, 'NC', '@factura.NumeroFactura', @factura.Saldo.ToString(System.Globalization.CultureInfo.InvariantCulture))">NC</button>
-                                                }
-                                                <button type="button" class="btn btn-outline-warning" onclick="abrirModalNota(@factura.IdFactura, 'ND', '@factura.NumeroFactura', @factura.Saldo.ToString(System.Globalization.CultureInfo.InvariantCulture))">ND</button>
-                                                <a asp-controller="Factura" asp-action="Details" asp-route-id="@factura.IdFactura" class="btn btn-outline-secondary"><i class="bi bi-eye"></i></a>
-                                            </div>
-                                        </div>
+<div class="col-md-3 text-end">
+    <div class="btn-group btn-group-sm">
+        @* Solo mostramos los botones de gestión si la factura NO está pagada *@
+        @if (!factura.Pagada) 
+        {
+            @* Este botón ahora te lleva a la página de gestión del proveedor *@
+            <a asp-controller="Comprobantes" 
+               asp-action="gestion" 
+               asp-route-id="@Model.IdProveedor" 
+               class="btn btn-outline-info" 
+               title="Gestionar Notas (NC/ND)">
+                <i class="bi bi-file-earmark-plus"></i> Notas
+            </a>
+        }
+        else 
+        {
+            @* Badge discreto para facturas cerradas *@
+            <span class="badge bg-light text-muted border py-2 px-2 me-1" title="Factura Pagada">
+                <i class="bi bi-lock-fill"></i>
+            </span>
+        }
+
+        @* El botón de ver detalles de la factura se mantiene *@
+        <a asp-controller="Factura" asp-action="Details" asp-route-id="@factura.IdFactura" class="btn btn-outline-secondary">
+            <i class="bi bi-eye"></i>
+        </a>
+    </div>
+</div>
                                     </div>
                                 </div>
                             </div>
@@ -178,24 +197,39 @@
         const motivosNC = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MotivosNC));
         const motivosND = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MotivosND));
 
-        function abrirModalNota(id, tipo, num, saldo) {
-            document.getElementById('notaIdFactura').value = id;
-            document.getElementById('notaTipo').value = tipo;
-            document.getElementById('modalNotaFacturaRef').innerText = num;
-            const select = document.getElementById('notaMotivo');
-            select.innerHTML = '<option value="">Seleccione...</option>';
-            
-            if (tipo === 'NC') {
-                document.getElementById('modalNotaTitulo').innerText = 'Emitir Nota de Crédito';
-                document.getElementById('modalNotaSaldo').innerText = '$' + saldo.toFixed(2);
-                motivosNC.forEach(m => select.innerHTML += `<option value="${m.IdMotivo}">${m.Descripcion}</option>`);
-            } else {
-                document.getElementById('modalNotaTitulo').innerText = 'Emitir Nota de Débito';
-                document.getElementById('modalNotaSaldoWrap').classList.add('d-none');
-                motivosND.forEach(m => select.innerHTML += `<option value="${m.IdMotivo}">${m.Descripcion}</option>`);
-            }
-            new bootstrap.Modal(document.getElementById('modalCrearNota')).show();
+       function abrirModalNota(id, tipo, num, saldo) {
+    document.getElementById('notaIdFactura').value = id;
+    document.getElementById('notaTipo').value = tipo;
+    document.getElementById('modalNotaFacturaRef').innerText = num;
+    document.getElementById('notaTotal').value = ""; // Limpiar valor previo
+    
+    const select = document.getElementById('notaMotivo');
+    select.innerHTML = '<option value="">Seleccione...</option>';
+    
+    // Resetear alertas y botones
+    document.getElementById('notaAlerta').classList.add('d-none');
+    document.getElementById('btnEmitirNota').disabled = false;
+
+    if (tipo === 'NC') {
+        document.getElementById('modalNotaTitulo').innerText = 'Emitir Nota de Crédito';
+        document.getElementById('modalNotaSaldoWrap').classList.remove('d-none');
+        document.getElementById('modalNotaSaldo').innerText = '$' + saldo.toFixed(2);
+        motivosNC.forEach(m => select.innerHTML += `<option value="${m.IdMotivo}">${m.Descripcion}</option>`);
+    } else {
+        document.getElementById('modalNotaTitulo').innerText = 'Emitir Nota de Débito';
+        document.getElementById('modalNotaSaldoWrap').classList.add('d-none');
+        motivosND.forEach(m => select.innerHTML += `<option value="${m.IdMotivo}">${m.Descripcion}</option>`);
+        
+        // Bloqueo de seguridad extra en JS
+        if (saldo <= 0) {
+            document.getElementById('notaAlerta').innerText = "No se puede emitir ND sobre una factura pagada.";
+            document.getElementById('notaAlerta').className = "alert alert-danger";
+            document.getElementById('notaAlerta').classList.remove('d-none');
+            document.getElementById('btnEmitirNota').disabled = true;
         }
+    }
+    new bootstrap.Modal(document.getElementById('modalCrearNota')).show();
+}
 
         function emitirNota() {
             const payload = {

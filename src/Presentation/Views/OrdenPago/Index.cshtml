@@ -114,28 +114,41 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+            // 1. Inicialización de la tabla
             var table = $('#tablaOrdenes').DataTable({
                 "language": { "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json" },
                 "order": [[0, "desc"]],
                 "dom": "rtp"
             });
 
-            // Filtros corregidos (buscan en la columna 4 que es el Estado)
+            // 2. Filtros (Estado)
             $('.filter-btn').on('click', function() {
                 $('.filter-btn').removeClass('active btn-secondary').addClass('btn-outline-secondary');
                 $(this).removeClass('btn-outline-secondary').addClass('active btn-secondary');
                 table.column(4).search($(this).data('filter')).draw();
             });
 
-            // AJAX para el modal corregido
-            $('.btn-detalle').on('click', function() {
+            // 3. AJAX para el modal (CORREGIDO CON DELEGACIÓN)
+            // Escuchamos el click en el body o en la tabla, pero filtramos por la clase .btn-detalle
+            $('#tablaOrdenes').on('click', '.btn-detalle', function() {
                 var id = $(this).data('id');
-                $('#contenidoModalOrden').html('<div class="p-5 text-center"><div class="spinner-border text-primary"></div></div>');
-                var myModal = new bootstrap.Modal(document.getElementById('modalDetalleOrden'));
+                
+                // Limpiar contenido previo y poner spinner
+                $('#contenidoModalOrden').html('<div class="p-5 text-center"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">Cargando...</p></div>');
+                
+                // Mostrar el modal
+                var modalElement = document.getElementById('modalDetalleOrden');
+                var myModal = new bootstrap.Modal(modalElement);
                 myModal.show();
-                $.get('@Url.Action("ObtenerDetalleModal", "OrdenPago")/' + id, function(data) {
-                    $('#contenidoModalOrden').html(data);
-                });
+
+                // Petición AJAX
+                $.get('@Url.Action("ObtenerDetalleModal", "OrdenesPago")/' + id)
+                    .done(function(data) {
+                        $('#contenidoModalOrden').html(data);
+                    })
+                    .fail(function() {
+                        $('#contenidoModalOrden').html('<div class="alert alert-danger m-3">No se pudo cargar el detalle de la orden.</div>');
+                    });
             });
         });
     </script>
