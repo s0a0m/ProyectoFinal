@@ -1,0 +1,61 @@
+{
+  "Contados": [
+    { "IdCondicionPago": 1, "DiasPago": 0 },
+    { "IdCondicionPago": 2, "DiasPago": 7 },
+    { "IdCondicionPago": 3, "DiasPago": 10 },
+    { "IdCondicionPago": 4, "DiasPago": 15 },
+    { "IdCondicionPago": 5, "DiasPago": 20 },
+    { "IdCondicionPago": 6, "DiasPago": 21 },
+    { "IdCondicionPago": 7, "DiasPago": 25 },
+    { "IdCondicionPago": 8, "DiasPago": 28 },
+    { "IdCondicionPago": 9, "DiasPago": 30 },
+    { "IdCondicionPago": 10, "DiasPago": 30 },
+    { "IdCondicionPago": 11, "DiasPago": 35 },
+    { "IdCondicionPago": 12, "DiasPago": 40 },
+    { "IdCondicionPago": 13, "DiasPago": 42 },
+    { "IdCondicionPago": 14, "DiasPago": 45 },
+    { "IdCondicionPago": 15, "DiasPago": 45 },
+    { "IdCondicionPago": 16, "DiasPago": 50 },
+    { "IdCondicionPago": 17, "DiasPago": 55 },
+    { "IdCondicionPago": 18, "DiasPago": 60 },
+    { "IdCondicionPago": 19, "DiasPago": 60 },
+    { "IdCondicionPago": 20, "DiasPago": 75 },
+    { "IdCondicionPago": 21, "DiasPago": 90 },
+    { "IdCondicionPago": 22, "DiasPago": 90 },
+    { "IdCondicionPago": 23, "DiasPago": 120 },
+    { "IdCondicionPago": 24, "DiasPago": 0 },
+    { "IdCondicionPago": 25, "DiasPago": 0 }
+  ],
+  "Cuotas": [
+    {
+      "IdCondicionPago": 26,
+      "DiasPago": 30,
+      "Cuotas": 3,
+      "InteresPorcentual": 0
+    },
+    {
+      "IdCondicionPago": 27,
+      "DiasPago": 30,
+      "Cuotas": 6,
+      "InteresPorcentual": 15.5
+    },
+    {
+      "IdCondicionPago": 28,
+      "DiasPago": 30,
+      "Cuotas": 12,
+      "InteresPorcentual": 45.0
+    },
+    {
+      "IdCondicionPago": 29,
+      "DiasPago": 15,
+      "Cuotas": 4,
+      "InteresPorcentual": 5.0
+    },
+    {
+      "IdCondicionPago": 30,
+      "DiasPago": 30,
+      "Cuotas": 2,
+      "InteresPorcentual": 10.0
+    }
+  ]
+}

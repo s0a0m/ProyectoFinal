@@ -1,0 +1,389 @@
+[
+  {
+    "IdMovimientoStock": 1,
+    "IdProducto": 1,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 1,
+    "Cantidad": 50.00,
+    "FechaMovimiento": "2024-01-10T08:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 2,
+    "IdProducto": 2,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 1,
+    "Cantidad": 70.00,
+    "FechaMovimiento": "2024-01-10T08:30:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 3,
+    "IdProducto": 3,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 1,
+    "Cantidad": 60.00,
+    "FechaMovimiento": "2024-01-10T09:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 4,
+    "IdProducto": 16,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 4,
+    "Cantidad": 20.00,
+    "FechaMovimiento": "2024-01-15T10:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 5,
+    "IdProducto": 23,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 7,
+    "Cantidad": 250.00,
+    "FechaMovimiento": "2024-01-15T10:30:00",
+    "IdUsuario": 2
+  },
+  {
+    "IdMovimientoStock": 6,
+    "IdProducto": 31,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 9,
+    "Cantidad": 70.00,
+    "FechaMovimiento": "2024-01-20T09:00:00",
+    "IdUsuario": 2
+  },
+  {
+    "IdMovimientoStock": 7,
+    "IdProducto": 38,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 13,
+    "Cantidad": 150.00,
+    "FechaMovimiento": "2024-02-01T08:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 8,
+    "IdProducto": 44,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 16,
+    "Cantidad": 100.00,
+    "FechaMovimiento": "2024-02-01T08:30:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 9,
+    "IdProducto": 49,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 18,
+    "Cantidad": 300.00,
+    "FechaMovimiento": "2024-02-05T09:00:00",
+    "IdUsuario": 2
+  },
+  {
+    "IdMovimientoStock": 10,
+    "IdProducto": 1,
+    "IdFilaOrigen": 1,
+    "IdFilaDestino": null,
+    "Cantidad": 10.00,
+    "FechaMovimiento": "2024-02-10T11:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 11,
+    "IdProducto": 2,
+    "IdFilaOrigen": 1,
+    "IdFilaDestino": null,
+    "Cantidad": 10.00,
+    "FechaMovimiento": "2024-02-10T11:15:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 12,
+    "IdProducto": 16,
+    "IdFilaOrigen": 4,
+    "IdFilaDestino": 5,
+    "Cantidad": 5.00,
+    "FechaMovimiento": "2024-02-15T10:00:00",
+    "IdUsuario": 2
+  },
+  {
+    "IdMovimientoStock": 13,
+    "IdProducto": 31,
+    "IdFilaOrigen": 9,
+    "IdFilaDestino": 10,
+    "Cantidad": 20.00,
+    "FechaMovimiento": "2024-02-20T09:30:00",
+    "IdUsuario": 2
+  },
+  {
+    "IdMovimientoStock": 14,
+    "IdProducto": 7,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 2,
+    "Cantidad": 90.00,
+    "FechaMovimiento": "2024-03-01T08:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 15,
+    "IdProducto": 7,
+    "IdFilaOrigen": 2,
+    "IdFilaDestino": null,
+    "Cantidad": 10.00,
+    "FechaMovimiento": "2024-03-05T14:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 16,
+    "IdProducto": 24,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 7,
+    "Cantidad": 200.00,
+    "FechaMovimiento": "2024-03-10T08:00:00",
+    "IdUsuario": 2
+  },
+  {
+    "IdMovimientoStock": 17,
+    "IdProducto": 24,
+    "IdFilaOrigen": 7,
+    "IdFilaDestino": null,
+    "Cantidad": 50.00,
+    "FechaMovimiento": "2024-03-15T11:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 18,
+    "IdProducto": 40,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 13,
+    "Cantidad": 200.00,
+    "FechaMovimiento": "2024-03-20T08:30:00",
+    "IdUsuario": 2
+  },
+  {
+    "IdMovimientoStock": 19,
+    "IdProducto": 40,
+    "IdFilaOrigen": 13,
+    "IdFilaDestino": null,
+    "Cantidad": 50.00,
+    "FechaMovimiento": "2024-03-25T15:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 20,
+    "IdProducto": 45,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 16,
+    "Cantidad": 250.00,
+    "FechaMovimiento": "2024-04-01T08:00:00",
+    "IdUsuario": 2
+  },
+  {
+    "IdMovimientoStock": 21,
+    "IdProducto": 45,
+    "IdFilaOrigen": 16,
+    "IdFilaDestino": null,
+    "Cantidad": 50.00,
+    "FechaMovimiento": "2024-04-05T12:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 22,
+    "IdProducto": 9,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 3,
+    "Cantidad": 55.00,
+    "FechaMovimiento": "2024-04-10T08:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 23,
+    "IdProducto": 9,
+    "IdFilaOrigen": 3,
+    "IdFilaDestino": null,
+    "Cantidad": 10.00,
+    "FechaMovimiento": "2024-04-12T10:00:00",
+    "IdUsuario": 2
+  },
+  {
+    "IdMovimientoStock": 24,
+    "IdProducto": 17,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 5,
+    "Cantidad": 15.00,
+    "FechaMovimiento": "2024-04-15T09:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 25,
+    "IdProducto": 17,
+    "IdFilaOrigen": 5,
+    "IdFilaDestino": null,
+    "Cantidad": 3.00,
+    "FechaMovimiento": "2024-04-20T13:00:00",
+    "IdUsuario": 2
+  },
+  {
+    "IdMovimientoStock": 26,
+    "IdProducto": 34,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 10,
+    "Cantidad": 110.00,
+    "FechaMovimiento": "2024-05-01T08:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 27,
+    "IdProducto": 34,
+    "IdFilaOrigen": 10,
+    "IdFilaDestino": null,
+    "Cantidad": 20.00,
+    "FechaMovimiento": "2024-05-10T11:30:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 28,
+    "IdProducto": 41,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 14,
+    "Cantidad": 120.00,
+    "FechaMovimiento": "2024-05-15T08:00:00",
+    "IdUsuario": 2
+  },
+  {
+    "IdMovimientoStock": 29,
+    "IdProducto": 41,
+    "IdFilaOrigen": 14,
+    "IdFilaDestino": null,
+    "Cantidad": 20.00,
+    "FechaMovimiento": "2024-05-20T14:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 30,
+    "IdProducto": 47,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 17,
+    "Cantidad": 65.00,
+    "FechaMovimiento": "2024-06-01T09:00:00",
+    "IdUsuario": 2
+  },
+  {
+    "IdMovimientoStock": 31,
+    "IdProducto": 47,
+    "IdFilaOrigen": 17,
+    "IdFilaDestino": null,
+    "Cantidad": 15.00,
+    "FechaMovimiento": "2024-06-10T10:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 32,
+    "IdProducto": 27,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 8,
+    "Cantidad": 220.00,
+    "FechaMovimiento": "2024-06-15T08:00:00",
+    "IdUsuario": 2
+  },
+  {
+    "IdMovimientoStock": 33,
+    "IdProducto": 27,
+    "IdFilaOrigen": 8,
+    "IdFilaDestino": null,
+    "Cantidad": 40.00,
+    "FechaMovimiento": "2024-06-20T12:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 34,
+    "IdProducto": 15,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 4,
+    "Cantidad": 50.00,
+    "FechaMovimiento": "2024-07-01T08:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 35,
+    "IdProducto": 15,
+    "IdFilaOrigen": 4,
+    "IdFilaDestino": null,
+    "Cantidad": 10.00,
+    "FechaMovimiento": "2024-07-10T11:00:00",
+    "IdUsuario": 2
+  },
+  {
+    "IdMovimientoStock": 36,
+    "IdProducto": 43,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 15,
+    "Cantidad": 50.00,
+    "FechaMovimiento": "2024-07-15T09:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 37,
+    "IdProducto": 43,
+    "IdFilaOrigen": 15,
+    "IdFilaDestino": null,
+    "Cantidad": 10.00,
+    "FechaMovimiento": "2024-07-20T13:30:00",
+    "IdUsuario": 2
+  },
+  {
+    "IdMovimientoStock": 38,
+    "IdProducto": 50,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 18,
+    "Cantidad": 60.00,
+    "FechaMovimiento": "2024-08-01T08:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 39,
+    "IdProducto": 50,
+    "IdFilaOrigen": 18,
+    "IdFilaDestino": null,
+    "Cantidad": 15.00,
+    "FechaMovimiento": "2024-08-10T11:00:00",
+    "IdUsuario": 2
+  },
+  {
+    "IdMovimientoStock": 40,
+    "IdProducto": 39,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 13,
+    "Cantidad": 40.00,
+    "FechaMovimiento": "2024-08-15T08:30:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 41,
+    "IdProducto": 39,
+    "IdFilaOrigen": 13,
+    "IdFilaDestino": null,
+    "Cantidad": 10.00,
+    "FechaMovimiento": "2024-08-20T14:00:00",
+    "IdUsuario": 2
+  },
+  {
+    "IdMovimientoStock": 42,
+    "IdProducto": 46,
+    "IdFilaOrigen": null,
+    "IdFilaDestino": 17,
+    "Cantidad": 220.00,
+    "FechaMovimiento": "2024-09-01T09:00:00",
+    "IdUsuario": 1
+  },
+  {
+    "IdMovimientoStock": 43,
+    "IdProducto": 46,
+    "IdFilaOrigen": 17,
+    "IdFilaDestino": null,
+    "Cantidad": 40.00,
+    "FechaMovimiento": "2024-09-10T11:00:00",
+    "IdUsuario": 2
+  }
+]

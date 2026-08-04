@@ -1,0 +1,50 @@
+[
+  {
+    "IdEstante": 1,
+    "NumeroEstante": "A",
+    "IdDeposito": 1,
+    "Activo": true,
+    "TieneEspacio": true,
+    "Observaciones": "Herramientas manuales"
+  },
+  {
+    "IdEstante": 2,
+    "NumeroEstante": "B",
+    "IdDeposito": 1,
+    "Activo": true,
+    "TieneEspacio": true,
+    "Observaciones": "Herramientas eléctricas y fijaciones"
+  },
+  {
+    "IdEstante": 3,
+    "NumeroEstante": "C",
+    "IdDeposito": 1,
+    "Activo": true,
+    "TieneEspacio": false,
+    "Observaciones": "Pinturas y adhesivos"
+  },
+  {
+    "IdEstante": 4,
+    "NumeroEstante": "A",
+    "IdDeposito": 2,
+    "Activo": true,
+    "TieneEspacio": true,
+    "Observaciones": "Pinturas excedente"
+  },
+  {
+    "IdEstante": 5,
+    "NumeroEstante": "B",
+    "IdDeposito": 2,
+    "Activo": true,
+    "TieneEspacio": true,
+    "Observaciones": "Electricidad"
+  },
+  {
+    "IdEstante": 6,
+    "NumeroEstante": "C",
+    "IdDeposito": 2,
+    "Activo": true,
+    "TieneEspacio": true,
+    "Observaciones": "Plomería"
+  }
+]

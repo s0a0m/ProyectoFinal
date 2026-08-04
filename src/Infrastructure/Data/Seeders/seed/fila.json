@@ -1,0 +1,146 @@
+[
+  {
+    "IdFila": 1,
+    "NFila": "A-1",
+    "IdEstante": 1,
+    "Activo": true,
+    "TieneEspacio": true,
+    "Observaciones": null
+  },
+  {
+    "IdFila": 2,
+    "NFila": "A-2",
+    "IdEstante": 1,
+    "Activo": true,
+    "TieneEspacio": true,
+    "Observaciones": null
+  },
+  {
+    "IdFila": 3,
+    "NFila": "A-3",
+    "IdEstante": 1,
+    "Activo": true,
+    "TieneEspacio": false,
+    "Observaciones": "Fila completa"
+  },
+  {
+    "IdFila": 4,
+    "NFila": "B-1",
+    "IdEstante": 2,
+    "Activo": true,
+    "TieneEspacio": true,
+    "Observaciones": null
+  },
+  {
+    "IdFila": 5,
+    "NFila": "B-2",
+    "IdEstante": 2,
+    "Activo": true,
+    "TieneEspacio": true,
+    "Observaciones": null
+  },
+  {
+    "IdFila": 6,
+    "NFila": "B-3",
+    "IdEstante": 2,
+    "Activo": true,
+    "TieneEspacio": true,
+    "Observaciones": null
+  },
+  {
+    "IdFila": 7,
+    "NFila": "C-1",
+    "IdEstante": 3,
+    "Activo": true,
+    "TieneEspacio": false,
+    "Observaciones": "Fila completa"
+  },
+  {
+    "IdFila": 8,
+    "NFila": "C-2",
+    "IdEstante": 3,
+    "Activo": true,
+    "TieneEspacio": false,
+    "Observaciones": "Fila completa"
+  },
+  {
+    "IdFila": 9,
+    "NFila": "C-3",
+    "IdEstante": 3,
+    "Activo": true,
+    "TieneEspacio": true,
+    "Observaciones": null
+  },
+  {
+    "IdFila": 10,
+    "NFila": "A-1",
+    "IdEstante": 4,
+    "Activo": true,
+    "TieneEspacio": true,
+    "Observaciones": null
+  },
+  {
+    "IdFila": 11,
+    "NFila": "A-2",
+    "IdEstante": 4,
+    "Activo": true,
+    "TieneEspacio": true,
+    "Observaciones": null
+  },
+  {
+    "IdFila": 12,
+    "NFila": "A-3",
+    "IdEstante": 4,
+    "Activo": true,
+    "TieneEspacio": true,
+    "Observaciones": null
+  },
+  {
+    "IdFila": 13,
+    "NFila": "B-1",
+    "IdEstante": 5,
+    "Activo": true,
+    "TieneEspacio": true,
+    "Observaciones": null
+  },
+  {
+    "IdFila": 14,
+    "NFila": "B-2",
+    "IdEstante": 5,
+    "Activo": true,
+    "TieneEspacio": true,
+    "Observaciones": null
+  },
+  {
+    "IdFila": 15,
+    "NFila": "B-3",
+    "IdEstante": 5,
+    "Activo": true,
+    "TieneEspacio": false,
+    "Observaciones": "Fila completa"
+  },
+  {
+    "IdFila": 16,
+    "NFila": "C-1",
+    "IdEstante": 6,
+    "Activo": true,
+    "TieneEspacio": true,
+    "Observaciones": null
+  },
+  {
+    "IdFila": 17,
+    "NFila": "C-2",
+    "IdEstante": 6,
+    "Activo": true,
+    "TieneEspacio": true,
+    "Observaciones": null
+  },
+  {
+    "IdFila": 18,
+    "NFila": "C-3",
+    "IdEstante": 6,
+    "Activo": true,
+    "TieneEspacio": true,
+    "Observaciones": null
+  }
+]

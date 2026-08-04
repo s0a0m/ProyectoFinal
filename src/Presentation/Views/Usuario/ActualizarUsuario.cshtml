@@ -1,0 +1,257 @@
+@using src.Presentation.ViewModels.UsuarioVM
+@model ActualizarUsuarioViewModel
+
+@{
+    ViewData["Title"] = "Actualizar Usuario";
+}
+
+<main class="form-signin w-100 m-auto">
+
+    <form asp-controller="Usuario" asp-action="ActualizarUsuario" method="post" class="shadow-lg rounded bg-light p-4">
+
+        <h2 class="text-center mb-4">@ViewData["Title"]</h2>
+
+        <input type="hidden" asp-for="IdUsuario" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger alert-dismissible fade show shadow-sm"
+            role="alert">
+            <strong><i class="bi bi-exclamation-triangle-fill me-2"></i>Atención:</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Información Personal</legend>
+            <div class="form-floating mb-3">
+                <input asp-for="Nombre" class="form-control" placeholder="Nombre">
+                <label asp-for="Nombre"></label>
+            </div>
+            <span asp-validation-for="Nombre" class="text-danger small"></span>
+            <div class="form-floating mb-3">
+                <input asp-for="Apellido" class="form-control" placeholder="Apellido">
+                <label asp-for="Apellido"></label>
+            </div>
+            <span asp-validation-for="Apellido" class="text-danger small"></span>
+            <div class="form-floating mb-3">
+                <input asp-for="Identificacion" class="form-control" placeholder="Identificación">
+                <label asp-for="Identificacion">Identificación (DNI/CUIT)</label>
+            </div>
+            <span asp-validation-for="Identificacion" class="text-danger small"></span>
+        </fieldset>
+
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Información de Contacto</legend>
+            <div class="form-floating mb-3">
+                <input asp-for="Correo" class="form-control" placeholder="correo@ejemplo.com" type="email">
+                <label asp-for="Correo">Correo Electrónico</label>
+            </div>
+            <span asp-validation-for="Correo" class="text-danger small"></span>
+            <div class="form-floating mb-3">
+                <input asp-for="Telefono" class="form-control" placeholder="Teléfono" type="tel">
+                <label asp-for="Telefono"></label>
+            </div>
+            <span asp-validation-for="Telefono" class="text-danger small"></span>
+        </fieldset>
+
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Contraseña</legend>
+
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="changePasswordCheck">
+                <label class="form-check-label" for="changePasswordCheck">
+                    Cambiar Contraseña
+                </label>
+            </div>
+
+            <div id="passwordFields" style="display: none;">
+                <p class="small text-muted">Ingrese la nueva contraseña y confírmela.</p>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="Contrasenia" class="form-control" type="password" placeholder="Nueva Contraseña">
+                    <label asp-for="Contrasenia"></label>
+                </div>
+                <span asp-validation-for="Contrasenia" class="text-danger small"></span>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="ConfirmarContrasenia" class="form-control" type="password"
+                        placeholder="Confirmar Nueva Contraseña">
+                    <label asp-for="ConfirmarContrasenia"></label>
+                </div>
+                <span asp-validation-for="ConfirmarContrasenia" class="text-danger small"></span>
+            </div>
+        </fieldset>
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Grupos de permisos</legend>
+            <p class="text-muted small">Seleccione los grupos para asignar conjuntos de permisos predefinidos.</p>
+
+            <div class="row g-3">
+                @if (Model.TodosLosGrupos != null && Model.TodosLosGrupos.Any())
+                {
+                    for (int i = 0; i < Model.TodosLosGrupos.Count; i++)
+                    {
+                        var collapseId = "collapseGrupo_" + Model.TodosLosGrupos[i].IdGrupo;
+
+                        <div class="col-md-6">
+                            <div class="card h-100 border-primary bg-light shadow-sm">
+                                <div class="card-body p-3">
+
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="form-check">
+                                            <input type="hidden" asp-for="TodosLosGrupos[i].IdGrupo" />
+                                            <input type="hidden" asp-for="TodosLosGrupos[i].Nombre" />
+
+                                            <input class="form-check-input border-primary" type="checkbox"
+                                                name="GruposSeleccionados" value="@Model.TodosLosGrupos[i].IdGrupo"
+                                                id="grupo_@Model.TodosLosGrupos[i].IdGrupo"
+                                                checked="@Model.TodosLosGrupos[i].Asignado" />
+
+                                            <label class="form-check-label fw-bold text-primary"
+                                                for="grupo_@Model.TodosLosGrupos[i].IdGrupo">
+                                                @Model.TodosLosGrupos[i].Nombre
+                                            </label>
+
+                                            @if (!string.IsNullOrEmpty(Model.TodosLosGrupos[i].Descripcion))
+                                            {
+                                                <div class="small text-muted mt-1">
+                                                    @Model.TodosLosGrupos[i].Descripcion
+                                                </div>
+                                            }
+                                        </div>
+
+                                        <button class="btn btn-sm btn-link text-decoration-none p-0 ms-2 text-secondary"
+                                            type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId"
+                                            aria-expanded="false" aria-controls="@collapseId" title="Ver permisos incluidos">
+                                            <i class="bi bi-chevron-down"></i>
+                                        </button>
+                                    </div>
+
+                                    <div class="collapse mt-2" id="@collapseId">
+                                        <div class="card card-body p-2 border-0 bg-white small">
+                                            <h6 class="text-muted fw-bold" style="font-size: 0.75rem;">INCLUYE PERMISOS:</h6>
+
+                                            @if (Model.TodosLosGrupos[i].PermisosDelGrupo != null &&
+                                                                                Model.TodosLosGrupos[i].PermisosDelGrupo.Any())
+                                            {
+                                                <ul
+                                                    class="list-unstyled mb-0 text-muted fst-italic ps-2 border-start border-2 border-secondary">
+                                                    @foreach (var nombrePermiso in Model.TodosLosGrupos[i].PermisosDelGrupo)
+                                                    {
+                                                        <li class="mb-1">@nombrePermiso</li>
+                                                    }
+                                                </ul>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted fst-italic">Sin permisos asignados.</span>
+                                            }
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-12">
+                        <div class="alert alert-warning">No hay grupos de permisos definidos en el sistema.</div>
+                    </div>
+                }
+            </div>
+        </fieldset>
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Permisos</legend>
+
+            <div class="p-3 bg-white border rounded">
+                @if (Model.TodosLosPermisos != null && Model.TodosLosPermisos.Any())
+                {
+                    @for (int i = 0; i < Model.TodosLosPermisos.Count; i++)
+                    {
+                        var permiso = Model.TodosLosPermisos[i];
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="PermisosSeleccionados"
+                                value="@permiso.IdPermiso" id="permiso_@permiso.IdPermiso" checked="@permiso.Asignado" />
+
+                            <label class="form-check-label" for="permiso_@permiso.IdPermiso">
+                                <strong>@permiso.Nombre</strong>
+                            </label>
+
+                            @if (!string.IsNullOrEmpty(permiso.Descripcion))
+                            {
+                                <div class="form-text text-muted ms-4">
+                                    @permiso.Descripcion
+                                </div>
+                            }
+                        </div>
+
+                        @if (i < Model.TodosLosPermisos.Count - 1)
+                        {
+                            <hr class="my-2">
+                        }
+                    }
+                }
+                else
+                {
+                    <p class="text-muted">No hay permisos disponibles para asignar.</p>
+                }
+            </div>
+        </fieldset>
+        <div class="d-flex justify-content-between gap-3">
+            <button class="btn btn-success w-50 py-2" type="submit">
+                <i class="bi bi-person-plus me-2"></i>Actualizar
+            </button>
+            <a asp-controller="Usuario" asp-action="ListarUsuarios"
+                class="btn btn-outline-secondary w-50 py-2">Cancelar</a>
+        </div>
+    </form>
+</main>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Script para el toggle de contraseña (ya lo tenías)
+        document.addEventListener('DOMContentLoaded', function () {
+            const changePasswordCheck = document.getElementById('changePasswordCheck');
+            const passwordFieldsDiv = document.getElementById('passwordFields');
+            const successMsg = '@Html.Raw(TempData["ServiceSuccessMessage"])';
+            const errorMsg = '@Html.Raw(TempData["ServiceErrorMessage"])';
+
+            if (successMsg) {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+
+                Toast.fire({
+                    icon: 'success',
+                    title: successMsg
+                });
+            }
+            if (errorMsg) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de Registro',
+                    text: errorMsg,
+                    confirmButtonColor: '#d33'
+                });
+            }
+
+            function togglePasswordFields() {
+                if (changePasswordCheck.checked) {
+                    passwordFieldsDiv.style.display = 'block';
+                } else {
+                    passwordFieldsDiv.style.display = 'none';
+                }
+            }
+
+            changePasswordCheck.addEventListener('change', togglePasswordFields);
+
+            // Ejecutar al cargar la página por si vuelve de un error de validación
+            togglePasswordFields();
+        });
+    </script>
+}

@@ -1,0 +1,17 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Dom = src.Models.Domain;
+using src.Presentation.ViewModels.NovedadesVM;
+
+namespace src.Core.Services.Interfaces
+{
+    public interface INovedadesService
+    {
+        Task<IEnumerable<NovedadesListarViewModel>> GetAllNovedadesPendientes();
+        Task CrearNovedadAsync(NovedadesCrearViewModel vm);
+        Task<int> ObtenerCantidadNovedadesPendientes();
+        Task AceptarNovedadAsync(ResolverNovedadViewModel model);
+        Task RechazarNovedadAsync(int idNovedad);
+        Task<ResolverNovedadViewModel> ObtenerDatosParaResolverAsync(int idNovedad);
+    }
+}

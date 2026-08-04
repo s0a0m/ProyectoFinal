@@ -1,0 +1,170 @@
+@model IEnumerable<src.Presentation.ViewModels.NovedadesVM.NovedadesListarViewModel>
+
+@{
+    ViewData["Title"] = "Gestión de Novedades";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-primary fw-bold mb-0"><i class="bi bi-inbox-fill me-2"></i>Bandeja de Entrada</h2>
+            <p class="text-muted mb-0">Gestiona los cambios de precios y nuevos productos importados.</p>
+        </div>
+        <a asp-controller="ProductoProveedor" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Volver al Catálogo
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card shadow border-0">
+        <div class="card-body p-0">
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <div class="mb-3 text-success opacity-50"><i class="bi bi-check2-circle display-1"></i></div>
+                    <h4 class="text-muted">¡Todo al día!</h4>
+                    <p class="text-muted">No tienes novedades pendientes de procesar.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="tablaNovedades">
+                        <thead class="table-light text-uppercase small text-muted">
+                            <tr>
+                                <th style="width: 5%">Tipo</th>
+                                <th style="width: 35%">Producto (Excel vs Sistema)</th>
+                                <th style="width: 20%">Análisis de Precio</th>
+                                <th style="width: 10%" class="text-center">Stock</th>
+                                <th style="width: 20%">Proveedor / Fecha</th>
+                                <th style="width: 10%" class="text-center">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-center">
+                                        @if (item.IdProductoExistente.HasValue)
+                                        {
+                                            <span
+                                                class="badge bg-primary bg-opacity-10 text-primary border border-primary mb-1 d-block">ACTUALIZACIÓN</span>
+                                        }
+                                        else
+                                        {
+                                            <span
+                                                class="badge bg-success bg-opacity-10 text-success border border-success mb-1 d-block">NUEVO</span>
+                                        }
+                                        <small class="font-monospace text-muted">@item.CodigoBarraExterno</small>
+                                    </td>
+
+                                    <td>
+                                        <div class="fw-bold text-dark">
+                                            <i class="bi bi-file-earmark-excel text-success me-1" title="Dato del Excel"></i>
+                                            @item.NombreSugerido
+                                        </div>
+
+                                        @if (!string.IsNullOrEmpty(item.NombreProductoActual))
+                                        {
+                                            <div class="small text-muted mt-1 border-top pt-1">
+                                                <i class="bi bi-hdd-network me-1" title="Dato en Sistema"></i>
+                                                Actual: @item.NombreProductoActual
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="small text-muted mt-1 fst-italic">
+                                                <i class="bi bi-plus-circle me-1"></i>Se creará un producto nuevo
+                                            </div>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <span
+                                                    class="d-block fw-bold fs-6 text-dark">$@item.PrecioSugerido.ToString("N2")</span>
+                                                @if (item.PrecioActualSistema.HasValue)
+                                                {
+                                                    <small
+                                                        class="text-muted text-decoration-line-through me-1">$@item.PrecioActualSistema.Value.ToString("N2")</small>
+                                                }
+                                            </div>
+
+                                            @if (item.PrecioActualSistema.HasValue)
+                                            {
+                                                var esAumento = !item.VariacionPrecio.Contains("-") && item.VariacionPrecio !=
+                                                "0,00%" && item.VariacionPrecio != "0.00%";
+                                                var colorBadge = esAumento ? "bg-danger" : (item.VariacionPrecio.Contains("-") ?
+                                                "bg-success" : "bg-secondary");
+                                                var icono = esAumento ? "bi-arrow-up" : (item.VariacionPrecio.Contains("-") ?
+                                                "bi-arrow-down" : "bi-dash");
+
+                                                <span class="badge @colorBadge rounded-pill">
+                                                    <i class="bi @icono"></i> @item.VariacionPrecio
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+
+                                    <td class="text-center">
+                                        @if (item.StockSugerido > 0)
+                                        {
+                                            <span class="badge bg-light text-dark border">@item.StockSugerido u.</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">-</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <div class="fw-bold text-dark">@item.RazonSocialProveedor</div>
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar-event me-1"></i>@item.FechaImportacion.ToString("dd/MM HH:mm")
+                                        </small>
+                                        @if (!string.IsNullOrEmpty(item.Observaciones))
+                                        {
+                                            <div class="text-warning small fst-italic" title="@item.Observaciones">
+                                                <i class="bi bi-info-circle"></i> Ver obs.
+                                            </div>
+                                        }
+                                    </td>
+
+                                    <td class="text-center">
+                                        <a asp-action="Resolver" asp-route-id="@item.IdNovedad"
+                                            class="btn btn-primary btn-sm shadow-sm">
+                                            Resolver <i class="bi bi-chevron-right"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#tablaNovedades').DataTable({
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json" },
+                order: [[4, 'desc']], // Ordenar por Fecha (Columna 4) descendente para ver lo último primero
+                columnDefs: [
+                    { orderable: false, targets: 5 } // No permitir ordenar por la columna de botones
+                ],
+                pageLength: 25
+            });
+        });
+    </script>
+}

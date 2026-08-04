@@ -1,0 +1,201 @@
+@model src.Presentation.ViewModels.NovedadesVM.ResolverNovedadViewModel
+
+@{
+    ViewData["Title"] = "Resolver Novedad";
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <form asp-action="Resolver" method="post" id="formResolver">
+                <input type="hidden" asp-for="IdNovedad" />
+                <input type="hidden" asp-for="RazonSocialProveedor" />
+                <input type="hidden" asp-for="CodigoBarraNovedad" />
+                <input type="hidden" asp-for="NombreSugerido" />
+                <input type="hidden" asp-for="PrecioSugerido" />
+
+                <div class="card shadow-lg border-0 overflow-hidden">
+                    <div class="card-header bg-primary text-white p-4">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h5 class="mb-1 text-white-50 text-uppercase small fw-bold">Resolución de Importación
+                                </h5>
+                                <h3 class="mb-0 fw-bold"><i class="bi bi-pencil-square me-2"></i>Gestionar Novedad</h3>
+                            </div>
+                            <span class="badge bg-white text-primary fs-6 shadow-sm">
+                                <i class="bi bi-upc-scan me-1"></i> @Model.CodigoBarraNovedad
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4">
+
+                        <div class="bg-light rounded-3 p-3 border mb-4 position-relative">
+                            <span
+                                class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-secondary border border-white">
+                                DATOS ORIGINALES (EXCEL)
+                            </span>
+
+                            <div class="row text-center mt-3">
+                                <div class="col-md-3 border-end">
+                                    <small class="text-muted text-uppercase fw-bold" style="font-size:0.7rem">Nombre
+                                        Sugerido</small>
+                                    <div class="fw-bold text-dark text-break small">@Model.NombreSugerido</div>
+                                </div>
+                                <div class="col-md-3 border-end">
+                                    <small class="text-muted text-uppercase fw-bold"
+                                        style="font-size:0.7rem">Proveedor</small>
+                                    <div class="text-primary small">@Model.RazonSocialProveedor</div>
+                                </div>
+                                <div class="col-md-3 border-end">
+                                    <small class="text-muted text-uppercase fw-bold" style="font-size:0.7rem">Precio
+                                        Excel</small>
+                                    @if (Model.PrecioSugerido.HasValue && Model.PrecioSugerido > 0)
+                                    {
+                                        <div class="text-success fw-bold">$@Model.PrecioSugerido.Value.ToString("N2")</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted fst-italic small">Sin precio</div>
+                                    }
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-muted text-uppercase fw-bold" style="font-size:0.7rem">Stock
+                                        Excel</small>
+                                    @if (Model.StockSugerido > 0)
+                                    {
+                                        <div class="fw-bold text-dark">@Model.StockSugerido u.</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted small">-</div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary mb-2">
+                                <i class="bi bi-link-45deg"></i> 1. Vincular con Producto del Sistema
+                            </label>
+
+                            <div class="input-group input-group-lg shadow-sm">
+                                <select asp-for="IdProductoSeleccionado" asp-items="Model.ProductosDisponibles"
+                                    class="form-select" id="selectProducto">
+                                    <option value="">-- Escriba para buscar... --</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="IdProductoSeleccionado" class="text-danger small ms-1"></span>
+                        </div>
+
+                        <hr class="text-muted opacity-25 my-4">
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="PrecioFinal" type="number" step="0.01"
+                                        class="form-control border-success border-opacity-25 bg-success bg-opacity-10 fw-bold"
+                                        id="inputPrecio" placeholder="0.00" />
+                                    <label for="inputPrecio" class="text-success"><i class="bi bi-currency-dollar"></i>
+                                        Precio Costo Final</label>
+                                </div>
+                                <span asp-validation-for="PrecioFinal" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="StockFinal" type="number" class="form-control" id="inputStock"
+                                        placeholder="0" />
+                                    <label for="inputStock"><i class="bi bi-box-seam"></i> Stock a Asignar</label>
+                                </div>
+                                <span asp-validation-for="StockFinal" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="card-footer bg-light p-4 d-flex justify-content-between align-items-center">
+
+                        <button type="button" class="btn btn-outline-danger border-0" data-bs-toggle="modal"
+                            data-bs-target="#modalRechazar">
+                            <i class="bi bi-trash3 me-1"></i> Descartar
+                        </button>
+
+                        <div class="d-flex gap-2">
+                            <a asp-action="Index" class="btn btn-light border text-muted">Cancelar</a>
+                            <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm">
+                                <i class="bi bi-check-lg me-2"></i>Confirmar y Guardar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalRechazar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar Rechazo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de que desea <strong>DESCARTAR</strong> esta novedad?</p>
+                <p class="small text-muted mb-0">Esta acción cambiará el estado a 'Rechazado' y no impactará ningún
+                    cambio en los precios ni en el stock.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form asp-controller="Novedades" asp-action="Rechazar" method="post">
+                    <input type="hidden" name="idNovedad" value="@Model.IdNovedad" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Sí, Rechazar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Inicializar Select2 con tema Bootstrap 5
+            $('#selectProducto').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Escriba para buscar el producto...',
+                allowClear: true,
+                language: {
+                    noResults: function () {
+                        return "No se encontró el producto.";
+                    }
+                }
+            });
+
+            // Foco automático en el buscador al abrir
+            $('#selectProducto').on('select2:open', function (e) {
+                document.querySelector('.select2-search__field').focus();
+            });
+        });
+    </script>
+}

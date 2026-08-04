@@ -1,0 +1,265 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - src</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/src.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/layout.cshtml.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body>
+
+    <!-- ╔══════════════════════════════╗ -->
+    <!-- ║         TOPBAR FIJA          ║ -->
+    <!-- ╚══════════════════════════════╝ -->
+    <header class="app-topbar">
+        <div class="app-topbar-left">
+            @if (LayoutService.EstaLogueado())
+            {
+                <button class="btn-hamburger" id="btnHamburger" aria-label="Abrir menú" aria-expanded="false" aria-controls="appDrawer">
+                    <span class="hb-bar"></span>
+                    <span class="hb-bar"></span>
+                    <span class="hb-bar"></span>
+                </button>
+            }
+        </div>
+
+        <div class="app-topbar-right">
+            @if (LayoutService.EstaLogueado())
+            {
+                @if (LayoutService.TienePermiso("P07_GESTION_COMPRAS"))
+                {
+                    <ul class="navbar-nav d-flex flex-row">
+                        @await Component.InvokeAsync("Carrito")
+                    </ul>
+                }
+            }
+            else
+            {
+                <a class="btn btn-sm btn-primary px-3" asp-controller="Acceso" asp-action="Login">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>Iniciar sesión
+                </a>
+            }
+        </div>
+    </header>
+
+    <!-- ╔══════════════════════════════╗ -->
+    <!-- ║        BACKDROP + DRAWER     ║ -->
+    <!-- ╚══════════════════════════════╝ -->
+    @if (LayoutService.EstaLogueado())
+    {
+        <div class="drawer-backdrop" id="drawerBackdrop" aria-hidden="true"></div>
+
+        <nav class="app-drawer" id="appDrawer" aria-label="Menú principal">
+
+            <!-- Cabecera usuario -->
+            <div class="drawer-user-header">
+                <div class="drawer-avatar">
+                    @{ var nombre = LayoutService.ObtenerNombreUsuario(); }
+                    @(nombre.Length > 0 ? nombre.Substring(0, Math.Min(2, nombre.Length)).ToUpper() : "U")
+                </div>
+                <div>
+                    <div class="drawer-user-name">@nombre</div>
+                    <div class="drawer-user-role">Sesión activa</div>
+                </div>
+            </div>
+
+            <!-- ── General ── -->
+            <span class="drawer-section-label">General</span>
+
+            <a class="drawer-nav-item" asp-area="" asp-controller="Home" asp-action="Index">
+                <i class="bi bi-house-door"></i>
+                Inicio
+            </a>
+
+            @if (LayoutService.TienePermiso("P02_VER_LISTA_USUARIOS"))
+            {
+                <a class="drawer-nav-item" asp-controller="Usuario" asp-action="ListarUsuarios">
+                    <i class="bi bi-people"></i>
+                    Usuarios
+                </a>
+            }
+
+            @if (LayoutService.TienePermiso("P11_ABM_GRUPO_PERMISOS"))
+            {
+                <a class="drawer-nav-item" asp-controller="GrupoPermisos" asp-action="ListarGrupos">
+                    <i class="bi bi-shield-lock"></i>
+                    Grupo de permisos
+                </a>
+            }
+
+            <!-- ── Catálogo ── -->
+            @if (LayoutService.TienePermiso("P04_VER_LISTA_PRODUCTOS") ||
+                 LayoutService.TienePermiso("P12_ABM_CLASIFICACION_PRODUCTOS") ||
+                 LayoutService.TienePermiso("P06_VER_LISTA_PROVEEDORES"))
+            {
+                <span class="drawer-section-label">Catálogo</span>
+
+                @if (LayoutService.TienePermiso("P04_VER_LISTA_PRODUCTOS"))
+                {
+                    <a class="drawer-nav-item" asp-controller="Producto" asp-action="ListarProductos">
+                        <i class="bi bi-box-seam"></i>
+                        Productos
+                    </a>
+                }
+
+                @if (LayoutService.TienePermiso("P12_ABM_CLASIFICACION_PRODUCTOS"))
+                {
+                    <a class="drawer-nav-item" asp-controller="Clasificacion" asp-action="IndexClasificacion">
+                        <i class="bi bi-tags"></i>
+                        Categorías
+                    </a>
+                }
+
+                @if (LayoutService.TienePermiso("P06_VER_LISTA_PROVEEDORES"))
+                {
+                    <a class="drawer-nav-item" asp-controller="Proveedor" asp-action="ListarProveedores">
+                        <i class="bi bi-truck"></i>
+                        Proveedores
+                    </a>
+                }
+            }
+
+            <!-- ── Operaciones ── -->
+            @if (LayoutService.TienePermiso("P07_GESTION_COMPRAS") ||
+                 LayoutService.TienePermiso("P09_GESTOR_CC") ||
+                 LayoutService.TienePermiso("P13_ABM_Deposito") ||
+                 LayoutService.TienePermiso("P14_Gestion_Stock"))
+            {
+                <span class="drawer-section-label">Operaciones</span>
+
+                @if (LayoutService.TienePermiso("P07_GESTION_COMPRAS"))
+                {
+                    <a class="drawer-nav-item" asp-controller="ProductoProveedor" asp-action="Index">
+                        <i class="bi bi-grid"></i>
+                        Catálogo proveedores
+                    </a>
+                    <a class="drawer-nav-item" asp-controller="Compra" asp-action="Index">
+                        <i class="bi bi-bag-check"></i>
+                        Gestionar compras
+                    </a>
+                }
+
+                @if (LayoutService.TienePermiso("P09_GESTOR_CC"))
+                {
+                    <a class="drawer-nav-item" asp-controller="Factura" asp-action="Index">
+                        <i class="bi bi-receipt"></i>
+                        Gestionar facturas
+                    </a>
+                }
+
+                @if (LayoutService.TienePermiso("P13_ABM_Deposito") || LayoutService.TienePermiso("P14_Gestion_Stock"))
+                {
+                    <a class="drawer-nav-item" asp-controller="Deposito" asp-action="Index">
+                        <i class="bi bi-building"></i>
+                        Gestionar depósitos
+                    </a>
+                }
+            }
+
+            <!-- ── Pie: cerrar sesión ── -->
+            <div class="drawer-footer">
+                <a class="drawer-logout-btn" asp-controller="Acceso" asp-action="Logout">
+                    <i class="bi bi-box-arrow-right"></i>
+                    Cerrar sesión
+                </a>
+            </div>
+
+        </nav>
+    }
+
+    <!-- ╔══════════════════════════════╗ -->
+    <!-- ║     CONTENIDO PRINCIPAL      ║ -->
+    <!-- ╚══════════════════════════════╝ -->
+    <div class="app-main-wrapper">
+        <div class="container">
+            <main role="main" class="pb-3 pt-3">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2025 - src - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <!-- ── Scripts base ── -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        (function () {
+            var ham      = document.getElementById('btnHamburger');
+            var drawer   = document.getElementById('appDrawer');
+            var backdrop = document.getElementById('drawerBackdrop');
+
+            if (!ham || !drawer || !backdrop) return;
+
+            function openDrawer() {
+                drawer.classList.add('is-open');
+                backdrop.classList.add('is-visible');
+                ham.classList.add('is-open');
+                ham.setAttribute('aria-expanded', 'true');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeDrawer() {
+                drawer.classList.remove('is-open');
+                backdrop.classList.remove('is-visible');
+                ham.classList.remove('is-open');
+                ham.setAttribute('aria-expanded', 'false');
+                document.body.style.overflow = '';
+            }
+
+            ham.addEventListener('click', function () {
+                drawer.classList.contains('is-open') ? closeDrawer() : openDrawer();
+            });
+
+            backdrop.addEventListener('click', closeDrawer);
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeDrawer();
+            });
+
+            // Marcar ítem activo según URL
+            var currentPath = window.location.pathname.toLowerCase();
+            drawer.querySelectorAll('.drawer-nav-item').forEach(function (item) {
+                var href = item.getAttribute('href');
+                if (!href) return;
+                if (href !== '/' && currentPath.startsWith(href.toLowerCase())) {
+                    item.classList.add('active');
+                } else if (href === '/' && currentPath === '/') {
+                    item.classList.add('active');
+                }
+            });
+        })();
+
+        function agregarAlCarrito(idProducto, idProveedor, cantidad = 1) {
+            $.post('/Carrito/Agregar', { idProducto: idProducto, idProveedor: idProveedor, cantidad: cantidad })
+                .done(function (response) {
+                    var badge = $("#cart-badge");
+                    badge.text(response.totalItems);
+                    if (response.totalItems > 0) badge.show();
+                })
+                .fail(function (xhr) {
+                    alert("Error al agregar: " + xhr.responseText);
+                });
+        }
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

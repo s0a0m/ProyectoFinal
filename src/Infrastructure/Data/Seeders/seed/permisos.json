@@ -1,0 +1,72 @@
+[
+  {
+    "IdPermiso": 1,
+    "Nombre": "P01_ADMINISTRADOR",
+    "Descripcion": "Permite el acceso completo a todas las funciones del sistema. Incluye ABM de usuarios, asignación y visualización de permisos/grupos de permisos, y administración de informes de compras, estadísticas y reportes financieros."
+  },
+  {
+    "IdPermiso": 2,
+    "Nombre": "P02_VER_LISTA_USUARIOS",
+    "Descripcion": "Permite visualizar la lista de todos los usuarios registrados, mostrando sus atributos más relevantes."
+  },
+  {
+    "IdPermiso": 3,
+    "Nombre": "P03_ABM_PRODUCTOS",
+    "Descripcion": "Permite realizar operaciones de alta, baja y modificación de productos. Incluye gestión de grupos y categorías, carga de listas de precios (.xlsx) y ajustes de stock."
+  },
+  {
+    "IdPermiso": 4,
+    "Nombre": "P04_VER_LISTA_PRODUCTOS",
+    "Descripcion": "Permite visualizar la lista de todos los productos registrados, con información respectiva. Así como las categorías y grupos."
+  },
+  {
+    "IdPermiso": 5,
+    "Nombre": "P05_ABM_PROVEEDORES",
+    "Descripcion": "Permite realizar alta, baja y modificación de nuevos proveedores."
+  },
+  {
+    "IdPermiso": 6,
+    "Nombre": "P06_VER_LISTA_PROVEEDORES",
+    "Descripcion": "Permite visualizar la lista de todos los proveedores registrados, mostrando información respectiva."
+  },
+  {
+    "IdPermiso": 7,
+    "Nombre": "P07_GESTION_COMPRAS",
+    "Descripcion": "Permite registrar compras a proveedores, seleccionando productos, cantidades, precios y condiciones de pago. Incluye la visualización de alertas de stock bajo."
+  },
+  {
+    "IdPermiso": 8,
+    "Nombre": "P08_VER_LISTA_COMPRAS",
+    "Descripcion": "Permite visualizar la lista de todas las compras registradas, con información respectiva."
+  },
+  {
+    "IdPermiso": 9,
+    "Nombre": "P09_GESTOR_CC",
+    "Descripcion": "Permite gestionar la cuenta corriente con cada proveedor. Incluye la generación y carga de documentos contables, y consulta del historial de movimientos."
+  },
+  {
+    "IdPermiso": 10,
+    "Nombre": "P10_ABM_USUARIOS",
+    "Descripcion": "Permite gestionar los usuarios, incluye su alta, edicion y desactivado"
+  },
+  {
+    "IdPermiso": 11,
+    "Nombre": "P11_ABM_GRUPO_PERMISOS",
+    "Descripcion": "Permite gestionar los grupos de permisos, incluye su listado, alta, edicion y desactivado"
+  },
+  {
+    "IdPermiso": 12,
+    "Nombre": "P12_ABM_CLASIFICACION_PRODUCTOS",
+    "Descripcion": "Permite gestionar las familias y categorias de los productos, incluye su listado,alta, edicion y desactivado"
+  },
+  {
+    "IdPermiso": 13,
+    "Nombre": "P13_ABM_Deposito",
+    "Descripcion": "Permite gestionar los depósitos, incluye su listado, alta, edición y desactivación"
+  },
+  {
+    "IdPermiso": 14,
+    "Nombre": "P14_Gestion_Stock",
+    "Descripcion": "Permite gestionar el stock de productos en los depósitos, incluye su listado, movimiento y ajustes"
+  }
+]

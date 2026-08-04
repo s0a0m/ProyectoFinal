@@ -1,0 +1,398 @@
+@using src.Presentation.ViewModels.ProductoVM
+@using System.Text.Json
+@model IEnumerable<ProductoListarViewModel>
+
+@{
+    ViewData["Title"] = "Inventario de Productos";
+    
+    var totalProductosActivos = Model.Count(p => p.Activo);
+    var productosBajoStock = Model.Count(p => p.EnAlertaStock && p.Activo);
+    var productosInactivos = Model.Count(p => !p.Activo);
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<div class="row mb-4">
+    
+    <div class="col-md-4" style="cursor: pointer;" onclick="resetearFiltros()">
+        <div class="card border-start border-primary border-4 shadow-sm py-2 h-100 zoom-hover">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Ver Activos (Total)</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@totalProductosActivos</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-box-seam text-gray-300" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4" style="cursor: pointer;" onclick="filtrarBajoStock()">
+        <div class="card border-start border-danger border-4 shadow-sm py-2 h-100 zoom-hover">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Alertas de Stock</div>
+                        <div class="h5 mb-0 font-weight-bold text-danger">@productosBajoStock</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4" style="cursor: pointer;" onclick="filtrarInactivos()">
+        <div class="card border-start border-secondary border-4 shadow-sm py-2 h-100 zoom-hover">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">Ver Inactivos</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@productosInactivos</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-archive-fill text-secondary" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white">
+        <h6 class="m-0 font-weight-bold text-primary" id="tituloTabla">Listado de Productos Activos</h6>
+        <a asp-controller="Producto" asp-action="CrearProducto" class="btn btn-primary btn-sm shadow-sm">
+            <i class="bi bi-plus-lg text-white-50 me-1"></i>Nuevo Producto
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle" id="tablaProductos" width="100%" cellspacing="0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Producto</th>
+                        <th>Códigos</th>
+                        <th>Clasificación</th>
+                        <th class="text-center">Stock</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center" style="width: 150px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr class="@(item.EnAlertaStock ? "fila-bajo-stock" : "")"
+                            data-activo="@(item.Activo ? "true" : "false")">
+
+                            <td class="fw-bold text-dark">@item.Nombre</td>
+
+                            <td>
+                                <i class="bi bi-upc-scan text-muted me-1"></i>
+                                <span class="small font-monospace">@item.CodigosBarra</span>
+                            </td>
+
+                            <td>
+                                <span class="badge bg-light text-dark border">@item.Categorias</span>
+                            </td>
+
+                            <td class="text-center">
+                                @if (item.EnAlertaStock)
+                                {
+                                    <span class="text-danger fw-bold" title="Stock Bajo (Mínimo: @item.StockMinimo)">
+                                        <i class="bi bi-exclamation-circle-fill me-1"></i>@item.StockTotal
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-success fw-bold">@item.StockTotal</span>
+                                }
+                                <small class="d-block text-muted" style="font-size: 0.7em;">Mín: @item.StockMinimo</small>
+                            </td>
+
+                            <td class="text-center">
+                                @if (item.Activo)
+                                {
+                                    <span class="badge bg-success rounded-pill estado-texto">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary rounded-pill estado-texto">Inactivo</span>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                <div class="btn-group" role="group">
+                                    @* ── CAMBIO: se agrega data-ubicaciones serializado como JSON ── *@
+                                    <button type="button"
+                                            class="btn btn-info btn-sm text-white me-1"
+                                            title="Ver Detalle"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalDetalleProducto"
+                                            data-nombre="@item.Nombre"
+                                            data-codigos="@item.CodigosBarra"
+                                            data-categorias="@item.Categorias"
+                                            data-stock="@item.StockTotal"
+                                            data-stockmin="@item.StockMinimo"
+                                            data-estado="@(item.Activo ? "Activo" : "Inactivo")"
+                                            data-enalerta="@(item.EnAlertaStock ? "true" : "false")"
+                                            data-ubicaciones="@JsonSerializer.Serialize(item.Ubicaciones)">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </button>
+
+                                    @if (item.Activo)
+                                    {
+                                        <a asp-action="ActualizarProducto" asp-route-id="@item.IdProducto" class="btn btn-warning btn-sm text-white" title="Editar">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <form asp-action="EliminarProducto" method="post" class="d-inline" onsubmit="return confirm('¿Estás seguro de desactivar este producto?');">
+                                            <input type="hidden" name="id" value="@item.IdProducto" />
+                                            <button type="submit" class="btn btn-danger btn-sm rounded-0 rounded-end" title="Desactivar">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-controller="Producto"
+                                              asp-action="ReactivarProducto"
+                                              asp-route-id="@item.IdProducto"
+                                              method="post"
+                                              class="d-inline"
+                                              onsubmit="return confirm('¿Desea reactivar este producto?');">
+                                            <button type="submit" class="btn btn-success btn-sm rounded-0 rounded-end" title="Reactivar Producto">
+                                                <i class="bi bi-arrow-counterclockwise"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDetalleProducto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-box-seam me-2"></i>Detalle del Producto
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold text-dark" id="detalleNombre">Nombre Producto</h3>
+                    <span class="badge rounded-pill" id="detalleEstado">Activo</span>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="p-3 border rounded bg-light h-100 text-center">
+                            <small class="text-muted text-uppercase fw-bold">Stock Actual</small>
+                            <div class="fs-2 fw-bold" id="detalleStock">0</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 border rounded bg-light h-100 text-center">
+                            <small class="text-muted text-uppercase fw-bold">Stock Mínimo</small>
+                            <div class="fs-2 text-secondary" id="detalleStockMin">0</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12" id="alertaStockDiv" style="display: none;">
+                        <div class="alert alert-danger d-flex align-items-center mb-0 p-2">
+                            <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+                            <div><strong>¡Atención!</strong> El stock está por debajo del mínimo.</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="fw-bold text-secondary small">CÓDIGOS DE BARRA</label>
+                        <div class="p-2 border rounded bg-white d-flex align-items-center text-break">
+                            <i class="bi bi-upc-scan me-2 text-muted fs-4"></i>
+                            <span class="font-monospace" id="detalleCodigos">...</span>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="fw-bold text-secondary small">CLASIFICACIÓN</label>
+                        <div class="p-2 border rounded bg-white">
+                            <i class="bi bi-tags-fill me-2 text-muted"></i>
+                            <span id="detalleCategorias">...</span>
+                        </div>
+                    </div>
+
+                    @* ── NUEVO: sección de ubicaciones ── *@
+                    <div class="col-12">
+                        <label class="fw-bold text-secondary small">
+                            <i class="bi bi-geo-alt-fill me-1"></i>UBICACIONES EN DEPÓSITO
+                        </label>
+                        @* max-height fija + scroll para que nunca desborde el modal *@
+                        <div id="detalleUbicaciones"
+                             class="border rounded bg-white p-2"
+                             style="max-height: 160px; overflow-y: auto;">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+
+            var table = $('#tablaProductos').DataTable({
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+                },
+                order: [[0, 'asc']],
+                pageLength: 10,
+                columnDefs: [
+                    { orderable: false, targets: [1, 4, 5] },
+                    { orderable: true,  targets: [0, 2, 3] }
+                ],
+                dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                     "<'row'<'col-sm-12'tr>>" +
+                     "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            });
+
+            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                var row = table.row(dataIndex).node();
+                var esActivo = $(row).attr('data-activo') === 'true';
+                var estadoFiltro = window.estadoFiltroActual || 'activos';
+
+                if (estadoFiltro === 'activos')    return esActivo;
+                if (estadoFiltro === 'inactivos')  return !esActivo;
+                if (estadoFiltro === 'bajo_stock') return esActivo && $(row).hasClass('fila-bajo-stock');
+                return true;
+            });
+
+            window.estadoFiltroActual = 'activos';
+            table.draw();
+
+            window.resetearFiltros = function() {
+                window.estadoFiltroActual = 'activos';
+                $('#tituloTabla').text('Listado de Productos Activos');
+                table.draw();
+            };
+            window.filtrarInactivos = function() {
+                window.estadoFiltroActual = 'inactivos';
+                $('#tituloTabla').text('Papelera: Productos Inactivos');
+                table.draw();
+            };
+            window.filtrarBajoStock = function() {
+                window.estadoFiltroActual = 'bajo_stock';
+                $('#tituloTabla').text('⚠️ Alertas: Productos con Bajo Stock');
+                table.draw();
+            };
+        });
+
+        var modalDetalle = document.getElementById('modalDetalleProducto');
+        modalDetalle.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+
+            // Extraer datos existentes
+            var nombre    = button.getAttribute('data-nombre');
+            var codigos   = button.getAttribute('data-codigos');
+            var categorias = button.getAttribute('data-categorias');
+            var stock     = button.getAttribute('data-stock');
+            var stockMin  = button.getAttribute('data-stockmin');
+            var estado    = button.getAttribute('data-estado');
+            var enAlerta  = button.getAttribute('data-enalerta') === 'true';
+
+            // Inyectar en el Modal
+            modalDetalle.querySelector('#detalleNombre').textContent    = nombre;
+            modalDetalle.querySelector('#detalleCodigos').textContent   = codigos;
+            modalDetalle.querySelector('#detalleCategorias').textContent = categorias;
+            modalDetalle.querySelector('#detalleStock').textContent     = stock;
+            modalDetalle.querySelector('#detalleStockMin').textContent  = stockMin;
+
+            // Estado badge
+            var badgeEstado = modalDetalle.querySelector('#detalleEstado');
+            badgeEstado.textContent = estado;
+            badgeEstado.className = estado === 'Activo'
+                ? 'badge rounded-pill bg-success'
+                : 'badge rounded-pill bg-secondary';
+
+            // Stock alerta
+            var divStock  = modalDetalle.querySelector('#detalleStock');
+            var divAlerta = modalDetalle.querySelector('#alertaStockDiv');
+            if (enAlerta) {
+                divStock.className    = 'fs-2 fw-bold text-danger';
+                divAlerta.style.display = 'block';
+            } else {
+                divStock.className    = 'fs-2 fw-bold text-success';
+                divAlerta.style.display = 'none';
+            }
+
+            // ── NUEVO: renderizar ubicaciones ────────────────────────────
+            var ubicaciones = [];
+            try { ubicaciones = JSON.parse(button.getAttribute('data-ubicaciones') || '[]'); }
+            catch(e) {}
+
+            var contenedor = modalDetalle.querySelector('#detalleUbicaciones');
+            contenedor.innerHTML = '';   // limpiar ubicaciones del producto anterior
+
+            if (ubicaciones.length === 0) {
+                contenedor.innerHTML =
+                    '<span class="text-muted small fst-italic">Sin ubicaciones asignadas</span>';
+            } else {
+                ubicaciones.forEach(function(u) {
+                    var fila = document.createElement('div');
+                    fila.className = 'd-flex justify-content-between align-items-center py-1 border-bottom';
+                    fila.innerHTML =
+                        '<div class="small">' +
+                            '<i class="bi bi-building me-1 text-muted"></i>' +
+                            '<span class="fw-semibold">' + u.Deposito + '</span>' +
+                            ' &rsaquo; ' + u.Estante +
+                            ' &rsaquo; Fila&nbsp;' + u.Fila +
+                        '</div>' +
+                        '<span class="badge bg-primary ms-2">' + u.Cantidad + '&nbsp;u.</span>';
+                    contenedor.appendChild(fila);
+                });
+            }
+            // ─────────────────────────────────────────────────────────────
+        });
+    </script>
+
+    <style>
+        .zoom-hover {
+            transition: transform 0.2s;
+        }
+        .zoom-hover:hover {
+            transform: scale(1.03);
+            cursor: pointer;
+        }
+        tr[data-activo="false"] td {
+            color: #6c757d !important;
+            background-color: #f8f9fa;
+        }
+        /* Scrollbar discreto en el contenedor de ubicaciones */
+        #detalleUbicaciones::-webkit-scrollbar { width: 4px; }
+        #detalleUbicaciones::-webkit-scrollbar-thumb { background: #dee2e6; border-radius: 2px; }
+    </style>
+}

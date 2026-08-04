@@ -1,0 +1,100 @@
+[
+  {
+    "IdGrupoPermiso": 1,
+    "Nombre": "Super Administrador",
+    "Descripcion": "Acceso total y control absoluto del sistema. Uso exclusivo para dueños o gerencia general.",
+    "GruposPermisosPermisos": [{ "IdGrupoPermiso": 1, "IdPermiso": 1 }]
+  },
+  {
+    "IdGrupoPermiso": 2,
+    "Nombre": "Gerencia / Dueño",
+    "Descripcion": "Visión global del negocio y control financiero (Cuentas Corrientes), sin gestión técnica de usuarios.",
+    "GruposPermisosPermisos": [
+      { "IdGrupoPermiso": 2, "IdPermiso": 2 },
+      { "IdGrupoPermiso": 2, "IdPermiso": 4 },
+      { "IdGrupoPermiso": 2, "IdPermiso": 6 },
+      { "IdGrupoPermiso": 2, "IdPermiso": 8 },
+      { "IdGrupoPermiso": 2, "IdPermiso": 9 }
+    ]
+  },
+  {
+    "IdGrupoPermiso": 3,
+    "Nombre": "Jefe de Compras",
+    "Descripcion": "Encargado de gestionar proveedores, realizar compras y mantener el stock. Control total sobre el área de abastecimiento.",
+    "GruposPermisosPermisos": [
+      { "IdGrupoPermiso": 3, "IdPermiso": 4 },
+      { "IdGrupoPermiso": 3, "IdPermiso": 5 },
+      { "IdGrupoPermiso": 3, "IdPermiso": 6 },
+      { "IdGrupoPermiso": 3, "IdPermiso": 7 },
+      { "IdGrupoPermiso": 3, "IdPermiso": 8 },
+      { "IdGrupoPermiso": 3, "IdPermiso": 12 }
+    ]
+  },
+  {
+    "IdGrupoPermiso": 4,
+    "Nombre": "Analista de Compras",
+    "Descripcion": "Operativo de compras. Puede registrar órdenes de compra y ver productos/proveedores, pero no puede crear nuevos proveedores ni modificar categorías.",
+    "GruposPermisosPermisos": [
+      { "IdGrupoPermiso": 4, "IdPermiso": 4 },
+      { "IdGrupoPermiso": 4, "IdPermiso": 6 },
+      { "IdGrupoPermiso": 4, "IdPermiso": 7 },
+      { "IdGrupoPermiso": 4, "IdPermiso": 8 }
+    ]
+  },
+  {
+    "IdGrupoPermiso": 5,
+    "Nombre": "Tesorería / Pagos",
+    "Descripcion": "Responsable de las Cuentas Corrientes y pagos a proveedores. Necesita ver compras para validar facturas.",
+    "GruposPermisosPermisos": [
+      { "IdGrupoPermiso": 5, "IdPermiso": 6 },
+      { "IdGrupoPermiso": 5, "IdPermiso": 8 },
+      { "IdGrupoPermiso": 5, "IdPermiso": 9 }
+    ]
+  },
+  {
+    "IdGrupoPermiso": 6,
+    "Nombre": "Gestor de Catálogo",
+    "Descripcion": "Encargado de mantener la base de datos de productos (precios, nombres) y su estructura (categorías), sin acceso a compras ni finanzas.",
+    "GruposPermisosPermisos": [
+      { "IdGrupoPermiso": 6, "IdPermiso": 3 },
+      { "IdGrupoPermiso": 6, "IdPermiso": 4 },
+      { "IdGrupoPermiso": 6, "IdPermiso": 12 }
+    ]
+  },
+  {
+    "IdGrupoPermiso": 7,
+    "Nombre": "Depósito / Recepción",
+    "Descripcion": "Personal que recibe mercadería. Solo necesita ver qué productos existen y qué compras se realizaron para controlar remitos.",
+    "GruposPermisosPermisos": [
+      { "IdGrupoPermiso": 7, "IdPermiso": 4 },
+      { "IdGrupoPermiso": 7, "IdPermiso": 8 }
+    ]
+  },
+  {
+    "IdGrupoPermiso": 8,
+    "Nombre": "Auditoría Interna",
+    "Descripcion": "Perfil de solo lectura para revisar movimientos, usuarios y catálogos sin poder modificar nada.",
+    "GruposPermisosPermisos": [
+      { "IdGrupoPermiso": 8, "IdPermiso": 2 },
+      { "IdGrupoPermiso": 8, "IdPermiso": 4 },
+      { "IdGrupoPermiso": 8, "IdPermiso": 6 },
+      { "IdGrupoPermiso": 8, "IdPermiso": 8 }
+    ]
+  },
+  {
+    "IdGrupoPermiso": 9,
+    "Nombre": "Soporte IT / SysAdmin",
+    "Descripcion": "Encargado de la gestión de usuarios y seguridad (roles), sin acceso a la operatoria comercial o financiera.",
+    "GruposPermisosPermisos": [
+      { "IdGrupoPermiso": 9, "IdPermiso": 2 },
+      { "IdGrupoPermiso": 9, "IdPermiso": 10 },
+      { "IdGrupoPermiso": 9, "IdPermiso": 11 }
+    ]
+  },
+  {
+    "IdGrupoPermiso": 10,
+    "Nombre": "Ventas (Consulta)",
+    "Descripcion": "Vendedores que necesitan consultar el catálogo para ver precios y stock disponible para informar a clientes.",
+    "GruposPermisosPermisos": [{ "IdGrupoPermiso": 10, "IdPermiso": 4 }]
+  }
+]

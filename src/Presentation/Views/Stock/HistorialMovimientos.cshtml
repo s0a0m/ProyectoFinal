@@ -1,0 +1,230 @@
+@using src.Presentation.ViewModels.StockVM
+@model IEnumerable<MovimientoStockItemViewModel>
+
+@{
+    int?   idDeposito      = ViewBag.IdDeposito   as int?;
+    string nombreDeposito  = ViewBag.NombreDeposito ?? string.Empty;
+    bool   filtrado        = idDeposito.HasValue;
+
+    ViewData["Title"] = filtrado
+        ? $"Historial de movimientos — {nombreDeposito}"
+        : "Historial general de movimientos";
+
+    var lista = Model.ToList();
+}
+
+<div class="container py-4" style="max-width: 1100px;">
+
+    @* ── Encabezado ──────────────────────────────────────────────────────── *@
+    <div class="d-flex align-items-center gap-2 mb-4">
+        @if (filtrado)
+        {
+            <a asp-controller="Deposito" asp-action="VerDetalle"
+               asp-route-id="@idDeposito"
+               class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+        }
+        else
+        {
+            <a asp-controller="Deposito" asp-action="Index"
+               class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+        }
+        <div>
+            <h2 class="fw-bold text-primary m-0">
+                <i class="bi bi-clock-history me-2"></i>@ViewData["Title"]
+            </h2>
+            @if (filtrado)
+            {
+                <small class="text-muted">Movimientos donde el origen o destino pertenece a este depósito.</small>
+            }
+        </div>
+    </div>
+
+    @* ── Resumen rápido ───────────────────────────────────────────────────── *@
+    @if (lista.Any())
+    {
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm text-center p-3">
+                    <small class="text-uppercase text-muted fw-bold d-block" style="font-size:.7rem;">Total movimientos</small>
+                    <span class="fw-bold fs-4 text-dark">@lista.Count</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm text-center p-3">
+                    <small class="text-uppercase text-muted fw-bold d-block" style="font-size:.7rem;">Unidades movidas</small>
+                    <span class="fw-bold fs-4 text-primary">@lista.Sum(m => m.Cantidad).ToString("N0")</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm text-center p-3">
+                    <small class="text-uppercase text-muted fw-bold d-block" style="font-size:.7rem;">Productos distintos</small>
+                    <span class="fw-bold fs-4 text-dark">@lista.Select(m => m.NombreProducto).Distinct().Count()</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm text-center p-3">
+                    <small class="text-uppercase text-muted fw-bold d-block" style="font-size:.7rem;">Último movimiento</small>
+                    <span class="fw-bold text-dark" style="font-size:.9rem;">
+                        @lista.Max(m => m.FechaMovimiento).ToString("dd/MM/yy HH:mm")
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        @* ── Filtro cliente ───────────────────────────────────────────────── *@
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body py-2 px-3">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-4">
+                        <input type="text" id="filtroTexto" class="form-control form-control-sm"
+                               placeholder="Filtrar por producto, fila, usuario...">
+                    </div>
+                    <div class="col-auto">
+                        <select id="filtroTipo" class="form-select form-select-sm">
+                            <option value="">Todos los tipos</option>
+                            <option value="movimiento">Movimiento interno</option>
+                            <option value="ingreso">Ingreso</option>
+                            <option value="egreso">Egreso</option>
+                        </select>
+                    </div>
+                    <div class="col-auto ms-auto">
+                        <span class="text-muted small">
+                            Mostrando <strong id="contadorVisible">@lista.Count</strong> de @lista.Count
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* ── Tabla ────────────────────────────────────────────────────────── *@
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="tablaHistorial">
+                        <thead class="table-light text-uppercase small text-muted">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Producto</th>
+                                <th>Origen</th>
+                                <th>Destino</th>
+                                <th class="text-center">Cantidad</th>
+                                <th>Usuario</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var mov in lista)
+                            {
+                                string tipoBadge = mov.EsMovimiento
+                                    ? "bg-primary bg-opacity-10 text-primary"
+                                    : mov.EsIngreso
+                                        ? "bg-success bg-opacity-10 text-success"
+                                        : "bg-danger bg-opacity-10 text-danger";
+
+                                string tipoLabel = mov.EsMovimiento ? "Movimiento" :
+                                                mov.EsIngreso    ? "Ingreso"    : "Egreso";
+                                string tipoIcon  = mov.EsMovimiento ? "bi-arrow-left-right" :
+                                                mov.EsIngreso    ? "bi-box-arrow-in-down" : "bi-box-arrow-up";
+                                string tipoData  = mov.EsMovimiento ? "movimiento" :
+                                                mov.EsIngreso    ? "ingreso"    : "egreso";
+
+                                <tr class="fila-historial"
+                                    data-tipo="@tipoData"
+                                    data-texto="@($"{mov.NombreProducto} {mov.FilaOrigen} {mov.FilaDestino} {mov.Usuario}".ToLower())">
+                                    <td class="small text-muted text-nowrap">
+                                        @mov.FechaMovimiento.ToString("dd/MM/yy HH:mm")
+                                    </td>
+                                    <td>
+                                        <span class="badge @tipoBadge">
+                                            <i class="bi @tipoIcon me-1"></i>@tipoLabel
+                                        </span>
+                                    </td>
+                                    <td class="fw-semibold">
+                                        <i class="bi bi-box-seam me-1 text-muted"></i>@mov.NombreProducto
+                                    </td>
+                                    <td class="small text-muted">
+                                        @if (mov.EsIngreso)
+                                        {
+                                            <span class="fst-italic text-success">
+                                                <i class="bi bi-building me-1"></i>Proveedor externo
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-geo-alt me-1 text-secondary"></i>@mov.FilaOrigen
+                                        }
+                                    </td>
+                                    <td class="small text-muted">
+                                        @if (mov.EsEgreso)
+                                        {
+                                            <span class="fst-italic text-danger">
+                                                <i class="bi bi-box-arrow-up me-1"></i>Salida del sistema
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-geo-alt-fill me-1 text-secondary"></i>@mov.FilaDestino
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge @tipoBadge fw-bold px-2">
+                                            @mov.Cantidad.ToString("N0") u.
+                                        </span>
+                                    </td>
+                                    <td class="small text-muted">
+                                        <i class="bi bi-person me-1"></i>@mov.Usuario
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-clock-history display-1 mb-3 d-block opacity-25"></i>
+            <p class="h5">No hay movimientos de stock registrados
+                @if (filtrado)
+                {
+                    @: para este depósito.
+                }
+            </p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+// ── Filtro cliente ────────────────────────────────────────────────────────
+const inputFiltro = document.getElementById('filtroTexto');
+const selectTipo  = document.getElementById('filtroTipo');
+const contador    = document.getElementById('contadorVisible');
+
+function aplicarFiltro() {
+    const texto = (inputFiltro?.value || '').toLowerCase().trim();
+    const tipo  = selectTipo?.value || '';
+    const filas = document.querySelectorAll('.fila-historial');
+    let   vis   = 0;
+
+    filas.forEach(tr => {
+        const matchTexto = !texto || tr.dataset.texto.includes(texto);
+        const matchTipo  = !tipo  || tr.dataset.tipo === tipo;
+        const mostrar    = matchTexto && matchTipo;
+        tr.classList.toggle('d-none', !mostrar);
+        if (mostrar) vis++;
+    });
+
+    if (contador) contador.textContent = vis;
+}
+
+inputFiltro?.addEventListener('input',  aplicarFiltro);
+selectTipo ?.addEventListener('change', aplicarFiltro);
+</script>
+}

@@ -1,0 +1,299 @@
+@using src.Presentation.ViewModels.ProductoVM
+@model ActualizarProductoViewModel
+
+@{
+    ViewData["Title"] = "Actualizar Producto";
+}
+
+<main class="form-signin w-100 m-auto">
+    
+    <form asp-controller="Producto" asp-action="ActualizarProducto" method="post" class="shadow-lg rounded bg-light p-4" id="formProducto">
+        
+        <h2 class="text-center mb-4"><i class="bi bi-pencil-square me-2"></i>@ViewData["Title"]</h2>
+
+        <input type="hidden" asp-for="IdProducto" />
+        <input type="hidden" asp-for="Activo" />
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        }
+
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Información General</legend>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Nombre" class="form-control" placeholder="Nombre del Producto">
+                <label asp-for="Nombre">Nombre del Producto</label>
+                <span asp-validation-for="Nombre" class="text-danger small"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="StockMinimo" class="form-control" type="number" placeholder="0">
+                <label asp-for="StockMinimo">Stock Mínimo (Alerta)</label>
+                <span asp-validation-for="StockMinimo" class="text-danger small"></span>
+            </div>
+                
+        </fieldset>
+
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Clasificación</legend>
+            
+            <div class="input-group mb-2">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control border-start-0" id="buscadorArbol" placeholder="Buscar familia o categoría...">
+            </div>
+
+            <div class="border rounded p-2 bg-white" style="max-height: 300px; overflow-y: auto;" id="contenedorArbol">
+                @if (Model.ListaCategoriasDisponibles != null && Model.ListaCategoriasDisponibles.Any())
+                {
+                    var gruposPorFamilia = Model.ListaCategoriasDisponibles.GroupBy(x => x.Familia);
+                    foreach (var grupo in gruposPorFamilia)
+                    {
+                        <div class="mb-1 familia-item">
+                            <button class="btn btn-sm btn-light w-100 text-start fw-bold d-flex justify-content-between align-items-center border-0 collapsed"
+                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse_fam_@grupo.Key.GetHashCode()" aria-expanded="false">
+                                <span><i class="bi bi-folder2-open me-2 text-warning"></i><span class="texto-familia">@grupo.Key</span></span>
+                                <span class="badge bg-secondary rounded-pill" style="font-size: 0.7em;">@grupo.Count()</span>
+                            </button>
+                            <div class="collapse ms-3 mt-1 border-start ps-2" id="collapse_fam_@grupo.Key.GetHashCode()">
+                                @foreach (var item in grupo)
+                                {
+                                    <div class="form-check categoria-item">
+                                        <input class="form-check-input" type="checkbox" name="IdsCategoriasSeleccionadas" value="@item.Id" id="cat_@item.Id"
+                                               @(Model.IdsCategoriasSeleccionadas.Contains((short)item.Id) ? "checked" : "")>
+                                        <label class="form-check-label texto-categoria" for="cat_@item.Id">@item.Nombre</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+            <span asp-validation-for="IdsCategoriasSeleccionadas" class="text-danger small"></span>
+        </fieldset>
+
+        <fieldset class="mb-4">
+            <legend class="h5 text-primary border-bottom pb-2">Códigos de Barra</legend>
+            
+            <div class="alert alert-light border d-flex align-items-center mb-3" role="alert">
+                <i class="bi bi-info-circle me-2 text-primary"></i>
+                <small>Gestione los códigos asociados.</small>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text bg-white"><i class="bi bi-upc-scan"></i></span>
+                <input type="text" class="form-control" id="inputNuevoCodigo" placeholder="Agregar nuevo código...">
+                <button class="btn btn-outline-primary" type="button" id="btnAgregarCodigo">Agregar</button>
+            </div>
+            <span id="errorCodigo" class="text-danger small d-block mb-2"></span>
+
+           <div class="list-group" id="listaCodigosVisual">
+                
+                @foreach(var codigo in Model.CodigosBarra)
+                {
+                    // Verificamos si el código ya existe en la BD
+                    bool esRegistrado = Model.CodigosRegistradosEnBd != null && 
+                                        Model.CodigosRegistradosEnBd.Contains(codigo);
+
+                    if (esRegistrado)
+                    {
+                        // --- CASO 1: CÓDIGO YA GUARDADO (BLOQUEADO) ---
+                        <div class="list-group-item d-flex justify-content-between align-items-center bg-light">
+                            <div>
+                                <i class="bi bi-lock-fill text-muted me-2" title="Código guardado"></i>
+                                <span class="font-monospace text-muted">@codigo</span>
+                            </div>
+                            <input type="hidden" name="CodigosBarra" value="@codigo" class="codigo-existente">
+                            <span class="badge bg-secondary rounded-pill">Registrado</span>
+                        </div>
+                    }
+                    else
+                    {
+                        // --- CASO 2: CÓDIGO NUEVO O FALLIDO (BORRABLE) ---
+                        // Le ponemos la clase 'item-codigo' para que el JS de borrar funcione
+                        <div class="list-group-item d-flex justify-content-between align-items-center item-codigo border-warning">
+                            <div>
+                                <i class="bi bi-exclamation-circle text-warning me-2" title="Pendiente de guardar"></i>
+                                <span class="font-monospace fw-bold">@codigo</span>
+                            </div>
+                            
+                            <input type="hidden" name="CodigosBarra" value="@codigo">
+                            
+                            <button type="button" class="btn btn-sm btn-outline-danger btn-borrar-codigo" title="Quitar">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    }
+                }
+            </div>
+            
+            <span asp-validation-for="CodigosBarra" class="text-danger small mt-1"></span>
+            <div id="mensajeSinCodigos" class="text-danger small fst-italic mt-2" style="display: none;">
+                ¡Cuidado! Ha eliminado todos los códigos. Debe agregar uno antes de guardar.
+            </div>
+        </fieldset>
+
+        <div class="d-flex justify-content-between gap-3">
+            <button class="btn btn-primary w-50 py-2" type="submit">Guardar Cambios</button>
+            <a asp-action="ListarProductos" class="btn btn-outline-secondary w-50 py-2">Cancelar</a>
+        </div>
+    </form>
+</main>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Usamos la misma lógica de scripts que en CrearProducto
+        // Solo cambia que aquí no necesitamos "Generar Automático" porque ya existen.
+        
+        // Validación Flexible para Extras (mismo que definiste antes)
+        function esCodigoExtraValido(codigo) {
+             return codigo && codigo.length > 0 && codigo.length <= 30;
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // ... (Copiar lógica del buscador de árbol de CrearProducto) ...
+            
+            // ... (Copiar lógica de agregar/borrar códigos de CrearProducto, 
+            //      usando esCodigoExtraValido en lugar de EAN13 estricto si prefieres flexibilidad) ...
+            
+            // Lógica Buscador Arbol
+            const inputBuscador = document.getElementById('buscadorArbol');
+            const familias = document.querySelectorAll('.familia-item');
+            if (inputBuscador) {
+                inputBuscador.addEventListener('keyup', function(e) {
+                     // ... (mismo código que te pasé antes) ...
+                     const termino = e.target.value.toLowerCase();
+                     familias.forEach(function(familiaDiv) {
+                        const textoFamilia = familiaDiv.querySelector('.texto-familia').innerText.toLowerCase();
+                        const categorias = familiaDiv.querySelectorAll('.categoria-item');
+                        const collapseDiv = familiaDiv.querySelector('.collapse');
+                        let familiaCoincide = textoFamilia.includes(termino);
+                        let algunaCategoriaCoincide = false;
+                        categorias.forEach(function(catDiv) {
+                            const textoCat = catDiv.querySelector('.texto-categoria').innerText.toLowerCase();
+                            if (textoCat.includes(termino) || familiaCoincide) {
+                                catDiv.style.display = ''; 
+                                algunaCategoriaCoincide = true;
+                            } else {
+                                catDiv.style.display = 'none'; 
+                            }
+                        });
+                        if (familiaCoincide || algunaCategoriaCoincide) {
+                            familiaDiv.style.display = ''; 
+                            if (termino !== '' && collapseDiv && !collapseDiv.classList.contains('show')) {
+                                new bootstrap.Collapse(collapseDiv, { show: true });
+                            }
+                        } else {
+                            familiaDiv.style.display = 'none'; 
+                        }
+                     });
+                });
+            }
+
+            // Lógica Códigos
+            const inputCodigo = document.getElementById('inputNuevoCodigo');
+            const btnAgregar = document.getElementById('btnAgregarCodigo');
+            const listaVisual = document.getElementById('listaCodigosVisual');
+            const msgVacio = document.getElementById('mensajeSinCodigos');
+            const errorMsg = document.getElementById('errorCodigo');
+
+            function agregarCodigo() {
+                const codigo = inputCodigo.value.trim();
+                errorMsg.innerText = ""; 
+                inputCodigo.classList.remove('is-invalid');
+
+                if (!codigo) {
+                    errorMsg.innerText = "El código no puede estar vacío.";
+                    inputCodigo.classList.add('is-invalid');
+                    return;
+                }
+                // Validación flexible (menos de 30 caracteres)
+                if (!esCodigoExtraValido(codigo)) {
+                    errorMsg.innerText = "El código debe tener entre 1 y 30 caracteres.";
+                    inputCodigo.classList.add('is-invalid');
+                    return;
+                }
+
+                // --- VALIDACIÓN DE DUPLICADOS (Mejorada) ---
+                // Buscamos en TODOS los inputs ocultos (los viejos bloqueados y los nuevos)
+                const inputsExistentes = document.querySelectorAll('input[name="CodigosBarra"]');
+                let duplicado = false;
+                
+                inputsExistentes.forEach(function(input) {
+                    if (input.value === codigo) {
+                        duplicado = true;
+                    }
+                });
+
+                if (duplicado) {
+                    errorMsg.innerText = "Este código ya está asociado al producto.";
+                    inputCodigo.classList.add('is-invalid');
+                    inputCodigo.value = "";
+                    return;
+                }
+                // ---------------------------------------------
+
+                if(msgVacio) msgVacio.style.display = 'none';
+
+                // Crear elemento HTML para el NUEVO código (este SÍ lleva botón de borrar)
+                const itemDiv = document.createElement('div');
+                // Usamos una clase visual distinta (animate fadeIn) para que se note que es nuevo
+                itemDiv.className = 'list-group-item d-flex justify-content-between align-items-center item-codigo animate__animated animate__fadeIn border-success';
+                
+                itemDiv.innerHTML = `
+                    <div>
+                        <i class="bi bi-plus-circle-fill text-success me-2" title="Nuevo código"></i>
+                        <span class="font-monospace fw-bold">${codigo}</span>
+                    </div>
+                    <input type="hidden" name="CodigosBarra" value="${codigo}">
+                    
+                    <button type="button" class="btn btn-sm btn-outline-danger btn-borrar-codigo" title="Deshacer">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                `;
+
+                listaVisual.appendChild(itemDiv);
+                inputCodigo.value = ""; 
+                inputCodigo.focus(); 
+            }
+
+            if(btnAgregar) btnAgregar.addEventListener('click', agregarCodigo);
+            if(inputCodigo) {
+                inputCodigo.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') { e.preventDefault(); agregarCodigo(); }
+                });
+                inputCodigo.addEventListener('input', function() {
+                     if(this.classList.contains('is-invalid')) {
+                         this.classList.remove('is-invalid');
+                         errorMsg.innerText = "";
+                     }
+                });
+            }
+            if(listaVisual) {
+                listaVisual.addEventListener('click', function(e) {
+                    const btn = e.target.closest('.btn-borrar-codigo');
+                    if (btn) {
+                        const item = btn.closest('.item-codigo');
+                        item.remove();
+                        if (listaVisual.children.length === 0 && msgVacio) {
+                            msgVacio.style.display = 'block';
+                        }
+                    }
+                });
+            }
+            
+            // Auto-expandir categorías seleccionadas al cargar
+            // Esto ayuda al usuario a ver qué categorías tiene el producto
+            const checkedInputs = document.querySelectorAll('input[name="IdsCategoriasSeleccionadas"]:checked');
+            checkedInputs.forEach(input => {
+                const collapseDiv = input.closest('.collapse');
+                if (collapseDiv && !collapseDiv.classList.contains('show')) {
+                     new bootstrap.Collapse(collapseDiv, { show: true });
+                }
+            });
+        });
+    </script>
+}

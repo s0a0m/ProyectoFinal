@@ -1,0 +1,896 @@
+@using src.Presentation.ViewModels.DepositoVM
+@using src.Presentation.ViewModels.EstanteVM
+@using src.Presentation.ViewModels.FilaVM
+@model DetalleDepositoViewModel
+
+@{
+    ViewData["Title"] = $"Detalle: {Model.Nombre}";
+    bool tienePermisoABM   = LayoutService.TienePermiso("P13_ABM_Deposito");
+    bool tienePermisoStock = LayoutService.TienePermiso("P14_Gestion_Stock");
+}
+
+@* ── Alertas ─────────────────────────────────────────────────────────────── *@
+@if (TempData["realizado"] != null)
+{
+    <div class="container py-3">
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["realizado"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+}
+@if (TempData["error"] != null)
+{
+    <div class="container py-3">
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+}
+
+<div class="container mt-4">
+
+    @* ══════════════════════════════════════════════════════════════════════
+       ENCABEZADO
+    ══════════════════════════════════════════════════════════════════════ *@
+    <div class="d-flex align-items-center gap-2 mb-4">
+        <a asp-controller="Deposito" asp-action="Index"
+           class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h2 class="fw-bold text-primary m-0">
+            <i class="bi bi-building-gear me-2"></i>@Model.Nombre
+        </h2>
+        @if (Model.Activo)
+        {
+            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 ms-1">Activo</span>
+        }
+        else
+        {
+            <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3 ms-1">Inactivo</span>
+        }
+    </div>
+
+    @* ── Tarjeta datos del depósito ───────────────────────────────────────── *@
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center g-3">
+
+                @* Dirección *@
+                <div class="col-12 col-md-6">
+                    <p class="mb-1 text-muted small">
+                        <i class="bi bi-geo-alt me-1 text-primary"></i>
+                        <strong>Dirección:</strong> @Model.DireccionResumen
+                    </p>
+                </div>
+
+                @* Stats *@
+                <div class="col-12 col-md-3">
+                    <div class="d-flex gap-3">
+                        <div class="bg-light rounded p-2 text-center flex-fill">
+                            <small class="text-uppercase text-muted fw-bold d-block" style="font-size:.7rem;">Estantes</small>
+                            <span class="fw-bold text-dark fs-5">@Model.TotalEstantes</span>
+                        </div>
+                        <div class="bg-light rounded p-2 text-center flex-fill">
+                            <small class="text-uppercase text-muted fw-bold d-block" style="font-size:.7rem;">Filas</small>
+                            <span class="fw-bold text-dark fs-5">@Model.TotalFilas</span>
+                        </div>
+                        <div class="bg-light rounded p-2 text-center flex-fill">
+                            <small class="text-uppercase text-muted fw-bold d-block" style="font-size:.7rem;">Productos</small>
+                            <span class="fw-bold text-dark fs-5">@Model.Productos.Count()</span>
+                        </div>
+                    </div>
+                </div>
+
+                @* Acciones — botón "Mover Stock" ELIMINADO (redundante con el ícono en la tabla de productos) *@
+                <div class="col-12 col-md-3 d-flex justify-content-md-end gap-2 flex-wrap">
+                    @if (tienePermisoStock)
+                    {
+                        <button class="btn btn-outline-info btn-sm"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#collapseProductos"
+                                aria-expanded="false">
+                            <i class="bi bi-boxes me-1"></i>Ver Productos
+                        </button>
+                    }
+                    @if (tienePermisoABM && Model.Activo)
+                    {
+                        <button type="button"
+                                class="btn btn-outline-warning btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalEditarDeposito">
+                            <i class="bi bi-pencil me-1"></i>Editar
+                        </button>
+                    }
+                </div>
+            </div>
+
+            @* ── Panel colapsable: productos del depósito ────────────────── *@
+            <div class="collapse mt-3" id="collapseProductos">
+                <hr class="mt-0">
+                <h6 class="text-primary mb-3">
+                    <i class="bi bi-boxes me-1"></i>
+                    Productos en <strong>@Model.Nombre</strong>
+                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill ms-1 fw-normal"
+                          style="font-size:.75em;">
+                        @Model.Productos.Count() productos
+                    </span>
+                </h6>
+
+                @if (!Model.Productos.Any())
+                {
+                    <p class="text-muted fst-italic small mb-0 ps-2">
+                        Sin stock registrado en este depósito.
+                    </p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover align-middle mb-0">
+                            <thead class="table-light text-uppercase small text-muted">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th class="text-center">Stock total en depósito</th>
+                                    <th class="text-center">Distribuido en filas</th>
+                                    @if (tienePermisoStock)
+                                    {
+                                        <th class="text-center" style="width:100px;">Acción</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var prod in Model.Productos)
+                                {
+                                    <tr>
+                                        <td>
+                                            <i class="bi bi-box-seam me-2 text-secondary"></i>
+                                            @prod.NombreProducto
+                                        </td>
+                                        <td class="text-center fw-bold">@prod.StockEnDeposito.ToString("N2")</td>
+                                        <td class="text-center text-muted small">@prod.CantidadFilas filas</td>
+                                        @if (tienePermisoStock)
+                                        {
+                                            <td class="text-center">
+                                                @* Navega a BuscarProducto mostrando directamente este producto *@
+                                                <a asp-controller="Stock"
+                                                   asp-action="BuscarProducto"
+                                                   asp-route-idProducto="@prod.IdProducto"
+                                                   class="btn btn-link btn-sm text-primary p-0"
+                                                   title="Ver distribución y mover stock">
+                                                    <i class="bi bi-arrow-left-right"></i>
+                                                </a>
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* ══════════════════════════════════════════════════════════════════════
+       SECCIÓN ESTANTES
+    ══════════════════════════════════════════════════════════════════════ *@
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-dark m-0">
+            <i class="bi bi-grid-3x3-gap me-2 text-primary"></i>Estantes
+        </h5>
+        @if (tienePermisoABM && Model.Activo)
+        {
+            <button type="button" class="btn btn-primary btn-sm shadow-sm"
+                    data-bs-toggle="modal" data-bs-target="#modalCrearEstante">
+                <i class="bi bi-plus-lg me-1"></i>Nuevo Estante
+            </button>
+        }
+    </div>
+
+    @if (!Model.Estantes.Any())
+    {
+        <div class="alert alert-secondary text-center p-5">
+            <i class="bi bi-grid-3x3-gap display-4 mb-3 d-block text-muted"></i>
+            <p class="h5 text-muted">No hay estantes registrados en este depósito.</p>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-uppercase small text-muted">
+                            <tr>
+                                <th style="width:50px;"></th>
+                                <th>Estante</th>
+                                <th class="text-center">Filas</th>
+                                <th class="text-center">Stock total</th>
+                                <th class="text-center">Espacio</th>
+                                <th>Observaciones</th>
+                                <th class="text-center" style="width:130px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var estante in Model.Estantes)
+                            {
+                                <tr class="fw-semibold @(estante.Activo ? "" : "text-muted opacity-75")">
+
+                                    @* Botón colapsar *@
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-outline-secondary rounded-circle"
+                                                type="button"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#collapseEstante_@estante.IdEstante"
+                                                aria-expanded="false"
+                                                title="Ver filas">
+                                            <i class="bi bi-chevron-down"></i>
+                                        </button>
+                                    </td>
+
+                                    <td>
+                                        <i class="bi bi-grid-3x3-gap-fill me-2 text-primary"></i>
+                                        Estante @estante.NumeroEstante
+                                        @if (!estante.Activo)
+                                        {
+                                            <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill ms-1 fw-normal"
+                                                  style="font-size:.7em;">Inactivo</span>
+                                        }
+                                        <span class="badge bg-secondary ms-2 rounded-pill fw-normal"
+                                              style="font-size:.7em;">
+                                            @estante.TotalFilas filas
+                                        </span>
+                                    </td>
+
+                                    <td class="text-center">@estante.TotalFilas</td>
+
+                                    <td class="text-center">
+                                        @if (estante.TotalStockEstante > 0)
+                                        {
+                                            <span class="badge bg-info bg-opacity-10 text-info">
+                                                @estante.TotalStockEstante.ToString("N0") u.
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">—</span>
+                                        }
+                                    </td>
+
+                                    <td class="text-center">
+                                        @if (estante.TieneEspacio)
+                                        {
+                                            <span class="badge bg-success bg-opacity-10 text-success">
+                                                <i class="bi bi-check-circle me-1"></i>Disponible
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger bg-opacity-10 text-danger">
+                                                <i class="bi bi-x-circle me-1"></i>Lleno
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td class="small text-muted">
+                                        @(string.IsNullOrEmpty(estante.Observaciones) ? "—" : estante.Observaciones)
+                                    </td>
+
+                                    @* Acciones estante *@
+                                    <td class="text-center">
+                                        @if (tienePermisoABM)
+                                        {
+                                            <div class="btn-group" role="group">
+                                                @if (estante.Activo)
+                                                {
+                                                    <button class="btn btn-sm btn-warning text-white"
+                                                            title="Editar estante"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#modalEditarEstante"
+                                                            data-id="@estante.IdEstante"
+                                                            data-numero="@estante.NumeroEstante"
+                                                            data-tieneespacio="@estante.TieneEspacio.ToString().ToLower()"
+                                                            data-observaciones="@estante.Observaciones">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger"
+                                                            title="Desactivar estante"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#modalDesactivarEstante"
+                                                            data-id="@estante.IdEstante"
+                                                            data-numero="@estante.NumeroEstante">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <form asp-controller="Estante"
+                                                          asp-action="ReactivarEstante"
+                                                          method="post"
+                                                          class="d-inline"
+                                                          onsubmit="return confirm('¿Reactivar el estante @estante.NumeroEstante?');">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="id" value="@estante.IdEstante" />
+                                                        <input type="hidden" name="idDeposito" value="@Model.IdDeposito" />
+                                                        <button type="submit" class="btn btn-sm btn-success rounded"
+                                                                title="Reactivar estante">
+                                                            <i class="bi bi-arrow-counterclockwise"></i>
+                                                        </button>
+                                                    </form>
+                                                }
+                                            </div>
+                                        }
+                                    </td>
+                                </tr>
+
+                                @* ── Fila colapsable con las filas del estante ── *@
+                                <tr>
+                                    <td colspan="7" class="p-0 border-0">
+                                        <div class="collapse bg-light border-bottom shadow-inset"
+                                             id="collapseEstante_@estante.IdEstante">
+                                            <div class="p-4">
+
+                                                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                                                    <h6 class="text-primary m-0">
+                                                        <i class="bi bi-list-ul me-2"></i>
+                                                        Filas en <strong>Estante @estante.NumeroEstante</strong>
+                                                    </h6>
+                                                    @if (tienePermisoABM && estante.Activo)
+                                                    {
+                                                        <button class="btn btn-sm btn-outline-primary"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#modalCrearFila"
+                                                                data-idestante="@estante.IdEstante"
+                                                                data-numeroestante="@estante.NumeroEstante">
+                                                            <i class="bi bi-plus-lg me-1"></i>Nueva Fila
+                                                        </button>
+                                                    }
+                                                </div>
+
+                                                @if (!estante.Filas.Any())
+                                                {
+                                                    <p class="text-muted small fst-italic mb-0 ps-3">
+                                                        No hay filas en este estante. Agregá una arriba.
+                                                    </p>
+                                                }
+                                                else
+                                                {
+                                                    <table class="table table-sm table-borderless mb-0">
+                                                        <thead class="text-muted small">
+                                                            <tr>
+                                                                <th style="width:20%;">Fila</th>
+                                                                <th class="text-center">Espacio</th>
+                                                                <th class="text-center">Stock</th>
+                                                                <th>Observaciones</th>
+                                                                @if (tienePermisoABM)
+                                                                {
+                                                                    <th class="text-end">Acciones</th>
+                                                                }
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var fila in estante.Filas)
+                                                            {
+                                                                <tr class="@(fila.Activo ? "" : "opacity-50")">
+                                                                    <td class="ps-3">
+                                                                        <i class="bi bi-arrows-expand-vertical me-2 text-secondary"></i>
+                                                                        Fila @fila.NFila
+                                                                        @if (!fila.Activo)
+                                                                        {
+                                                                            <span class="badge bg-secondary bg-opacity-10 text-secondary ms-1"
+                                                                                  style="font-size:.7em;">Inactiva</span>
+                                                                        }
+                                                                    </td>
+
+                                                                    <td class="text-center">
+                                                                        @if (fila.TieneEspacio)
+                                                                        {
+                                                                            <i class="bi bi-check-circle-fill text-success" title="Con espacio"></i>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <i class="bi bi-x-circle-fill text-danger" title="Sin espacio"></i>
+                                                                        }
+                                                                    </td>
+
+                                                                    <td class="text-center">
+                                                                        @if (fila.TotalStockFila > 0)
+                                                                        {
+                                                                            <span class="badge bg-info bg-opacity-10 text-info">
+                                                                                @fila.TotalStockFila.ToString("N0") u.
+                                                                            </span>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <span class="text-muted">—</span>
+                                                                        }
+                                                                    </td>
+
+                                                                    <td class="text-muted small">
+                                                                        @(string.IsNullOrEmpty(fila.Observaciones) ? "—" : fila.Observaciones)
+                                                                    </td>
+
+                                                                    @if (tienePermisoABM)
+                                                                    {
+                                                                        <td class="text-end">
+                                                                            @if (fila.Activo)
+                                                                            {
+                                                                                <button class="btn btn-link text-warning me-2 p-0 border-0"
+                                                                                        title="Editar fila"
+                                                                                        data-bs-toggle="modal"
+                                                                                        data-bs-target="#modalEditarFila"
+                                                                                        data-id="@fila.IdFila"
+                                                                                        data-nfila="@fila.NFila"
+                                                                                        data-tieneespacio="@fila.TieneEspacio.ToString().ToLower()"
+                                                                                        data-observaciones="@fila.Observaciones"
+                                                                                        data-idestante="@estante.IdEstante"
+                                                                                        data-iddeposito="@Model.IdDeposito">
+                                                                                    <i class="bi bi-pencil"></i>
+                                                                                </button>
+                                                                                <button class="btn btn-link text-danger p-0 border-0"
+                                                                                        title="Desactivar fila"
+                                                                                        data-bs-toggle="modal"
+                                                                                        data-bs-target="#modalDesactivarFila"
+                                                                                        data-id="@fila.IdFila"
+                                                                                        data-nfila="@fila.NFila"
+                                                                                        data-idestante="@estante.IdEstante"
+                                                                                        data-iddeposito="@Model.IdDeposito">
+                                                                                    <i class="bi bi-trash"></i>
+                                                                                </button>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <form asp-controller="Fila"
+                                                                                      asp-action="ReactivarFila"
+                                                                                      method="post" class="d-inline"
+                                                                                      onsubmit="return confirm('¿Reactivar la fila @fila.NFila?');">
+                                                                                    @Html.AntiForgeryToken()
+                                                                                    <input type="hidden" name="id"         value="@fila.IdFila" />
+                                                                                    <input type="hidden" name="idEstante"  value="@estante.IdEstante" />
+                                                                                    <input type="hidden" name="idDeposito" value="@Model.IdDeposito" />
+                                                                                    <button type="submit"
+                                                                                            class="btn btn-link text-success p-0 border-0"
+                                                                                            title="Reactivar fila">
+                                                                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                                                                    </button>
+                                                                                </form>
+                                                                            }
+                                                                        </td>
+                                                                    }
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@* ══════════════════════════════════════════════════════════════════════════
+   MODALES — ESTANTE
+══════════════════════════════════════════════════════════════════════════ *@
+
+@* CREAR Estante *@
+<div class="modal fade" id="modalCrearEstante" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-controller="Estante" asp-action="CrearEstante" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="IdDeposito" value="@Model.IdDeposito" />
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-grid-3x3-gap me-2"></i>Nuevo Estante
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input name="NumeroEstante" class="form-control" placeholder="N°"
+                               required maxlength="50" id="crearEstanteNumero">
+                        <label for="crearEstanteNumero">Número / Nombre del estante</label>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" role="switch"
+                               name="TieneEspacio" id="crearEstanteTieneEspacio" checked value="true">
+                        <label class="form-check-label" for="crearEstanteTieneEspacio">
+                            Tiene espacio disponible
+                        </label>
+                    </div>
+                    <div class="form-floating">
+                        <textarea name="Observaciones" class="form-control" placeholder="Observaciones"
+                                  style="height:90px" maxlength="300" id="crearEstanteObs"></textarea>
+                        <label for="crearEstanteObs">Observaciones (opcional)</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-floppy me-1"></i>Guardar Estante
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* EDITAR Estante *@
+<div class="modal fade" id="modalEditarEstante" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-controller="Estante" asp-action="ActualizarEstante" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="editEstanteId" name="IdEstante" />
+                <input type="hidden" name="IdDeposito" value="@Model.IdDeposito" />
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title">
+                        <i class="bi bi-pencil-square me-2"></i>Editar Estante
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input name="NumeroEstante" id="editEstanteNumero" class="form-control"
+                               placeholder="N°" required maxlength="50">
+                        <label>Número / Nombre del estante</label>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" role="switch"
+                               name="TieneEspacio" id="editEstanteTieneEspacio" value="true">
+                        <label class="form-check-label" for="editEstanteTieneEspacio">
+                            Tiene espacio disponible
+                        </label>
+                    </div>
+                    <div class="form-floating">
+                        <textarea name="Observaciones" id="editEstanteObs" class="form-control"
+                                  placeholder="Observaciones" style="height:90px" maxlength="300"></textarea>
+                        <label>Observaciones (opcional)</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-floppy me-1"></i>Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* DESACTIVAR Estante *@
+<div class="modal fade" id="modalDesactivarEstante" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form asp-controller="Estante" asp-action="EliminarEstante" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="desactivarEstanteId" name="id" />
+                <input type="hidden" name="idDeposito" value="@Model.IdDeposito" />
+                <div class="modal-header border-0">
+                    <h5 class="modal-title text-danger">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>Desactivar Estante
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="text-muted mb-1">
+                        ¿Desactivar el estante <strong id="desactivarEstanteNumero"></strong>?
+                    </p>
+                    <p class="small text-danger fw-bold bg-danger bg-opacity-10 p-2 rounded">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Solo es posible si el estante no tiene filas con stock.
+                    </p>
+                </div>
+                <div class="modal-footer border-0 justify-content-center">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger px-4">Sí, Desactivar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* ══════════════════════════════════════════════════════════════════════════
+   MODALES — FILA
+══════════════════════════════════════════════════════════════════════════ *@
+
+@* CREAR Fila *@
+<div class="modal fade" id="modalCrearFila" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-controller="Fila" asp-action="CrearFila" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="IdEstante"  id="crearFilaIdEstante" />
+                <input type="hidden" name="IdDeposito" value="@Model.IdDeposito" />
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-arrows-expand-vertical me-2"></i>Nueva Fila
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Agregando a:</label>
+                        <input type="text" id="crearFilaNombreEstante"
+                               class="form-control-plaintext fw-bold text-primary ps-2 border rounded bg-light"
+                               readonly>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input name="NFila" class="form-control" placeholder="Fila"
+                               required maxlength="50" id="crearFilaNFila">
+                        <label for="crearFilaNFila">Nombre / Número de la fila</label>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" role="switch"
+                               name="TieneEspacio" id="crearFilaTieneEspacio" checked value="true">
+                        <label class="form-check-label" for="crearFilaTieneEspacio">
+                            Tiene espacio disponible
+                        </label>
+                    </div>
+                    <div class="form-floating">
+                        <textarea name="Observaciones" class="form-control" placeholder="Observaciones"
+                                  style="height:90px" maxlength="300" id="crearFilaObs"></textarea>
+                        <label for="crearFilaObs">Observaciones (opcional)</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-info text-white">
+                        <i class="bi bi-floppy me-1"></i>Guardar Fila
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* EDITAR Fila *@
+<div class="modal fade" id="modalEditarFila" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-controller="Fila" asp-action="ActualizarFila" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="editFilaIdDeposito" name="IdDeposito" />
+                <input type="hidden" id="editFilaId"         name="IdFila" />
+                <input type="hidden" id="editFilaIdEstante"  name="IdEstante" />
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title">
+                        <i class="bi bi-pencil me-2"></i>Editar Fila
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input name="NFila" id="editFilaNFila" class="form-control"
+                               placeholder="Fila" required maxlength="50">
+                        <label>Nombre / Número de la fila</label>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" role="switch"
+                               name="TieneEspacio" id="editFilaTieneEspacio" value="true">
+                        <label class="form-check-label" for="editFilaTieneEspacio">
+                            Tiene espacio disponible
+                        </label>
+                    </div>
+                    <div class="form-floating">
+                        <textarea name="Observaciones" id="editFilaObs" class="form-control"
+                                  placeholder="Observaciones" style="height:90px" maxlength="300"></textarea>
+                        <label>Observaciones (opcional)</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-floppy me-1"></i>Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* DESACTIVAR Fila *@
+<div class="modal fade" id="modalDesactivarFila" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form asp-controller="Fila" asp-action="EliminarFila" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="desactivarFilaId"         name="id" />
+                <input type="hidden" id="desactivarFilaIdEstante"  name="idEstante" />
+                <input type="hidden" id="desactivarFilaIdDeposito" name="idDeposito" />
+                <div class="modal-header border-0">
+                    <h5 class="modal-title text-danger">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>Desactivar Fila
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="text-muted mb-1">
+                        ¿Desactivar la fila <strong id="desactivarFilaNFila"></strong>?
+                    </p>
+                    <p class="small text-danger fw-bold bg-danger bg-opacity-10 p-2 rounded">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Solo es posible si la fila no tiene stock registrado.
+                    </p>
+                </div>
+                <div class="modal-footer border-0 justify-content-center">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger px-4">Sí, Desactivar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* ══════════════════════════════════════════════════════════════════════════
+   MODAL — EDITAR DEPÓSITO
+══════════════════════════════════════════════════════════════════════════ *@
+@if (tienePermisoABM && Model.Activo)
+{
+    <div class="modal fade" id="modalEditarDeposito" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form asp-controller="Deposito" asp-action="ActualizarDeposito" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="IdDeposito" value="@Model.FormularioEdicion.IdDeposito" />
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title">
+                            <i class="bi bi-pencil-square me-2"></i>Editar Depósito
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                Nombre del depósito <span class="text-danger">*</span>
+                            </label>
+                            <input name="Nombre" class="form-control" required maxlength="100"
+                                   value="@Model.FormularioEdicion.Nombre"
+                                   placeholder="Ej: Depósito Central">
+                        </div>
+                        <hr class="my-3">
+                        <h6 class="fw-bold text-muted mb-3">
+                            <i class="bi bi-geo-alt me-1"></i>Dirección
+                        </h6>
+                        <div class="row g-3 mb-3">
+                            <div class="col-8">
+                                <label class="form-label fw-semibold">
+                                    Calle <span class="text-danger">*</span>
+                                </label>
+                                <input name="Calle" class="form-control" required maxlength="200"
+                                       value="@Model.FormularioEdicion.Calle"
+                                       placeholder="Ej: Av. San Martín">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-label fw-semibold">
+                                    Número <span class="text-danger">*</span>
+                                </label>
+                                <input name="Numero" type="number" min="1" max="32767"
+                                       class="form-control" required
+                                       value="@Model.FormularioEdicion.Numero">
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-4">
+                                <label class="form-label fw-semibold">Piso</label>
+                                <input name="Piso" type="number" min="0" max="32767"
+                                       class="form-control"
+                                       value="@Model.FormularioEdicion.Piso">
+                            </div>
+                            <div class="col-8">
+                                <label class="form-label fw-semibold">
+                                    Provincia <span class="text-danger">*</span>
+                                </label>
+                                <select name="IdProvincia" class="form-select" required>
+                                    <option value="">— Seleccionar provincia —</option>
+                                    @foreach (var prov in Model.FormularioEdicion.Provincias)
+                                    {
+                                        <option value="@prov.Value"
+                                                selected="@(prov.Value == Model.FormularioEdicion.IdProvincia.ToString() ? "selected" : null)">
+                                            @prov.Text
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Comentario / Referencias</label>
+                            <textarea name="Comentario" class="form-control" rows="2" maxlength="300"
+                                      placeholder="Ej: Portón trasero, timbre 3...">@Model.FormularioEdicion.Comentario</textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-warning px-4">
+                            <i class="bi bi-floppy me-1"></i>Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@* ══════════════════════════════════════════════════════════════════════════
+   SCRIPTS
+══════════════════════════════════════════════════════════════════════════ *@
+@section Styles {
+    <style>
+        .collapse.show {
+            background-color: #f8f9fa;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,.05);
+        }
+        .btn[aria-expanded="true"] .bi-chevron-down {
+            transform: rotate(180deg);
+        }
+        .bi-chevron-down { transition: transform .3s ease; }
+        .shadow-inset    { box-shadow: inset 0 2px 4px rgba(0,0,0,.06); }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        // ── Crear Fila: popula datos del estante padre ──────────────────────
+        document.getElementById('modalCrearFila')
+            .addEventListener('show.bs.modal', function (e) {
+                var btn = e.relatedTarget;
+                this.querySelector('#crearFilaIdEstante').value     = btn.dataset.idestante;
+                this.querySelector('#crearFilaNombreEstante').value =
+                    'Estante ' + btn.dataset.numeroestante;
+            });
+
+        // ── Editar Estante ──────────────────────────────────────────────────
+        document.getElementById('modalEditarEstante')
+            .addEventListener('show.bs.modal', function (e) {
+                var btn = e.relatedTarget;
+                this.querySelector('#editEstanteId').value     = btn.dataset.id;
+                this.querySelector('#editEstanteNumero').value = btn.dataset.numero;
+                this.querySelector('#editEstanteObs').value    = btn.dataset.observaciones || '';
+                this.querySelector('#editEstanteTieneEspacio').checked =
+                    btn.dataset.tieneespacio === 'true';
+            });
+
+        // ── Desactivar Estante ──────────────────────────────────────────────
+        document.getElementById('modalDesactivarEstante')
+            .addEventListener('show.bs.modal', function (e) {
+                var btn = e.relatedTarget;
+                this.querySelector('#desactivarEstanteId').value          = btn.dataset.id;
+                this.querySelector('#desactivarEstanteNumero').textContent =
+                    'N° ' + btn.dataset.numero;
+            });
+
+        // ── Editar Fila ─────────────────────────────────────────────────────
+        document.getElementById('modalEditarFila')
+            .addEventListener('show.bs.modal', function (e) {
+                var btn = e.relatedTarget;
+                this.querySelector('#editFilaIdDeposito').value = btn.dataset.iddeposito;
+                this.querySelector('#editFilaId').value         = btn.dataset.id;
+                this.querySelector('#editFilaIdEstante').value  = btn.dataset.idestante;
+                this.querySelector('#editFilaNFila').value      = btn.dataset.nfila;
+                this.querySelector('#editFilaObs').value        = btn.dataset.observaciones || '';
+                this.querySelector('#editFilaTieneEspacio').checked =
+                    btn.dataset.tieneespacio === 'true';
+            });
+
+        // ── Desactivar Fila ─────────────────────────────────────────────────
+        document.getElementById('modalDesactivarFila')
+            .addEventListener('show.bs.modal', function (e) {
+                var btn = e.relatedTarget;
+                this.querySelector('#desactivarFilaId').value         = btn.dataset.id;
+                this.querySelector('#desactivarFilaIdEstante').value  = btn.dataset.idestante;
+                this.querySelector('#desactivarFilaIdDeposito').value = btn.dataset.iddeposito;
+                this.querySelector('#desactivarFilaNFila').textContent = btn.dataset.nfila;
+            });
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+}

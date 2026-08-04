@@ -1,0 +1,67 @@
+@using src.Presentation.ViewModels.CuentaCorrienteVM
+@model OrdenPagoDetalleModalVM
+
+<div class="modal-header bg-light">
+    <h5 class="modal-title" id="detalleOrdenLabel">
+        Orden de Pago <span class="fw-bold">@Model.NumeroOrden</span>
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+    <div class="row mb-4">
+        <div class="col-6">
+            <small class="text-muted d-block">Fecha de Pago</small>
+            <span class="fw-bold">@Model.FechaPago.ToString("dd/MM/yyyy")</span>
+        </div>
+        <div class="col-6 text-end">
+            <small class="text-muted d-block">Monto Total</small>
+            <span class="fs-5 fw-bold text-success">$@Model.MontoTotal.ToString("N2")</span>
+        </div>
+        <div class="col-12 mt-2">
+            <small class="text-muted">Estado: </small>
+            @if(Model.Estado == "Enviada")
+            {
+                <span class="badge bg-success">Enviada</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary">Borrador</span>
+            }
+        </div>
+    </div>
+
+    <h6 class="border-bottom pb-2 mb-3">Facturas canceladas / abonadas</h6>
+
+    <div class="table-responsive">
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>Factura N°</th>
+                    <th>Fecha Emisión</th>
+                    <th class="text-end">Importe Abonado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>@item.NumeroFactura</td>
+                        <td>@item.FechaEmisionFactura.ToString("dd/MM/yyyy")</td>
+                        <td class="text-end fw-bold">$@item.ImportePagado.ToString("N2")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+    @if(Model.Estado == "Borrador")
+    {
+         <a href="/OrdenesPago/Editar/@Model.IdOrdenPago" class="btn btn-primary">
+            <i class="bi bi-pencil"></i> Editar
+         </a>
+    }
+</div>

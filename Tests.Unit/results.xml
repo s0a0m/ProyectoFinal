@@ -1,0 +1,187 @@
+<assemblies timestamp="03/21/2026 17:52:12">
+  <assembly name="/home/s0a0m/proyectos/proyecto_final/ProyectoFinal/Tests.Unit/bin/Debug/net8.0/Tests.Unit.dll" run-date="2026-03-21" run-time="17:52:12" total="56" passed="56" failed="0" skipped="0" time="2.593" errors="0">
+    <errors />
+    <collection total="4" passed="4" failed="0" skipped="0" name="Test collection for src.AdapterTest.BarcodeAdapterTests" time="1.245">
+      <test name="src.AdapterTest.BarcodeAdapterTests.GenerarBase64_Codigo128Valido_RetornaCadenaNoVacia" type="src.AdapterTest.BarcodeAdapterTests" method="GenerarBase64_Codigo128Valido_RetornaCadenaNoVacia" time="1.1895204" result="Pass">
+        <traits />
+      </test>
+      <test name="src.AdapterTest.BarcodeAdapterTests.GenerarBase64_CodigoGS1Valido_RetornaCadenaNoVacia" type="src.AdapterTest.BarcodeAdapterTests" method="GenerarBase64_CodigoGS1Valido_RetornaCadenaNoVacia" time="0.0508095" result="Pass">
+        <traits />
+      </test>
+      <test name="src.AdapterTest.BarcodeAdapterTests.GenerarBase64_CodigoConLongitudIncorrecta_LanzaArgumentException" type="src.AdapterTest.BarcodeAdapterTests" method="GenerarBase64_CodigoConLongitudIncorrecta_LanzaArgumentException" time="0.0034528" result="Pass">
+        <traits />
+      </test>
+      <test name="src.AdapterTest.BarcodeAdapterTests.GenerarBase64_CodigoGS1Invalido_LanzaArgumentException" type="src.AdapterTest.BarcodeAdapterTests" method="GenerarBase64_CodigoGS1Invalido_LanzaArgumentException" time="0.0008376" result="Pass">
+        <traits />
+      </test>
+    </collection>
+    <collection total="10" passed="10" failed="0" skipped="0" name="Test collection for Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests" time="0.010">
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests.AplicarPago_PagoTotal_MarcaComoPagada" type="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests" method="AplicarPago_PagoTotal_MarcaComoPagada" time="0.0065951" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests.AplicarPago_PagoParcial_NoMarcaComoPagada" type="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests" method="AplicarPago_PagoParcial_NoMarcaComoPagada" time="0.0004479" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests.RecalcularSaldo_NuevoTotalIgualAlPagado_MarcaPagada" type="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests" method="RecalcularSaldo_NuevoTotalIgualAlPagado_MarcaPagada" time="0.0013029" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests.AplicarPago_MultipesPagosParciales_SaldoCorreto" type="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests" method="AplicarPago_MultipesPagosParciales_SaldoCorreto" time="0.0003258" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests.RecalcularSaldo_ConPagosPrevios_RespetaMontoPagado" type="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests" method="RecalcularSaldo_ConPagosPrevios_RespetaMontoPagado" time="0.0003072" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests.RecalcularSaldo_SinPagosPrevios_SaldoIgualAlNuevoTotal" type="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests" method="RecalcularSaldo_SinPagosPrevios_SaldoIgualAlNuevoTotal" time="0.0002338" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests.AplicarPago_PagoTotal_AsignaFechaPago" type="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests" method="AplicarPago_PagoTotal_AsignaFechaPago" time="0.0003296" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests.AplicarPago_PagoParcial_ReduceSaldo" type="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests" method="AplicarPago_PagoParcial_ReduceSaldo" time="0.0002137" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests.RecalcularSaldo_NuevoTotalMenorAlPagado_SaldoNegativo" type="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests" method="RecalcularSaldo_NuevoTotalMenorAlPagado_SaldoNegativo" time="0.0002728" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests.AplicarPago_PagoTotal_SaldoQuedaEnCero" type="Tests.Unit.Domain.CuentaCorriente.FacturaOperacionesTests" method="AplicarPago_PagoTotal_SaldoQuedaEnCero" time="0.0002354" result="Pass">
+        <traits />
+      </test>
+    </collection>
+    <collection total="11" passed="11" failed="0" skipped="0" name="Test collection for Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests" time="0.010">
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests.PuedeEmitirND_FacturaPagada_RetornaTrue" type="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests" method="PuedeEmitirND_FacturaPagada_RetornaTrue" time="0.0065631" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests.PuedeEditarse_ConPagoParcial_RetornaFalse" type="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests" method="PuedeEditarse_ConPagoParcial_RetornaFalse" time="0.0004599" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests.PuedeEditarse_SinPagosAplicados_RetornaTrue" type="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests" method="PuedeEditarse_SinPagosAplicados_RetornaTrue" time="0.0002506" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests.PuedeEmitirNC_SaldoCeroNoPagada_RetornaFalse" type="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests" method="PuedeEmitirNC_SaldoCeroNoPagada_RetornaFalse" time="0.0004333" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests.PuedeRecibirPago_ConSaldo_RetornaTrue" type="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests" method="PuedeRecibirPago_ConSaldo_RetornaTrue" time="0.0011892" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests.PuedeRecibirPago_SinSaldo_RetornaFalse" type="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests" method="PuedeRecibirPago_SinSaldo_RetornaFalse" time="0.0002087" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests.PuedeEditarse_Pagada_RetornaFalse" type="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests" method="PuedeEditarse_Pagada_RetornaFalse" time="0.0001937" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests.PuedeEmitirNC_ConSaldoParcial_RetornaTrue" type="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests" method="PuedeEmitirNC_ConSaldoParcial_RetornaTrue" time="0.0001882" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests.PuedeEmitirNC_ConSaldoPendiente_RetornaTrue" type="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests" method="PuedeEmitirNC_ConSaldoPendiente_RetornaTrue" time="0.0001890" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests.PuedeEmitirNC_FacturaPagada_RetornaFalse" type="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests" method="PuedeEmitirNC_FacturaPagada_RetornaFalse" time="0.0001912" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests.PuedeEmitirND_FacturaPendiente_RetornaTrue" type="Tests.Unit.Domain.CuentaCorriente.FacturaValidacionesTests" method="PuedeEmitirND_FacturaPendiente_RetornaTrue" time="0.0001960" result="Pass">
+        <traits />
+      </test>
+    </collection>
+    <collection total="8" passed="8" failed="0" skipped="0" name="Test collection for Tests.Unit.Domain.CuentaCorriente.FlujoCompletoTests" time="0.017">
+      <test name="Tests.Unit.Domain.CuentaCorriente.FlujoCompletoTests.Flujo_Factura_ND_NC_PagosParciales_SaldosCuadran" type="Tests.Unit.Domain.CuentaCorriente.FlujoCompletoTests" method="Flujo_Factura_ND_NC_PagosParciales_SaldosCuadran" time="0.0140648" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FlujoCompletoTests.Flujo_CrearFactura_PagarTotal_SaldosCuadran" type="Tests.Unit.Domain.CuentaCorriente.FlujoCompletoTests" method="Flujo_CrearFactura_PagarTotal_SaldosCuadran" time="0.0006537" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FlujoCompletoTests.Flujo_Factura_NC_PagoResto_SaldosCuadran" type="Tests.Unit.Domain.CuentaCorriente.FlujoCompletoTests" method="Flujo_Factura_NC_PagoResto_SaldosCuadran" time="0.0005035" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FlujoCompletoTests.Flujo_Factura_PagoTotal_ND_PagoNuevo_SaldosCuadran" type="Tests.Unit.Domain.CuentaCorriente.FlujoCompletoTests" method="Flujo_Factura_PagoTotal_ND_PagoNuevo_SaldosCuadran" time="0.0005836" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FlujoCompletoTests.Validacion_FacturaPagada_SoloPermiteND" type="Tests.Unit.Domain.CuentaCorriente.FlujoCompletoTests" method="Validacion_FacturaPagada_SoloPermiteND" time="0.0002087" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FlujoCompletoTests.Validacion_NCMayorAlSaldo_FacturaNoPuedeEmitir" type="Tests.Unit.Domain.CuentaCorriente.FlujoCompletoTests" method="Validacion_NCMayorAlSaldo_FacturaNoPuedeEmitir" time="0.0002875" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FlujoCompletoTests.Flujo_OrdenBorrador_NCReduceSaldo_OrdenExcedeSaldo" type="Tests.Unit.Domain.CuentaCorriente.FlujoCompletoTests" method="Flujo_OrdenBorrador_NCReduceSaldo_OrdenExcedeSaldo" time="0.0003325" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.FlujoCompletoTests.Flujo_MultiplesFacturas_SaldoProveedorAcumulado" type="Tests.Unit.Domain.CuentaCorriente.FlujoCompletoTests" method="Flujo_MultiplesFacturas_SaldoProveedorAcumulado" time="0.0005708" result="Pass">
+        <traits />
+      </test>
+    </collection>
+    <collection total="7" passed="7" failed="0" skipped="0" name="Test collection for Tests.Unit.Domain.CuentaCorriente.NotaCreditoTests" time="0.016">
+      <test name="Tests.Unit.Domain.CuentaCorriente.NotaCreditoTests.Aplicar_ReduceSaldoProveedor" type="Tests.Unit.Domain.CuentaCorriente.NotaCreditoTests" method="Aplicar_ReduceSaldoProveedor" time="0.0138890" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.NotaCreditoTests.Aplicar_NCParcial_NoMarcaFacturaPagada" type="Tests.Unit.Domain.CuentaCorriente.NotaCreditoTests" method="Aplicar_NCParcial_NoMarcaFacturaPagada" time="0.0003267" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.NotaCreditoTests.Aplicar_MultiplesNC_HastaLlegarACero" type="Tests.Unit.Domain.CuentaCorriente.NotaCreditoTests" method="Aplicar_MultiplesNC_HastaLlegarACero" time="0.0004113" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.NotaCreditoTests.Aplicar_MultiplesNC_SaldoSeReduceAcumulativamente" type="Tests.Unit.Domain.CuentaCorriente.NotaCreditoTests" method="Aplicar_MultiplesNC_SaldoSeReduceAcumulativamente" time="0.0004321" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.NotaCreditoTests.Aplicar_SobreFacturaParcialmentePagada_ReduceSaldoRestante" type="Tests.Unit.Domain.CuentaCorriente.NotaCreditoTests" method="Aplicar_SobreFacturaParcialmentePagada_ReduceSaldoRestante" time="0.0003533" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.NotaCreditoTests.Aplicar_NCPorTotalDelSaldo_MarcaFacturaPagada" type="Tests.Unit.Domain.CuentaCorriente.NotaCreditoTests" method="Aplicar_NCPorTotalDelSaldo_MarcaFacturaPagada" time="0.0004210" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.NotaCreditoTests.Aplicar_ReduceSaldoFactura" type="Tests.Unit.Domain.CuentaCorriente.NotaCreditoTests" method="Aplicar_ReduceSaldoFactura" time="0.0002502" result="Pass">
+        <traits />
+      </test>
+    </collection>
+    <collection total="8" passed="8" failed="0" skipped="0" name="Test collection for Tests.Unit.Domain.CuentaCorriente.NotaDebitoTests" time="0.016">
+      <test name="Tests.Unit.Domain.CuentaCorriente.NotaDebitoTests.Aplicar_AumentaTotalFacturado" type="Tests.Unit.Domain.CuentaCorriente.NotaDebitoTests" method="Aplicar_AumentaTotalFacturado" time="0.0139250" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.NotaDebitoTests.Aplicar_MarcaFacturaComoNoPagada" type="Tests.Unit.Domain.CuentaCorriente.NotaDebitoTests" method="Aplicar_MarcaFacturaComoNoPagada" time="0.0002841" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.NotaDebitoTests.Aplicar_AumentaSaldoFactura" type="Tests.Unit.Domain.CuentaCorriente.NotaDebitoTests" method="Aplicar_AumentaSaldoFactura" time="0.0002595" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.NotaDebitoTests.Aplicar_NDLuegoNC_SaldoQuedaCorrecto" type="Tests.Unit.Domain.CuentaCorriente.NotaDebitoTests" method="Aplicar_NDLuegoNC_SaldoQuedaCorrecto" time="0.0004860" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.NotaDebitoTests.Aplicar_AumentaSaldoProveedor" type="Tests.Unit.Domain.CuentaCorriente.NotaDebitoTests" method="Aplicar_AumentaSaldoProveedor" time="0.0002664" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.NotaDebitoTests.Aplicar_SobreFacturaPagada_AumentaSaldoProveedor" type="Tests.Unit.Domain.CuentaCorriente.NotaDebitoTests" method="Aplicar_SobreFacturaPagada_AumentaSaldoProveedor" time="0.0002597" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.NotaDebitoTests.Aplicar_MultiplesND_SaldoSeAcumula" type="Tests.Unit.Domain.CuentaCorriente.NotaDebitoTests" method="Aplicar_MultiplesND_SaldoSeAcumula" time="0.0003586" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.NotaDebitoTests.Aplicar_SobreFacturaPagada_ReabreDeuda" type="Tests.Unit.Domain.CuentaCorriente.NotaDebitoTests" method="Aplicar_SobreFacturaPagada_ReabreDeuda" time="0.0002939" result="Pass">
+        <traits />
+      </test>
+    </collection>
+    <collection total="8" passed="8" failed="0" skipped="0" name="Test collection for Tests.Unit.Domain.CuentaCorriente.ProveedorSaldoTests" time="0.016">
+      <test name="Tests.Unit.Domain.CuentaCorriente.ProveedorSaldoTests.ReducirSaldo_MontoIgualAlSaldo_QuedaEnCero" type="Tests.Unit.Domain.CuentaCorriente.ProveedorSaldoTests" method="ReducirSaldo_MontoIgualAlSaldo_QuedaEnCero" time="0.0139011" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.ProveedorSaldoTests.ReducirSaldo_MontoPositivo_ReduceCorrectamente" type="Tests.Unit.Domain.CuentaCorriente.ProveedorSaldoTests" method="ReducirSaldo_MontoPositivo_ReduceCorrectamente" time="0.0002914" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.ProveedorSaldoTests.ReducirYAumentar_SaldoQuedaCorrecto" type="Tests.Unit.Domain.CuentaCorriente.ProveedorSaldoTests" method="ReducirYAumentar_SaldoQuedaCorrecto" time="0.0003115" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.ProveedorSaldoTests.AumentarSaldo_MontoPositivo_AumentaCorrectamente" type="Tests.Unit.Domain.CuentaCorriente.ProveedorSaldoTests" method="AumentarSaldo_MontoPositivo_AumentaCorrectamente" time="0.0002329" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.ProveedorSaldoTests.ReducirSaldo_MultiplesReducciones_Acumulativo" type="Tests.Unit.Domain.CuentaCorriente.ProveedorSaldoTests" method="ReducirSaldo_MultiplesReducciones_Acumulativo" time="0.0002578" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.ProveedorSaldoTests.ReducirSaldo_MontoMayorAlSaldo_SaldoNegativo" type="Tests.Unit.Domain.CuentaCorriente.ProveedorSaldoTests" method="ReducirSaldo_MontoMayorAlSaldo_SaldoNegativo" time="0.0003109" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.ProveedorSaldoTests.AumentarSaldo_DesdeCero_QuedaPositivo" type="Tests.Unit.Domain.CuentaCorriente.ProveedorSaldoTests" method="AumentarSaldo_DesdeCero_QuedaPositivo" time="0.0002658" result="Pass">
+        <traits />
+      </test>
+      <test name="Tests.Unit.Domain.CuentaCorriente.ProveedorSaldoTests.AumentarSaldo_DesdeNegativo_ReduceDeuda" type="Tests.Unit.Domain.CuentaCorriente.ProveedorSaldoTests" method="AumentarSaldo_DesdeNegativo_ReduceDeuda" time="0.0002368" result="Pass">
+        <traits />
+      </test>
+    </collection>
+  </assembly>
+</assemblies>
