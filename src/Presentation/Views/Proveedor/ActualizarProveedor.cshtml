@@ -1,5 +1,5 @@
-@using src.ViewModels
-@model ActualizarProveedorViewModel 
+@using src.Presentation.ViewModels.ProveedorVM
+@model ActualizarProveedorViewModel
 @{
     ViewData["Title"] = "Actualizar Proveedor"; // Título de la pestaña/página
 }
@@ -31,8 +31,14 @@
             <legend class="h5 text-primary border-bottom pb-2">Información Básica</legend>
 
             <div class="form-floating mb-3">
-                <input asp-for="Cuit" class="form-control" placeholder="CUIT">
-                <label asp-for="Cuit">CUIT (11 dígitos)</label>
+                <input asp-for="Cuit" class="form-control" placeholder="CUIT" readonly="@(!Model.PuedeEditarIntegridad)">
+                <label asp-for="Cuit">
+                    CUIT (11 dígitos)
+                    @if (!Model.PuedeEditarIntegridad)
+                    {
+                        <i class="bi bi-lock-fill text-warning ms-1" title="Campo bloqueado: el proveedor tiene transacciones"></i>
+                    }
+                </label>
                 <span asp-validation-for="Cuit" class="text-danger small"></span>
             </div>
 
@@ -43,8 +49,14 @@
             </div>
 
             <div class="form-floating mb-3">
-                <input asp-for="Saldo" class="form-control" placeholder="0.00" type="number" step="0.01">
-                <label asp-for="Saldo">Saldo</label> @* Cambiado "Saldo Inicial" a solo "Saldo" *@
+                <input asp-for="Saldo" class="form-control" placeholder="0.00" type="number" step="0.01" readonly="@(!Model.PuedeEditarIntegridad)">
+                <label asp-for="Saldo">
+                    Saldo Inicial
+                    @if (!Model.PuedeEditarIntegridad)
+                    {
+                        <i class="bi bi-lock-fill text-warning ms-1" title="Campo bloqueado: el proveedor tiene transacciones"></i>
+                    }
+                </label>
                 <span asp-validation-for="Saldo" class="text-danger small"></span>
             </div>
         </fieldset>
@@ -167,6 +179,19 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    @* Alerta visual si los campos están bloqueados *@
+    @if (!Model.PuedeEditarIntegridad)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-warning alert-dismissible fade show container mt-3';
+                alertDiv.innerHTML = '<i class="bi bi-info-circle-fill me-2"></i>Este proveedor tiene transacciones registradas. Los campos CUIT y Saldo Inicial están bloqueados.<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+                document.querySelector('main').insertAdjacentElement('beforebegin', alertDiv);
+            });
+        </script>
+    }
 
     @* El mismo script que en CrearProveedor para mostrar/ocultar campos de Cuota *@
     <script>

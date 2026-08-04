@@ -3,1155 +3,990 @@
     "IdProducto": 1,
     "IdProveedor": 26,
     "Precio": 22500.0,
-    "StockAsignado": 50,
     "Activo": true
   },
   {
     "IdProducto": 1,
     "IdProveedor": 17,
     "Precio": 24100.0,
-    "StockAsignado": 30,
     "Activo": true
   },
   {
     "IdProducto": 1,
     "IdProveedor": 7,
     "Precio": 19800.0,
-    "StockAsignado": 20,
     "Activo": true
   },
   {
     "IdProducto": 2,
     "IdProveedor": 17,
     "Precio": 15400.0,
-    "StockAsignado": 100,
     "Activo": true
   },
   {
     "IdProducto": 2,
     "IdProveedor": 8,
     "Precio": 18200.0,
-    "StockAsignado": 60,
     "Activo": true
   },
   {
     "IdProducto": 2,
     "IdProveedor": 19,
     "Precio": 17500.0,
-    "StockAsignado": 40,
     "Activo": true
   },
   {
     "IdProducto": 3,
     "IdProveedor": 26,
     "Precio": 18900.0,
-    "StockAsignado": 45,
     "Activo": true
   },
   {
     "IdProducto": 3,
     "IdProveedor": 17,
     "Precio": 21000.0,
-    "StockAsignado": 30,
     "Activo": true
   },
   {
     "IdProducto": 4,
     "IdProveedor": 26,
     "Precio": 28500.0,
-    "StockAsignado": 25,
     "Activo": true
   },
   {
     "IdProducto": 4,
     "IdProveedor": 17,
     "Precio": 31200.0,
-    "StockAsignado": 15,
     "Activo": true
   },
   {
     "IdProducto": 5,
     "IdProveedor": 26,
     "Precio": 14500.0,
-    "StockAsignado": 40,
     "Activo": true
   },
   {
     "IdProducto": 5,
     "IdProveedor": 7,
     "Precio": 12800.0,
-    "StockAsignado": 50,
     "Activo": true
   },
   {
     "IdProducto": 6,
     "IdProveedor": 8,
     "Precio": 145000.0,
-    "StockAsignado": 20,
     "Activo": true
   },
   {
     "IdProducto": 6,
     "IdProveedor": 18,
     "Precio": 148500.0,
-    "StockAsignado": 10,
     "Activo": true
   },
   {
     "IdProducto": 7,
     "IdProveedor": 7,
     "Precio": 89000.0,
-    "StockAsignado": 30,
     "Activo": true
   },
   {
     "IdProducto": 7,
     "IdProveedor": 17,
     "Precio": 92500.0,
-    "StockAsignado": 15,
     "Activo": true
   },
   {
     "IdProducto": 8,
     "IdProveedor": 18,
     "Precio": 210000.0,
-    "StockAsignado": 8,
     "Activo": true
   },
   {
     "IdProducto": 8,
     "IdProveedor": 19,
     "Precio": 225000.0,
-    "StockAsignado": 5,
     "Activo": true
   },
   {
     "IdProducto": 9,
     "IdProveedor": 19,
     "Precio": 98000.0,
-    "StockAsignado": 15,
     "Activo": true
   },
   {
     "IdProducto": 9,
     "IdProveedor": 8,
     "Precio": 95000.0,
-    "StockAsignado": 20,
     "Activo": true
   },
   {
     "IdProducto": 10,
     "IdProveedor": 7,
     "Precio": 65000.0,
-    "StockAsignado": 15,
     "Activo": true
   },
   {
     "IdProducto": 10,
     "IdProveedor": 18,
     "Precio": 72000.0,
-    "StockAsignado": 10,
     "Activo": true
   },
   {
     "IdProducto": 11,
     "IdProveedor": 15,
     "Precio": 2100.0,
-    "StockAsignado": 1000,
     "Activo": true
   },
   {
     "IdProducto": 11,
     "IdProveedor": 16,
     "Precio": 1950.0,
-    "StockAsignado": 800,
     "Activo": true
   },
   {
     "IdProducto": 11,
     "IdProveedor": 4,
     "Precio": 2200.0,
-    "StockAsignado": 500,
     "Activo": true
   },
   {
     "IdProducto": 12,
     "IdProveedor": 15,
     "Precio": 2800.0,
-    "StockAsignado": 800,
     "Activo": true
   },
   {
     "IdProducto": 12,
     "IdProveedor": 16,
     "Precio": 2650.0,
-    "StockAsignado": 600,
     "Activo": true
   },
   {
     "IdProducto": 13,
     "IdProveedor": 16,
     "Precio": 25400.0,
-    "StockAsignado": 100,
     "Activo": true
   },
   {
     "IdProducto": 13,
     "IdProveedor": 4,
     "Precio": 23900.0,
-    "StockAsignado": 80,
     "Activo": true
   },
   {
     "IdProducto": 13,
     "IdProveedor": 15,
     "Precio": 26000.0,
-    "StockAsignado": 50,
     "Activo": true
   },
   {
     "IdProducto": 14,
     "IdProveedor": 4,
     "Precio": 48500.0,
-    "StockAsignado": 200,
     "Activo": true
   },
   {
     "IdProducto": 14,
     "IdProveedor": 15,
     "Precio": 52000.0,
-    "StockAsignado": 100,
     "Activo": true
   },
   {
     "IdProducto": 15,
     "IdProveedor": 4,
     "Precio": 4200.0,
-    "StockAsignado": 300,
     "Activo": true
   },
   {
     "IdProducto": 15,
     "IdProveedor": 15,
     "Precio": 4800.0,
-    "StockAsignado": 150,
     "Activo": true
   },
   {
     "IdProducto": 16,
     "IdProveedor": 12,
     "Precio": 1500.0,
-    "StockAsignado": 500,
     "Activo": true
   },
   {
     "IdProducto": 16,
     "IdProveedor": 4,
     "Precio": 1200.0,
-    "StockAsignado": 600,
     "Activo": true
   },
   {
     "IdProducto": 16,
     "IdProveedor": 15,
     "Precio": 1800.0,
-    "StockAsignado": 300,
     "Activo": true
   },
   {
     "IdProducto": 17,
     "IdProveedor": 4,
     "Precio": 35000.0,
-    "StockAsignado": 50,
     "Activo": true
   },
   {
     "IdProducto": 17,
     "IdProveedor": 15,
     "Precio": 38500.0,
-    "StockAsignado": 30,
     "Activo": true
   },
   {
     "IdProducto": 18,
     "IdProveedor": 4,
     "Precio": 12500.0,
-    "StockAsignado": 80,
     "Activo": true
   },
   {
     "IdProducto": 18,
     "IdProveedor": 15,
     "Precio": 14200.0,
-    "StockAsignado": 40,
     "Activo": true
   },
   {
     "IdProducto": 19,
     "IdProveedor": 13,
     "Precio": 120000.0,
-    "StockAsignado": 30,
     "Activo": true
   },
   {
     "IdProducto": 19,
     "IdProveedor": 14,
     "Precio": 98000.0,
-    "StockAsignado": 50,
     "Activo": true
   },
   {
     "IdProducto": 19,
     "IdProveedor": 3,
     "Precio": 145000.0,
-    "StockAsignado": 15,
     "Activo": true
   },
   {
     "IdProducto": 20,
     "IdProveedor": 14,
     "Precio": 45000.0,
-    "StockAsignado": 60,
     "Activo": true
   },
   {
     "IdProducto": 20,
     "IdProveedor": 13,
     "Precio": 52000.0,
-    "StockAsignado": 40,
     "Activo": true
   },
   {
     "IdProducto": 21,
     "IdProveedor": 28,
     "Precio": 6500.0,
-    "StockAsignado": 300,
     "Activo": true
   },
   {
     "IdProducto": 21,
     "IdProveedor": 13,
     "Precio": 8200.0,
-    "StockAsignado": 150,
     "Activo": true
   },
   {
     "IdProducto": 21,
     "IdProveedor": 14,
     "Precio": 7100.0,
-    "StockAsignado": 200,
     "Activo": true
   },
   {
     "IdProducto": 22,
     "IdProveedor": 28,
     "Precio": 12500.0,
-    "StockAsignado": 500,
     "Activo": true
   },
   {
     "IdProducto": 22,
     "IdProveedor": 10,
     "Precio": 14200.0,
-    "StockAsignado": 400,
     "Activo": true
   },
   {
     "IdProducto": 22,
     "IdProveedor": 9,
     "Precio": 13800.0,
-    "StockAsignado": 200,
     "Activo": true
   },
   {
     "IdProducto": 23,
     "IdProveedor": 28,
     "Precio": 850.0,
-    "StockAsignado": 2000,
     "Activo": true
   },
   {
     "IdProducto": 23,
     "IdProveedor": 10,
     "Precio": 920.0,
-    "StockAsignado": 1500,
     "Activo": true
   },
   {
     "IdProducto": 23,
     "IdProveedor": 9,
     "Precio": 890.0,
-    "StockAsignado": 1000,
     "Activo": true
   },
   {
     "IdProducto": 24,
     "IdProveedor": 28,
     "Precio": 1200.0,
-    "StockAsignado": 800,
     "Activo": true
   },
   {
     "IdProducto": 24,
     "IdProveedor": 10,
     "Precio": 1400.0,
-    "StockAsignado": 500,
     "Activo": true
   },
   {
     "IdProducto": 25,
     "IdProveedor": 10,
     "Precio": 8500.0,
-    "StockAsignado": 150,
     "Activo": true
   },
   {
     "IdProducto": 25,
     "IdProveedor": 28,
     "Precio": 7800.0,
-    "StockAsignado": 200,
     "Activo": true
   },
   {
     "IdProducto": 26,
     "IdProveedor": 22,
     "Precio": 95000.0,
-    "StockAsignado": 80,
     "Activo": true
   },
   {
     "IdProducto": 26,
     "IdProveedor": 21,
     "Precio": 105000.0,
-    "StockAsignado": 60,
     "Activo": true
   },
   {
     "IdProducto": 26,
     "IdProveedor": 27,
     "Precio": 89000.0,
-    "StockAsignado": 100,
     "Activo": true
   },
   {
     "IdProducto": 26,
     "IdProveedor": 23,
     "Precio": 85000.0,
-    "StockAsignado": 50,
     "Activo": true
   },
   {
     "IdProducto": 27,
     "IdProveedor": 22,
     "Precio": 12500.0,
-    "StockAsignado": 120,
     "Activo": true
   },
   {
     "IdProducto": 27,
     "IdProveedor": 27,
     "Precio": 11000.0,
-    "StockAsignado": 150,
     "Activo": true
   },
   {
     "IdProducto": 27,
     "IdProveedor": 21,
     "Precio": 13200.0,
-    "StockAsignado": 90,
     "Activo": true
   },
   {
     "IdProducto": 28,
     "IdProveedor": 22,
     "Precio": 4500.0,
-    "StockAsignado": 300,
     "Activo": true
   },
   {
     "IdProducto": 28,
     "IdProveedor": 27,
     "Precio": 3900.0,
-    "StockAsignado": 400,
     "Activo": true
   },
   {
     "IdProducto": 29,
     "IdProveedor": 22,
     "Precio": 6500.0,
-    "StockAsignado": 200,
     "Activo": true
   },
   {
     "IdProducto": 29,
     "IdProveedor": 21,
     "Precio": 7200.0,
-    "StockAsignado": 150,
     "Activo": true
   },
   {
     "IdProducto": 30,
     "IdProveedor": 27,
     "Precio": 3800.0,
-    "StockAsignado": 200,
     "Activo": true
   },
   {
     "IdProducto": 30,
     "IdProveedor": 22,
     "Precio": 4200.0,
-    "StockAsignado": 150,
     "Activo": true
   },
   {
     "IdProducto": 31,
     "IdProveedor": 5,
     "Precio": 9500.0,
-    "StockAsignado": 500,
     "Activo": true
   },
   {
     "IdProducto": 31,
     "IdProveedor": 11,
     "Precio": 10200.0,
-    "StockAsignado": 300,
     "Activo": true
   },
   {
     "IdProducto": 31,
     "IdProveedor": 12,
     "Precio": 11000.0,
-    "StockAsignado": 200,
     "Activo": true
   },
   {
     "IdProducto": 32,
     "IdProveedor": 25,
     "Precio": 18500.0,
-    "StockAsignado": 100,
     "Activo": true
   },
   {
     "IdProducto": 32,
     "IdProveedor": 22,
     "Precio": 19200.0,
-    "StockAsignado": 80,
     "Activo": true
   },
   {
     "IdProducto": 32,
     "IdProveedor": 27,
     "Precio": 17800.0,
-    "StockAsignado": 120,
     "Activo": true
   },
   {
     "IdProducto": 33,
     "IdProveedor": 22,
     "Precio": 3500.0,
-    "StockAsignado": 150,
     "Activo": true
   },
   {
     "IdProducto": 33,
     "IdProveedor": 25,
     "Precio": 4100.0,
-    "StockAsignado": 100,
     "Activo": true
   },
   {
     "IdProducto": 34,
     "IdProveedor": 9,
     "Precio": 4500.0,
-    "StockAsignado": 300,
     "Activo": true
   },
   {
     "IdProducto": 34,
     "IdProveedor": 11,
     "Precio": 5200.0,
-    "StockAsignado": 150,
     "Activo": true
   },
   {
     "IdProducto": 35,
     "IdProveedor": 24,
     "Precio": 8500.0,
-    "StockAsignado": 200,
     "Activo": true
   },
   {
     "IdProducto": 35,
     "IdProveedor": 29,
     "Precio": 7900.0,
-    "StockAsignado": 250,
     "Activo": true
   },
   {
     "IdProducto": 35,
     "IdProveedor": 1,
     "Precio": 8200.0,
-    "StockAsignado": 150,
     "Activo": true
   },
   {
     "IdProducto": 36,
     "IdProveedor": 24,
     "Precio": 3200.0,
-    "StockAsignado": 500,
     "Activo": true
   },
   {
     "IdProducto": 36,
     "IdProveedor": 12,
     "Precio": 3500.0,
-    "StockAsignado": 300,
     "Activo": true
   },
   {
     "IdProducto": 37,
     "IdProveedor": 24,
     "Precio": 4500.0,
-    "StockAsignado": 400,
     "Activo": true
   },
   {
     "IdProducto": 37,
     "IdProveedor": 12,
     "Precio": 4800.0,
-    "StockAsignado": 250,
     "Activo": true
   },
   {
     "IdProducto": 38,
     "IdProveedor": 1,
     "Precio": 5500.0,
-    "StockAsignado": 300,
     "Activo": true
   },
   {
     "IdProducto": 38,
     "IdProveedor": 29,
     "Precio": 5800.0,
-    "StockAsignado": 200,
     "Activo": true
   },
   {
     "IdProducto": 39,
     "IdProveedor": 1,
     "Precio": 12500.0,
-    "StockAsignado": 100,
     "Activo": true
   },
   {
     "IdProducto": 39,
     "IdProveedor": 24,
     "Precio": 13200.0,
-    "StockAsignado": 80,
     "Activo": true
   },
   {
     "IdProducto": 40,
     "IdProveedor": 1,
     "Precio": 8500.0,
-    "StockAsignado": 100,
     "Activo": true
   },
   {
     "IdProducto": 40,
     "IdProveedor": 29,
     "Precio": 9000.0,
-    "StockAsignado": 80,
     "Activo": true
   },
   {
     "IdProducto": 41,
     "IdProveedor": 12,
     "Precio": 7800.0,
-    "StockAsignado": 200,
     "Activo": true
   },
   {
     "IdProducto": 41,
     "IdProveedor": 11,
     "Precio": 7500.0,
-    "StockAsignado": 150,
     "Activo": true
   },
   {
     "IdProducto": 41,
     "IdProveedor": 27,
     "Precio": 7200.0,
-    "StockAsignado": 250,
     "Activo": true
   },
   {
     "IdProducto": 42,
     "IdProveedor": 12,
     "Precio": 11500.0,
-    "StockAsignado": 120,
     "Activo": true
   },
   {
     "IdProducto": 42,
     "IdProveedor": 11,
     "Precio": 12200.0,
-    "StockAsignado": 100,
     "Activo": true
   },
   {
     "IdProducto": 43,
     "IdProveedor": 12,
     "Precio": 8500.0,
-    "StockAsignado": 200,
     "Activo": true
   },
   {
     "IdProducto": 43,
     "IdProveedor": 27,
     "Precio": 7900.0,
-    "StockAsignado": 250,
     "Activo": true
   },
   {
     "IdProducto": 44,
     "IdProveedor": 12,
     "Precio": 3500.0,
-    "StockAsignado": 500,
     "Activo": true
   },
   {
     "IdProducto": 44,
     "IdProveedor": 4,
     "Precio": 3200.0,
-    "StockAsignado": 600,
     "Activo": true
   },
   {
     "IdProducto": 45,
     "IdProveedor": 26,
     "Precio": 9500.0,
-    "StockAsignado": 150,
     "Activo": true
   },
   {
     "IdProducto": 45,
     "IdProveedor": 17,
     "Precio": 10200.0,
-    "StockAsignado": 100,
     "Activo": true
   },
   {
     "IdProducto": 45,
     "IdProveedor": 1,
     "Precio": 8900.0,
-    "StockAsignado": 200,
     "Activo": true
   },
   {
     "IdProducto": 46,
     "IdProveedor": 1,
     "Precio": 6500.0,
-    "StockAsignado": 500,
     "Activo": true
   },
   {
     "IdProducto": 46,
     "IdProveedor": 29,
     "Precio": 6900.0,
-    "StockAsignado": 300,
     "Activo": true
   },
   {
     "IdProducto": 47,
     "IdProveedor": 24,
     "Precio": 8500.0,
-    "StockAsignado": 80,
     "Activo": true
   },
   {
     "IdProducto": 47,
     "IdProveedor": 4,
     "Precio": 7900.0,
-    "StockAsignado": 100,
     "Activo": true
   },
   {
     "IdProducto": 48,
     "IdProveedor": 24,
     "Precio": 9200.0,
-    "StockAsignado": 300,
     "Activo": true
   },
   {
     "IdProducto": 48,
     "IdProveedor": 12,
     "Precio": 9500.0,
-    "StockAsignado": 200,
     "Activo": true
   },
   {
     "IdProducto": 48,
     "IdProveedor": 1,
     "Precio": 9800.0,
-    "StockAsignado": 150,
     "Activo": true
   },
   {
     "IdProducto": 49,
     "IdProveedor": 8,
     "Precio": 1900.0,
-    "StockAsignado": 1000,
     "Activo": true
   },
   {
     "IdProducto": 49,
     "IdProveedor": 18,
     "Precio": 2100.0,
-    "StockAsignado": 800,
     "Activo": true
   },
   {
     "IdProducto": 49,
     "IdProveedor": 19,
     "Precio": 2200.0,
-    "StockAsignado": 600,
     "Activo": true
   },
   {
     "IdProducto": 49,
     "IdProveedor": 7,
     "Precio": 1800.0,
-    "StockAsignado": 1200,
     "Activo": true
   },
   {
     "IdProducto": 50,
     "IdProveedor": 8,
     "Precio": 4500.0,
-    "StockAsignado": 300,
     "Activo": true
   },
   {
     "IdProducto": 50,
     "IdProveedor": 19,
     "Precio": 4800.0,
-    "StockAsignado": 200,
     "Activo": true
   },
   {
     "IdProducto": 50,
     "IdProveedor": 17,
     "Precio": 4200.0,
-    "StockAsignado": 250,
     "Activo": true
   },
   {
     "IdProducto": 1,
     "IdProveedor": 19,
     "Precio": 23000.0,
-    "StockAsignado": 20,
     "Activo": true
   },
   {
     "IdProducto": 3,
     "IdProveedor": 7,
     "Precio": 17900.0,
-    "StockAsignado": 40,
     "Activo": true
   },
   {
     "IdProducto": 5,
     "IdProveedor": 17,
     "Precio": 15200.0,
-    "StockAsignado": 25,
     "Activo": true
   },
   {
     "IdProducto": 9,
     "IdProveedor": 18,
     "Precio": 105000.0,
-    "StockAsignado": 10,
     "Activo": true
   },
   {
     "IdProducto": 11,
     "IdProveedor": 12,
     "Precio": 2300.0,
-    "StockAsignado": 300,
     "Activo": true
   },
   {
     "IdProducto": 13,
     "IdProveedor": 12,
     "Precio": 27500.0,
-    "StockAsignado": 40,
     "Activo": true
   },
   {
     "IdProducto": 14,
     "IdProveedor": 16,
     "Precio": 51000.0,
-    "StockAsignado": 80,
     "Activo": true
   },
   {
     "IdProducto": 16,
     "IdProveedor": 16,
     "Precio": 1600.0,
-    "StockAsignado": 200,
     "Activo": true
   },
   {
     "IdProducto": 19,
     "IdProveedor": 28,
     "Precio": 115000.0,
-    "StockAsignado": 20,
     "Activo": true
   },
   {
     "IdProducto": 21,
     "IdProveedor": 3,
     "Precio": 7500.0,
-    "StockAsignado": 100,
     "Activo": true
   },
   {
     "IdProducto": 22,
     "IdProveedor": 13,
     "Precio": 14500.0,
-    "StockAsignado": 150,
     "Activo": true
   },
   {
     "IdProducto": 24,
     "IdProveedor": 13,
     "Precio": 1300.0,
-    "StockAsignado": 300,
     "Activo": true
   },
   {
     "IdProducto": 26,
     "IdProveedor": 11,
     "Precio": 98000.0,
-    "StockAsignado": 70,
     "Activo": true
   },
   {
     "IdProducto": 28,
     "IdProveedor": 11,
     "Precio": 4200.0,
-    "StockAsignado": 250,
     "Activo": true
   },
   {
     "IdProducto": 31,
     "IdProveedor": 29,
     "Precio": 10500.0,
-    "StockAsignado": 150,
     "Activo": true
   },
   {
     "IdProducto": 35,
     "IdProveedor": 7,
     "Precio": 8900.0,
-    "StockAsignado": 100,
     "Activo": true
   },
   {
     "IdProducto": 38,
     "IdProveedor": 24,
     "Precio": 6100.0,
-    "StockAsignado": 120,
     "Activo": true
   },
   {
     "IdProducto": 41,
     "IdProveedor": 24,
     "Precio": 8100.0,
-    "StockAsignado": 100,
     "Activo": true
   },
   {
     "IdProducto": 44,
     "IdProveedor": 24,
     "Precio": 3800.0,
-    "StockAsignado": 300,
     "Activo": true
   },
   {
     "IdProducto": 48,
     "IdProveedor": 17,
     "Precio": 10500.0,
-    "StockAsignado": 100,
     "Activo": true
   },
   {
     "IdProducto": 49,
     "IdProveedor": 26,
     "Precio": 2300.0,
-    "StockAsignado": 500,
     "Activo": true
   },
   {
     "IdProducto": 50,
     "IdProveedor": 26,
     "Precio": 4900.0,
-    "StockAsignado": 150,
     "Activo": true
   },
   {
     "IdProducto": 2,
     "IdProveedor": 7,
     "Precio": 14800.0,
-    "StockAsignado": 80,
     "Activo": true
   },
   {
     "IdProducto": 12,
     "IdProveedor": 4,
     "Precio": 2900.0,
-    "StockAsignado": 400,
     "Activo": true
   },
   {
     "IdProducto": 23,
     "IdProveedor": 13,
     "Precio": 950.0,
-    "StockAsignado": 800,
     "Activo": true
   },
   {
     "IdProducto": 27,
     "IdProveedor": 23,
     "Precio": 11800.0,
-    "StockAsignado": 100,
     "Activo": true
   },
   {
     "IdProducto": 32,
     "IdProveedor": 11,
     "Precio": 18900.0,
-    "StockAsignado": 90,
     "Activo": true
   },
   {
     "IdProducto": 34,
     "IdProveedor": 29,
     "Precio": 4900.0,
-    "StockAsignado": 180,
     "Activo": true
   },
   {
     "IdProducto": 36,
     "IdProveedor": 1,
     "Precio": 3400.0,
-    "StockAsignado": 250,
     "Activo": true
   },
   {
     "IdProducto": 39,
     "IdProveedor": 29,
     "Precio": 12900.0,
-    "StockAsignado": 90,
     "Activo": true
   },
   {
     "IdProducto": 42,
     "IdProveedor": 27,
     "Precio": 11800.0,
-    "StockAsignado": 110,
     "Activo": true
   },
   {
     "IdProducto": 45,
     "IdProveedor": 24,
     "Precio": 9800.0,
-    "StockAsignado": 120,
     "Activo": true
   },
   {
     "IdProducto": 14,
     "IdProveedor": 12,
     "Precio": 50500.0,
-    "StockAsignado": 90,
     "Activo": true
   },
   {
     "IdProducto": 17,
     "IdProveedor": 16,
     "Precio": 39500.0,
-    "StockAsignado": 25,
     "Activo": true
   },
   {
     "IdProducto": 20,
     "IdProveedor": 3,
     "Precio": 49000.0,
-    "StockAsignado": 35,
     "Activo": true
   },
   {
     "IdProducto": 22,
     "IdProveedor": 14,
     "Precio": 14800.0,
-    "StockAsignado": 100,
     "Activo": true
   },
   {
     "IdProducto": 25,
     "IdProveedor": 13,
     "Precio": 8900.0,
-    "StockAsignado": 80,
     "Activo": true
   },
   {
     "IdProducto": 29,
     "IdProveedor": 23,
     "Precio": 6900.0,
-    "StockAsignado": 120,
     "Activo": true
   },
   {
     "IdProducto": 33,
     "IdProveedor": 11,
     "Precio": 3900.0,
-    "StockAsignado": 110,
     "Activo": true
   },
   {
     "IdProducto": 37,
     "IdProveedor": 1,
     "Precio": 4700.0,
-    "StockAsignado": 300,
     "Activo": true
   },
   {
     "IdProducto": 40,
     "IdProveedor": 24,
     "Precio": 8800.0,
-    "StockAsignado": 120,
     "Activo": true
   },
   {
     "IdProducto": 43,
     "IdProveedor": 22,
     "Precio": 8200.0,
-    "StockAsignado": 180,
     "Activo": true
   },
   {
     "IdProducto": 46,
     "IdProveedor": 24,
     "Precio": 6800.0,
-    "StockAsignado": 250,
     "Activo": true
   },
   {
     "IdProducto": 47,
     "IdProveedor": 1,
     "Precio": 8200.0,
-    "StockAsignado": 100,
     "Activo": true
   }
 ]

@@ -20,66 +20,66 @@ namespace src.Presentation.Controllers
             _proveedorService = proveedorService;
         }
 
-        [HttpGet("Index/{idProveedor?}")]
+        [HttpGet("Index/{idProveedor}")]
         public async Task<IActionResult> Index(short idProveedor)
         {
-            var proveedor = await _proveedorService.GetProveedorByIdAsync(idProveedor);
-            if (proveedor == null)
-                return NotFound();
+            var result = await _ordenPagoService.ObtenerHistorialPagosAsync(idProveedor);
 
-            var ordenes = await _ordenPagoService.ObtenerPorProveedorAsync(idProveedor);
-
-            var vm = new ModuloOrdenesPagoVM
+            if (!result.Success)
             {
-                IdProveedor = idProveedor,
-                RazonSocialProveedor = proveedor.RazonSocial,
-                Ordenes = ordenes.Select(o => o.ToIndexVM()).ToList(),
-            };
+                TempData["Error"] = result.Message;
+                return RedirectToAction("CuentaCorriente", "Proveedor", new { id = idProveedor });
+            }
 
-            return View(vm);
+            return View(result.Data.ToViewModel());
         }
 
         [HttpGet("ObtenerDetalleModal/{id}")]
         public async Task<IActionResult> ObtenerDetalleModal(int id)
         {
-            var orden = await _ordenPagoService.ObtenerPorIdAsync(id);
-            if (orden == null)
-                return NotFound();
+            var result = await _ordenPagoService.ObtenerDetalleOrdenAsync(id);
 
-            return PartialView("_DetalleOrdenPagoModal", orden.ToDetalleModalVM());
+            if (!result.Success)
+            {
+                return Content(
+                    $@"<div class='modal-body text-center py-4'>
+                            <i class='bi bi-exclamation-circle text-danger display-4'></i>
+                            <p class='mt-2 mb-0'>{result.Message}</p>
+                          </div>"
+                );
+            }
+
+            return PartialView("_DetalleOrdenPagoModal", result.Data.ToDetalleModalVM());
         }
 
         [HttpGet("Crear/{idProveedor}")]
         public async Task<IActionResult> Crear(short idProveedor)
         {
-            var proveedor = await _proveedorService.GetProveedorByIdAsync(idProveedor);
-            if (proveedor == null)
-                return NotFound();
+            var result = await _ordenPagoService.ObtenerDatosParaNuevoPagoAsync(idProveedor);
 
-            var facturas = await _ordenPagoService.ObtenerFacturasPendientesAsync(idProveedor);
-            var vm = facturas.ToFormVM(idProveedor, proveedor.RazonSocial);
+            if (!result.Success)
+            {
+                TempData["Error"] = result.Message;
+                return RedirectToAction("CuentaCorriente", "Proveedor", new { id = idProveedor });
+            }
 
-            return View(vm);
+            return View(result.Data.ToFormVM());
         }
 
         [HttpPost("Crear/{idProveedor}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear(OrdenPagoFormVM vm)
         {
-            if (!vm.FacturasDisponibles.Any(x => x.EstaSeleccionada && x.MontoAPagar > 0))
+            if (!vm.FacturasDisponibles.Any(x => x.EstaSeleccionada))
             {
-                ModelState.AddModelError(
-                    "",
-                    "Debe seleccionar al menos una factura y asignar un monto."
-                );
+                ModelState.AddModelError("", "Debe seleccionar al menos una factura.");
                 return View(vm);
             }
 
             if (!ModelState.IsValid)
                 return View(vm);
 
-            var orden = vm.ToDomain();
-            var resultado = await _ordenPagoService.CrearOrdenAsync(orden);
+            var resultado = await _ordenPagoService.CrearOrdenAsync(vm.ToDomain());
 
             if (!resultado.Success)
             {
@@ -92,20 +92,36 @@ namespace src.Presentation.Controllers
         }
 
         [HttpPost("Eliminar")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Eliminar(int id, short idProveedor)
         {
             var resultado = await _ordenPagoService.EliminarOrdenAsync(id);
 
-            TempData[resultado.Success ? "Success" : "Error"] = resultado.Message;
+            if (resultado.Success)
+            {
+                TempData["Success"] = resultado.Message;
+            }
+            else
+            {
+                TempData["Error"] = resultado.Message;
+            }
+
             return RedirectToAction("Index", new { idProveedor });
         }
 
         [HttpPost("Confirmar")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Confirmar(int id, short idProveedor)
         {
             var resultado = await _ordenPagoService.ConfirmarOrdenAsync(id);
 
-            TempData[resultado.Success ? "Success" : "Error"] = resultado.Message;
+            if (resultado.Success)
+            {
+                TempData["Success"] = resultado.Message;
+                return RedirectToAction("Index", new { idProveedor });
+            }
+
+            TempData["Error"] = resultado.Message;
             return RedirectToAction("Index", new { idProveedor });
         }
     }

@@ -15,7 +15,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
             <div>
                 <h2 class="text-primary fw-bold mb-0"><i class="bi bi-pencil-square me-2"></i>@ViewData["Title"]</h2>
-                <p class="text-muted small mb-0">Modifique el precio y stock de esta relación.</p>
+                <p class="text-muted small mb-0">Modifique el precio pactado para esta relación comercial.</p>
             </div>
             <span class="badge bg-warning text-dark shadow-sm">
                 <i class="bi bi-lock-fill me-1"></i>Modo Edición
@@ -66,14 +66,6 @@
                             <input asp-for="Precio" class="form-control border-primary" type="number" step="0.01" placeholder="0.00">
                         </div>
                         <span asp-validation-for="Precio" class="text-danger small"></span>
-                    </div>
-                    <div class="col-md-6">
-                        <label asp-for="StockAsignado" class="form-label fw-bold text-primary">Stock Asignado</label>
-                        <div class="input-group input-group-lg">
-                            <span class="input-group-text bg-white text-primary border-primary"><i class="bi bi-boxes"></i></span>
-                            <input asp-for="StockAsignado" class="form-control border-primary" type="number" placeholder="0">
-                        </div>
-                        <span asp-validation-for="StockAsignado" class="text-danger small"></span>
                     </div>
                 </div>
             </div>

@@ -1,4 +1,3 @@
-// Presentation/Mappers/FacturaMapper.cs
 using src.Core.Contracts;
 using src.Presentation.ViewModels.FacturaVM;
 using Dom = src.Models.Domain;
@@ -45,10 +44,11 @@ public static class FacturaMapper
             EstadoPago = factura.Pagada ? "Pagada" : "Pendiente",
             ProveedorNombre = factura.Proveedor?.RazonSocial ?? "Desconocido",
             CuitProveedor = factura.Proveedor?.Cuit ?? "N/A",
+            IdCompra = factura.Compra?.IdCompra,
             CondicionPagoDesc = factura.CondicionPago switch
             {
                 Dom.Cuota c =>
-                    $"{c.Cuotas} cuotas (Interés: {c.InteresPorcentual}%) - Vence a los {c.DiasPago} días",
+                    $"{c.Cuotas} cuotas (Interés: {c.InteresPorcentual}%) - Vence a los {c.DiasPago} día(s)",
                 Dom.Contado => $"Contado - Pago a los {factura.CondicionPago.DiasPago} días",
                 _ => factura.CondicionPago != null
                     ? $"Plazo: {factura.CondicionPago.DiasPago} días"
@@ -134,7 +134,7 @@ public static class FacturaMapper
         }
 
         vm.Detalles = factura
-            .Detalles.Select(d => new CrearFacturaDetalleViewModel
+            .Detalles.Select(d => new ActualizarFacturaDetalleViewModel
             {
                 IdProducto = d.Producto.IdProducto,
                 NombreProducto = d.Producto?.Nombre ?? "Producto",
@@ -181,7 +181,7 @@ public static class FacturaMapper
     // VM → Domain (actualizar)
     public static Dom.Factura ToDomain(this ActualizarFacturaViewModel vm)
     {
-        var factura = new Dom.Factura
+        return new Dom.Factura
         {
             IdFactura = vm.IdFactura,
             Numero = vm.NumeroFactura,
@@ -196,15 +196,10 @@ public static class FacturaMapper
                 .Detalles.Select(d => new Dom.DetalleFactura
                 {
                     Producto = new Dom.Producto { IdProducto = (short)d.IdProducto },
-                    Cantidad = d.Cantidad,
-                    PrecioBruto = d.PrecioBruto,
                     PorcentajeDescuento = d.PorcentajeDescuento,
-                    PrecioNeto = d.PrecioNeto,
                 })
                 .ToList(),
         };
-
-        return factura;
     }
 
     // Contract → VM (documentos asociados)
@@ -216,6 +211,8 @@ public static class FacturaMapper
         {
             IdFactura = data.Factura.IdFactura,
             NumeroFactura = data.Factura.Numero,
+            SaldoFactura = data.Factura.Saldo,
+            IdProveedor = (short)data.Factura.Proveedor.IdProveedor,
             Proveedor = data.Factura.Proveedor?.RazonSocial ?? "Desconocido",
             Comprobantes = data
                 .Comprobantes.Select(c => new ResumenComprobanteViewModel

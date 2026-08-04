@@ -75,24 +75,27 @@
                             <div class="col-md-1 text-center">
                                 @Html.Raw(estadoBadge)
                             </div>
-                            <div class="col-md-2 text-end">
-                                <div class="btn-group btn-group-sm">
-                                    @if (!factura.Pagada)
-                                    {
-                                        <button type="button" class="btn btn-outline-info"
-                                            title="Emitir Nota de Crédito"
-                                            onclick="abrirModalCrear(@factura.IdFactura, 'NC', '@factura.NumeroFactura', @factura.Saldo.ToString(System.Globalization.CultureInfo.InvariantCulture))">
-                                            <i class="bi bi-plus-circle me-1"></i>NC
-                                        </button>
-                                    }
-                                    <button type="button" class="btn btn-outline-warning"
-                                        title="Emitir Nota de Débito"
-                                        onclick="abrirModalCrear(@factura.IdFactura, 'ND', '@factura.NumeroFactura', @factura.Saldo.ToString(System.Globalization.CultureInfo.InvariantCulture))">
-                                        <i class="bi bi-plus-circle me-1"></i>ND
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                             <div class="col-md-2 text-end">
+    <div class="btn-group btn-group-sm">
+        @if (!factura.Pagada)
+        {
+            @* Botón Nota de Crédito: Solo aparece si NO está pagada *@
+            <button type="button" class="btn btn-outline-info"
+                    title="Emitir Nota de Crédito"
+                    onclick="abrirModalCrear(@factura.IdFactura, 'NC', '@factura.NumeroFactura', @factura.Saldo.ToString(System.Globalization.CultureInfo.InvariantCulture))">
+                <i class="bi bi-plus-circle me-1"></i>NC
+            </button>
+
+            @* Botón Nota de Débito: Ahora también solo aparece si NO está pagada *@
+            <button type="button" class="btn btn-outline-warning"
+                    title="Emitir Nota de Débito"
+                    onclick="abrirModalCrear(@factura.IdFactura, 'ND', '@factura.NumeroFactura', @factura.Saldo.ToString(System.Globalization.CultureInfo.InvariantCulture))">
+                <i class="bi bi-plus-circle me-1"></i>ND
+            </button>
+        }
+        @* Si la factura está pagada, el flujo entra aquí pero como no hay nada, no se renderiza nada. *@
+    </div>
+</div>                       </div>
                     </div>
 
                     <!-- Comprobantes de esta factura -->

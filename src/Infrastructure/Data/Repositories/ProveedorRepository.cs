@@ -1,49 +1,66 @@
 using Microsoft.EntityFrameworkCore;
-using EF = src.Models.CodeFirst;
-using Dom = src.Models.Domain;
-using src.Repositories.Interfaces;
 using src.Models.Mappers;
+using src.Repositories.Interfaces;
+using Dom = src.Models.Domain;
+using EF = src.Models.CodeFirst;
 
 namespace src.Repositories.Implementations;
 
 public class ProveedorRepository : IProveedorRepository
 {
     private readonly EF.AppDbContext _context;
-    private readonly ProvinciaMapper _provinciaMapper;
+    private readonly ProveedorMapper _proveedorMapper;
     private readonly DomicilioMapper _domicilioMapper;
 
-    public ProveedorRepository(EF.AppDbContext context, ProvinciaMapper provinciaMapper, DomicilioMapper domicilioMapper)
+    public ProveedorRepository(
+        EF.AppDbContext context,
+        ProveedorMapper proveedorMapper,
+        DomicilioMapper domicilioMapper
+    )
     {
         _context = context;
-        _provinciaMapper = provinciaMapper;
+        _proveedorMapper = proveedorMapper;
         _domicilioMapper = domicilioMapper;
     }
 
     private IQueryable<EF.Proveedor> GetQueryProveedor()
     {
-        return _context.Proveedores
-        .Include(p => p.IdCondicionPagoHabitualNavigation)
-        .Include(p => p.IdDomicilioNavigation)
-            .ThenInclude(p => p.IdProvinciaNavigation);
+        return _context
+            .Proveedores.Include(p => p.IdCondicionPagoHabitualNavigation)
+            .Include(p => p.IdDomicilioNavigation)
+                .ThenInclude(p => p.IdProvinciaNavigation);
     }
 
     public async Task<IEnumerable<Dom.Proveedor>> GetAllProveedorAsync()
     {
         IEnumerable<EF.Proveedor> provEF = await GetQueryProveedor().ToListAsync();
-        IEnumerable<Dom.Proveedor> proveedores = DominioMapper.Map(provEF);
+        IEnumerable<Dom.Proveedor> proveedores = _proveedorMapper.ToDomain(provEF);
         return proveedores;
     }
 
     public async Task<Dom.Proveedor?> GetProveedorById(int idProv)
     {
-        EF.Proveedor? proveedorEF = await GetQueryProveedor().Where(p => p.IdProveedor == idProv).FirstOrDefaultAsync();
-        return proveedorEF is null ? null : DominioMapper.Map(proveedorEF);
+        EF.Proveedor? proveedorEF = await GetQueryProveedor()
+            .Where(p => p.IdProveedor == idProv)
+            .FirstOrDefaultAsync();
+        return proveedorEF is null ? null : _proveedorMapper.ToDomain(proveedorEF);
     }
 
+    public async Task<Dom.Proveedor?> GetByCuitAsync(string cuit)
+    {
+        if (string.IsNullOrWhiteSpace(cuit))
+            return null;
+
+        EF.Proveedor? proveedorEF = await GetQueryProveedor()
+            .Where(p => p.Cuit.Trim() == cuit.Trim())
+            .FirstOrDefaultAsync();
+        
+        return proveedorEF is null ? null : _proveedorMapper.ToDomain(proveedorEF);
+    }
 
     public async Task AddAsync(Dom.Proveedor entity)
     {
-        EF.Proveedor proveedorEF = DominioMapper.Map(entity);
+        EF.Proveedor proveedorEF = _proveedorMapper.ToEntity(entity);
         proveedorEF.IdProveedor = 0;
         proveedorEF.IdDomicilio = 0;
         proveedorEF.IdCondicionPagoHabitual = 0;
@@ -58,27 +75,28 @@ public class ProveedorRepository : IProveedorRepository
 
         if (entity.Condicion != null && proveedorEF.IdCondicionPagoHabitualNavigation != null)
         {
-            entity.Condicion.IdCondicionPago = proveedorEF.IdCondicionPagoHabitualNavigation.IdCondicionPago;
+            entity.Condicion.IdCondicionPago = proveedorEF
+                .IdCondicionPagoHabitualNavigation
+                .IdCondicionPago;
         }
     }
 
-
-
-
     public async Task UpdateAsync(Dom.Proveedor entity)
     {
-        var existingEntity = await _context.Proveedores
-                                        .Include(p => p.IdDomicilioNavigation)
-                                        .Include(p => p.IdCondicionPagoHabitualNavigation)
-                                        .FirstOrDefaultAsync(p => p.IdProveedor == entity.IdProveedor);
+        var existingEntity = await _context
+            .Proveedores.Include(p => p.IdDomicilioNavigation)
+            .Include(p => p.IdCondicionPagoHabitualNavigation)
+            .FirstOrDefaultAsync(p => p.IdProveedor == entity.IdProveedor);
 
         if (existingEntity == null)
         {
-            throw new InvalidOperationException($"Proveedor con ID {entity.IdProveedor} no encontrado.");
+            throw new InvalidOperationException(
+                $"Proveedor con ID {entity.IdProveedor} no encontrado."
+            );
         }
 
         // Map the incoming domain object to a temporary EF object
-        EF.Proveedor proveedorTemporalEF = DominioMapper.Map(entity);
+        EF.Proveedor proveedorTemporalEF = _proveedorMapper.ToEntity(entity);
 
         // --- Update Proveedor Scalar Values ---
         _context.Entry(existingEntity).CurrentValues.SetValues(proveedorTemporalEF);
@@ -92,13 +110,18 @@ public class ProveedorRepository : IProveedorRepository
             EF.Domicilio domicilioTemporalEF = _domicilioMapper.ToEntity(entity.Direccion);
 
             // Apply changes to the TRACKED DomicilioNavigation
-            _context.Entry(existingEntity.IdDomicilioNavigation).CurrentValues.SetValues(domicilioTemporalEF);
+            _context
+                .Entry(existingEntity.IdDomicilioNavigation)
+                .CurrentValues.SetValues(domicilioTemporalEF);
 
             // Explicitly ensure the Provincia Foreign Key is set on the tracked Domicilio
             // This relies on the controller having correctly assigned entity.Direccion.Prov
             if (entity.Direccion.Prov != null)
             {
-                existingEntity.IdDomicilioNavigation.IdProvincia = entity.Direccion.Prov.IdProvincia;
+                existingEntity.IdDomicilioNavigation.IdProvincia = entity
+                    .Direccion
+                    .Prov
+                    .IdProvincia;
             }
             else
             {
@@ -128,8 +151,7 @@ public class ProveedorRepository : IProveedorRepository
         // **Important**: Rely on EF Core to manage the FK when adding/associating navigations.
         // This explicit setting might be redundant or even problematic if adding new related entities.
         // Let's comment it out for now and rely on navigation property association.
-        // existingEntity.IdDomicilio = proveedorTemporalEF.IdDomicilio; 
-
+        // existingEntity.IdDomicilio = proveedorTemporalEF.IdDomicilio;
 
         // --- Explicit Handling for CondicionDePago (Keep previous logic) ---
         bool conditionChanged = false;
@@ -138,9 +160,12 @@ public class ProveedorRepository : IProveedorRepository
         if (entity.Condicion != null)
         {
             newConditionEF = DominioMapper.Map(entity.Condicion);
-            if (existingEntity.IdCondicionPagoHabitualNavigation == null ||
-                existingEntity.IdCondicionPagoHabitualNavigation.GetType() != newConditionEF.GetType() ||
-                existingEntity.IdCondicionPagoHabitual != newConditionEF.IdCondicionPago)
+            if (
+                existingEntity.IdCondicionPagoHabitualNavigation == null
+                || existingEntity.IdCondicionPagoHabitualNavigation.GetType()
+                    != newConditionEF.GetType()
+                || existingEntity.IdCondicionPagoHabitual != newConditionEF.IdCondicionPago
+            )
             {
                 conditionChanged = true;
                 if (existingEntity.IdCondicionPagoHabitualNavigation != null)
@@ -153,7 +178,9 @@ public class ProveedorRepository : IProveedorRepository
             }
             else
             {
-                _context.Entry(existingEntity.IdCondicionPagoHabitualNavigation).CurrentValues.SetValues(newConditionEF);
+                _context
+                    .Entry(existingEntity.IdCondicionPagoHabitualNavigation)
+                    .CurrentValues.SetValues(newConditionEF);
             }
         }
         else if (existingEntity.IdCondicionPagoHabitualNavigation != null)
@@ -168,12 +195,9 @@ public class ProveedorRepository : IProveedorRepository
         await _context.SaveChangesAsync();
     }
 
-
     public async Task<bool> DeleteAsync(int id)
     {
-
-        var proveedorEF = await _context.Proveedores
-            .FirstOrDefaultAsync(p => p.IdProveedor == id);
+        var proveedorEF = await _context.Proveedores.FirstOrDefaultAsync(p => p.IdProveedor == id);
         if (proveedorEF == null)
             return false;
         proveedorEF.Activo = false;
@@ -183,8 +207,7 @@ public class ProveedorRepository : IProveedorRepository
 
     public async Task<bool> ReactivateAsync(int id)
     {
-        var proveedorEF = await _context.Proveedores
-            .FirstOrDefaultAsync(p => p.IdProveedor == id);
+        var proveedorEF = await _context.Proveedores.FirstOrDefaultAsync(p => p.IdProveedor == id);
 
         if (proveedorEF == null)
             return false;
@@ -194,89 +217,17 @@ public class ProveedorRepository : IProveedorRepository
         return true;
     }
 
-
-    public async Task ActualizarSaldoAsync(int idProveedor, decimal nuevoSaldo)
+    public async Task ActualizarSaldoActualAsync(int idProveedor, decimal nuevoSaldo)
     {
-        var proveedor = await _context.Proveedores
-            .FirstOrDefaultAsync(p => p.IdProveedor == idProveedor);
+        var proveedor = await _context.Proveedores.FirstOrDefaultAsync(p =>
+            p.IdProveedor == idProveedor
+        );
 
         if (proveedor == null)
             throw new Exception("Proveedor no encontrado");
 
-        proveedor.Saldo = nuevoSaldo;
+        proveedor.SaldoActual = nuevoSaldo;
 
         await _context.SaveChangesAsync();
     }
-
-
 }
-
-
-/* METODOS QUE SUGIERE CHATGPT PARA UN FUTURO 
-
- public async Task<bool> ToggleActivoAsync(int id)
-        {
-            var proveedorEF = await _context.proveedores.FindAsync(id);
-            if (proveedorEF == null) return false;
-
-            proveedorEF.activo = !proveedorEF.activo;
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<decimal> GetSaldoTotalAsync()
-        {
-            return await _context.proveedores
-                .Where(p => p.activo)
-                .SumAsync(p => p.saldo);
-        }
-
-        public async Task<bool> ExistsByCuitAsync(string cuit, int? excludeId = null)
-        {
-            var query = _context.proveedores.Where(p => p.cuit == cuit);
-            
-            if (excludeId.HasValue)
-                query = query.Where(p => p.id_proveedor != excludeId.Value);
-
-            return await query.AnyAsync();
-        }
-
-        public async Task<List<Proveedor>> GetProveedoresConSaldoPositivoAsync()
-        {
-            var proveedoresEF = await _context.proveedores
-                .Include(p => p.id_condicion_pago_habitualNavigation)
-                .Include(p => p.id_domicilioNavigation)
-                    .ThenInclude(d => d.id_provinciaNavigation)
-                .Where(p => p.activo && p.saldo > 0)
-                .ToListAsync();
-
-            var proveedores = new List<Proveedor>();
-            foreach (var proveedorEF in proveedoresEF)
-            {
-                var proveedor = _mapper.Map<Proveedor>(proveedorEF);
-                proveedor.condicion = await MapCondicionPagoAsync(proveedorEF.id_condicion_pago_habitual);
-                proveedores.Add(proveedor);
-            }
-
-            return proveedores;
-        }
-
-        public async Task<List<Proveedor>> GetProveedoresConDireccionCompletaAsync()
-        {
-            var proveedoresEF = await _context.proveedores
-                .Include(p => p.id_condicion_pago_habitualNavigation)
-                .Include(p => p.id_domicilioNavigation)
-                    .ThenInclude(d => d.id_provinciaNavigation)
-                .Where(p => p.activo && p.id_domicilioNavigation != null)
-                .ToListAsync();
-
-            var proveedores = new List<Proveedor>();
-            foreach (var proveedorEF in proveedoresEF)
-            {
-                var proveedor = _mapper.Map<Proveedor>(proveedorEF);
-                proveedor.condicion = await MapCondicionPagoAsync(proveedorEF.id_condicion_pago_habitual);
-                proveedores.Add(proveedor);
-            }
-
-            return proveedores;
-        }*/

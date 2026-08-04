@@ -1,14 +1,14 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System;
-using src.Core.Services.Interfaces;
-using src.Repositories.Interfaces;
-using src.Presentation.ViewModels.FamiliaVM;
-using Dom = src.Models.Domain;
-using src.Presentation.ViewModels.NovedadesVM;
-using src.Models.CodeFirst;
 using src.Contracts;
+using src.Core.Services.Interfaces;
+using src.Models.CodeFirst;
 using src.Models.Common;
+using src.Presentation.ViewModels.FamiliaVM;
+using src.Presentation.ViewModels.NovedadesVM;
+using src.Repositories.Interfaces;
+using Dom = src.Models.Domain;
 
 namespace src.Core.Services.Implementations
 {
@@ -20,13 +20,15 @@ namespace src.Core.Services.Implementations
         private readonly IProductoProveedorRepository _prodProvRepo;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IBarcodeAdapter _barcodeAdapter;
+
         public ImportacionService(
             IExcelDataReader excelReader,
             INovedadesRepository novedadesRepository,
             IProductoCodigoExternoRepository prodCodigoExtRepo,
             IProductoProveedorRepository prodProvRepo,
             IUnitOfWork unitOfWork,
-            IBarcodeAdapter barcodeAdapter)
+            IBarcodeAdapter barcodeAdapter
+        )
         {
             _excelReader = excelReader;
             _novedadesRepository = novedadesRepository;
@@ -36,10 +38,21 @@ namespace src.Core.Services.Implementations
             _barcodeAdapter = barcodeAdapter;
         }
 
-        public async IAsyncEnumerable<AccionDeFilaCargaAutomatica> ProcesarListaDePreciosAsync(Stream fileStream, short idProveedor, ImportacionColumnaMap mapaColumnas, bool contieneEncabezado, CancellationToken cancellationToken)
+        public async IAsyncEnumerable<AccionDeFilaCargaAutomatica> ProcesarListaDePreciosAsync(
+            Stream fileStream,
+            short idProveedor,
+            ImportacionColumnaMap mapaColumnas,
+            bool contieneEncabezado,
+            CancellationToken cancellationToken
+        )
         {
             const int TAMANO_LOTE = 200;
-            var filasBrutas = _excelReader.ReadDataAsync(fileStream, mapaColumnas, contieneEncabezado, cancellationToken);
+            var filasBrutas = _excelReader.ReadDataAsync(
+                fileStream,
+                mapaColumnas,
+                contieneEncabezado,
+                cancellationToken
+            );
             var loteFilas = new List<ProductoProveedorDataRow>();
 
             foreach (var fila in filasBrutas)
@@ -49,7 +62,7 @@ namespace src.Core.Services.Implementations
                     yield return new AccionDeFilaCargaAutomatica
                     {
                         Accion = "Fila Ignorada: Sin Código",
-                        Nombre = fila.NombreSugerido
+                        Nombre = fila.NombreSugerido,
                     };
                     continue;
                 }
@@ -58,7 +71,13 @@ namespace src.Core.Services.Implementations
 
                 if (loteFilas.Count >= TAMANO_LOTE)
                 {
-                    await foreach (var resultado in ProcesarLoteAsync(loteFilas, idProveedor, cancellationToken))
+                    await foreach (
+                        var resultado in ProcesarLoteAsync(
+                            loteFilas,
+                            idProveedor,
+                            cancellationToken
+                        )
+                    )
                     {
                         yield return resultado;
                     }
@@ -68,21 +87,33 @@ namespace src.Core.Services.Implementations
 
             if (loteFilas.Any())
             {
-                await foreach (var resultado in ProcesarLoteAsync(loteFilas, idProveedor, cancellationToken))
+                await foreach (
+                    var resultado in ProcesarLoteAsync(loteFilas, idProveedor, cancellationToken)
+                )
                 {
                     yield return resultado;
                 }
             }
         }
+
         private async IAsyncEnumerable<AccionDeFilaCargaAutomatica> ProcesarLoteAsync(
             List<ProductoProveedorDataRow> filas,
             short idProveedor,
-            CancellationToken ct)
+            CancellationToken ct
+        )
         {
             var codigosDelLote = filas.Select(f => f.CodigoBarraExterno).Distinct().ToList();
 
-            var productosExistentes = await _prodCodigoExtRepo.ObtenerDiccionarioPorCodigosAsync(codigosDelLote, idProveedor, ct);
-            var novedadesPendientes = await _novedadesRepository.ObtenerPendientesPorCodigosAsync(codigosDelLote, idProveedor, ct);
+            var productosExistentes = await _prodCodigoExtRepo.ObtenerDiccionarioPorCodigosAsync(
+                codigosDelLote,
+                idProveedor,
+                ct
+            );
+            var novedadesPendientes = await _novedadesRepository.ObtenerPendientesPorCodigosAsync(
+                codigosDelLote,
+                idProveedor,
+                ct
+            );
 
             var resultadosDelLote = new List<AccionDeFilaCargaAutomatica>();
 
@@ -92,7 +123,7 @@ namespace src.Core.Services.Implementations
                 {
                     CodigoBarra = fila.CodigoBarraExterno,
                     Nombre = fila.NombreSugerido,
-                    EsGs1 = _barcodeAdapter.ValidarFormatoGS1EAN13(fila.CodigoBarraExterno)
+                    EsGs1 = _barcodeAdapter.ValidarFormatoGS1EAN13(fila.CodigoBarraExterno),
                 };
 
                 if (fila.Precio > 99999999.99m || fila.Precio < 0)
@@ -102,25 +133,36 @@ namespace src.Core.Services.Implementations
                     continue;
                 }
 
-                if (fila.StockActual > 99999999 || fila.StockActual < 0)
-                {
-                    resultado.Accion = "Error: Stock fuera de rango válido";
-                    resultadosDelLote.Add(resultado);
-                    continue;
-                }
+                // if (fila.StockActual > 99999999 || fila.StockActual < 0)
+                // {
+                //     resultado.Accion = "Error: Stock fuera de rango válido";
+                //     resultadosDelLote.Add(resultado);
+                //     continue;
+                // }
 
                 // CASO 1: ¿El producto ya existe y está vinculado al proveedor?
-                if (productosExistentes.TryGetValue(fila.CodigoBarraExterno, out var productoProvExistente))
+                if (
+                    productosExistentes.TryGetValue(
+                        fila.CodigoBarraExterno,
+                        out var productoProvExistente
+                    )
+                )
                 {
                     productoProvExistente.Precio = fila.Precio;
-                    productoProvExistente.StockAsignado = fila.StockActual;
+                    // productoProvExistente.StockAsignado = fila.StockActual;
                     // productoProvExistente.FechaActualizacion = DateTime.UtcNow; // Si tienes este campo
 
-                    resultado.Accion = "Producto Actualizado: Precio y Stock modificados";
-                    resultado.Nombre = productoProvExistente.Producto?.Nombre ?? fila.NombreSugerido;
+                    resultado.Accion = "Producto Actualizado: Precio modificado";
+                    resultado.Nombre =
+                        productoProvExistente.Producto?.Nombre ?? fila.NombreSugerido;
                 }
                 // CASO 2: ¿Ya existe una Novedad PENDIENTE para este código?
-                else if (novedadesPendientes.TryGetValue(fila.CodigoBarraExterno, out var novedadExistente))
+                else if (
+                    novedadesPendientes.TryGetValue(
+                        fila.CodigoBarraExterno,
+                        out var novedadExistente
+                    )
+                )
                 {
                     bool huboCambio = false;
 
@@ -129,11 +171,11 @@ namespace src.Core.Services.Implementations
                         novedadExistente.PrecioSugerido = fila.Precio;
                         huboCambio = true;
                     }
-                    if (novedadExistente.StockSugerido != fila.StockActual)
-                    {
-                        novedadExistente.StockSugerido = fila.StockActual;
-                        huboCambio = true;
-                    }
+                    // if (novedadExistente.StockSugerido != fila.StockActual)
+                    // {
+                    //     novedadExistente.StockSugerido = fila.StockActual;
+                    //     huboCambio = true;
+                    // }
 
                     if (huboCambio)
                     {
@@ -155,9 +197,9 @@ namespace src.Core.Services.Implementations
                         CodigoBarraExterno = fila.CodigoBarraExterno,
                         NombreSugerido = fila.NombreSugerido,
                         PrecioSugerido = fila.Precio,
-                        StockSugerido = fila.StockActual,
+                        // StockSugerido = fila.StockActual,
                         Estado = EstadoNovedad.PENDIENTE,
-                        FechaImportacion = DateTime.UtcNow
+                        FechaImportacion = DateTime.UtcNow,
                     };
 
                     await _novedadesRepository.AddSinGuardarAsync(nuevaNovedad, ct);

@@ -1,43 +1,15 @@
 [
   {
-    "//": "PAGO ESCENARIO A: FV - Pago parcial a cuenta",
-    "Numero": "ORD-0013-00000045",
+    "IdOrdenPago": 1,
+    "Numero": "OP-00000001",
     "IdProveedor": 13,
-    "MontoTotal": 4000000.0,
-    "FechaPago": "2025-12-23T15:00:00",
+    "MontoTotal": 40000.0,
+    "FechaPago": "2026-04-15T11:00:00",
     "Enviada": true,
     "Detalles": [
       {
-        "IdFactura": 3,
-        "MontoAplicado": 4000000.0
-      }
-    ]
-  },
-  {
-    "//": "PAGO ESCENARIO B: SICA - Cancelación total (Factura + ND)",
-    "Numero": "ORD-0004-00000120",
-    "IdProveedor": 4,
-    "MontoTotal": 11371500.0,
-    "FechaPago": "2025-12-29T11:00:00",
-    "Enviada": true,
-    "Detalles": [
-      {
-        "IdFactura": 4,
-        "MontoAplicado": 10830000.0
-      }
-    ]
-  },
-  {
-    "//": "PAGO ESCENARIO C: TIGRE - Pago parcial grande",
-    "Numero": "ORD-0010-00000033",
-    "IdProveedor": 10,
-    "MontoTotal": 3000000.0,
-    "FechaPago": "2025-12-27T10:00:00",
-    "Enviada": true,
-    "Detalles": [
-      {
-        "IdFactura": 5,
-        "MontoAplicado": 3000000.0
+        "IdFactura": 1,
+        "MontoAplicado": 40000.0
       }
     ]
   }

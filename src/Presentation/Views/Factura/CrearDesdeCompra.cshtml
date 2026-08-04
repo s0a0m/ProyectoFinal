@@ -1,0 +1,215 @@
+@using System.Text.Json
+@model src.Presentation.ViewModels.FacturaVM.CrearFacturaViewModel
+
+@{
+    ViewData["Title"] = "Registrar Factura";
+}
+
+<div class="container py-4">
+    <form asp-action="Crear" method="post" id="formFactura">
+        <input type="hidden" asp-for="IdCompra" />
+        <input type="hidden" asp-for="IdProveedor" />
+        <input type="hidden" asp-for="RazonSocial" />
+
+        @* Encabezado *@
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-1">
+                        <li class="breadcrumb-item"><a asp-controller="Compra" asp-action="Index" class="text-decoration-none">Compras</a></li>
+                        <li class="breadcrumb-item active">Registrar Factura</li>
+                    </ol>
+                </nav>
+                <h2 class="fw-bold text-dark mb-0"><i class="bi bi-file-earmark-plus me-2 text-primary"></i>Nueva Factura</h2>
+                <p class="text-muted small">Proveedor: <span class="fw-bold text-dark">@Model.RazonSocial</span> | Basada en la Compra #@Model.IdCompra</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a asp-controller="Compra" asp-action="Gestionar" asp-route-id="@Model.IdCompra" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-lg me-1"></i> Cancelar
+                </a>
+            </div>
+        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger border-0 shadow-sm mb-4">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> Por favor, corrija los errores indicados abajo.
+                <div asp-validation-summary="All" class="small mt-2"></div>
+            </div>
+        }
+
+        <div class="row g-4">
+            @* Lado Izquierdo: Datos y Items *@
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="m-0 fw-bold text-secondary text-uppercase small"><i class="bi bi-card-text me-2"></i>Detalle del Comprobante</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-7">
+                                <label asp-for="NumeroFactura" class="form-label small text-muted fw-bold text-uppercase">Número de Factura</label>
+                                <input asp-for="NumeroFactura" class="form-control form-control-lg border-primary-subtle" placeholder="Ej: A-0001-00001234" autofocus />
+                                <span asp-validation-for="NumeroFactura" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-5">
+                                <label asp-for="FechaEmision" class="form-label small text-muted fw-bold text-uppercase">Fecha de Emisión</label>
+                                <input asp-for="FechaEmision" type="date" class="form-control form-control-lg" />
+                                <span asp-validation-for="FechaEmision" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="m-0 fw-bold text-secondary text-uppercase small"><i class="bi bi-list-check me-2"></i>Artículos Recibidos</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0" id="tablaDetalles">
+                            <thead class="bg-light text-muted small text-uppercase">
+                                <tr>
+                                    <th class="ps-4">Producto</th>
+                                    <th class="text-center">Cant.</th>
+                                    <th class="text-end">Precio Neto</th>
+                                    <th class="text-center" style="width: 130px;">Desc. %</th>
+                                    <th class="text-end pe-4">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.Detalles.Count; i++)
+                                {
+                                    <tr class="fila-producto">
+                                        <input type="hidden" asp-for="Detalles[i].IdProducto" />
+                                        <input type="hidden" asp-for="Detalles[i].NombreProducto" />
+                                        <input type="hidden" asp-for="Detalles[i].PrecioBruto" class="input-bruto" />
+                                        <input type="hidden" asp-for="Detalles[i].PrecioNeto" class="input-neto" />
+
+                                        <td class="ps-4">
+                                            <div class="fw-bold text-dark">@Model.Detalles[i].NombreProducto</div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-light text-dark border px-3 py-2">@Model.Detalles[i].Cantidad</span>
+                                            <input type="hidden" asp-for="Detalles[i].Cantidad" class="input-cant" />
+                                        </td>
+                                        <td class="text-end">
+                                            $@Model.Detalles[i].PrecioBruto.ToString("N2")
+                                        </td>
+                                        <td>
+                                            <div class="input-group input-group-sm">
+                                                <input asp-for="Detalles[i].PorcentajeDescuento" type="number" class="form-control text-center input-desc" step="0.01" min="0" max="100" />
+                                                <span class="input-group-text">%</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-end pe-4 fw-bold text-dark span-subtotal">
+                                            $0,00
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            @* Lado Derecho: Financiación y Total *@
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="m-0 fw-bold text-secondary text-uppercase small">Financiación</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label small text-muted fw-bold">CONDICIÓN</label>
+                            <select asp-for="TipoCondicion" class="form-select" id="selectTipoPago">
+                                <option value="Contado">Contado</option>
+                                <option value="Cuota">En Cuotas</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="DiasPago" class="form-label small text-muted fw-bold">DÍAS VENCIMIENTO</label>
+                            <div class="input-group">
+                                <input asp-for="DiasPago" type="number" class="form-control" min="0" />
+                                <span class="input-group-text">días</span>
+                            </div>
+                        </div>
+                        <div class="seccion-cuota" style="display:none;">
+                            <div class="mb-3">
+                                <label asp-for="CantidadCuotas" class="form-label small text-muted fw-bold">Nº DE CUOTAS</label>
+                                <input asp-for="CantidadCuotas" type="number" class="form-control" min="1" />
+                            </div>
+                            <div class="mb-0">
+                                <label asp-for="InteresPorcentual" class="form-label small text-muted fw-bold">TASA DE INTERÉS</label>
+                                <div class="input-group">
+                                    <input asp-for="InteresPorcentual" type="number" class="form-control" min="0" step="0.01" />
+                                    <span class="input-group-text">%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0 bg-primary text-white mb-4">
+                    <div class="card-body p-4 text-center">
+                        <label class="small text-uppercase opacity-75 fw-bold d-block mb-1">Total Final Facturado</label>
+                        <h2 class="display-5 fw-bold mb-4" id="totalGeneral">$0,00</h2>
+                        
+                        <button type="submit" class="btn btn-light btn-lg w-100 fw-bold text-primary shadow-sm py-3">
+                            <i class="bi bi-check-circle-fill me-2"></i>Confirmar Factura
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        function formatAR(num) { return num.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+        function parseLocaleNumber(v) {
+            if (!v) return 0;
+            v = v.toString().replace(/\./g, '').replace(',', '.').replace(/[^0-9.\-]/g, '');
+            return parseFloat(v) || 0;
+        }
+        function formatForServer(num) { return num.toFixed(2).replace('.', ','); }
+
+        const selectTipo = document.getElementById('selectTipoPago');
+        const sectionsCuota = document.querySelectorAll('.seccion-cuota');
+
+        function toggleCuotaFields() {
+            const esCuota = selectTipo.value === 'Cuota';
+            sectionsCuota.forEach(el => el.style.display = esCuota ? 'block' : 'none');
+        }
+        if (selectTipo) {
+            selectTipo.addEventListener('change', toggleCuotaFields);
+            toggleCuotaFields();
+        }
+
+        const filas = document.querySelectorAll('.fila-producto');
+        const totalGeneral = document.getElementById('totalGeneral');
+
+        function recalcular() {
+            let total = 0;
+            filas.forEach(row => {
+                const cant = parseLocaleNumber(row.querySelector('.input-cant').value);
+                const bruto = parseLocaleNumber(row.querySelector('.input-bruto').value);
+                const desc = parseLocaleNumber(row.querySelector('.input-desc').value);
+
+                const neto = bruto - (bruto * (desc / 100));
+                const sub = neto * cant;
+                total += sub;
+
+                row.querySelector('.input-neto').value = formatForServer(neto);
+                row.querySelector('.span-subtotal').innerText = '$' + formatAR(sub);
+            });
+            totalGeneral.innerText = '$' + formatAR(total);
+        }
+
+        document.querySelectorAll('.input-desc').forEach(inp => inp.addEventListener('input', recalcular));
+        recalcular();
+    });
+    </script>
+}

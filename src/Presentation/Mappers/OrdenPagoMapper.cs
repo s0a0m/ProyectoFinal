@@ -1,3 +1,4 @@
+using src.Core.Contracts;
 using src.Presentation.ViewModels.CuentaCorrienteVM;
 using Dom = src.Models.Domain;
 
@@ -5,6 +6,16 @@ namespace src.Presentation.Mappers;
 
 public static class OrdenPagoMapper
 {
+    public static ModuloOrdenesPagoVM ToViewModel(this HistorialPagosData data)
+    {
+        return new ModuloOrdenesPagoVM
+        {
+            IdProveedor = data.IdProveedor,
+            RazonSocialProveedor = data.RazonSocial,
+            Ordenes = data.Ordenes.Select(o => o.ToIndexVM()).ToList(),
+        };
+    }
+
     // Domain → VM (listado)
     public static OrdenPagoIndexVM ToIndexVM(this Dom.OrdenPago orden)
     {
@@ -48,19 +59,15 @@ public static class OrdenPagoMapper
     }
 
     // Facturas pendientes → VM (formulario de creación)
-    public static OrdenPagoFormVM ToFormVM(
-        this IEnumerable<Dom.Factura> facturasPendientes,
-        short idProveedor,
-        string razonSocial
-    )
+    public static OrdenPagoFormVM ToFormVM(this NuevoPagoData data)
     {
         return new OrdenPagoFormVM
         {
-            IdProveedor = idProveedor,
-            RazonSocialProveedor = razonSocial,
+            IdProveedor = data.IdProveedor,
+            RazonSocialProveedor = data.RazonSocial,
             FechaPago = DateTime.Now,
-            FacturasDisponibles = facturasPendientes
-                .Select(f => new SeleccionFacturaVM
+            FacturasDisponibles = data
+                .FacturasPendientes.Select(f => new SeleccionFacturaVM
                 {
                     IdFactura = f.IdFactura,
                     NumeroFactura = f.Numero,

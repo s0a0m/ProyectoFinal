@@ -9,7 +9,8 @@ public class Proveedor
     public string Telefono { get; set; } = string.Empty;
     public string Correo { get; set; } = string.Empty;
     public string PersonaResponsable { get; set; } = string.Empty;
-    public decimal Saldo { get; set; }
+    public decimal SaldoInicial { get; set; }
+    public decimal SaldoActual { get; set; }
     public Direccion Direccion { get; set; } = new Direccion();
     public bool Activo { get; set; }
     public string RazonSocial { get; set; } = string.Empty;
@@ -17,12 +18,11 @@ public class Proveedor
 
     public void ReducirSaldo(decimal monto)
     {
-        Saldo -= monto;
+        SaldoActual -= monto;
     }
 
     public void AumentarSaldo(decimal monto)
     {
-        Saldo += monto;
+        SaldoActual += monto;
     }
 }
-

@@ -1,19 +1,19 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Depurar Proyecto Facultad",
-            "type": "netcoredbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/src/bin/Debug/net8.0/src.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/src",
-            "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development",
-                "DOTNET_ROOT": "/usr/share/dotnet"
-            },
-            "console": "integratedTerminal",
-            "stopAtEntry": false
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Depurar Proyecto Facultad",
+      "type": "netcoredbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/bin/Debug/net8.0/src.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DOTNET_ROOT": "/usr/share/dotnet"
+      },
+      "console": "internalConsole",
+      "stopAtEntry": false
+    }
+  ]
 }

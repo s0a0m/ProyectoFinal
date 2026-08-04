@@ -43,7 +43,25 @@ namespace src.Presentation.ViewModels.FacturaVM
         [Display(Name = "Interés (%)")]
         public decimal? InteresPorcentual { get; set; }
 
-        public List<CrearFacturaDetalleViewModel> Detalles { get; set; } = new();
+        public List<ActualizarFacturaDetalleViewModel> Detalles { get; set; } = new();
     }
-    // Reutilizamos la clase 'CrearFacturaDetalleViewModel' para los items ya que es idéntica
 }
+
+public class ActualizarFacturaDetalleViewModel
+{
+    [Required]
+    public int IdProducto { get; set; }
+
+    public string? NombreProducto { get; set; } = string.Empty;
+
+    public int Cantidad { get; set; }
+
+    public decimal PrecioBruto { get; set; }
+
+    [Required]
+    [Range(0, 100, ErrorMessage = "El descuento debe estar entre 0 y 100")]
+    public decimal PorcentajeDescuento { get; set; }
+
+    public decimal PrecioNeto { get; set; }
+}
+

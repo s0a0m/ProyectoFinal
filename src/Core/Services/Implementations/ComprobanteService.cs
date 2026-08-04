@@ -13,23 +13,39 @@ namespace src.Core.Services.Implementations
         private readonly IFacturaRepository _facturaRepository;
         private readonly IProveedorRepository _proveedorRepository;
         private readonly INumeracionService _numeracionService;
+        private readonly IUnitOfWork _unitOfWork;
 
         public ComprobanteService(
             IComprobanteRepository comprobanteRepository,
             IFacturaRepository facturaRepository,
             IProveedorRepository proveedorRepository,
-            INumeracionService numeracionService
+            INumeracionService numeracionService,
+            IUnitOfWork unitOfWork
         )
         {
             _comprobanteRepository = comprobanteRepository;
             _facturaRepository = facturaRepository;
             _proveedorRepository = proveedorRepository;
             _numeracionService = numeracionService;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Comprobante>> ObtenerPorFacturaAsync(int facturaId)
+        public async Task<ServiceResult<IEnumerable<Dom.Comprobante>>> ObtenerPorFacturaAsync(
+            int facturaId
+        )
         {
-            return await _comprobanteRepository.GetByFacturaIdAsync(facturaId);
+            var comprobantes = await _comprobanteRepository.GetByFacturaIdAsync(facturaId);
+            return ServiceResult<IEnumerable<Dom.Comprobante>>.Ok(comprobantes);
+        }
+
+        public async Task<ServiceResult<Dom.Comprobante>> ObtenerDetalleNotaAsync(int id)
+        {
+            var comprobante = await _comprobanteRepository.GetByIdAsync(id);
+
+            if (comprobante == null)
+                return ServiceResult<Dom.Comprobante>.Fail("El comprobante solicitado no existe.");
+
+            return ServiceResult<Dom.Comprobante>.Ok(comprobante);
         }
 
         public async Task<Comprobante?> ObtenerPorIdAsync(int id)
@@ -44,63 +60,77 @@ namespace src.Core.Services.Implementations
             );
 
             if (factura == null)
-                return ServiceResult<int>.Fail("La factura no existe");
+                return ServiceResult<int>.Fail("La factura de referencia no existe.");
 
-            if (factura.Proveedor == null)
-                return ServiceResult<int>.Fail("La factura no tiene un proveedor asociado");
+            if (comprobante is Dom.NotaDebito && factura.Pagada)
+            {
+                return ServiceResult<int>.Fail(
+                    "No se puede emitir una Nota de Débito sobre una factura que ya ha sido totalmente cancelada."
+                );
+            }
 
             if (comprobante.Total <= 0)
-                return ServiceResult<int>.Fail("El total debe ser mayor a cero");
+                return ServiceResult<int>.Fail("El monto debe ser mayor a cero.");
 
             if (comprobante is Dom.NotaCredito)
             {
-                if (!factura.PuedeEmitirNC)
+                if (factura.Pagada)
                     return ServiceResult<int>.Fail(
-                        "No se puede emitir NC sobre una factura pagada"
+                        "No se puede emitir una NC sobre una factura ya cancelada."
                     );
                 if (comprobante.Total > factura.Saldo)
-                    return ServiceResult<int>.Fail("La NC no puede superar el saldo pendiente");
+                    return ServiceResult<int>.Fail(
+                        "El monto de la NC no puede ser mayor al saldo pendiente."
+                    );
             }
-
-            if (comprobante is Dom.NotaDebito && !factura.PuedeEmitirND)
-                return ServiceResult<int>.Fail("No se puede emitir ND sobre esta factura");
 
             comprobante.Proveedor = factura.Proveedor;
             comprobante.FechaEmision = DateTime.UtcNow;
             comprobante.FacturaOriginal = factura;
-            var prefijo = comprobante is Dom.NotaCredito ? "NC-" : "ND-";
+
+            string prefijo = comprobante is Dom.NotaCredito ? "NC-" : "ND-";
             comprobante.Numero = await _numeracionService.GenerarNumeroAsync(
                 prefijo,
                 prefijo.Replace("-", "")
             );
+
             try
             {
+                await _unitOfWork.BeginTransactionAsync();
+
                 comprobante.Aplicar(factura, factura.Proveedor);
-                var comprobanteCreado = await _comprobanteRepository.AddAsync(comprobante);
+
+                var nuevoComprobante = await _comprobanteRepository.AddAsync(comprobante);
+
                 await _facturaRepository.UpdateAsync(factura);
-                await _proveedorRepository.ActualizarSaldoAsync(
+
+                await _proveedorRepository.ActualizarSaldoActualAsync(
                     factura.Proveedor.IdProveedor,
-                    factura.Proveedor.Saldo
+                    factura.Proveedor.SaldoActual
                 );
 
+                await _unitOfWork.CommitAsync();
                 return ServiceResult<int>.Ok(
-                    comprobanteCreado.IdComprobante,
-                    "Comprobante creado correctamente."
+                    nuevoComprobante.IdComprobante,
+                    "Comprobante procesado y saldos actualizados."
                 );
             }
             catch (Exception ex)
             {
-                return ServiceResult<int>.Fail($"Error al guardar: {ex.Message}");
+                await _unitOfWork.RollbackAsync();
+                return ServiceResult<int>.Fail($"Error al procesar el comprobante: {ex.Message}");
             }
         }
 
-        public async Task<GestionNotasData?> ObtenerGestionNotasAsync(int idProveedor)
+        public async Task<ServiceResult<GestionNotasData>> ObtenerGestionNotasAsync(int idProveedor)
         {
-            var proveedor = await _proveedorRepository.GetProveedorById(idProveedor);
+            var proveedor = await _proveedorRepository.GetProveedorById((short)idProveedor);
             if (proveedor == null)
-                return null;
+                return ServiceResult<GestionNotasData>.Fail("Proveedor no encontrado.");
 
             var facturas = await _facturaRepository.GetByProveedorAsync((short)idProveedor);
+            var comprobantes = await _comprobanteRepository.GetByProveedorAsync((short)idProveedor);
+
             var motivosNC = await _comprobanteRepository.GetMotivosAsync("NC");
             var motivosND = await _comprobanteRepository.GetMotivosAsync("ND");
 
@@ -109,19 +139,18 @@ namespace src.Core.Services.Implementations
                 Proveedor = proveedor,
                 MotivosNC = motivosNC.ToList(),
                 MotivosND = motivosND.ToList(),
+                Facturas = facturas
+                    .Select(f => new FacturaConNotas
+                    {
+                        Factura = f,
+                        Comprobantes = comprobantes
+                            .Where(c => c.IdFacturaReferencia == f.IdFactura)
+                            .ToList(),
+                    })
+                    .ToList(),
             };
 
-            foreach (var factura in facturas)
-            {
-                var comprobantes = await _comprobanteRepository.GetByFacturaIdAsync(
-                    factura.IdFactura
-                );
-                result.Facturas.Add(
-                    new FacturaConNotas { Factura = factura, Comprobantes = comprobantes.ToList() }
-                );
-            }
-
-            return result;
+            return ServiceResult<GestionNotasData>.Ok(result);
         }
     }
 }

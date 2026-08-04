@@ -446,7 +446,7 @@ namespace src.Migrations
                         .HasColumnType("smallint")
                         .HasColumnName("id_proveedor");
 
-                    b.Property<string>("NumeroFactura")
+                    b.Property<string>("Numero")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
@@ -924,10 +924,6 @@ namespace src.Migrations
                         .HasColumnType("numeric(10,2)")
                         .HasColumnName("precio");
 
-                    b.Property<int>("StockAsignado")
-                        .HasColumnType("integer")
-                        .HasColumnName("stock_asignado");
-
                     b.HasKey("IdProducto", "IdProveedor");
 
                     b.HasIndex("IdProveedor");
@@ -982,9 +978,13 @@ namespace src.Migrations
                         .HasColumnType("character varying(80)")
                         .HasColumnName("razon_social");
 
-                    b.Property<decimal>("Saldo")
+                    b.Property<decimal>("SaldoActual")
+                        .HasColumnType("decimal(11, 2)")
+                        .HasColumnName("saldo_actual");
+
+                    b.Property<decimal>("SaldoInicial")
                         .HasColumnType("decimal(11,2)")
-                        .HasColumnName("saldo");
+                        .HasColumnName("saldo_inicial");
 
                     b.Property<string>("Telefono")
                         .IsRequired()

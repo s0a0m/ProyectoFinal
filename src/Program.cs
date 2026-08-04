@@ -38,6 +38,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connect
 // mappers
 builder.Services.AddSingleton<ProvinciaMapper>();
 builder.Services.AddSingleton<DomicilioMapper>();
+builder.Services.AddSingleton<ProveedorMapper>();
 builder.Services.AddSingleton<CodigoBarraMapper>();
 builder.Services.AddSingleton<FamiliaMapper>();
 builder.Services.AddSingleton<CategoriaMapper>();
@@ -76,16 +77,15 @@ builder.Services.AddScoped<ICompraRepository, CompraRepository>();
 builder.Services.AddScoped<ICondicionPagoRepository, CondicionPagoRepository>();
 builder.Services.AddScoped<IComprobanteRepository, ComprobanteRepository>();
 builder.Services.AddScoped<IOrdenPagoRepository, OrdenPagoRepository>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IDepositoRepository,          DepositoRepository>();
-builder.Services.AddScoped<IEstanteRepository,           EstanteRepository>();
-builder.Services.AddScoped<IFilaRepository,              FilaRepository>();
+builder.Services.AddScoped<IDepositoRepository, DepositoRepository>();
+builder.Services.AddScoped<IEstanteRepository, EstanteRepository>();
+builder.Services.AddScoped<IFilaRepository, FilaRepository>();
 builder.Services.AddScoped<IUbicacionProductoRepository, UbicacionProductoRepository>();
 
-
-
-
 // builder.Services.AddScoped<ICompraRepository, CompraRepository>();
+// Unit of Work
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 // Servicios
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IOrdenPagoService, OrdenPagoService>();
@@ -100,17 +100,12 @@ builder.Services.AddScoped<IOrdenPagoService, OrdenPagoService>();
 builder.Services.AddScoped<INumeracionRepository, NumeracionRepository>();
 builder.Services.AddScoped<INumeracionService, NumeracionService>();
 
-
-
 builder.Services.AddScoped<IDepositoService, DepositoService>();
 builder.Services.AddScoped<IEstanteService, EstanteService>();
 builder.Services.AddScoped<IFilaService, FilaService>();
-builder.Services.AddScoped<IStockService,    StockService>();
+builder.Services.AddScoped<IStockService, StockService>();
 
 // Repositorios (agregar si aún no están registrados)
-
-
-
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>

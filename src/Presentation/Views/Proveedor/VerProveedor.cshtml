@@ -1,78 +1,104 @@
- @model src.Models.Domain.Proveedor
+@using src.Presentation.ViewModels.ProveedorVM
+@model DetalleProveedorViewModel
 
 @{
-    ViewData["Title"] = "Detalles del Proveedor";
+    ViewData["Title"] = "Ficha del Proveedor";
 }
 
 <div class="container py-4">
     
-    <!-- Header con acciones -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h2 text-primary">Detalles del Proveedor</h1>
-        <a asp-controller="Proveedor" asp-action="ListarProveedores" class="btn btn-outline-secondary">
-            ← Volver al Listado
-        </a>
-    </div>
-
-    <!-- Panel principal -->
-    <div class="card shadow-sm">
-        <div class="card-header bg-light">
-            <div class="d-flex justify-content-between align-items-center">
-                <h3 class="h5 mb-0">@Model.RazonSocial</h3>
-                <span class="badge @(Model.Activo ? "bg-success" : "bg-danger") fs-6">
-                    @(Model.Activo ? "Activo" : "Inactivo")
+    <!-- Header con Toolbar de Acciones -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <h1 class="h2 text-primary mb-0">@Model.RazonSocial</h1>
+                <span class="badge @(Model.Estado ? "bg-success" : "bg-secondary") fs-6">
+                    @(Model.Estado ? "Activo" : "Inactivo")
                 </span>
             </div>
+            <p class="text-muted mb-0">CUIT: @Model.Cuit</p>
         </div>
         
-        <div class="card-body">
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-controller="Proveedor" asp-action="CuentaCorriente" asp-route-id="@Model.IdProveedor" 
+               class="btn btn-primary">
+                <i class="bi bi-card-list me-1"></i>Cuenta Corriente
+            </a>
+            <a asp-controller="Factura" asp-action="Index" 
+               class="btn btn-success">
+                <i class="bi bi-file-earmark-plus me-1"></i>Cargar Factura
+            </a>
+            <a asp-controller="Proveedor" asp-action="ListarProveedores" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Volver
+            </a>
+        </div>
+    </div>
+
+    <!-- Panel principal con 4 secciones -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
             
-            <!-- Información Básica -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h4 class="h5 text-secondary border-bottom pb-2">Información Básica</h4>
+            <!-- 1. DATOS FISCALES -->
+            <div class="row mb-4 pb-4 border-bottom">
+                <div class="col-12 mb-3">
+                    <h4 class="h5 text-secondary fw-bold">
+                        <i class="bi bi-building me-2"></i>Datos Fiscales
+                    </h4>
                 </div>
                 
-                <div class="col-md-6 mb-3">
-                    <label class="fw-bold text-muted small">ID Proveedor:</label>
-                    <p class="fs-6 mb-1">@Model.IdProveedor</p>
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold text-muted small d-block mb-1">RAZÓN SOCIAL</label>
+                    <p class="fs-6 mb-0">@Model.RazonSocial</p>
                 </div>
                 
-                <div class="col-md-6 mb-3">
-                    <label class="fw-bold text-muted small">CUIT:</label>
-                    <p class="fs-6 mb-1">@Model.Cuit</p>
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold text-muted small d-block mb-1">CUIT</label>
+                    <p class="fs-6 mb-0">@Model.Cuit</p>
                 </div>
                 
-                <div class="col-md-6 mb-3">
-                    <label class="fw-bold text-muted small">Razón Social:</label>
-                    <p class="fs-6 mb-1">@Model.RazonSocial</p>
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold text-muted small d-block mb-1">SALDO INICIAL</label>
+                    <p class="fs-6 mb-0">$@Model.SaldoInicial.ToString("N2")</p>
                 </div>
-                
-                <div class="col-md-6 mb-3">
-                    <label class="fw-bold text-muted small">Saldo Actual:</label>
-                    <p class="fs-6 mb-1 text-success fw-bold">$@Model.Saldo.ToString("N2")</p>
+
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold text-muted small d-block mb-1">SALDO ACTUAL</label>
+                    <p class="fs-5 fw-bold mb-0 @(Model.SaldoActual > 0 ? "text-danger" : "text-success")">
+                        $@Model.SaldoActual.ToString("N2")
+                    </p>
                 </div>
             </div>
 
-            <!-- Información de Contacto -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h4 class="h5 text-secondary border-bottom pb-2">Información de Contacto</h4>
+            <!-- 2. CONTACTO -->
+            <div class="row mb-4 pb-4 border-bottom">
+                <div class="col-12 mb-3">
+                    <h4 class="h5 text-secondary fw-bold">
+                        <i class="bi bi-person-lines-fill me-2"></i>Contacto
+                    </h4>
                 </div>
                 
-                <div class="col-md-6 mb-3">
-                    <label class="fw-bold text-muted small">Persona Responsable:</label>
-                    <p class="fs-6 mb-1">@(string.IsNullOrEmpty(Model.PersonaResponsable) ? "No especificado" : Model.PersonaResponsable)</p>
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold text-muted small d-block mb-1">PERSONA RESPONSABLE</label>
+                    <p class="fs-6 mb-0">@(string.IsNullOrEmpty(Model.PersonaResponsable) ? "No especificado" : Model.PersonaResponsable)</p>
                 </div>
                 
-                <div class="col-md-6 mb-3">
-                    <label class="fw-bold text-muted small">Teléfono:</label>
-                    <p class="fs-6 mb-1">@(string.IsNullOrEmpty(Model.Telefono) ? "No especificado" : Model.Telefono)</p>
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold text-muted small d-block mb-1">TELÉFONO</label>
+                    <p class="fs-6 mb-0">
+                        @if (!string.IsNullOrEmpty(Model.Telefono))
+                        {
+                            <a href="tel:@Model.Telefono" class="text-decoration-none">@Model.Telefono</a>
+                        }
+                        else
+                        {
+                            <span>No especificado</span>
+                        }
+                    </p>
                 </div>
                 
-                <div class="col-md-6 mb-3">
-                    <label class="fw-bold text-muted small">Correo Electrónico:</label>
-                    <p class="fs-6 mb-1">
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold text-muted small d-block mb-1">CORREO ELECTRÓNICO</label>
+                    <p class="fs-6 mb-0">
                         @if (!string.IsNullOrEmpty(Model.Correo))
                         {
                             <a href="mailto:@Model.Correo" class="text-decoration-none">@Model.Correo</a>
@@ -85,89 +111,85 @@
                 </div>
             </div>
 
-            <!-- Condición de Pago -->
-            <!-- Condición de Pago -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h4 class="h5 text-secondary border-bottom pb-2">Condición de Pago</h4>
+            <!-- 3. CONDICIÓN DE PAGO -->
+            <div class="row mb-4 pb-4 border-bottom">
+                <div class="col-12 mb-3">
+                    <h4 class="h5 text-secondary fw-bold">
+                        <i class="bi bi-credit-card me-2"></i>Condición de Pago
+                    </h4>
                 </div>
                 
-                <div class="col-12">
-                    @if (Model.Condicion != null)
-                    {
-                        @if (Model.Condicion is src.Models.Domain.Contado)
-                        {
-                            <div class="row">
-                            <div class="col-md-4 mb-2">
-                                <label class="fw-bold text-muted small">Tipo de Condición:</label>
-                                <p class="fs-6 mb-1">Contado</p>
-                            </div>
-                            <div class="col-md-4 mb-2">
-                                <label class="fw-bold text-muted small">Días de Pago:</label>
-                                <p class="fs-6 mb-1">@Model.Condicion.DiasPago días</p>
-                            </div>
-                        </div>
+                @if (!string.IsNullOrEmpty(Model.CondicionPago.Nombre))
+                {
+                    <div class="col-md-4 mb-3">
+                        <label class="fw-bold text-muted small d-block mb-1">TIPO</label>
+                        <p class="fs-6 mb-0">@Model.CondicionPago.Nombre</p>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <label class="fw-bold text-muted small d-block mb-1">INTERVALO</label>
+                        <p class="fs-6 mb-0">@Model.CondicionPago.IntervaloDias</p>
+                    </div>
 
-                        }else if (Model.Condicion is src.Models.Domain.Cuota cuota)
-                        {
-                            <div class="row">
-                            <div class="col-md-4 mb-2">
-                                <label class="fw-bold text-muted small">Tipo de Condición:</label>
-                                <p class="fs-6 mb-1">Cuota</p>
-                            </div>
-                            <div class="col-md-4 mb-2">
-                                <label class="fw-bold text-muted small">Cantidad de cuotas:</label>
-                                <p class="fs-6 mb-1">@cuota.Cuotas</p>
-                            </div>
-                            <div class="col-md-4 mb-2">
-                                <label class="fw-bold text-muted small">Interes porcentual:</label>
-                                <p class="fs-6 mb-1">@cuota.InteresPorcentual %</p>
-                            </div>
-                        </div>
-                        }
-
-                    }
-                    else
+                    @if (Model.CondicionPago.NumeroCuotas.HasValue)
                     {
-                        <p class="text-muted">No se ha asignado condición de pago</p>
+                        <div class="col-md-4 mb-3">
+                            <label class="fw-bold text-muted small d-block mb-1">CUOTAS</label>
+                            <p class="fs-6 mb-0">@Model.CondicionPago.NumeroCuotas</p>
+                        </div>
                     }
-                </div>
+
+                    @if (Model.CondicionPago.InteresPorcentual.HasValue)
+                    {
+                        <div class="col-md-4 mb-3">
+                            <label class="fw-bold text-muted small d-block mb-1">INTERÉS</label>
+                            <p class="fs-6 mb-0">@Model.CondicionPago.InteresPorcentual.Value.ToString("N2")%</p>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-12">
+                        <p class="text-muted mb-0">No se ha asignado condición de pago</p>
+                    </div>
+                }
             </div>
 
-            <!-- Dirección -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h4 class="h5 text-secondary border-bottom pb-2">Dirección</h4>
+            <!-- 4. UBICACIÓN -->
+            <div class="row">
+                <div class="col-12 mb-3">
+                    <h4 class="h5 text-secondary fw-bold">
+                        <i class="bi bi-geo-alt me-2"></i>Ubicación
+                    </h4>
                 </div>
                 
-                <div class="col-12">
-                    @if (Model.Direccion != null)
-                    {
-                        <div class="row">
-                            <div class="col-md-4 mb-2">
-                                <label class="fw-bold text-muted small">Calle:</label>
-                                <p class="fs-6 mb-1">@(string.IsNullOrEmpty(Model.Direccion.Calle) ? "No especificada" : Model.Direccion.Calle)</p>
-                            </div>
-                            <div class="col-md-4 mb-2">
-                                <label class="fw-bold text-muted small">Número:</label>
-                                <p class="fs-6 mb-1">@Model.Direccion.Numero</p>
-                            </div>
-                            <div class="col-md-4 mb-2">
-                                <label class="fw-bold text-muted small">Piso:</label>
-                                <p class="fs-6 mb-1">@(Model.Direccion.Piso.HasValue ? Model.Direccion.Piso.ToString() : "No especificado")</p>
-                            </div>
-                            <div class="col-md-8 mb-2">
-                                <label class="fw-bold text-muted small">Comentario/Referencia:</label>
-                                <p class="fs-6 mb-1">@(string.IsNullOrEmpty(Model.Direccion.Comentario) ? "Sin comentarios" : Model.Direccion.Comentario)</p>
-                            </div>
-                        </div>
-                        
-                    }
-                    else
-                    {
-                        <p class="text-muted">No se ha registrado dirección</p>
-                    }
+                <div class="col-md-3 mb-3">
+                    <label class="fw-bold text-muted small d-block mb-1">PROVINCIA</label>
+                    <p class="fs-6 mb-0">@(string.IsNullOrEmpty(Model.Provincia) ? "No especificada" : Model.Provincia)</p>
                 </div>
+                
+                <div class="col-md-5 mb-3">
+                    <label class="fw-bold text-muted small d-block mb-1">CALLE</label>
+                    <p class="fs-6 mb-0">@(string.IsNullOrEmpty(Model.Calle) ? "No especificada" : Model.Calle)</p>
+                </div>
+                
+                <div class="col-md-2 mb-3">
+                    <label class="fw-bold text-muted small d-block mb-1">ALTURA</label>
+                    <p class="fs-6 mb-0">@(Model.Altura == 0 ? "No especificado" : Model.Altura.ToString())</p>
+                </div>
+                
+                <div class="col-md-2 mb-3">
+                    <label class="fw-bold text-muted small d-block mb-1">PISO</label>
+                    <p class="fs-6 mb-0">@(Model.Piso.HasValue ? Model.Piso.ToString() : "No especificado")</p>
+                </div>
+                
+                @if (!string.IsNullOrEmpty(Model.Comentario))
+                {
+                    <div class="col-12 mb-3">
+                        <label class="fw-bold text-muted small d-block mb-1">COMENTARIO/REFERENCIA</label>
+                        <p class="fs-6 mb-0">@Model.Comentario</p>
+                    </div>
+                }
             </div>
 
         </div>
@@ -223,18 +245,15 @@
 
 <!-- Estilos adicionales -->
 <style>
-    .card {
-        border: 1px solid #dee2e6;
-    }
-    .card-header {
-        border-bottom: 2px solid #e9ecef;
-    }
     .fw-bold.text-muted.small {
-        font-size: 0.85rem;
+        font-size: 0.7rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.8px;
     }
     .fs-6 {
         font-size: 1rem !important;
     }
-</style> 
+    .border-bottom {
+        border-color: #e9ecef !important;
+    }
+</style>

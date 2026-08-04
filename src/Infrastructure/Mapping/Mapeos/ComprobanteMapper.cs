@@ -7,6 +7,13 @@ namespace src.Models.Mappers;
 [Mapper(UseReferenceHandling = true)]
 public partial class ComprobanteMapper
 {
+    private readonly ProveedorMapper _proveedorMapper;
+
+    public ComprobanteMapper(ProveedorMapper proveedorMapper)
+    {
+        _proveedorMapper = proveedorMapper;
+    }
+
     // =============================================
     // --- Entity Framework a Dominio (interno) ---
     // =============================================
@@ -28,7 +35,7 @@ public partial class ComprobanteMapper
         var result = ToDomainInternal(source);
 
         if (source.Proveedor != null)
-            result.Proveedor = DominioMapper.Map(source.Proveedor);
+            result.Proveedor = _proveedorMapper.ToDomain(source.Proveedor);
 
         if (source.FacturaOriginal != null)
             result.FacturaOriginal = MapFacturaToDomain(source.FacturaOriginal);
@@ -88,7 +95,7 @@ public partial class ComprobanteMapper
         };
 
         if (source.Proveedor != null)
-            factura.Proveedor = DominioMapper.Map(source.Proveedor);
+            factura.Proveedor = _proveedorMapper.ToDomain(source.Proveedor);
 
         if (source.CondicionPago != null)
             factura.CondicionPago = MapCondicion(source.CondicionPago);

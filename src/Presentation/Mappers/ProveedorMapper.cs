@@ -1,73 +1,370 @@
 using src.Core.Contracts;
+using src.Presentation.ViewModels.CondicionPagoVM;
 using src.Presentation.ViewModels.CuentaCorrienteVM;
+using src.Presentation.ViewModels.DireccionVM;
+using src.Presentation.ViewModels.ProveedorVM;
+using src.Presentation.ViewModels.ProvinciaVM;
+using src.ViewModels;
 using Dom = src.Models.Domain;
 
 namespace src.Presentation.Mappers;
 
 public static class ProveedorMapper
 {
+    // Domain → ListarViewModel
+    public static ListarProveedorViewModel ToListarViewModel(this Dom.Proveedor proveedor)
+    {
+        return new ListarProveedorViewModel
+        {
+            IdProveedor = proveedor.IdProveedor,
+            RazonSocial = proveedor.RazonSocial ?? string.Empty,
+            Cuit = proveedor.Cuit ?? string.Empty,
+            PersonaResponsable = proveedor.PersonaResponsable ?? string.Empty,
+            Telefono = proveedor.Telefono ?? string.Empty,
+            SaldoActual = proveedor.SaldoActual,
+            Activo = proveedor.Activo,
+        };
+    }
+
+    // Domain → DetalleViewModel
+    public static DetalleProveedorViewModel ToDetalleViewModel(this Dom.Proveedor proveedor)
+    {
+        var condicionPago = new CondicionPagoDetalleVM();
+
+        if (proveedor.Condicion != null)
+        {
+            if (proveedor.Condicion is Dom.Contado contado)
+            {
+                condicionPago.Nombre = "Contado";
+                condicionPago.IntervaloDias = $"{contado.DiasPago} días";
+            }
+            else if (proveedor.Condicion is Dom.Cuota cuota)
+            {
+                condicionPago.Nombre = "Cuota";
+                condicionPago.IntervaloDias = $"{cuota.DiasPago} días";
+                condicionPago.NumeroCuotas = cuota.Cuotas;
+                condicionPago.InteresPorcentual = cuota.InteresPorcentual;
+            }
+        }
+
+        return new DetalleProveedorViewModel
+        {
+            IdProveedor = proveedor.IdProveedor,
+            RazonSocial = proveedor.RazonSocial ?? string.Empty,
+            Cuit = proveedor.Cuit ?? string.Empty,
+            SaldoActual = proveedor.SaldoActual,
+            SaldoInicial = proveedor.SaldoInicial,
+            Estado = proveedor.Activo,
+            PersonaResponsable = proveedor.PersonaResponsable ?? string.Empty,
+            Telefono = proveedor.Telefono ?? string.Empty,
+            Correo = proveedor.Correo ?? string.Empty,
+            Provincia = proveedor.Direccion?.Prov?.Nombre ?? string.Empty,
+            Calle = proveedor.Direccion?.Calle ?? string.Empty,
+            Altura = proveedor.Direccion?.Numero ?? 0,
+            Piso = proveedor.Direccion?.Piso,
+            Comentario = proveedor.Direccion?.Comentario ?? string.Empty,
+            CondicionPago = condicionPago,
+        };
+    }
+
+    // Domain → VM (crear)
+    public static CrearProveedorViewModel ToCrearVM(this Dom.Proveedor proveedor)
+    {
+        var vm = new CrearProveedorViewModel
+        {
+            Cuit = proveedor.Cuit ?? string.Empty,
+            RazonSocial = proveedor.RazonSocial ?? string.Empty,
+            Telefono = proveedor.Telefono ?? string.Empty,
+            Correo = proveedor.Correo ?? string.Empty,
+            PersonaResponsable = proveedor.PersonaResponsable ?? string.Empty,
+            Saldo = proveedor.SaldoInicial,
+        };
+
+        // Mapear Dirección
+        if (proveedor.Direccion != null)
+        {
+            vm.Direccion = new DireccionViewModel
+            {
+                calle = proveedor.Direccion.Calle ?? string.Empty,
+                numero = proveedor.Direccion.Numero,
+                piso = proveedor.Direccion.Piso,
+                comentario = proveedor.Direccion.Comentario ?? string.Empty,
+                provincia = new ProvinciaViewModel
+                {
+                    Id_provincia = proveedor.Direccion.Prov?.IdProvincia ?? 0,
+                },
+            };
+        }
+
+        // Mapear Condición de Pago
+        if (proveedor.Condicion != null)
+        {
+            vm.CondicionPago = new CondicionDePagoViewModel
+            {
+                DiasPago = proveedor.Condicion.DiasPago,
+                Tipo = proveedor.Condicion is Dom.Cuota ? "Cuota" : "Contado",
+                NumeroCuotas = (proveedor.Condicion as Dom.Cuota)?.Cuotas ?? 0,
+                InteresPorcentual = (proveedor.Condicion as Dom.Cuota)?.InteresPorcentual ?? 0M,
+            };
+        }
+
+        return vm;
+    }
+
+    // Domain → VM (actualizar)
+    public static ActualizarProveedorViewModel ToActualizarVM(this Dom.Proveedor proveedor)
+    {
+        var vm = new ActualizarProveedorViewModel
+        {
+            IdProveedor = proveedor.IdProveedor,
+            Cuit = proveedor.Cuit ?? string.Empty,
+            RazonSocial = proveedor.RazonSocial ?? string.Empty,
+            Telefono = proveedor.Telefono ?? string.Empty,
+            Correo = proveedor.Correo ?? string.Empty,
+            PersonaResponsable = proveedor.PersonaResponsable ?? string.Empty,
+            Saldo = proveedor.SaldoInicial,
+        };
+
+        // Mapear Dirección
+        if (proveedor.Direccion != null)
+        {
+            vm.Direccion = new DireccionViewModel
+            {
+                calle = proveedor.Direccion.Calle ?? string.Empty,
+                numero = proveedor.Direccion.Numero,
+                piso = proveedor.Direccion.Piso,
+                comentario = proveedor.Direccion.Comentario ?? string.Empty,
+                provincia = new ProvinciaViewModel
+                {
+                    Id_provincia = proveedor.Direccion.Prov?.IdProvincia ?? 0,
+                },
+            };
+        }
+
+        // Mapear Condición de Pago
+        if (proveedor.Condicion != null)
+        {
+            var cuota = proveedor.Condicion as Dom.Cuota;
+            vm.CondicionPago = new CondicionDePagoViewModel
+            {
+                DiasPago = proveedor.Condicion.DiasPago,
+                Tipo = proveedor.Condicion is Dom.Cuota ? "Cuota" : "Contado",
+                NumeroCuotas = cuota?.Cuotas ?? 0,
+                InteresPorcentual = cuota?.InteresPorcentual ?? 0M,
+            };
+        }
+
+        return vm;
+    }
+
+    // VM → Domain (crear)
+    public static Dom.Proveedor ToDomain(this CrearProveedorViewModel vm)
+    {
+        var proveedor = new Dom.Proveedor
+        {
+            Cuit = vm.Cuit ?? string.Empty,
+            Telefono = vm.Telefono ?? string.Empty,
+            Correo = vm.Correo ?? string.Empty,
+            PersonaResponsable = vm.PersonaResponsable ?? string.Empty,
+            SaldoInicial = vm.Saldo,
+            RazonSocial = vm.RazonSocial ?? string.Empty,
+        };
+
+        // Mapear Dirección
+        if (vm.Direccion != null)
+        {
+            proveedor.Direccion = new Dom.Direccion
+            {
+                Calle = vm.Direccion.calle ?? string.Empty,
+                Comentario = vm.Direccion.comentario ?? string.Empty,
+                Numero = vm.Direccion.numero,
+                Piso = vm.Direccion.piso,
+                Prov = new Dom.Provincia
+                {
+                    IdProvincia = vm.Direccion.provincia?.Id_provincia ?? 0,
+                },
+            };
+        }
+
+        // Mapear Condición de Pago
+        if (vm.CondicionPago != null)
+        {
+            proveedor.Condicion = ResolverCondicion(
+                vm.CondicionPago.Tipo,
+                vm.CondicionPago.DiasPago,
+                vm.CondicionPago.NumeroCuotas,
+                vm.CondicionPago.InteresPorcentual
+            );
+        }
+
+        return proveedor;
+    }
+
+    // VM → Domain (actualizar)
+    public static Dom.Proveedor ToDomain(this ActualizarProveedorViewModel vm)
+    {
+        var proveedor = new Dom.Proveedor
+        {
+            IdProveedor = vm.IdProveedor,
+            Cuit = vm.Cuit ?? string.Empty,
+            Telefono = vm.Telefono ?? string.Empty,
+            Correo = vm.Correo ?? string.Empty,
+            PersonaResponsable = vm.PersonaResponsable ?? string.Empty,
+            SaldoInicial = vm.Saldo,
+            RazonSocial = vm.RazonSocial ?? string.Empty,
+        };
+
+        // Mapear Dirección
+        if (vm.Direccion != null)
+        {
+            proveedor.Direccion = new Dom.Direccion
+            {
+                Calle = vm.Direccion.calle ?? string.Empty,
+                Comentario = vm.Direccion.comentario ?? string.Empty,
+                Numero = vm.Direccion.numero,
+                Piso = vm.Direccion.piso,
+                Prov = new Dom.Provincia
+                {
+                    IdProvincia = vm.Direccion.provincia?.Id_provincia ?? 0,
+                },
+            };
+        }
+
+        // Mapear Condición de Pago
+        if (vm.CondicionPago != null)
+        {
+            proveedor.Condicion = ResolverCondicion(
+                vm.CondicionPago.Tipo,
+                vm.CondicionPago.DiasPago,
+                vm.CondicionPago.NumeroCuotas,
+                vm.CondicionPago.InteresPorcentual
+            );
+        }
+
+        return proveedor;
+    }
+
+    // Preparar VM con lista de provincias
+    public static CrearProveedorViewModel PrepareWithProvincias(
+        this CrearProveedorViewModel vm,
+        IEnumerable<Dom.Provincia> provincias
+    )
+    {
+        if (vm.Direccion != null)
+        {
+            vm.Direccion.ListaProvincias = provincias?.ToList() ?? new List<Dom.Provincia>();
+        }
+        return vm;
+    }
+
+    public static ActualizarProveedorViewModel PrepareWithProvincias(
+        this ActualizarProveedorViewModel vm,
+        IEnumerable<Dom.Provincia> provincias
+    )
+    {
+        if (vm.Direccion != null)
+        {
+            vm.Direccion.ListaProvincias = provincias?.ToList() ?? new List<Dom.Provincia>();
+        }
+        return vm;
+    }
+
+    // Cuenta Corriente
     public static CuentaCorrienteVM ToCuentaCorrienteVM(this CuentaCorrienteData data)
     {
+        // Calcular totales por separado
+        var totalFacturado = data.Facturas?.Sum(f => f.TotalFacturado) ?? 0;
+        var totalND = data.Comprobantes?.Where(c => c is Dom.NotaDebito).Sum(c => c.Total) ?? 0;
+        var totalNC = data.Comprobantes?.Where(c => c is Dom.NotaCredito).Sum(c => c.Total) ?? 0;
+
+        // TotalPagado: solo suma de MontoTotal de órdenes enviadas (excluyendo ND)
+        var totalPagado = (data.OrdenesPago?.Where(o => o.Enviada).Sum(o => o.MontoTotal) ?? 0);
+        // SaldoTotal: (SaldoInicial + TotalFacturado + TotalND) - (TotalPagado + TotalNC)
+        // var saldoTotal = (data.Proveedor.SaldoInicial + totalFacturado + totalND) - (totalPagado + totalNC);
+        var SaldoTotal =
+            (data.Proveedor.SaldoInicial + totalFacturado + totalND) - (totalPagado + totalNC);
         var vm = new CuentaCorrienteVM
         {
             IdProveedor = data.Proveedor.IdProveedor,
-            RazonSocial = data.Proveedor.RazonSocial,
-            PersonaResponsable = data.Proveedor.PersonaResponsable,
-            Cuit = data.Proveedor.Cuit,
-            SaldoTotal = data.Proveedor.Saldo,
-            TotalFacturado = data.Facturas.Sum(f => f.TotalFacturado),
-            TotalNC = data.Comprobantes.Where(c => c is Dom.NotaCredito).Sum(c => c.Total),
-            TotalND = data.Comprobantes.Where(c => c is Dom.NotaDebito).Sum(c => c.Total),
+            RazonSocial = data.Proveedor.RazonSocial ?? string.Empty,
+            PersonaResponsable = data.Proveedor.PersonaResponsable ?? string.Empty,
+            Cuit = data.Proveedor.Cuit ?? string.Empty,
+            TotalFacturado = totalFacturado,
+            TotalND = totalND,
+            TotalNC = totalNC,
+            TotalPagado = totalPagado,
+            SaldoTotal = SaldoTotal,
         };
 
-        // Calcular total pagado desde ordenes confirmadas
-        vm.TotalPagado = data.OrdenesPago.Sum(o => o.MontoTotal);
+        vm.MotivosNC =
+            data.MotivosNC?.Select(m => new MotivoCCVM
+                {
+                    IdMotivo = m.IdMotivo,
+                    Descripcion = m.Descripcion ?? string.Empty,
+                })
+                .ToList()
+            ?? new List<MotivoCCVM>();
 
-        vm.MotivosNC = data
-            .MotivosNC.Select(m => new MotivoCCVM
-            {
-                IdMotivo = m.IdMotivo,
-                Descripcion = m.Descripcion,
-            })
-            .ToList();
+        vm.MotivosND =
+            data.MotivosND?.Select(m => new MotivoCCVM
+                {
+                    IdMotivo = m.IdMotivo,
+                    Descripcion = m.Descripcion ?? string.Empty,
+                })
+                .ToList()
+            ?? new List<MotivoCCVM>();
 
-        vm.MotivosND = data
-            .MotivosND.Select(m => new MotivoCCVM
-            {
-                IdMotivo = m.IdMotivo,
-                Descripcion = m.Descripcion,
-            })
-            .ToList();
-
-        foreach (var factura in data.Facturas.OrderByDescending(f => f.FechaEmision))
+        foreach (
+            var factura in data.Facturas?.OrderByDescending(f => f.FechaEmision)
+                ?? Enumerable.Empty<Dom.Factura>()
+        )
         {
             // Comprobantes de esta factura
-            var notasFactura = data
-                .Comprobantes.Where(c => c.IdFacturaReferencia == factura.IdFactura)
-                .ToList();
+            var notasFactura =
+                data.Comprobantes?.Where(c => c.IdFacturaReferencia == factura.IdFactura).ToList()
+                ?? new List<Dom.Comprobante>();
 
             // Pagos de esta factura
-            var pagosFactura = data
-                .OrdenesPago.Where(o =>
-                    o.Detalles != null && o.Detalles.Any(d => d.IdFactura == factura.IdFactura)
-                )
-                .ToList();
+            var pagosFactura =
+                data.OrdenesPago?.Where(o =>
+                        o.Detalles != null && o.Detalles.Any(d => d.IdFactura == factura.IdFactura)
+                    )
+                    .ToList()
+                ?? new List<Dom.OrdenPago>();
+
+            // Calcular totales de notas y pagos para esta factura específica
+            var totalNotasDebito = notasFactura.Where(c => c is Dom.NotaDebito).Sum(c => c.Total);
+
+            var totalNotasCredito = notasFactura.Where(c => c is Dom.NotaCredito).Sum(c => c.Total);
+
+            // Solo contar pagos de órdenes enviadas
+            var totalPagos = pagosFactura
+                .Where(o => o.Enviada)
+                .Sum(o =>
+                    o.Detalles?.Where(d => d.IdFactura == factura.IdFactura)
+                        .Sum(d => d.MontoAplicado)
+                    ?? 0
+                );
+
+            // Calcular saldo de la factura: TotalFacturado + ND - NC - Pagos
+            var saldoCalculado =
+                factura.TotalFacturado + totalNotasDebito - totalNotasCredito - totalPagos;
 
             var facturaVM = new FacturaCCVM
             {
                 IdFactura = factura.IdFactura,
-                NumeroFactura = factura.Numero,
+                NumeroFactura = factura.Numero ?? string.Empty,
                 FechaEmision = factura.FechaEmision,
                 TotalFacturado = factura.TotalFacturado,
-                Saldo = factura.Saldo,
-                Pagada = factura.Pagada,
+                Saldo = saldoCalculado,
+                Pagada = saldoCalculado <= 0,
                 PuedeEditarse = factura.PuedeEditarse && !notasFactura.Any() && !pagosFactura.Any(),
                 Notas = notasFactura
                     .Select(c => new NotaCCVM
                     {
                         IdComprobante = c.IdComprobante,
                         Tipo = c is Dom.NotaCredito ? "NC" : "ND",
-                        Numero = c.Numero,
+                        Numero = c.Numero ?? string.Empty,
                         Motivo = c.Motivo?.Descripcion ?? string.Empty,
                         Total = c.Total,
                         FechaEmision = c.FechaEmision,
@@ -77,7 +374,7 @@ public static class ProveedorMapper
                     .Select(o => new PagoCCVM
                     {
                         IdOrdenPago = o.IdOrdenPago,
-                        Numero = o.Numero,
+                        Numero = o.Numero ?? string.Empty,
                         FechaPago = o.FechaPago,
                         Enviada = o.Enviada,
                         MontoAplicado =
@@ -92,5 +389,31 @@ public static class ProveedorMapper
         }
 
         return vm;
+    }
+
+    // Helper privado para resolver condición de pago
+    private static Dom.CondicionDePago? ResolverCondicion(
+        string? tipo,
+        short diasPago,
+        short numeroCuotas,
+        decimal interesPorcentual
+    )
+    {
+        if (tipo == "Cuota")
+        {
+            return new Dom.Cuota
+            {
+                DiasPago = diasPago,
+                Cuotas = numeroCuotas,
+                InteresPorcentual = interesPorcentual,
+            };
+        }
+
+        if (tipo == "Contado")
+        {
+            return new Dom.Contado { DiasPago = diasPago };
+        }
+
+        return null;
     }
 }

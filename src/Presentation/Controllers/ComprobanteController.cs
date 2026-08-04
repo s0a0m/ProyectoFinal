@@ -18,18 +18,20 @@ namespace src.Presentation.Controllers
         [HttpGet("notas/{facturaId}")]
         public async Task<IActionResult> GetAllByFactura(int facturaId)
         {
-            var comprobantes = await _comprobanteService.ObtenerPorFacturaAsync(facturaId);
-            return Ok(comprobantes.ToListVM());
+            var result = await _comprobanteService.ObtenerPorFacturaAsync(facturaId);
+
+            return Ok(result.Data.ToListVM());
         }
 
         [HttpGet("notas/detalle/{id}")]
         public async Task<IActionResult> GetDetalle(int id)
         {
-            var comprobante = await _comprobanteService.ObtenerPorIdAsync(id);
-            if (comprobante == null)
-                return NotFound(new { error = "Comprobante no encontrado" });
+            var result = await _comprobanteService.ObtenerDetalleNotaAsync(id);
 
-            return Ok(comprobante.ToDetalleVM());
+            if (!result.Success)
+                return NotFound(new { error = result.Message });
+
+            return Ok(result.Data.ToDetalleVM());
         }
 
         [HttpPost("notas")]
@@ -45,6 +47,7 @@ namespace src.Presentation.Controllers
                 return BadRequest(new { error = "Tipo de comprobante inválido" });
 
             var resultado = await _comprobanteService.CrearComprobanteAsync(comprobante);
+
             if (!resultado.Success)
                 return BadRequest(new { error = resultado.Message });
 
@@ -54,12 +57,15 @@ namespace src.Presentation.Controllers
         [HttpGet("gestion/{idProveedor}")]
         public async Task<IActionResult> GestionNotas(int idProveedor)
         {
-            var data = await _comprobanteService.ObtenerGestionNotasAsync(idProveedor);
-            if (data == null)
-                return NotFound();
+            var resultado = await _comprobanteService.ObtenerGestionNotasAsync(idProveedor);
 
-            var vm = data.ToGestionVM();
-            return View(vm);
+            if (!resultado.Success)
+            {
+                TempData["Error"] = resultado.Message;
+                return RedirectToAction("ListarProveedores", "Proveedor");
+            }
+
+            return View(resultado.Data.ToGestionVM());
         }
     }
 }

@@ -1,56 +1,80 @@
 using Microsoft.AspNetCore.Mvc;
+using src.Core.Contracts;
 using src.Core.Services.Interfaces;
+using src.Presentation.Mappers;
 using src.Presentation.ViewModels.CarritoVM;
 using src.Repositories.Interfaces;
 
 namespace src.Presentation.Controllers
 {
-    public class CarritoController : BaseController
+    public class CarritoController : Controller
     {
         private readonly ICartService _cartService;
-        private readonly IProductoProveedorRepository _prodProvRepo;
 
-        public CarritoController(ICartService cartService, IProductoProveedorRepository prodProvRepo)
+        public CarritoController(ICartService cartService)
         {
             _cartService = cartService;
-            _prodProvRepo = prodProvRepo;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var items = await _cartService.ObtenerCarritoCompletoAsync();
-            return View(items);
+            var result = await _cartService.ObtenerCarritoCompletoAsync();
+
+            if (!result.Success)
+            {
+                // Mensaje específico para la vista del carrito
+                TempData["CartError"] = result.Message;
+                return View(new List<CarritoItemViewModel>());
+            }
+
+            var viewModels = result.Data.Select(dto => dto.ToViewModel()).ToList();
+            return View(viewModels);
         }
 
         [HttpPost]
         public async Task<IActionResult> Agregar(short idProducto, short idProveedor, int cantidad)
         {
-            var result = await _cartService.ValidarYAgregarItemAsync(idProducto, idProveedor, cantidad);
+            var result = await _cartService.ValidarYAgregarItemAsync(
+                idProducto,
+                idProveedor,
+                cantidad
+            );
 
             if (!result.Success)
-                return BadRequest(new { mensaje = result.Message, errores = result.Errors });
-
-            return Ok(new
             {
-                mensaje    = result.Message,
-                totalItems = await _cartService.GetCantidadTotalItemsAsync()
-            });
+                // Devolvemos JSON porque es una llamada AJAX desde el modal
+                return BadRequest(new { mensaje = result.Message });
+            }
+
+            return Ok(
+                new
+                {
+                    mensaje = result.Message,
+                    totalItems = await _cartService.GetCantidadTotalItemsAsync(),
+                }
+            );
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Actualizar(short idProducto, short idProveedor, int cantidad)
+        public async Task<IActionResult> Actualizar(
+            short idProducto,
+            short idProveedor,
+            int cantidad
+        )
         {
-            var result = await _cartService.ValidarYActualizarCantidadAsync(idProducto, idProveedor, cantidad);
+            var result = await _cartService.ValidarYActualizarCantidadAsync(
+                idProducto,
+                idProveedor,
+                cantidad
+            );
 
             if (!result.Success)
-            {
-                MapServiceErrors(result);
-                return RedirectToAction(nameof(Index));
-            }
+                TempData["CartError"] = result.Message;
+            else
+                TempData["CartSuccess"] = result.Message;
 
-            SetSuccessMessage(result.Message);
             return RedirectToAction(nameof(Index));
         }
 
@@ -58,15 +82,16 @@ namespace src.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Eliminar(short idProducto, short idProveedor)
         {
-            await _cartService.RemoverItemAsync(idProducto, idProveedor);
+            var result = await _cartService.RemoverItemAsync(idProducto, idProveedor);
+
+            if (!result.Success)
+                TempData["CartError"] = result.Message;
+            else
+                TempData["CartSuccess"] = result.Message;
+
             return RedirectToAction(nameof(Index));
         }
 
-        /// <summary>
-        /// Acción intermedia que valida el stock real antes de ceder el control
-        /// a Compra/Previsualizar. Si hay algún ítem con stock insuficiente,
-        /// vuelve al carrito mostrando el detalle del problema.
-        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> IrAPrevisualizar(short idProveedor)
@@ -75,12 +100,10 @@ namespace src.Presentation.Controllers
 
             if (!result.Success)
             {
-                // Guardamos el mensaje en TempData para que la vista del carrito lo muestre
-                TempData["ServiceErrorMessage"] = result.Message;
+                TempData["CartError"] = result.Message;
                 return RedirectToAction(nameof(Index));
             }
 
-            // Todo ok: redirigimos al flujo normal de compra
             return RedirectToAction("Previsualizar", "Compra", new { idProveedor });
         }
     }

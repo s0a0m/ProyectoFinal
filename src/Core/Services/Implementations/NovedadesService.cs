@@ -1,14 +1,14 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System;
+using System.Collections.Generic;
 using System.Linq; // Necesario para Select, Distinct, ToList
-using src.Core.Services.Interfaces;
-using src.Repositories.Interfaces;
-using src.Presentation.ViewModels.FamiliaVM;
-using Dom = src.Models.Domain;
-using src.Presentation.ViewModels.NovedadesVM;
-using src.Models.CodeFirst; // Asumo que aquí está NovedadesProveedor / NovedadPendiente
+using System.Threading.Tasks;
 using src.Contracts;
+using src.Core.Services.Interfaces;
+using src.Models.CodeFirst; // Asumo que aquí está NovedadesProveedor / NovedadPendiente
+using src.Presentation.ViewModels.FamiliaVM;
+using src.Presentation.ViewModels.NovedadesVM;
+using src.Repositories.Interfaces;
+using Dom = src.Models.Domain;
 
 namespace src.Core.Services.Implementations
 {
@@ -27,7 +27,8 @@ namespace src.Core.Services.Implementations
             IProveedorRepository proveedorRepo,
             IProductoProveedorRepository productoProveedorRepository,
             IProductoCodigoExternoRepository productoCodigoExternoRepository,
-            IProductoRepository productoRepo) // <--- Inyectar aquí
+            IProductoRepository productoRepo
+        ) // <--- Inyectar aquí
         {
             _novedadesRepo = novedadesRepo;
             _proveedorRepo = proveedorRepo;
@@ -38,10 +39,12 @@ namespace src.Core.Services.Implementations
 
         public async Task CrearNovedadAsync(NovedadesCrearViewModel vm)
         {
-            if (vm == null) throw new ArgumentNullException(nameof(vm));
+            if (vm == null)
+                throw new ArgumentNullException(nameof(vm));
 
             var proveedor = await _proveedorRepo.GetProveedorById(vm.IdProveedor);
-            if (proveedor == null) throw new Exception("El proveedor especificado no existe.");
+            if (proveedor == null)
+                throw new Exception("El proveedor especificado no existe.");
 
             var novedad = new NovedadPendiente
             {
@@ -53,7 +56,7 @@ namespace src.Core.Services.Implementations
                 StockSugerido = 0, // Asignamos 0 o null si tu VM no tiene stock
                 Estado = Models.Common.EstadoNovedad.PENDIENTE,
                 FechaImportacion = DateTime.UtcNow,
-                Observaciones = "Carga Manual" // Opcional: para diferenciar de la carga masiva
+                Observaciones = "Carga Manual", // Opcional: para diferenciar de la carga masiva
             };
 
             await _novedadesRepo.AddAsync(novedad);
@@ -67,7 +70,9 @@ namespace src.Core.Services.Implementations
         }
 
         // --- MÉTODO PRINCIPAL EDITADO ---
-        private async Task<IEnumerable<NovedadesListarViewModel>> MapListarNovedadeVM(IEnumerable<NovedadPendiente> source)
+        private async Task<IEnumerable<NovedadesListarViewModel>> MapListarNovedadeVM(
+            IEnumerable<NovedadPendiente> source
+        )
         {
             // ---------------------------------------------------------
             // PASO 1: Obtener Proveedores (Tu lógica original)
@@ -78,7 +83,8 @@ namespace src.Core.Services.Implementations
             foreach (var id in idsProveedores)
             {
                 var prov = await _proveedorRepo.GetProveedorById(id);
-                if (prov != null) proveedores.Add(prov);
+                if (prov != null)
+                    proveedores.Add(prov);
             }
             var dictProveedores = proveedores.ToDictionary(p => p.IdProveedor, p => p.RazonSocial);
 
@@ -95,7 +101,10 @@ namespace src.Core.Services.Implementations
             if (novedadesConProducto.Any())
             {
                 // A. Buscar Nombres de Productos
-                var idsProductos = novedadesConProducto.Select(x => x.IdProducto).Distinct().ToList();
+                var idsProductos = novedadesConProducto
+                    .Select(x => x.IdProducto)
+                    .Distinct()
+                    .ToList();
                 foreach (var idProd in idsProductos)
                 {
                     // Idealmente usar un método GetByIds(list) en el repo, pero mantenemos el loop por ahora
@@ -110,7 +119,11 @@ namespace src.Core.Services.Implementations
                 // Esto es para saber cuánto costaba antes de esta novedad
                 foreach (var item in novedadesConProducto)
                 {
-                    var relacion = await _productoProveedorRepository.GetByProductoAndProveedorAsync(item.IdProducto, item.IdProveedor);
+                    var relacion =
+                        await _productoProveedorRepository.GetByProductoAndProveedorAsync(
+                            item.IdProducto,
+                            item.IdProveedor
+                        );
                     if (relacion != null)
                     {
                         dictPreciosActuales[(item.IdProducto, item.IdProveedor)] = relacion.Precio;
@@ -125,7 +138,10 @@ namespace src.Core.Services.Implementations
 
             foreach (var x in source)
             {
-                string razonSocial = dictProveedores.GetValueOrDefault(x.IdProveedor, "Proveedor Desconocido");
+                string razonSocial = dictProveedores.GetValueOrDefault(
+                    x.IdProveedor,
+                    "Proveedor Desconocido"
+                );
 
                 // Buscar datos adicionales si es una actualización
                 string? nombreActual = null;
@@ -136,33 +152,40 @@ namespace src.Core.Services.Implementations
                     nombreActual = dictNombresProductos.GetValueOrDefault(x.IdProducto);
 
                     // Usamos una tupla (IdProducto, IdProveedor) como clave compuesta
-                    if (dictPreciosActuales.TryGetValue((x.IdProducto, x.IdProveedor), out decimal precioEncontrado))
+                    if (
+                        dictPreciosActuales.TryGetValue(
+                            (x.IdProducto, x.IdProveedor),
+                            out decimal precioEncontrado
+                        )
+                    )
                     {
                         precioActual = precioEncontrado;
                     }
                 }
 
-                lista.Add(new NovedadesListarViewModel
-                {
-                    IdNovedad = x.IdNovedad,
+                lista.Add(
+                    new NovedadesListarViewModel
+                    {
+                        IdNovedad = x.IdNovedad,
 
-                    // Datos del Excel / Novedad
-                    RazonSocialProveedor = razonSocial,
-                    CodigoBarraExterno = x.CodigoBarraExterno,
-                    NombreSugerido = x.NombreSugerido,
-                    PrecioSugerido = x.PrecioSugerido,
-                    StockSugerido = x.StockSugerido,
+                        // Datos del Excel / Novedad
+                        RazonSocialProveedor = razonSocial,
+                        CodigoBarraExterno = x.CodigoBarraExterno,
+                        NombreSugerido = x.NombreSugerido,
+                        PrecioSugerido = x.PrecioSugerido,
+                        StockSugerido = x.StockSugerido,
 
-                    // Datos de Auditoría
-                    Estado = x.Estado.ToString(),
-                    FechaImportacion = x.FechaImportacion,
-                    Observaciones = x.Observaciones,
+                        // Datos de Auditoría
+                        Estado = x.Estado.ToString(),
+                        FechaImportacion = x.FechaImportacion,
+                        Observaciones = x.Observaciones,
 
-                    // Contexto del Sistema (Datos para comparar)
-                    IdProductoExistente = x.IdProducto > 0 ? (int)x.IdProducto : null,
-                    NombreProductoActual = nombreActual,
-                    PrecioActualSistema = precioActual
-                });
+                        // Contexto del Sistema (Datos para comparar)
+                        IdProductoExistente = x.IdProducto > 0 ? (int)x.IdProducto : null,
+                        NombreProductoActual = nombreActual,
+                        PrecioActualSistema = precioActual,
+                    }
+                );
             }
 
             return lista;
@@ -180,15 +203,19 @@ namespace src.Core.Services.Implementations
             // (Tu implementación existente está bien, no requiere cambios por el VM de listado)
             // ... copia tu código anterior aquí ...
             var novedad = await _novedadesRepo.GetByIdAsync(model.IdNovedad);
-            if (novedad == null) throw new KeyNotFoundException("La novedad ya no existe.");
+            if (novedad == null)
+                throw new KeyNotFoundException("La novedad ya no existe.");
 
-            var relacionExistente = await _productoProveedorRepository
-                .GetByProductoAndProveedorAsync(model.IdProductoSeleccionado, novedad.IdProveedor);
+            var relacionExistente =
+                await _productoProveedorRepository.GetByProductoAndProveedorAsync(
+                    model.IdProductoSeleccionado,
+                    novedad.IdProveedor
+                );
 
             if (relacionExistente != null)
             {
                 relacionExistente.Precio = model.PrecioFinal;
-                relacionExistente.StockAsignado = model.StockFinal;
+                // relacionExistente.StockAsignado = model.StockFinal;
                 relacionExistente.Activo = true;
                 await _productoProveedorRepository.UpdateAsync2(relacionExistente);
             }
@@ -199,14 +226,16 @@ namespace src.Core.Services.Implementations
                     Producto = new Dom.Producto { IdProducto = model.IdProductoSeleccionado },
                     Proveedor = new Dom.Proveedor { IdProveedor = novedad.IdProveedor },
                     Precio = model.PrecioFinal,
-                    StockAsignado = model.StockFinal,
-                    Activo = true
+                    // StockAsignado = model.StockFinal,
+                    Activo = true,
                 };
                 await _productoProveedorRepository.AddAsync(nuevaRelacion);
             }
 
-            bool existeCodigo = await _productoCodigoExternoRepository
-                .ExistsAsync(novedad.CodigoBarraExterno, novedad.IdProveedor);
+            bool existeCodigo = await _productoCodigoExternoRepository.ExistsAsync(
+                novedad.CodigoBarraExterno,
+                novedad.IdProveedor
+            );
 
             if (!existeCodigo)
             {
@@ -235,7 +264,8 @@ namespace src.Core.Services.Implementations
         public async Task<ResolverNovedadViewModel> ObtenerDatosParaResolverAsync(int idNovedad)
         {
             var novedad = await _novedadesRepo.GetByIdAsync(idNovedad);
-            if (novedad == null) throw new KeyNotFoundException("Novedad no encontrada.");
+            if (novedad == null)
+                throw new KeyNotFoundException("Novedad no encontrada.");
 
             var proveedor = await _proveedorRepo.GetProveedorById(novedad.IdProveedor);
 
@@ -254,8 +284,9 @@ namespace src.Core.Services.Implementations
 
                 // Valores por defecto para los inputs (Sugiere lo que vino del Excel)
                 PrecioFinal = novedad.PrecioSugerido,
-                StockFinal = novedad.StockSugerido
+                StockFinal = novedad.StockSugerido,
             };
         }
     }
 }
+

@@ -10,10 +10,7 @@ namespace src.Presentation.ViewModels.CompraVM
         public short IdProveedor { get; set; }
         public string NombreProveedor { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "La fecha es obligatoria")]
-        [DataType(DataType.Date)]
-        public DateTime FechaCompra { get; set; } = DateTime.Now;
-
+        [MaxLength(500, ErrorMessage = "Las observaciones no pueden superar los 500 caracteres")]
         [Display(Name = "Observaciones / Notas")]
         public string? Observaciones { get; set; }
 
@@ -21,5 +18,7 @@ namespace src.Presentation.ViewModels.CompraVM
         public List<CarritoItemViewModel> Items { get; set; } = new();
 
         public decimal TotalOrden => Items.Sum(x => x.Subtotal);
+        public int TotalItemsDiferentes => Items.Count;
+        public int CantidadTotalUnidades => Items.Sum(x => x.Cantidad);
     }
 }

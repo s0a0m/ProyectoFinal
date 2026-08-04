@@ -7,7 +7,8 @@
     "Telefono": "4200-5500",
     "Correo": "ventas@acindar.com",
     "PersonaResponsable": "Carlos Giménez",
-    "Saldo": 152300.75,
+    "SaldoInicial": 152300.75,
+    "SaldoActual": 152300.75,
     "IdDomicilio": 1,
     "Activo": true
   },
@@ -19,7 +20,8 @@
     "Telefono": "4300-9988",
     "Correo": "contacto@fate.com.ar",
     "PersonaResponsable": "Lucía Torres",
-    "Saldo": 89750.0,
+    "SaldoInicial": 89750.0,
+    "SaldoActual": 89750.0,
     "IdDomicilio": 2,
     "Activo": true
   },
@@ -31,7 +33,8 @@
     "Telefono": "381-4736472",
     "Correo": "info@ferrum.com",
     "PersonaResponsable": "Roberto Quiroga",
-    "Saldo": 45200.3,
+    "SaldoInicial": 45200.3,
+    "SaldoActual": 45200.3,
     "IdDomicilio": 3,
     "Activo": true
   },
@@ -43,7 +46,8 @@
     "Telefono": "381-9568704",
     "Correo": "ventas@sicaelec.com.ar",
     "PersonaResponsable": "Mariela Suárez",
-    "Saldo": 121500.0,
+    "SaldoInicial": 0.0,
+    "SaldoActual": 0.0,
     "IdDomicilio": 4,
     "Activo": true
   },
@@ -55,7 +59,8 @@
     "Telefono": "0800-555-566",
     "Correo": "comercial@lomanegra.com.ar",
     "PersonaResponsable": "Eduardo Funes",
-    "Saldo": 560000.0,
+    "SaldoInicial": 560000.0,
+    "SaldoActual": 560000.0,
     "IdDomicilio": 5,
     "Activo": true
   },
@@ -67,7 +72,8 @@
     "Telefono": "4500-1000",
     "Correo": "ventas@aluar.com.ar",
     "PersonaResponsable": "Patricia Sosa",
-    "Saldo": 320100.5,
+    "SaldoInicial": 320100.5,
+    "SaldoActual": 320100.5,
     "IdDomicilio": 6,
     "Activo": true
   },
@@ -79,7 +85,8 @@
     "Telefono": "11-4726-4400",
     "Correo": "info@bdk.com.ar",
     "PersonaResponsable": "Martín Palermo",
-    "Saldo": 78900.25,
+    "SaldoInicial": 78900.25,
+    "SaldoActual": 78900.25,
     "IdDomicilio": 7,
     "Activo": true
   },
@@ -91,7 +98,8 @@
     "Telefono": "11-4778-5500",
     "Correo": "herramientas@bosch.com",
     "PersonaResponsable": "Sabrina Garcia",
-    "Saldo": 110500.0,
+    "SaldoInicial": 110500.0,
+    "SaldoActual": 110500.0,
     "IdDomicilio": 8,
     "Activo": true
   },
@@ -103,7 +111,8 @@
     "Telefono": "0800-111-222",
     "Correo": "pedidos@rotoplas.com.ar",
     "PersonaResponsable": "Jorge Newbery",
-    "Saldo": 45000.0,
+    "SaldoInicial": 45000.0,
+    "SaldoActual": 45000.0,
     "IdDomicilio": 9,
     "Activo": true
   },
@@ -115,7 +124,8 @@
     "Telefono": "11-4567-8900",
     "Correo": "ventas@tigre.com.ar",
     "PersonaResponsable": "Esteban Quito",
-    "Saldo": 98200.1,
+    "SaldoInicial": 98200.1,
+    "SaldoActual": 6698200.1,
     "IdDomicilio": 10,
     "Activo": true
   },
@@ -127,7 +137,8 @@
     "Telefono": "11-5555-6666",
     "Correo": "atencion@weber.com.ar",
     "PersonaResponsable": "Romina Ricci",
-    "Saldo": 23000.0,
+    "SaldoInicial": 23000.0,
+    "SaldoActual": 23000.0,
     "IdDomicilio": 11,
     "Activo": true
   },
@@ -139,7 +150,8 @@
     "Telefono": "11-4816-3210",
     "Correo": "ventas@sika.com.ar",
     "PersonaResponsable": "Fernando Burlando",
-    "Saldo": 67800.5,
+    "SaldoInicial": 67800.5,
+    "SaldoActual": 67800.5,
     "IdDomicilio": 12,
     "Activo": true
   },
@@ -151,7 +163,8 @@
     "Telefono": "11-4300-9000",
     "Correo": "fvresponde@fvsa.com",
     "PersonaResponsable": "Graciela Alfano",
-    "Saldo": 145000.0,
+    "SaldoInicial": 0,
+    "SaldoActual": 50000,
     "IdDomicilio": 13,
     "Activo": true
   },
@@ -163,7 +176,8 @@
     "Telefono": "11-4256-7890",
     "Correo": "ventas@peirano.com.ar",
     "PersonaResponsable": "Ricardo Darín",
-    "Saldo": 55400.75,
+    "SaldoInicial": 55400.75,
+    "SaldoActual": 55400.75,
     "IdDomicilio": 14,
     "Activo": true
   },
@@ -175,7 +189,8 @@
     "Telefono": "11-4545-1234",
     "Correo": "iluminacion@signify.com",
     "PersonaResponsable": "Natalia Oreiro",
-    "Saldo": 92000.0,
+    "SaldoInicial": 92000.0,
+    "SaldoActual": 92000.0,
     "IdDomicilio": 15,
     "Activo": true
   },
@@ -187,7 +202,8 @@
     "Telefono": "11-4789-0000",
     "Correo": "ventas@ledvance.com",
     "PersonaResponsable": "Diego Torres",
-    "Saldo": 34500.2,
+    "SaldoInicial": 34500.2,
+    "SaldoActual": 34500.2,
     "IdDomicilio": 16,
     "Activo": true
   },
@@ -199,7 +215,8 @@
     "Telefono": "11-4444-5555",
     "Correo": "info@stanley.com.ar",
     "PersonaResponsable": "Guillermo Francella",
-    "Saldo": 12500.0,
+    "SaldoInicial": 12500.0,
+    "SaldoActual": 12500.0,
     "IdDomicilio": 17,
     "Activo": true
   },
@@ -211,7 +228,8 @@
     "Telefono": "11-5566-7788",
     "Correo": "ventas@makita.com.ar",
     "PersonaResponsable": "Soledad Pastorutti",
-    "Saldo": 0.0,
+    "SaldoInicial": 0.0,
+    "SaldoActual": 0.0,
     "IdDomicilio": 18,
     "Activo": true
   },
@@ -223,7 +241,8 @@
     "Telefono": "11-3333-2222",
     "Correo": "service@dewalt.com.ar",
     "PersonaResponsable": "Lionel Messi",
-    "Saldo": 210000.0,
+    "SaldoInicial": 210000.0,
+    "SaldoActual": 210000.0,
     "IdDomicilio": 19,
     "Activo": true
   },
@@ -235,7 +254,8 @@
     "Telefono": "11-4018-2000",
     "Correo": "comercial@ternium.com",
     "PersonaResponsable": "Manu Ginobili",
-    "Saldo": 890000.5,
+    "SaldoInicial": 890000.5,
+    "SaldoActual": 890000.5,
     "IdDomicilio": 20,
     "Activo": true
   },
@@ -247,7 +267,8 @@
     "Telefono": "11-4755-1234",
     "Correo": "ventas@sherwin.com.ar",
     "PersonaResponsable": "Lali Esposito",
-    "Saldo": 76500.0,
+    "SaldoInicial": 76500.0,
+    "SaldoActual": 76500.0,
     "IdDomicilio": 21,
     "Activo": true
   },
@@ -259,7 +280,8 @@
     "Telefono": "0800-888-252",
     "Correo": "pinturas@alba.com.ar",
     "PersonaResponsable": "Charly Garcia",
-    "Saldo": 112000.0,
+    "SaldoInicial": 112000.0,
+    "SaldoActual": 112000.0,
     "IdDomicilio": 22,
     "Activo": true
   },
@@ -271,7 +293,8 @@
     "Telefono": "11-4987-6543",
     "Correo": "info@plavicon.com",
     "PersonaResponsable": "Moria Casan",
-    "Saldo": 43200.1,
+    "SaldoInicial": 43200.1,
+    "SaldoActual": 43200.1,
     "IdDomicilio": 23,
     "Activo": true
   },
@@ -283,7 +306,8 @@
     "Telefono": "11-4666-7777",
     "Correo": "fijaciones@fischer.com.ar",
     "PersonaResponsable": "Fito Paez",
-    "Saldo": 1500.0,
+    "SaldoInicial": 1500.0,
+    "SaldoActual": 1500.0,
     "IdDomicilio": 24,
     "Activo": true
   },
@@ -295,7 +319,8 @@
     "Telefono": "0800-222-387",
     "Correo": "clientes@durlock.com",
     "PersonaResponsable": "Mirtha Legrand",
-    "Saldo": 325000.0,
+    "SaldoInicial": 325000.0,
+    "SaldoActual": 325000.0,
     "IdDomicilio": 25,
     "Activo": true
   },
@@ -307,7 +332,8 @@
     "Telefono": "0800-444-224",
     "Correo": "info@bahco.com.ar",
     "PersonaResponsable": "Juan Manuel Fangio",
-    "Saldo": 56000.0,
+    "SaldoInicial": 56000.0,
+    "SaldoActual": 56000.0,
     "IdDomicilio": 26,
     "Activo": true
   },
@@ -319,7 +345,8 @@
     "Telefono": "11-4630-2000",
     "Correo": "ventas@sinteplast.com.ar",
     "PersonaResponsable": "Mercedes Sosa",
-    "Saldo": 88500.5,
+    "SaldoInicial": 88500.5,
+    "SaldoActual": 88500.5,
     "IdDomicilio": 27,
     "Activo": true
   },
@@ -331,7 +358,8 @@
     "Telefono": "11-4488-5500",
     "Correo": "comercial@latyn.net",
     "PersonaResponsable": "René Favaloro",
-    "Saldo": 41200.0,
+    "SaldoInicial": 41200.0,
+    "SaldoActual": 41200.0,
     "IdDomicilio": 28,
     "Activo": true
   },
@@ -343,7 +371,8 @@
     "Telefono": "11-4848-5000",
     "Correo": "ventas@adbarbieri.com",
     "PersonaResponsable": "Jorge Luis Borges",
-    "Saldo": 195000.0,
+    "SaldoInicial": 195000.0,
+    "SaldoActual": 195000.0,
     "IdDomicilio": 29,
     "Activo": true
   },
@@ -355,7 +384,8 @@
     "Telefono": "11-4000-1000",
     "Correo": "atencion@peisa.com.ar",
     "PersonaResponsable": "Joaquín Lavado (Quino)",
-    "Saldo": 67000.8,
+    "SaldoInicial": 67000.8,
+    "SaldoActual": 67000.8,
     "IdDomicilio": 30,
     "Activo": true
   }

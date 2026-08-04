@@ -7,7 +7,7 @@
 
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
         <i class="bi bi-exclamation-octagon-fill me-2"></i>@TempData["Error"]
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -16,111 +16,111 @@
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="mb-1"><i class="bi bi-card-checklist me-2"></i>Previsualizar Compra</h2>
-            <small class="text-muted">Revise los datos antes de confirmar la orden</small>
+            <h2 class="mb-1 text-dark fw-bold">
+                <i class="bi bi-file-earmark-check me-2 text-primary"></i>Previsualizar Compra
+            </h2>
+            <p class="text-muted mb-0">Confirme los detalles del pedido para el proveedor <strong>@Model.NombreProveedor</strong></p>
         </div>
-        <div class="d-flex gap-2">
-            <a asp-action="Index" asp-controller="Carrito" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i>Volver al Carrito
-            </a>
-        </div>
+        <a asp-action="Index" asp-controller="Carrito" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Volver al Carrito
+        </a>
     </div>
 
     <form asp-action="Confirmar" method="post">
         @Html.AntiForgeryToken()
+        @* Crítico: Persistencia del ID para el controlador *@
         <input type="hidden" asp-for="IdProveedor" />
+        <input type="hidden" asp-for="NombreProveedor" />
 
-        <div class="card shadow-sm mb-4">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <label class="small text-muted fw-bold">PROVEEDOR</label>
-                        <div class="fs-5">@Model.NombreProveedor</div>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body bg-light rounded shadow-sm">
+                <div class="row align-items-center">
+                    <div class="col-md-7 border-end">
+                        <label class="small text-muted fw-bold text-uppercase">Información del Proveedor</label>
+                        <div class="fs-4 fw-bold text-primary">@Model.NombreProveedor</div>
                     </div>
-                    <div class="col-md-6">
-                        <label asp-for="FechaCompra" class="small text-muted fw-bold"></label>
-                        <input asp-for="FechaCompra" class="form-control" type="datetime-local" 
-                               value="@(Model.FechaCompra.ToString("yyyy-MM-ddTHH:mm"))" />
-                        <span asp-validation-for="FechaCompra" class="text-danger small validation-placeholder"></span>
+                    <div class="col-md-5 ps-md-4">
+                        <label class="small text-muted fw-bold text-uppercase">Resumen de Carga</label>
+                        <div class="d-flex gap-3 mt-1">
+                            <div><span class="badge bg-secondary">@Model.TotalItemsDiferentes SKU's</span></div>
+                            <div><span class="badge bg-info text-dark">@Model.CantidadTotalUnidades Unidades totales</span></div>
+                        </div>
                     </div>
                 </div>
 
-                <hr class="my-3" />
+                <hr class="my-3 text-muted" />
 
                 <div class="row">
                     <div class="col-12">
-                        <label asp-for="Observaciones" class="small text-muted fw-bold mb-1"></label>
-                        <textarea asp-for="Observaciones" class="form-control" rows="2" placeholder="Notas internas o instrucciones para el proveedor..."></textarea>
-                        <span asp-validation-for="Observaciones" class="text-danger small validation-placeholder"></span>
+                        <label asp-for="Observaciones" class="small text-muted fw-bold text-uppercase mb-2"></label>
+                        <textarea asp-for="Observaciones" class="form-control border-0 shadow-sm" rows="3" 
+                                  placeholder="Escriba aquí notas internas o instrucciones especiales para el envío..."></textarea>
+                        <span asp-validation-for="Observaciones" class="text-danger small"></span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Tabla de Items (solo lectura) -->
-        <div class="card shadow mb-4">
-            <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold text-primary">Detalle de Productos</h6>
-                <small class="text-muted">@Model.Items?.Count() ?? 0 items</small>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3">
+                <h6 class="m-0 fw-bold text-secondary">Detalle de Productos Seleccionados</h6>
             </div>
-
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-bordered mb-0 align-middle">
-                        <thead class="table-light">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="bg-light">
                             <tr>
-                                <th>Producto</th>
-                                <th>Codigos</th>
+                                <th class="ps-4">Producto</th>
                                 <th class="text-center" style="width:120px;">Cant.</th>
                                 <th class="text-end">Precio Unit.</th>
-                                <th class="text-end">Subtotal</th>
+                                <th class="text-end pe-4">Subtotal</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var item in Model.Items)
                             {
                                 <tr>
-                                    <td class="align-middle">
-                                        <span class="fw-bold">@item.NombreProducto</span>
-                                    </td>
-                                    <td>
-                                        @if (item.CodigosExternos != null && item.CodigosExternos.Any())
+                                    <td class="ps-4">
+                                        <div class="fw-bold text-dark">@item.NombreProducto</div>
+                                        @if (item.CodigosExternos?.Any() == true)
                                         {
-                                            <div class="d-flex flex-wrap gap-1">
+                                            <div class="d-flex flex-wrap gap-1 mt-1">
                                                 @foreach (var codigo in item.CodigosExternos)
                                                 {
-                                                    <span class="badge bg-light text-dark border font-monospace text-wrap" style="font-size:0.75rem;">
-                                                        @codigo
-                                                    </span>
+                                                    <span class="badge badge-code">@codigo</span>
                                                 }
                                             </div>
                                         }
-                                        else
-                                        {
-                                            <span class="text-muted small fst-italic">Sin códigos</span>
-                                        }
                                     </td>
-                                    <td class="text-center align-middle">@item.Cantidad</td>
-                                    <td class="text-end align-middle">$@item.PrecioUnitario.ToString("N2")</td>
-                                    <td class="text-end align-middle">$@item.Subtotal.ToString("N2")</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-white text-dark border px-3 py-2">@item.Cantidad</span>
+                                    </td>
+                                    <td class="text-end text-muted">@item.PrecioUnitario.ToString("C")</td>
+                                    <td class="text-end pe-4 fw-bold">@item.Subtotal.ToString("C")</td>
                                 </tr>
                             }
                         </tbody>
-                        <tfoot>
-                            <tr class="table-active">
-                                <td colspan="4" class="text-end fw-bold">TOTAL</td>
-                                <td class="text-end fw-bold fs-5 text-success">$@Model.TotalOrden.ToString("N2")</td>
+                        <tfoot class="bg-light">
+                            <tr>
+                                <td colspan="3" class="text-end fw-bold py-3 text-uppercase small text-muted">Total de la Orden</td>
+                                <td class="text-end pe-4 py-3 fw-bold fs-4 text-success">@Model.TotalOrden.ToString("C")</td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
             </div>
-
-            <div class="card-footer bg-white text-end py-3">
-                <a asp-controller="Carrito" asp-action="Index" class="btn btn-outline-secondary me-2">Volver</a>
-                <button type="submit" class="btn btn-success px-4">
-                    <i class="bi bi-check-lg me-1"></i>Confirmar Compra
-                </button>
+            <div class="card-footer bg-white border-top-0 py-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted fst-italic">
+                        <i class="bi bi-info-circle me-1"></i>Límite máximo permitido por orden: $999.999.999,90
+                    </small>
+                    <div>
+                        <a asp-controller="Carrito" asp-action="Index" class="btn btn-link text-decoration-none text-muted me-3">Cancelar</a>
+                        <button type="submit" class="btn btn-success btn-lg px-5 shadow-sm">
+                            <i class="bi bi-check2-circle me-2"></i>Confirmar Orden de Compra
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </form>
@@ -131,8 +131,19 @@
 }
 
 <style>
-    .validation-placeholder {
-        min-height: 1.25rem;
-        display: block;
+    .badge-code {
+        font-size: 0.7rem;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f8f9fa;
+        color: #6c757d;
+        border: 1px solid #dee2e6;
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+    }
+    .table thead th {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6c757d;
     }
 </style>
